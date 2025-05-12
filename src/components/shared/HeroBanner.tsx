@@ -24,7 +24,7 @@ const HeroBanner: React.FC<HeroBannerProps> = ({
   return (
     <div className="relative overflow-hidden bg-cover bg-center bg-no-repeat h-[70vh] min-h-[500px]" style={{ backgroundImage: `url(${backgroundImage})` }}>
       {/* Overlay */}
-      <div className="absolute inset-0 bg-black/50"></div>
+      <div className="absolute inset-0 bg-black/60"></div>
       
       <div className="container mx-auto px-4 h-full">
         <div className="flex h-full items-center">

@@ -20,7 +20,11 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-const LeadForm: React.FC = () => {
+interface LeadFormProps {
+  initialInsuranceType?: string;
+}
+
+const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType }) => {
   const { toast } = useToast();
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -28,7 +32,7 @@ const LeadForm: React.FC = () => {
       nombre: "",
       email: "",
       telefono: "",
-      tipoSeguro: "",
+      tipoSeguro: initialInsuranceType || "",
       mensaje: "",
     },
   });
@@ -39,7 +43,7 @@ const LeadForm: React.FC = () => {
       title: "Solicitud enviada",
       description: "Gracias por contactarnos. Un asesor se pondrá en contacto contigo pronto.",
     });
-    form.reset();
+    form.reset({ tipoSeguro: initialInsuranceType || "" });
   };
 
   const tiposSeguro = [

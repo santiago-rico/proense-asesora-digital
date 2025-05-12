@@ -98,8 +98,8 @@ const Index: React.FC = () => {
         ctaText="Solicitar Información"
         ctaLink="/contacto"
         secondaryCtaText="Conocer Nuestros Seguros"
-        secondaryCtaLink="/seguros"
-        backgroundImage="https://images.unsplash.com/photo-1581092795360-fd1ca04f0952"
+        secondaryCtaLink="/seguros/vida"
+        backgroundImage="https://images.unsplash.com/photo-1636126505641-e849d4bde9d8?auto=format&fit=crop&q=80"
       />
 
       {/* Value Proposition */}
@@ -177,7 +177,7 @@ const Index: React.FC = () => {
 
           <div className="text-center mt-10">
             <Button asChild>
-              <Link to="/seguros">Ver todos nuestros seguros</Link>
+              <Link to="/contacto">Consulta todos nuestros seguros</Link>
             </Button>
           </div>
         </div>
