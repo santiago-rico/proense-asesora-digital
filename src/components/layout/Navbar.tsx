@@ -88,7 +88,7 @@ const Navbar: React.FC = () => {
                     <NavigationMenuItem key={link.name}>
                       <NavigationMenuLink asChild className={cn(
                         navigationMenuTriggerStyle(),
-                        isActive(link.href) ? "text-primary" : "text-gray-700"
+                        isActive(link.href) ? "text-primary font-medium" : "text-gray-700"
                       )}>
                         <Link to={link.href}>{link.name}</Link>
                       </NavigationMenuLink>
@@ -99,7 +99,8 @@ const Navbar: React.FC = () => {
                   <NavigationMenuItem>
                     <NavigationMenuTrigger 
                       className={cn(
-                        isActive("/seguros") ? "text-primary" : "text-gray-700"
+                        "bg-background",
+                        isActive("/seguros") ? "text-primary font-medium" : "text-gray-700"
                       )}
                     >
                       Seguros
@@ -129,7 +130,8 @@ const Navbar: React.FC = () => {
                   <NavigationMenuItem>
                     <NavigationMenuTrigger 
                       className={cn(
-                        isActive("/servicios") ? "text-primary" : "text-gray-700"
+                        "bg-background",
+                        isActive("/servicios") ? "text-primary font-medium" : "text-gray-700"
                       )}
                     >
                       Servicios
@@ -154,7 +156,7 @@ const Navbar: React.FC = () => {
                 </NavigationMenuList>
               </NavigationMenu>
               
-              <Button className="ml-4" size="sm" onClick={handleOpenLeadDialog}>
+              <Button className="ml-4" size="sm" variant="secondary" onClick={handleOpenLeadDialog}>
                 <Phone size={16} className="mr-2" />
                 Asesoría Gratuita
               </Button>
