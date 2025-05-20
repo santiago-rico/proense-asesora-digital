@@ -1,4 +1,3 @@
-
 import React from "react";
 import Layout from "@/components/layout/Layout";
 import HeroBanner from "@/components/shared/HeroBanner";
@@ -16,7 +15,8 @@ const InsuranceProductPage: React.FC<InsuranceProductPageProps> = ({ type }) => 
     vida: {
       title: "Seguro de Vida",
       description: "Protege a tus seres queridos y garantiza su futuro financiero.",
-      heroImage: "https://images.unsplash.com/photo-1636126505641-e849d4bde9d8?auto=format&fit=crop&q=80&w=1920",
+      heroImage: "/images/hero-vida.jpg",
+      heroImagePosition: 'center 10%',
       benefits: [
         "Protección financiera para tus seres queridos",
         "Cobertura en caso de fallecimiento o invalidez",
@@ -34,7 +34,8 @@ const InsuranceProductPage: React.FC<InsuranceProductPageProps> = ({ type }) => 
     salud: {
       title: "Seguro de Salud",
       description: "Accede a la mejor atención médica privada para ti y tu familia.",
-      heroImage: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=1920",
+      heroImage: "/images/hero-salud.jpg",
+      heroImagePosition: 'center 70%',
       benefits: [
         "Acceso a red de clínicas y hospitales privados",
         "Cobertura de consultas, exámenes y tratamientos",
@@ -52,7 +53,8 @@ const InsuranceProductPage: React.FC<InsuranceProductPageProps> = ({ type }) => 
     auto: {
       title: "Seguro de Auto",
       description: "Cobertura completa para tu vehículo ante cualquier eventualidad.",
-      heroImage: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&q=80&w=1920",
+      heroImage: "/images/hero-auto.jpg",
+      heroImagePosition: 'left',
       benefits: [
         "Responsabilidad civil ante terceros",
         "Protección contra daños, robo o hurto",
@@ -70,7 +72,8 @@ const InsuranceProductPage: React.FC<InsuranceProductPageProps> = ({ type }) => 
     hogar: {
       title: "Seguro de Hogar",
       description: "Protege tu hogar y tus pertenencias contra daños y robos.",
-      heroImage: "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&q=80&w=1920",
+      heroImage: "/images/hero-hogar.jpg",
+      heroImagePosition: 'center',
       benefits: [
         "Protección contra incendios, inundaciones y desastres naturales",
         "Cobertura de robo y hurto",
@@ -88,7 +91,8 @@ const InsuranceProductPage: React.FC<InsuranceProductPageProps> = ({ type }) => 
     pymes: {
       title: "Seguro para PYMES",
       description: "Soluciones personalizadas para proteger tu negocio.",
-      heroImage: "https://images.unsplash.com/photo-1664575602554-2087b04935a5?auto=format&fit=crop&q=80&w=1920",
+      heroImage: "/images/hero-pymes.jpg",
+      heroImagePosition: 'center',
       benefits: [
         "Protección de activos e instalaciones",
         "Cobertura de responsabilidad civil empresarial",
@@ -106,7 +110,8 @@ const InsuranceProductPage: React.FC<InsuranceProductPageProps> = ({ type }) => 
     mascotas: {
       title: "Seguro para Mascotas",
       description: "Cuidado veterinario y protección para tu compañero peludo.",
-      heroImage: "https://images.unsplash.com/photo-1450778869180-41d0601e046e?auto=format&fit=crop&q=80&w=1920",
+      heroImage: "/images/hero-mascotas.jpg",
+      heroImagePosition: 'center',
       benefits: [
         "Cobertura de consultas veterinarias",
         "Exámenes diagnósticos y tratamientos",
@@ -124,7 +129,8 @@ const InsuranceProductPage: React.FC<InsuranceProductPageProps> = ({ type }) => 
     motos: {
       title: "Seguro de Motos",
       description: "Coberturas específicas para tu motocicleta y tu seguridad.",
-      heroImage: "https://images.unsplash.com/photo-1558981285-6f0c94958bb6?auto=format&fit=crop&q=80&w=1920",
+      heroImage: "/images/hero-motos.jpg",
+      heroImagePosition: 'center 90%',
       benefits: [
         "Responsabilidad civil obligatoria y voluntaria",
         "Protección contra robo, hurto y daños",
@@ -142,7 +148,8 @@ const InsuranceProductPage: React.FC<InsuranceProductPageProps> = ({ type }) => 
     arrendamiento: {
       title: "Seguro de Arrendamiento",
       description: "Garantiza el pago de tu arriendo y protege tu propiedad.",
-      heroImage: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&q=80&w=1920",
+      heroImage: "/images/hero-arrendamiento.jpg",
+      heroImagePosition: 'center',
       benefits: [
         "Garantía de pago del canon mensual",
         "Cobertura de servicios públicos",
@@ -160,7 +167,8 @@ const InsuranceProductPage: React.FC<InsuranceProductPageProps> = ({ type }) => 
     viaje: {
       title: "Seguro de Viaje",
       description: "Viaja tranquilo con una cobertura internacional completa.",
-      heroImage: "https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&q=80&w=1920",
+      heroImage: "/images/hero-viaje.jpg",
+      heroImagePosition: 'center',
       benefits: [
         "Asistencia médica internacional",
         "Cobertura de emergencias y hospitalización",
@@ -198,6 +206,7 @@ const InsuranceProductPage: React.FC<InsuranceProductPageProps> = ({ type }) => 
         ctaText="Solicitar asesoría gratuita"
         ctaLink="#lead-form"
         backgroundImage={data.heroImage}
+        imagePosition={data.heroImagePosition}
       />
 
       {/* Benefits Section */}
