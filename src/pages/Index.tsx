@@ -82,6 +82,29 @@ const testimonials = [
   },
 ];
 
+const partnerLogos = [
+  {
+    name: "SURA",
+    image: "/lovable-uploads/83a1a1e2-f157-40ab-811c-9b45269da69d.png",
+    alt: "Logo de SURA"
+  },
+  {
+    name: "Allianz",
+    image: "/lovable-uploads/c33875ba-6734-435f-bf22-5586c816d1ce.png",
+    alt: "Logo de Allianz"
+  },
+  {
+    name: "SBS",
+    image: "/lovable-uploads/f5c1b75c-0b14-4963-92b5-994f576c1e14.png",
+    alt: "Logo de SBS"
+  },
+  {
+    name: "Assist Card",
+    image: "/lovable-uploads/884861ea-65a5-47a4-8f5a-cec4fbbd14da.png",
+    alt: "Logo de Assist Card"
+  }
+];
+
 const Index: React.FC = () => {
   const { data: recentPosts, isLoading } = useQuery({
     queryKey: ["recentPosts"],
@@ -130,7 +153,7 @@ const Index: React.FC = () => {
         </div>
       </section>
 
-      {/* Value Proposition - Redesigned to match reference image */}
+      {/* Value Proposition */}
       <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto mb-12">
@@ -169,8 +192,32 @@ const Index: React.FC = () => {
         </div>
       </section>
 
-      {/* Testimonials */}
+      {/* Nuestros Aliados Section */}
       <section className="py-16 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center max-w-3xl mx-auto mb-12">
+            <h2 className="text-3xl font-bold mb-4">Nuestros Aliados</h2>
+            <p className="text-gray-700">
+              Trabajamos con las compañías aseguradoras más reconocidas para ofrecerte las mejores coberturas.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16">
+            {partnerLogos.map((partner, index) => (
+              <div key={index} className="w-32 md:w-40 lg:w-48 p-2 flex items-center justify-center">
+                <img 
+                  src={partner.image} 
+                  alt={partner.alt} 
+                  className="w-full h-auto object-contain max-h-20"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto mb-12">
             <h2 className="text-3xl font-bold mb-4">Lo que dicen nuestros clientes</h2>
@@ -196,7 +243,7 @@ const Index: React.FC = () => {
       </section>
 
       {/* Recent Blog Posts */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto mb-12">
             <h2 className="text-3xl font-bold mb-4">Noticias y Consejos</h2>

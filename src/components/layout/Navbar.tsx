@@ -118,7 +118,7 @@ const Navbar: React.FC = () => {
                                 to={product.href}
                                 className={cn(
                                   "block select-none space-y-1 rounded-md p-3 hover:bg-accent hover:text-accent-foreground",
-                                  isActive(product.href) ? "bg-secondary/20 text-primary font-medium" : ""
+                                  isActive(product.href) ? "bg-secondary text-primary font-medium" : ""
                                 )}
                               >
                                 <div className="text-sm font-medium">{product.name}</div>
@@ -152,7 +152,7 @@ const Navbar: React.FC = () => {
                                 to={service.href}
                                 className={cn(
                                   "block select-none rounded-md p-3 hover:bg-accent hover:text-accent-foreground",
-                                  isActive(service.href) ? "bg-secondary/20 text-primary font-medium" : ""
+                                  isActive(service.href) ? "bg-secondary text-primary font-medium" : ""
                                 )}
                               >
                                 <div className="text-sm font-medium">{service.name}</div>
