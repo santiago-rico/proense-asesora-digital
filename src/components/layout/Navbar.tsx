@@ -54,8 +54,11 @@ const Navbar: React.FC = () => {
     { name: "Información de Siniestros", href: "/servicios/siniestros" },
   ];
 
+  // Reordered navbar items as requested
   const navLinks = [
     { name: "Inicio", href: "/" },
+    { name: "Seguros", href: "/seguros", dropdown: true },
+    { name: "Servicios", href: "/servicios", dropdown: true },
     { name: "Nosotros", href: "/nosotros" },
     { name: "Blog", href: "/blog" },
     { name: "Contacto", href: "/contacto" },
@@ -84,7 +87,8 @@ const Navbar: React.FC = () => {
             <div className="hidden md:flex items-center space-x-1">
               <NavigationMenu>
                 <NavigationMenuList>
-                  {navLinks.map((link) => (
+                  {/* Display standard nav links first */}
+                  {navLinks.filter(link => !link.dropdown).map((link) => (
                     <NavigationMenuItem key={link.name}>
                       <NavigationMenuLink asChild className={cn(
                         navigationMenuTriggerStyle(),
@@ -100,7 +104,7 @@ const Navbar: React.FC = () => {
                     <NavigationMenuTrigger 
                       className={cn(
                         "bg-background",
-                        isActive("/seguros") ? "text-primary font-medium" : "text-gray-700"
+                        isActive("/seguros") ? "bg-primary/20 text-primary font-medium" : "text-gray-700"
                       )}
                     >
                       Seguros
@@ -112,7 +116,10 @@ const Navbar: React.FC = () => {
                             <NavigationMenuLink asChild>
                               <Link
                                 to={product.href}
-                                className="block select-none space-y-1 rounded-md p-3 hover:bg-accent hover:text-accent-foreground"
+                                className={cn(
+                                  "block select-none space-y-1 rounded-md p-3 hover:bg-accent hover:text-accent-foreground",
+                                  isActive(product.href) ? "bg-secondary/20 text-primary font-medium" : ""
+                                )}
                               >
                                 <div className="text-sm font-medium">{product.name}</div>
                                 <p className="text-xs line-clamp-2 text-muted-foreground">
@@ -131,7 +138,7 @@ const Navbar: React.FC = () => {
                     <NavigationMenuTrigger 
                       className={cn(
                         "bg-background",
-                        isActive("/servicios") ? "text-primary font-medium" : "text-gray-700"
+                        isActive("/servicios") ? "bg-primary/20 text-primary font-medium" : "text-gray-700"
                       )}
                     >
                       Servicios
@@ -143,7 +150,10 @@ const Navbar: React.FC = () => {
                             <NavigationMenuLink asChild>
                               <Link
                                 to={service.href}
-                                className="block select-none rounded-md p-3 hover:bg-accent hover:text-accent-foreground"
+                                className={cn(
+                                  "block select-none rounded-md p-3 hover:bg-accent hover:text-accent-foreground",
+                                  isActive(service.href) ? "bg-secondary/20 text-primary font-medium" : ""
+                                )}
                               >
                                 <div className="text-sm font-medium">{service.name}</div>
                               </Link>
@@ -182,25 +192,21 @@ const Navbar: React.FC = () => {
             </div>
           </div>
 
-          {/* Mobile Navigation */}
+          {/* Mobile Navigation - Updated to match the new order */}
           {isOpen && (
             <div className="md:hidden mt-4 animate-fade-in">
               <ul className="flex flex-col space-y-2 pb-4">
-                {navLinks.map((link) => (
-                  <li key={link.name}>
-                    <Link
-                      to={link.href}
-                      className={`block px-3 py-2 rounded-md text-base font-medium transition-colors hover:text-primary ${
-                        isActive(link.href)
-                          ? "text-primary"
-                          : "text-gray-700"
-                      }`}
-                      onClick={() => setIsOpen(false)}
-                    >
-                      {link.name}
-                    </Link>
-                  </li>
-                ))}
+                <li>
+                  <Link
+                    to="/"
+                    className={`block px-3 py-2 rounded-md text-base font-medium transition-colors hover:text-primary ${
+                      isActive("/") ? "text-primary" : "text-gray-700"
+                    }`}
+                    onClick={() => setIsOpen(false)}
+                  >
+                    Inicio
+                  </Link>
+                </li>
                 <li>
                   <div className="px-3 py-2 font-medium text-gray-700">Seguros</div>
                   <ul className="pl-6 space-y-2">
@@ -218,7 +224,7 @@ const Navbar: React.FC = () => {
                   </ul>
                 </li>
                 <li>
-                  <div className="px-3 py-2 font-medium text-gray-700">Servicios al Cliente</div>
+                  <div className="px-3 py-2 font-medium text-gray-700">Servicios</div>
                   <ul className="pl-6 space-y-2">
                     {clientServices.map((service) => (
                       <li key={service.name}>
@@ -232,6 +238,39 @@ const Navbar: React.FC = () => {
                       </li>
                     ))}
                   </ul>
+                </li>
+                <li>
+                  <Link
+                    to="/nosotros"
+                    className={`block px-3 py-2 rounded-md text-base font-medium transition-colors hover:text-primary ${
+                      isActive("/nosotros") ? "text-primary" : "text-gray-700"
+                    }`}
+                    onClick={() => setIsOpen(false)}
+                  >
+                    Nosotros
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/blog"
+                    className={`block px-3 py-2 rounded-md text-base font-medium transition-colors hover:text-primary ${
+                      isActive("/blog") ? "text-primary" : "text-gray-700"
+                    }`}
+                    onClick={() => setIsOpen(false)}
+                  >
+                    Blog
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/contacto"
+                    className={`block px-3 py-2 rounded-md text-base font-medium transition-colors hover:text-primary ${
+                      isActive("/contacto") ? "text-primary" : "text-gray-700"
+                    }`}
+                    onClick={() => setIsOpen(false)}
+                  >
+                    Contacto
+                  </Link>
                 </li>
                 <li>
                   <Button className="w-full mt-2" size="sm" onClick={() => {

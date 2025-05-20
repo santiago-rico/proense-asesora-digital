@@ -23,7 +23,7 @@ const HeroBanner: React.FC<HeroBannerProps> = ({
 }) => {
   return (
     <div 
-      className="relative overflow-hidden h-[70vh] min-h-[500px]" 
+      className="relative overflow-hidden h-[70vh] min-h-[500px]"
       style={{ 
         backgroundImage: `url(${backgroundImage})`,
         backgroundSize: 'cover',
@@ -38,11 +38,11 @@ const HeroBanner: React.FC<HeroBannerProps> = ({
           <h1 className="text-4xl md:text-5xl font-bold mb-4 animate-slide-in">{title}</h1>
           <p className="text-lg md:text-xl mb-8 animate-fade-in opacity-90">{subtitle}</p>
           <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-            <Button asChild size="lg" className="animate-fade-in" style={{ animationDelay: "200ms" }}>
+            <Button asChild size="lg" variant="secondary" className="animate-fade-in" style={{ animationDelay: "200ms" }}>
               <a href={ctaLink}>{ctaText}</a>
             </Button>
             {secondaryCtaText && secondaryCtaLink && (
-              <Button asChild variant="outline" size="lg" className="border-white text-white hover:bg-white/20 animate-fade-in" style={{ animationDelay: "400ms" }}>
+              <Button asChild variant="outline" size="lg" className="border-white text-white bg-black/30 hover:bg-white/20 animate-fade-in" style={{ animationDelay: "400ms" }}>
                 <a href={secondaryCtaLink}>{secondaryCtaText}</a>
               </Button>
             )}
