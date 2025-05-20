@@ -113,12 +113,12 @@ const Navbar: React.FC = () => {
                               <Link
                                 to={product.href}
                                 className={cn(
-                                  "block select-none space-y-1 rounded-md p-3 hover:bg-secondary hover:text-primary",
-                                  isActive(product.href) ? "bg-secondary/50 text-primary font-medium" : ""
+                                  "group block select-none space-y-1 rounded-md p-3 hover:bg-secondary hover:text-secondary-foreground",
+                                  isActive(product.href) ? "bg-secondary/50 text-secondary-foreground font-medium" : ""
                                 )}
                               >
-                                <div className="text-sm font-medium">{product.name}</div>
-                                <p className="text-xs line-clamp-2 text-muted-foreground">
+                                <div className="text-sm font-bold">{product.name}</div>
+                                <p className="text-xs line-clamp-2 text-muted-foreground group-hover:text-secondary-foreground">
                                   {product.description}
                                 </p>
                               </Link>
@@ -147,11 +147,11 @@ const Navbar: React.FC = () => {
                               <Link
                                 to={service.href}
                                 className={cn(
-                                  "block select-none rounded-md p-3 hover:bg-secondary hover:text-primary",
-                                  isActive(service.href) ? "bg-secondary/50 text-primary font-medium" : ""
+                                  "group block select-none rounded-md p-3 hover:bg-secondary hover:text-secondary-foreground",
+                                  isActive(service.href) ? "bg-secondary/50 text-secondary-foreground font-medium" : ""
                                 )}
                               >
-                                <div className="text-sm font-medium">{service.name}</div>
+                                <div className="text-sm font-bold">{service.name}</div>
                               </Link>
                             </NavigationMenuLink>
                           </li>
