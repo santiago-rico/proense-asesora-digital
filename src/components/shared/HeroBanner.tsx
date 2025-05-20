@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 
@@ -10,6 +9,7 @@ interface HeroBannerProps {
   secondaryCtaText?: string;
   secondaryCtaLink?: string;
   backgroundImage: string;
+  imagePosition?: string;
 }
 
 const HeroBanner: React.FC<HeroBannerProps> = ({
@@ -20,18 +20,19 @@ const HeroBanner: React.FC<HeroBannerProps> = ({
   secondaryCtaText,
   secondaryCtaLink,
   backgroundImage,
+  imagePosition,
 }) => {
   return (
     <div 
       className="relative overflow-hidden h-[70vh] min-h-[500px]"
-      style={{ 
+      style={{
         backgroundImage: `url(${backgroundImage})`,
         backgroundSize: 'cover',
-        backgroundPosition: 'center',
+        backgroundPosition: imagePosition || 'center 15%',
       }}
     >
       {/* Overlay */}
-      <div className="absolute inset-0 bg-black/60"></div>
+      <div className="absolute inset-0 bg-black/30"></div>
       
       <div className="container relative mx-auto px-4 h-full flex items-center">
         <div className="relative z-10 max-w-2xl text-white">

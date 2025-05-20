@@ -1,4 +1,3 @@
-
 import React from "react";
 import Layout from "@/components/layout/Layout";
 import HeroBanner from "@/components/shared/HeroBanner";
@@ -19,7 +18,7 @@ const Index: React.FC = () => {
         ctaLink="/contacto"
         secondaryCtaText="Conoce todos nuestros seguros"
         secondaryCtaLink="/seguros"
-        backgroundImage="https://images.unsplash.com/photo-1595581674242-a202193118f7?q=80&auto=format"
+        backgroundImage="/images/hero-image.jpg"
       />
 
       {/* Insurance Types */}
