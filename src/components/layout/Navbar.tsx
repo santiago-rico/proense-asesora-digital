@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -54,7 +53,6 @@ const Navbar: React.FC = () => {
     { name: "Información de Siniestros", href: "/servicios/siniestros" },
   ];
 
-  // Reordered navbar items as requested
   const navLinks = [
     { name: "Inicio", href: "/" },
     { name: "Seguros", href: "/seguros", dropdown: true },
@@ -87,19 +85,18 @@ const Navbar: React.FC = () => {
             <div className="hidden md:flex items-center space-x-1">
               <NavigationMenu>
                 <NavigationMenuList>
-                  {navLinks.filter(link => !link.dropdown).map((link) => (
-                    <NavigationMenuItem key={link.name}>
-                      <NavigationMenuLink asChild className={cn(
-                        navigationMenuTriggerStyle(),
-                        isActive(link.href) ? "text-primary font-medium" : "text-gray-700"
-                      )}>
-                        <Link to={link.href}>{link.name}</Link>
-                      </NavigationMenuLink>
-                    </NavigationMenuItem>
-                  ))}
+                  {/* Inicio Link */}
+                  <NavigationMenuItem key="inicio">
+                    <NavigationMenuLink asChild className={cn(
+                      navigationMenuTriggerStyle(),
+                      isActive("/") ? "text-primary font-medium" : "text-gray-700"
+                    )}>
+                      <Link to="/">Inicio</Link>
+                    </NavigationMenuLink>
+                  </NavigationMenuItem>
                   
                   {/* Insurance Dropdown */}
-                  <NavigationMenuItem>
+                  <NavigationMenuItem key="seguros">
                     <NavigationMenuTrigger 
                       className={cn(
                         "bg-background",
@@ -133,7 +130,7 @@ const Navbar: React.FC = () => {
                   </NavigationMenuItem>
 
                   {/* Client Services Dropdown */}
-                  <NavigationMenuItem>
+                  <NavigationMenuItem key="servicios">
                     <NavigationMenuTrigger 
                       className={cn(
                         "bg-background",
@@ -161,6 +158,34 @@ const Navbar: React.FC = () => {
                         ))}
                       </ul>
                     </NavigationMenuContent>
+                  </NavigationMenuItem>
+                  
+                  {/* Regular Links */}
+                  <NavigationMenuItem key="nosotros">
+                    <NavigationMenuLink asChild className={cn(
+                      navigationMenuTriggerStyle(),
+                      isActive("/nosotros") ? "text-primary font-medium" : "text-gray-700"
+                    )}>
+                      <Link to="/nosotros">Nosotros</Link>
+                    </NavigationMenuLink>
+                  </NavigationMenuItem>
+                  
+                  <NavigationMenuItem key="blog">
+                    <NavigationMenuLink asChild className={cn(
+                      navigationMenuTriggerStyle(),
+                      isActive("/blog") ? "text-primary font-medium" : "text-gray-700"
+                    )}>
+                      <Link to="/blog">Blog</Link>
+                    </NavigationMenuLink>
+                  </NavigationMenuItem>
+                  
+                  <NavigationMenuItem key="contacto">
+                    <NavigationMenuLink asChild className={cn(
+                      navigationMenuTriggerStyle(),
+                      isActive("/contacto") ? "text-primary font-medium" : "text-gray-700"
+                    )}>
+                      <Link to="/contacto">Contacto</Link>
+                    </NavigationMenuLink>
                   </NavigationMenuItem>
                 </NavigationMenuList>
               </NavigationMenu>
