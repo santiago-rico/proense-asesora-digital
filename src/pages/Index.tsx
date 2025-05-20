@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -120,7 +121,7 @@ const Index: React.FC = () => {
         ctaLink="/contacto"
         secondaryCtaText="Conoce todos nuestros seguros"
         secondaryCtaLink="/seguros"
-        backgroundImage="https://images.unsplash.com/photo-1517581177682-a085bb7ffb15?q=80&auto=format"
+        backgroundImage="https://images.unsplash.com/photo-1595581674242-a202193118f7?q=80&auto=format"
       />
 
       {/* Insurance Types */}

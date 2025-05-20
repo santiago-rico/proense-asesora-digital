@@ -87,7 +87,6 @@ const Navbar: React.FC = () => {
             <div className="hidden md:flex items-center space-x-1">
               <NavigationMenu>
                 <NavigationMenuList>
-                  {/* Display standard nav links first */}
                   {navLinks.filter(link => !link.dropdown).map((link) => (
                     <NavigationMenuItem key={link.name}>
                       <NavigationMenuLink asChild className={cn(
@@ -104,7 +103,7 @@ const Navbar: React.FC = () => {
                     <NavigationMenuTrigger 
                       className={cn(
                         "bg-background",
-                        isActive("/seguros") ? "bg-primary/20 text-primary font-medium" : "text-gray-700"
+                        isActive("/seguros") ? "text-primary font-medium" : "text-gray-700"
                       )}
                     >
                       Seguros
@@ -117,8 +116,8 @@ const Navbar: React.FC = () => {
                               <Link
                                 to={product.href}
                                 className={cn(
-                                  "block select-none space-y-1 rounded-md p-3 hover:bg-accent hover:text-accent-foreground",
-                                  isActive(product.href) ? "bg-secondary text-primary font-medium" : ""
+                                  "block select-none space-y-1 rounded-md p-3 hover:bg-secondary hover:text-primary",
+                                  isActive(product.href) ? "bg-secondary/50 text-primary font-medium" : ""
                                 )}
                               >
                                 <div className="text-sm font-medium">{product.name}</div>
@@ -138,7 +137,7 @@ const Navbar: React.FC = () => {
                     <NavigationMenuTrigger 
                       className={cn(
                         "bg-background",
-                        isActive("/servicios") ? "bg-primary/20 text-primary font-medium" : "text-gray-700"
+                        isActive("/servicios") ? "text-primary font-medium" : "text-gray-700"
                       )}
                     >
                       Servicios
@@ -151,8 +150,8 @@ const Navbar: React.FC = () => {
                               <Link
                                 to={service.href}
                                 className={cn(
-                                  "block select-none rounded-md p-3 hover:bg-accent hover:text-accent-foreground",
-                                  isActive(service.href) ? "bg-secondary text-primary font-medium" : ""
+                                  "block select-none rounded-md p-3 hover:bg-secondary hover:text-primary",
+                                  isActive(service.href) ? "bg-secondary/50 text-primary font-medium" : ""
                                 )}
                               >
                                 <div className="text-sm font-medium">{service.name}</div>
@@ -192,86 +191,47 @@ const Navbar: React.FC = () => {
             </div>
           </div>
 
-          {/* Mobile Navigation - Updated to match the new order */}
+          {/* Mobile Navigation */}
           {isOpen && (
             <div className="md:hidden mt-4 animate-fade-in">
               <ul className="flex flex-col space-y-2 pb-4">
-                <li>
-                  <Link
-                    to="/"
-                    className={`block px-3 py-2 rounded-md text-base font-medium transition-colors hover:text-primary ${
-                      isActive("/") ? "text-primary" : "text-gray-700"
-                    }`}
-                    onClick={() => setIsOpen(false)}
-                  >
-                    Inicio
-                  </Link>
-                </li>
-                <li>
-                  <div className="px-3 py-2 font-medium text-gray-700">Seguros</div>
-                  <ul className="pl-6 space-y-2">
-                    {insuranceProducts.map((product) => (
-                      <li key={product.name}>
-                        <Link
-                          to={product.href}
-                          className="block px-3 py-1 text-sm text-gray-600 hover:text-primary"
-                          onClick={() => setIsOpen(false)}
-                        >
-                          {product.name}
-                        </Link>
+                {navLinks.map((link) => {
+                  if (link.dropdown) {
+                    const items = link.href === "/seguros" ? insuranceProducts : clientServices;
+                    return (
+                      <li key={link.name}>
+                        <div className="px-3 py-2 font-medium text-gray-700">{link.name}</div>
+                        <ul className="pl-6 space-y-2">
+                          {items.map((item) => (
+                            <li key={item.name}>
+                              <Link
+                                to={item.href}
+                                className="block px-3 py-1 text-sm text-gray-600 hover:text-primary"
+                                onClick={() => setIsOpen(false)}
+                              >
+                                {item.name}
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
                       </li>
-                    ))}
-                  </ul>
-                </li>
-                <li>
-                  <div className="px-3 py-2 font-medium text-gray-700">Servicios</div>
-                  <ul className="pl-6 space-y-2">
-                    {clientServices.map((service) => (
-                      <li key={service.name}>
-                        <Link
-                          to={service.href}
-                          className="block px-3 py-1 text-sm text-gray-600 hover:text-primary"
-                          onClick={() => setIsOpen(false)}
-                        >
-                          {service.name}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </li>
-                <li>
-                  <Link
-                    to="/nosotros"
-                    className={`block px-3 py-2 rounded-md text-base font-medium transition-colors hover:text-primary ${
-                      isActive("/nosotros") ? "text-primary" : "text-gray-700"
-                    }`}
-                    onClick={() => setIsOpen(false)}
-                  >
-                    Nosotros
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/blog"
-                    className={`block px-3 py-2 rounded-md text-base font-medium transition-colors hover:text-primary ${
-                      isActive("/blog") ? "text-primary" : "text-gray-700"
-                    }`}
-                    onClick={() => setIsOpen(false)}
-                  >
-                    Blog
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/contacto"
-                    className={`block px-3 py-2 rounded-md text-base font-medium transition-colors hover:text-primary ${
-                      isActive("/contacto") ? "text-primary" : "text-gray-700"
-                    }`}
-                    onClick={() => setIsOpen(false)}
-                  >
-                    Contacto
-                  </Link>
-                </li>
+                    );
+                  }
+                  
+                  return (
+                    <li key={link.name}>
+                      <Link
+                        to={link.href}
+                        className={`block px-3 py-2 rounded-md text-base font-medium transition-colors hover:text-primary ${
+                          isActive(link.href) ? "text-primary" : "text-gray-700"
+                        }`}
+                        onClick={() => setIsOpen(false)}
+                      >
+                        {link.name}
+                      </Link>
+                    </li>
+                  );
+                })}
                 <li>
                   <Button className="w-full mt-2" size="sm" onClick={() => {
                     setIsOpen(false);
