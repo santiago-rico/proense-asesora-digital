@@ -8,14 +8,19 @@ import TestimonialSection from "@/components/home/TestimonialSection";
 import RecentBlogSection from "@/components/home/RecentBlogSection";
 import CallToActionSection from "@/components/home/CallToActionSection";
 
-const Index: React.FC = () => {
+// Define props interface
+interface IndexProps {
+  handleOpenLeadDialog: () => void;
+}
+
+function Index({ handleOpenLeadDialog }: IndexProps) {
   return (
-    <Layout>
+    <Layout handleOpenLeadDialog={handleOpenLeadDialog}> 
       <HeroBanner
         title="Protege lo que más valoras con expertos a tu lado"
         subtitle="Más de 25 años de experiencia ayudando a familias y profesionales colombianos a encontrar la protección adecuada."
         ctaText="Solicitar asesoría gratuita"
-        ctaLink="/contacto"
+        handleOpenLeadDialog={handleOpenLeadDialog} 
         secondaryCtaText="Conoce todos nuestros seguros"
         secondaryCtaLink="/seguros"
         backgroundImage="/images/hero-image.jpg"
@@ -37,9 +42,9 @@ const Index: React.FC = () => {
       <RecentBlogSection />
 
       {/* CTA Section */}
-      <CallToActionSection />
+      <CallToActionSection handleOpenLeadDialog={handleOpenLeadDialog} /> 
     </Layout>
   );
-};
+}
 
 export default Index;
