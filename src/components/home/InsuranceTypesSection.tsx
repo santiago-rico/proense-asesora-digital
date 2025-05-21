@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import InsuranceCard from "@/components/shared/InsuranceCard";
 
 const insuranceTypes = [
+  // First row
   {
     title: "Seguro de Vida",
     description: "Protege a tus seres queridos y garantiza su futuro financiero ante cualquier eventualidad, asegurando su bienestar y tranquilidad.",
@@ -12,11 +13,18 @@ const insuranceTypes = [
     link: "/seguros/vida",
   },
   {
+    title: "Seguro de Vida Deudores",
+    description: "Protege a tu familia de las deudas en caso de fallecimiento o incapacidad, asegurando que no hereden obligaciones financieras y mantengan su estabilidad económica.",
+    icon: <span>🛡️</span>,
+    link: "/seguros/vida-deudores",
+  },
+  {
     title: "Seguro de Salud",
     description: "Te brinda acceso a una amplia red de clínicas y especialistas, cubriendo consultas, hospitalización, cirugías y tratamientos.",
     icon: <span>⚕️</span>,
     link: "/seguros/salud",
   },
+  // Second row
   {
     title: "Seguro de Auto",
     description: "Protección total para tu vehículo contra accidentes, robo, daños a terceros y asistencia en carretera para tu tranquilidad al conducir.",
@@ -34,12 +42,6 @@ const insuranceTypes = [
     description: "Ofrecemos coberturas adaptadas a las necesidades de tu pequeña o mediana empresa, protegiendo tus activos y continuidad operativa.",
     icon: <span>💼</span>,
     link: "/seguros/pymes",
-  },
-  {
-    title: "Seguro para Mascotas",
-    description: "Cubre gastos veterinarios por accidentes o enfermedades, vacunas y más, para que tu mascota reciba la mejor atención.",
-    icon: <span>🐾</span>,
-    link: "/seguros/mascotas",
   },
 ];
 
