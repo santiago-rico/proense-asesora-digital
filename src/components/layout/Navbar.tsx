@@ -12,12 +12,14 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import { cn } from "@/lib/utils";
-import LeadGenerationDialog from "@/components/forms/LeadGenerationDialog";
 
-const Navbar: React.FC = () => {
+interface NavbarProps {
+  handleOpenLeadDialog: () => void;
+}
+
+function Navbar({ handleOpenLeadDialog }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [showLeadDialog, setShowLeadDialog] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
@@ -29,10 +31,6 @@ const Navbar: React.FC = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  const handleOpenLeadDialog = () => {
-    setShowLeadDialog(true);
-  };
 
   const insuranceProducts = [
     { name: "Vida", href: "/seguros/vida", description: "Protege a tus seres queridos y garantiza su futuro financiero." },
@@ -94,73 +92,46 @@ const Navbar: React.FC = () => {
                       <Link to="/">Inicio</Link>
                     </NavigationMenuLink>
                   </NavigationMenuItem>
-                  
-                  {/* Insurance Dropdown */}
+
+                  {/* Seguros Dropdown */}
                   <NavigationMenuItem key="seguros">
-                    <NavigationMenuTrigger 
-                      className={cn(
-                        "bg-background",
-                        isActive("/seguros") ? "text-primary font-medium" : "text-gray-700"
-                      )}
-                    >
-                      Seguros
-                    </NavigationMenuTrigger>
+                    <NavigationMenuTrigger className={cn(
+                      isActive("/seguros") ? "text-primary font-medium" : "text-gray-700"
+                    )}>Seguros</NavigationMenuTrigger>
                     <NavigationMenuContent>
-                      <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+                      <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
                         {insuranceProducts.map((product) => (
-                          <li key={product.name}>
-                            <NavigationMenuLink asChild>
-                              <Link
-                                to={product.href}
-                                className={cn(
-                                  "group block select-none space-y-1 rounded-md p-3 hover:bg-secondary hover:text-secondary-foreground",
-                                  isActive(product.href) ? "bg-secondary/50 text-secondary-foreground font-medium" : ""
-                                )}
-                              >
-                                <div className="text-sm font-bold">{product.name}</div>
-                                <p className="text-xs line-clamp-2 text-muted-foreground group-hover:text-secondary-foreground">
-                                  {product.description}
-                                </p>
-                              </Link>
-                            </NavigationMenuLink>
-                          </li>
+                          <ListItem
+                            key={product.name}
+                            title={product.name}
+                            href={product.href}
+                          >
+                            {product.description}
+                          </ListItem>
                         ))}
                       </ul>
                     </NavigationMenuContent>
                   </NavigationMenuItem>
 
-                  {/* Client Services Dropdown */}
+                  {/* Servicios Dropdown */}
                   <NavigationMenuItem key="servicios">
-                    <NavigationMenuTrigger 
-                      className={cn(
-                        "bg-background",
-                        isActive("/servicios") ? "text-primary font-medium" : "text-gray-700"
-                      )}
-                    >
-                      Servicios
-                    </NavigationMenuTrigger>
+                    <NavigationMenuTrigger className={cn(
+                      isActive("/servicios") ? "text-primary font-medium" : "text-gray-700"
+                    )}>Servicios</NavigationMenuTrigger>
                     <NavigationMenuContent>
-                      <ul className="grid w-[400px] gap-3 p-4">
+                      <ul className="grid w-[300px] gap-3 p-4 md:w-[400px] ">
                         {clientServices.map((service) => (
-                          <li key={service.name}>
-                            <NavigationMenuLink asChild>
-                              <Link
-                                to={service.href}
-                                className={cn(
-                                  "group block select-none rounded-md p-3 hover:bg-secondary hover:text-secondary-foreground",
-                                  isActive(service.href) ? "bg-secondary/50 text-secondary-foreground font-medium" : ""
-                                )}
-                              >
-                                <div className="text-sm font-bold">{service.name}</div>
-                              </Link>
-                            </NavigationMenuLink>
-                          </li>
+                          <ListItem
+                            key={service.name}
+                            title={service.name}
+                            href={service.href}
+                          />
                         ))}
                       </ul>
                     </NavigationMenuContent>
                   </NavigationMenuItem>
-                  
-                  {/* Regular Links */}
+
+                  {/* Nosotros Link */}
                   <NavigationMenuItem key="nosotros">
                     <NavigationMenuLink asChild className={cn(
                       navigationMenuTriggerStyle(),
@@ -169,7 +140,8 @@ const Navbar: React.FC = () => {
                       <Link to="/nosotros">Nosotros</Link>
                     </NavigationMenuLink>
                   </NavigationMenuItem>
-                  
+
+                  {/* Blog Link */}
                   <NavigationMenuItem key="blog">
                     <NavigationMenuLink asChild className={cn(
                       navigationMenuTriggerStyle(),
@@ -260,7 +232,7 @@ const Navbar: React.FC = () => {
                 <li>
                   <Button className="w-full mt-2" size="sm" onClick={() => {
                     setIsOpen(false);
-                    handleOpenLeadDialog();
+                    handleOpenLeadDialog(); 
                   }}>
                     <Phone size={16} className="mr-2" />
                     Asesoría Gratuita
@@ -271,10 +243,34 @@ const Navbar: React.FC = () => {
           )}
         </div>
       </nav>
-      
-      <LeadGenerationDialog open={showLeadDialog} onOpenChange={setShowLeadDialog} />
     </>
   );
-};
+}
+
+const ListItem = React.forwardRef<
+  React.ElementRef<"a">,
+  React.ComponentPropsWithoutRef<"a">
+>(({ className, title, children, ...props }, ref) => {
+  return (
+    <li>
+      <NavigationMenuLink asChild>
+        <a
+          ref={ref}
+          className={cn(
+            "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+            className
+          )}
+          {...props}
+        >
+          <div className="text-sm font-medium leading-none">{title}</div>
+          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+            {children}
+          </p>
+        </a>
+      </NavigationMenuLink>
+    </li>
+  );
+});
+ListItem.displayName = "ListItem";
 
 export default Navbar;

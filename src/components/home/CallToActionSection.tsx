@@ -1,9 +1,14 @@
-
 import React from "react";
-import { Link } from "react-router-dom";
+// import { Link } from "react-router-dom"; // Link for primary CTA is no longer needed
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom"; // Keep for secondary CTA
 
-const CallToActionSection: React.FC = () => {
+// Define props interface
+interface CallToActionSectionProps {
+  handleOpenLeadDialog: () => void;
+}
+
+function CallToActionSection({ handleOpenLeadDialog }: CallToActionSectionProps) {
   return (
     <section className="py-20 bg-primary text-white">
       <div className="container mx-auto px-4">
@@ -13,8 +18,9 @@ const CallToActionSection: React.FC = () => {
             Nuestros asesores están disponibles para ayudarte a encontrar la protección adecuada para ti y tu familia.
           </p>
           <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-            <Button asChild variant="secondary" size="lg">
-              <Link to="/contacto">Solicitar asesoría gratuita</Link>
+            {/* Modified primary CTA Button */}
+            <Button variant="secondary" size="lg" onClick={handleOpenLeadDialog}>
+              Solicitar asesoría gratuita
             </Button>
             <Button asChild variant="outline" className="text-white border-white bg-black/30 hover:bg-white/20" size="lg">
               <Link to="/seguros">Conoce todos nuestros seguros</Link>
@@ -24,6 +30,6 @@ const CallToActionSection: React.FC = () => {
       </div>
     </section>
   );
-};
+}
 
 export default CallToActionSection;
