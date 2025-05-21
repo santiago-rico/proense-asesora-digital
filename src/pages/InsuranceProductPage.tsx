@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import Layout from "@/components/layout/Layout";
 import HeroBanner from "@/components/shared/HeroBanner";
 import LeadForm from "@/components/forms/LeadForm";
+import LeadGenerationDialog from "@/components/forms/LeadGenerationDialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
@@ -11,6 +12,9 @@ interface InsuranceProductPageProps {
 }
 
 const InsuranceProductPage: React.FC<InsuranceProductPageProps> = ({ type }) => {
+  const [isLeadDialogOpen, setIsLeadDialogOpen] = useState(false);
+  const handleOpenLeadDialog = () => setIsLeadDialogOpen(true);
+
   const insuranceData = {
     vida: {
       title: "Seguro de Vida",
@@ -189,24 +193,24 @@ const InsuranceProductPage: React.FC<InsuranceProductPageProps> = ({ type }) => 
 
   if (!data) {
     return (
-      <Layout>
-        <div className="container mx-auto px-4 py-20">
-          <h1 className="text-3xl font-bold">Producto no encontrado</h1>
+      <Layout handleOpenLeadDialog={handleOpenLeadDialog}>
+        <div className="container mx-auto px-4 py-16 text-center">
+          <h1 className="text-2xl font-bold">Producto no encontrado</h1>
+          <p>El tipo de seguro solicitado no existe.</p>
         </div>
       </Layout>
     );
   }
 
   return (
-    <Layout>
-      {/* Hero Banner */}
+    <Layout handleOpenLeadDialog={handleOpenLeadDialog}>
       <HeroBanner
         title={data.title}
         subtitle={data.description}
-        ctaText="Solicitar asesoría gratuita"
-        ctaLink="#lead-form"
+        ctaText={`Solicitar Asesoría ${data.title}`}
         backgroundImage={data.heroImage}
         imagePosition={data.heroImagePosition}
+        handleOpenLeadDialog={handleOpenLeadDialog}
       />
 
       {/* Benefits Section */}
@@ -269,7 +273,7 @@ const InsuranceProductPage: React.FC<InsuranceProductPageProps> = ({ type }) => 
               <div className="flex flex-col justify-center">
                 <h2 className="text-3xl font-bold mb-4">¿Interesado en {data.title.toLowerCase()}?</h2>
                 <p className="text-gray-700 mb-6">
-                  Déjanos tus datos y un asesor especializado te contactará para brindarte toda la información que necesitas sobre nuestro {data.title.toLowerCase()}.
+                  Déjanos tus datos y un asesor especializado te contactará para brindarte asesoría personalizada sobre nuestro {data.title.toLowerCase()}.
                 </p>
                 <ul className="space-y-4 mb-8">
                   <li className="flex items-start">
@@ -314,6 +318,7 @@ const InsuranceProductPage: React.FC<InsuranceProductPageProps> = ({ type }) => 
           </div>
         </div>
       </section>
+      <LeadGenerationDialog open={isLeadDialogOpen} onOpenChange={setIsLeadDialogOpen} />
     </Layout>
   );
 };

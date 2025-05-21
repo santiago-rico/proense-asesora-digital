@@ -104,7 +104,8 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType }) => {
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
-      <h3 className="text-xl font-bold mb-4">Solicita Información</h3>
+      {/* The following h3 tag has been removed:
+      <h3 className="text-xl font-bold mb-4">Solicita Información</h3> */}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField

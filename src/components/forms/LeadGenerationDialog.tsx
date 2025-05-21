@@ -15,7 +15,7 @@ const LeadGenerationDialog: React.FC<LeadGenerationDialogProps> = ({ open, onOpe
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">Solicitar Asesoría Gratuita</DialogTitle>
           <DialogDescription>
-            Déjanos tus datos y un asesor se pondrá en contacto contigo para brindarte toda la información que necesitas.
+            Déjanos tus datos y un asesor se pondrá en contacto contigo para brindarte asesoría personalizada.
           </DialogDescription>
         </DialogHeader>
         <LeadForm />
