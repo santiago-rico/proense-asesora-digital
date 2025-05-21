@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, forwardRef, ElementRef, ComponentPropsWithoutRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Phone } from "lucide-react";
@@ -247,9 +247,9 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
   );
 }
 
-const ListItem = React.forwardRef<
-  React.ElementRef<"a">,
-  React.ComponentPropsWithoutRef<"a">
+const ListItem = forwardRef<
+  ElementRef<"a">,
+  ComponentPropsWithoutRef<"a"> & { title?: string }
 >(({ className, title, children, ...props }, ref) => {
   return (
     <li>
