@@ -1,5 +1,4 @@
-
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -26,6 +25,7 @@ interface LeadFormProps {
 
 const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType }) => {
   const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -37,13 +37,46 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType }) => {
     },
   });
 
-  const onSubmit = (data: FormData) => {
-    console.log("Form data:", data);
-    toast({
-      title: "Solicitud enviada",
-      description: "Gracias por contactarnos. Un asesor se pondrá en contacto contigo pronto.",
-    });
-    form.reset({ tipoSeguro: initialInsuranceType || "" });
+  const onSubmit = async (data: FormData) => {
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Error al enviar la solicitud.');
+      }
+
+      toast({
+        title: "Solicitud enviada con éxito",
+        description: result.message || "Gracias por contactarnos. Un asesor se pondrá en contacto contigo pronto.",
+      });
+      form.reset({ 
+        nombre: "",
+        email: "",
+        telefono: "",
+        tipoSeguro: initialInsuranceType || "", 
+        mensaje: ""
+      });
+    } catch (error) {
+      let errorMessage = "Ocurrió un error al enviar tu solicitud. Por favor, intenta de nuevo.";
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      toast({
+        title: "Error al enviar solicitud",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    }
+    setIsLoading(false);
   };
 
   const tiposSeguro = [
@@ -144,8 +177,8 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType }) => {
             )}
           />
 
-          <Button type="submit" className="w-full">
-            Enviar Solicitud
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? 'Enviando...' : 'Enviar Solicitud'}
           </Button>
         </form>
       </Form>
