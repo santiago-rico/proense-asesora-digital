@@ -1,61 +1,62 @@
 
 import React from "react";
 import { Link } from "react-router-dom";
-import { Heart, User, Car, Home, Briefcase, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import InsuranceCard from "@/components/shared/InsuranceCard";
 
 const insuranceTypes = [
+  // First row
   {
     title: "Seguro de Vida",
-    description: "Protege a tus seres queridos y garantiza su futuro financiero.",
-    icon: <Heart className="h-6 w-6" />,
+    description: "Protege a tus seres queridos y garantiza su futuro financiero ante cualquier eventualidad, asegurando su bienestar y tranquilidad.",
+    icon: <span>❤️</span>,
     link: "/seguros/vida",
   },
   {
-    title: "Seguro de Salud",
-    description: "Accede a la mejor atención médica privada para ti y tu familia.",
-    icon: <User className="h-6 w-6" />,
-    link: "/seguros/salud",
+    title: "Seguro de Vida Deudores",
+    description: "Protege a tu familia de las deudas en caso de fallecimiento o incapacidad, asegurando que no hereden obligaciones financieras y mantengan su estabilidad económica.",
+    icon: <span>🏦</span>,
+    link: "/seguros/vida-deudores",
   },
   {
+    title: "Seguro de Salud",
+    description: "Te brinda acceso a una amplia red de clínicas y especialistas, cubriendo consultas, hospitalización, cirugías y tratamientos.",
+    icon: <span>⚕️</span>,
+    link: "/seguros/salud",
+  },
+  // Second row
+  {
     title: "Seguro de Auto",
-    description: "Cobertura completa para tu vehículo ante cualquier eventualidad.",
-    icon: <Car className="h-6 w-6" />,
+    description: "Protección total para tu vehículo contra accidentes, robo, daños a terceros y asistencia en carretera para tu tranquilidad al conducir.",
+    icon: <span>🚗</span>,
     link: "/seguros/auto",
   },
   {
     title: "Seguro de Hogar",
-    description: "Protege tu hogar y tus pertenencias contra daños y robos.",
-    icon: <Home className="h-6 w-6" />,
+    description: "Asegura tu vivienda y contenidos ante incendios, robos, daños por agua y otros imprevistos, cuidando tu patrimonio más importante.",
+    icon: <span>🏠</span>,
     link: "/seguros/hogar",
   },
   {
     title: "Seguro para PYMES",
-    description: "Soluciones personalizadas para proteger tu negocio.",
-    icon: <Briefcase className="h-6 w-6" />,
+    description: "Ofrecemos coberturas adaptadas a las necesidades de tu pequeña o mediana empresa, protegiendo tus activos y continuidad operativa.",
+    icon: <span>💼</span>,
     link: "/seguros/pymes",
-  },
-  {
-    title: "Seguro para Mascotas",
-    description: "Cuidado veterinario y protección para tu compañero peludo.",
-    icon: <Shield className="h-6 w-6" />,
-    link: "/seguros/mascotas",
   },
 ];
 
 const InsuranceTypesSection: React.FC = () => {
   return (
-    <section className="py-16 bg-white">
-      <div className="container mx-auto px-4">
-        <div className="text-center max-w-3xl mx-auto mb-12">
-          <h2 className="text-3xl font-bold mb-4">Nuestros Seguros</h2>
-          <p className="text-gray-700">
+    <section className="py-16 bg-gray-50">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-4xl mx-auto mb-16">
+          <h2 className="text-4xl font-bold text-gray-900 mb-4">Nuestros Seguros</h2>
+          <p className="text-lg text-gray-600">
             Ofrecemos una amplia gama de soluciones de seguros para proteger lo que más valoras.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {insuranceTypes.map((insurance, index) => (
             <InsuranceCard
               key={index}
@@ -63,13 +64,16 @@ const InsuranceTypesSection: React.FC = () => {
               description={insurance.description}
               icon={insurance.icon}
               link={insurance.link}
+              className="h-full"
             />
           ))}
         </div>
 
-        <div className="text-center mt-10">
-          <Button asChild variant="secondary">
-            <Link to="/seguros">Consulta todos nuestros seguros</Link>
+        <div className="text-center mt-12">
+          <Button asChild size="lg" className="bg-secondary hover:bg-secondary/90 text-white">
+            <Link to="/seguros">
+              Consulta todos nuestros seguros
+            </Link>
           </Button>
         </div>
       </div>
