@@ -8,11 +8,26 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
+import { PhoneInput } from "@/components/ui/phone-input";
+import { isValidPhoneNumber } from "react-phone-number-input";
+import es from 'react-phone-number-input/locale/es.json';
+
+const tiposSeguro = [
+  { value: "vida", label: "Seguro de Vida" },
+  { value: "salud", label: "Seguro de Salud" },
+  { value: "hogar", label: "Seguro de Hogar" },
+  { value: "auto", label: "Seguro de Auto" },
+  { value: "viaje", label: "Seguro de Viaje" },
+  { value: "arl", label: "ARL" },
+  { value: "empresarial", label: "Seguro Empresarial" },
+  { value: "mascotas", label: "Seguro para Mascotas" },
+  // Add more as needed
+];
 
 const formSchema = z.object({
   nombre: z.string().min(2, { message: "El nombre es requerido" }),
   email: z.string().email({ message: "Email inválido" }),
-  telefono: z.string().optional(),
+  telefono: z.string().refine(isValidPhoneNumber, { message: "Número de teléfono inválido" }),
   tipoSeguro: z.string().min(1, { message: "Por favor seleccione un tipo de seguro" }),
   mensaje: z.string().optional(),
 });
@@ -40,12 +55,20 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType }) => {
   const onSubmit = async (data: FormData) => {
     setIsLoading(true);
     try {
+      const payload = {
+        nombre: data.nombre,
+        email: data.email,
+        telefono: data.telefono,
+        tipoSeguro: data.tipoSeguro,
+        mensaje: data.mensaje,
+      };
+
       const response = await fetch('/api/send-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(payload),
       });
 
       const result = await response.json();
@@ -58,12 +81,12 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType }) => {
         title: "Solicitud enviada con éxito",
         description: result.message || "Gracias por contactarnos. Un asesor se pondrá en contacto contigo pronto.",
       });
-      form.reset({ 
+      form.reset({
         nombre: "",
         email: "",
         telefono: "",
-        tipoSeguro: initialInsuranceType || "", 
-        mensaje: ""
+        tipoSeguro: initialInsuranceType || "",
+        mensaje: "",
       });
     } catch (error) {
       let errorMessage = "Ocurrió un error al enviar tu solicitud. Por favor, intenta de nuevo.";
@@ -78,18 +101,6 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType }) => {
     }
     setIsLoading(false);
   };
-
-  const tiposSeguro = [
-    { value: "vida", label: "Seguro de Vida" },
-    { value: "salud", label: "Seguro de Salud" },
-    { value: "auto", label: "Seguro de Auto" },
-    { value: "hogar", label: "Seguro de Hogar" },
-    { value: "pymes", label: "Seguro para PYMES" },
-    { value: "mascotas", label: "Seguro para Mascotas" },
-    { value: "arrendamiento", label: "Seguro de Arrendamiento" },
-    { value: "viaje", label: "Seguro de Viaje" },
-    { value: "otro", label: "Otro" },
-  ];
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
@@ -124,19 +135,27 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType }) => {
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="telefono"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Teléfono (opcional)</FormLabel>
-                <FormControl>
-                  <Input placeholder="Tu número telefónico" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <div className="flex space-x-2">
+            <FormField
+              control={form.control}
+              name="telefono"
+              render={({ field }) => (
+                <FormItem className="w-full">
+                  <FormLabel>Teléfono</FormLabel>
+                  <FormControl>
+                    <PhoneInput 
+                      placeholder="Número telefónico"
+                      defaultCountry="CO" 
+                      labels={es}
+                      searchPlaceholder="Buscar país..."
+                      {...field} 
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
 
           <FormField
             control={form.control}
