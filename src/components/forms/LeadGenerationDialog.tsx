@@ -6,9 +6,10 @@ import LeadForm from "./LeadForm";
 interface LeadGenerationDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  initialInsuranceType?: string;
 }
 
-const LeadGenerationDialog: React.FC<LeadGenerationDialogProps> = ({ open, onOpenChange }) => {
+const LeadGenerationDialog: React.FC<LeadGenerationDialogProps> = ({ open, onOpenChange, initialInsuranceType }) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
@@ -18,7 +19,7 @@ const LeadGenerationDialog: React.FC<LeadGenerationDialogProps> = ({ open, onOpe
             Déjanos tus datos y un asesor se pondrá en contacto contigo para brindarte asesoría personalizada.
           </DialogDescription>
         </DialogHeader>
-        <LeadForm />
+        <LeadForm initialInsuranceType={initialInsuranceType} />
       </DialogContent>
     </Dialog>
   );

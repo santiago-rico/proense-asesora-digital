@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 
 interface HeroBannerProps {
   title: string;
-  subtitle: string;
+  description: string;
   ctaText: string;
   ctaLink?: string;
   secondaryCtaText?: string;
@@ -15,7 +15,7 @@ interface HeroBannerProps {
 
 function HeroBanner({
   title,
-  subtitle,
+  description,
   ctaText,
   secondaryCtaText,
   secondaryCtaLink,
@@ -25,11 +25,11 @@ function HeroBanner({
 }: HeroBannerProps) {
   return (
     <div 
-      className="relative overflow-hidden h-[70vh] min-h-[500px]"
+      className="relative overflow-hidden h-[50vh] min-h-[400px]"
       style={{
         backgroundImage: `url(${backgroundImage})`,
         backgroundSize: 'cover',
-        backgroundPosition: imagePosition || 'center 15%',
+        backgroundPosition: imagePosition || 'center 25%',
       }}
     >
       {/* Overlay */}
@@ -38,7 +38,7 @@ function HeroBanner({
       <div className="container relative mx-auto px-4 h-full flex items-center">
         <div className="relative z-10 max-w-2xl text-white">
           <h1 className="text-4xl md:text-5xl font-bold mb-4 animate-slide-in">{title}</h1>
-          <p className="text-lg md:text-xl mb-8 animate-fade-in opacity-90">{subtitle}</p>
+          <p className="text-lg md:text-xl mb-8 animate-fade-in opacity-90">{description}</p>
           <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
             <Button 
               size="lg" 
