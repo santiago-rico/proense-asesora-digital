@@ -164,7 +164,7 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
               
               <Button className="ml-4" size="sm" variant="secondary" onClick={handleOpenLeadDialog}>
                 <Phone size={16} className="mr-2" />
-                Asesoría Gratuita
+                Solicitar Asesoría Gratuita
               </Button>
             </div>
 
@@ -235,7 +235,7 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
                     handleOpenLeadDialog(); 
                   }}>
                     <Phone size={16} className="mr-2" />
-                    Asesoría Gratuita
+                    Solicitar Asesoría Gratuita
                   </Button>
                 </li>
               </ul>

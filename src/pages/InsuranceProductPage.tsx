@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { insuranceProductsData, InsuranceProductData } from "@/data/insuranceProductsData";
 import * as LucideIcons from "lucide-react";
+import HowItWorksSection from "../components/insurance/HowItWorksSection";
 
 // Helper to get a Lucide icon component by name
 const getIcon = (iconName?: string): React.ElementType | null => {
@@ -178,6 +179,9 @@ const InsuranceProductPage: React.FC<InsuranceProductPageProps> = ({ type: propT
         </section>
       )}
 
+      {/* How It Works Section */}
+      <HowItWorksSection />
+
       {/* FAQ Section */}
       {data.faq && data.faq.length > 0 && (
         <section className="py-12 md:py-20 bg-gray-100">
@@ -216,9 +220,8 @@ const InsuranceProductPage: React.FC<InsuranceProductPageProps> = ({ type: propT
                 </p>
               )}
               {data.contactSectionCtaText && (
-                 <Button asChild variant="secondary" size="lg">
-                    {/* Assuming /contacto is your contact page route */}
-                    <a href="/contacto">{data.contactSectionCtaText}</a> 
+                 <Button variant="secondary" size="lg" onClick={handleOpenLeadDialog}>
+                    {data.contactSectionCtaText}
                 </Button>
               )}
             </div>

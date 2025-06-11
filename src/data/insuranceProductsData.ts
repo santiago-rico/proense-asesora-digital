@@ -45,8 +45,8 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     shortDescription: "Protege a tus seres queridos y garantiza su futuro financiero.",
     heroImage: "/images/hero-vida.jpg",
     heroImagePosition: 'center 10%',
-    heroDescription: "Asegura la tranquilidad de tu familia ante cualquier eventualidad. Un seguro de vida es un acto de amor y responsabilidad que garantiza su bienestar económico incluso cuando ya no estés.",
-    heroCtaText: "Calcula tu Seguro de Vida",
+    heroDescription: "Protege el futuro de los que más quieres. Un seguro de vida es un acto de amor y previsión que garantiza la estabilidad económica de tu familia, incluso en tu ausencia.",
+    heroCtaText: "Solicitar Asesoría Gratuita",
     explanationTitle: "¿Qué es el Seguro de Vida?",
     explanationText: "El seguro de vida es un contrato mediante el cual la aseguradora se compromete a pagar una suma de dinero (capital asegurado) a los beneficiarios designados en caso de fallecimiento del asegurado. También puede ofrecer coberturas adicionales por invalidez, enfermedades graves o accidentes.",
     whoIsItForText: "Este seguro es ideal para personas que son el principal sostén económico de su familia, padres con hijos pequeños, personas con deudas importantes (como hipotecas) o cualquiera que desee dejar un legado financiero y proteger a sus seres queridos de dificultades económicas.",
@@ -73,26 +73,30 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
         description: "Tus beneficiarios podrían recibir el doble del capital asegurado si el fallecimiento ocurre como resultado de un accidente."
       }
     ],
-    coveragesCtaText: "Quiero saber más sobre coberturas",
+    coveragesCtaText: "Explora Todas las Coberturas",
     faq: [
       {
         question: "¿Quiénes pueden ser mis beneficiarios?",
-        answer: "Puedes designar a cualquier persona como beneficiario: cónyuge, hijos, padres, hermanos, o incluso amigos o instituciones. Puedes cambiar los beneficiarios cuando lo desees."
+        answer: "Puedes designar a cualquier persona como beneficiario: cónyuge, hijos, padres, hermanos, o incluso amigos o instituciones. Es importante revisar y actualizar los beneficiarios periódicamente."
       },
       {
         question: "¿Hasta qué edad puedo contratar un seguro de vida?",
-        answer: "La edad máxima de contratación varía según la aseguradora y el tipo de póliza, pero generalmente se sitúa entre los 65 y 70 años. Algunas pólizas pueden tener edades de cobertura vitalicia."
+        answer: "La edad máxima de contratación varía, pero suele estar entre los 65 y 70 años. Algunas pólizas ofrecen cobertura vitalicia si se contratan antes de cierta edad."
       },
       {
         question: "¿Qué pasa si dejo de pagar las primas?",
-        answer: "Si dejas de pagar, la póliza puede cancelarse y perderías la cobertura. Algunas pólizas ofrecen opciones como el rescate del valor acumulado o la conversión a un seguro saldado por un capital menor."
+        answer: "Si dejas de pagar, la póliza puede cancelarse y perderías la cobertura. Algunas ofrecen opciones como el rescate del valor acumulado o la conversión a un seguro saldado por un capital menor. Consulta las condiciones de tu póliza."
+      },
+      {
+        question: "¿Puedo modificar mi póliza de seguro de vida una vez contratada?",
+        answer: "Sí, la mayoría de las pólizas de seguro de vida ofrecen flexibilidad. Puedes solicitar cambios como el aumento o disminución del capital asegurado, la modificación de beneficiarios o la inclusión de coberturas adicionales, sujeto a las condiciones de la aseguradora y una nueva evaluación del riesgo."
       }
     ],
     leadFormTitle: "Obtén tu cotización de Seguro de Vida",
     leadFormSubtitle: "Completa el formulario y un asesor especializado te contactará para ofrecerte la mejor solución adaptada a tus necesidades y presupuesto.",
-    contactSectionTitle: "¿Prefieres hablar directamente con un asesor?",
-    contactSectionSubtitle: "Estamos disponibles para resolver todas tus dudas sobre seguros de vida.",
-    contactSectionCtaText: "Contacta con un experto",
+    contactSectionTitle: "¿Listo para Proteger lo que Más Quieres?",
+    contactSectionSubtitle: "No dejes tus dudas para después. Un asesor te espera para ofrecerte la mejor solución en seguros de vida.",
+    contactSectionCtaText: "Solicitar Asesoría Gratuita",
     secondaryBenefitsTitle: "Beneficios Adicionales Pensados para Ti",
     secondaryBenefitsSubtitle: "Más allá de la protección económica, te ofrecemos servicios de valor.",
     secondaryBenefits: [
@@ -108,8 +112,8 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     shortDescription: "Accede a la mejor atención médica privada para ti y tu familia.",
     heroImage: "/images/hero-salud.jpg",
     heroImagePosition: 'center 70%',
-    heroDescription: "Tu bienestar y el de tu familia es lo más importante. Con nuestro seguro de salud, accede a una amplia red de profesionales y centros médicos de primer nivel, sin listas de espera.",
-    heroCtaText: "Descubre Planes de Salud",
+    heroDescription: "Prioriza tu salud y la de tu familia. Con nuestro seguro médico, tendrás acceso rápido a una extensa red de profesionales y centros de primer nivel, evitando largas listas de espera y con la atención personalizada que mereces.",
+    heroCtaText: "Solicitar Asesoría Gratuita",
     explanationTitle: "¿En qué consiste el Seguro de Salud Privado?",
     explanationText: "Un seguro de salud privado te da acceso a servicios médicos y hospitalarios fuera del sistema público. Cubre consultas, pruebas diagnósticas, tratamientos, intervenciones quirúrgicas y hospitalización, según las condiciones de la póliza contratada. El objetivo es ofrecer una atención ágil, personalizada y de calidad.",
     whoIsItForText: "Es ideal para individuos y familias que buscan una alternativa o complemento a la sanidad pública, desean evitar listas de espera, tener acceso a especialistas de forma rápida, y elegir médicos y centros. También es muy valorado por autónomos y empresas para sus empleados.",
@@ -138,23 +142,27 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     ],
     faq: [
       {
-        question: "¿Qué son los copagos?",
-        answer: "El copago es una pequeña cantidad de dinero que el asegurado paga al utilizar algunos servicios médicos. No todos los seguros tienen copagos; existen pólizas sin copago, con copago bajo, medio o alto, lo que influye en la prima mensual."
+        question: "¿Qué son los copagos en un seguro de salud?",
+        answer: "El copago es una pequeña cantidad que abonas al utilizar ciertos servicios médicos. Existen pólizas sin copago, o con copagos bajos, medios o altos, lo que afecta directamente a tu prima mensual. Elige la opción que mejor se adapte a tu frecuencia de uso."
       },
       {
-        question: "¿Existen periodos de carencia?",
-        answer: "Sí, el periodo de carencia es un tiempo que debe transcurrir desde la contratación de la póliza hasta que puedes utilizar ciertos servicios (ej. hospitalización programada, parto). Urgencias vitales suelen estar cubiertas desde el primer día."
+        question: "¿Qué son los periodos de carencia?",
+        answer: "Es el tiempo que debe pasar desde que contratas el seguro hasta que puedes usar ciertas coberturas (como intervenciones quirúrgicas programadas o parto). Las urgencias vitales suelen estar cubiertas desde el inicio."
       },
       {
-        question: "¿Puedo incluir a mi familia en mi póliza?",
-        answer: "Sí, la mayoría de las aseguradoras ofrecen pólizas familiares que permiten incluir a tu cónyuge e hijos, a menudo con primas más ventajosas que las individuales."
+        question: "¿Puedo incluir a mi familia en la póliza?",
+        answer: "¡Claro! Ofrecemos pólizas familiares que permiten incluir a tu cónyuge e hijos, a menudo con condiciones y precios más ventajosos que las pólizas individuales."
+      },
+      {
+        question: "¿Qué diferencia hay entre un seguro de cuadro médico y uno de reembolso?",
+        answer: "Un seguro de cuadro médico te da acceso a una red concertada de profesionales y centros con tarifas negociadas. Un seguro de reembolso te permite elegir cualquier médico o centro del mundo; pagas la factura y la aseguradora te reembolsa un alto porcentaje (normalmente 80-90%)."
       }
     ],
     leadFormTitle: "Encuentra tu Seguro de Salud Ideal",
     leadFormSubtitle: "Déjanos tus datos y te ayudaremos a comparar opciones para que elijas el seguro de salud que mejor se adapte a ti y a tu familia.",
-    contactSectionTitle: "¿Tienes dudas sobre qué seguro de salud elegir?",
-    contactSectionSubtitle: "Nuestros asesores están listos para ayudarte a encontrar la mejor cobertura.",
-    contactSectionCtaText: "Habla con un especialista",
+    contactSectionTitle: "¿Listo para Proteger lo que Más Quieres?",
+    contactSectionSubtitle: "No dejes tus dudas para después. Un asesor te espera para ofrecerte la mejor solución en seguros de salud.",
+    contactSectionCtaText: "Solicitar Asesoría Gratuita",
     secondaryBenefitsTitle: "Asistencia Completa en tu Salud",
     secondaryBenefitsSubtitle: "Beneficios adicionales para tu bienestar.",
     secondaryBenefits: [
@@ -170,8 +178,8 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     shortDescription: "Cobertura completa para tu vehículo ante cualquier eventualidad.",
     heroImage: "/images/hero-auto.jpg",
     heroImagePosition: 'left',
-    heroDescription: "Conduce con la tranquilidad de estar protegido. Te ofrecemos seguros de auto con las coberturas que necesitas para que solo te preocupes de disfrutar el camino.",
-    heroCtaText: "Cotiza tu Seguro de Auto",
+    heroDescription: "Conduce con total tranquilidad. Nuestro seguro de auto te ofrece las coberturas que necesitas para que solo te preocupes de disfrutar el camino, sabiendo que estás protegido ante cualquier imprevisto.",
+    heroCtaText: "Solicitar Asesoría Gratuita",
     explanationTitle: "¿Qué es el Seguro de Auto?",
     explanationText: "Es un contrato que te protege económicamente ante los riesgos asociados a la conducción y tenencia de un vehículo, como accidentes, robos o daños a terceros.",
     whoIsItForText: "Es obligatorio para todos los propietarios de vehículos a motor. Las coberturas pueden variar desde la responsabilidad civil básica hasta todo riesgo.",
@@ -208,8 +216,22 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
         description: "Dispondrás de un coche de sustitución mientras el tuyo está en el taller por avería o accidente, para que no pierdas tu movilidad."
       }
     ],
-    leadFormTitle: "Calcula el precio de tu Seguro de Auto",
-    leadFormSubtitle: "Obtén una comparativa personalizada y elige la mejor opción para tu vehículo.",
+    faq: [
+      {
+        question: "¿Qué datos necesito para cotizar mi seguro de auto?",
+        answer: "Generalmente necesitarás la marca, modelo y año de matriculación de tu vehículo, tu código postal, tu edad, años de carnet de conducir y tu historial de siniestralidad. Tener esta información a mano agilizará el proceso."
+      },
+      {
+        question: "¿Qué es la franquicia en un seguro de auto a todo riesgo?",
+        answer: "La franquicia es la cantidad de dinero que acuerdas pagar de tu bolsillo en caso de un siniestro de daños propios. A mayor franquicia, menor suele ser la prima del seguro. Es una forma de personalizar tu cobertura y coste."
+      },
+      {
+        question: "¿Mi seguro de auto me cubre si viajo al extranjero?",
+        answer: "La cobertura de Responsabilidad Civil Obligatoria suele ser válida en la Unión Europea y países adheridos al sistema de Carta Verde. Para otras coberturas o países, es importante consultar las condiciones de tu póliza o solicitar una extensión si es necesario."
+      }
+    ],
+    leadFormTitle: "Obtén el Mejor Precio para tu Seguro de Auto",
+    leadFormSubtitle: "Rápido y fácil: completa tus datos y recibe una comparativa personalizada para proteger tu vehículo al mejor precio.",
     secondaryBenefitsTitle: "Asistencia Completa en Carretera y Más Allá",
     secondaryBenefitsSubtitle: "Beneficios exclusivos para que conduzcas con total tranquilidad.",
     secondaryBenefits: [
@@ -217,7 +239,10 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
       { text: "Vehículo de sustitución en caso de avería o accidente.", icon: "Car" },
       { text: "Gestión de multas y asesoramiento legal.", icon: "Gavel" },
       { text: "Revisión anual de puntos de seguridad del vehículo.", icon: "ShieldCheck" }
-    ]
+    ],
+    contactSectionTitle: "¿Listo para Proteger lo que Más Quieres?",
+    contactSectionSubtitle: "No dejes tus dudas para después. Un asesor te espera para ofrecerte la mejor solución en seguros de auto.",
+    contactSectionCtaText: "Solicitar Asesoría Gratuita"
   },
   hogar: {
     id: "hogar",
@@ -225,8 +250,8 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     shortDescription: "Protege tu hogar y tus pertenencias contra daños y robos.",
     heroImage: "/images/hero-hogar.jpg",
     heroImagePosition: 'center',
-    heroDescription: "Tu casa es tu mayor inversión. Asegura tu tranquilidad y la de tu familia con un seguro de hogar que cubra desde el continente hasta el contenido.",
-    heroCtaText: "Compara Seguros de Hogar",
+    heroDescription: "Tu hogar es tu refugio y tu mayor inversión. Protégelo con un seguro completo que cuide de tu familia, tu vivienda y tus pertenencias ante cualquier imprevisto.",
+    heroCtaText: "Solicitar Asesoría Gratuita",
     explanationTitle: "¿Por qué necesitas un Seguro de Hogar?",
     explanationText: "Un seguro de hogar protege tu vivienda y tus bienes ante imprevistos como incendios, robos, daños por agua, roturas o responsabilidad civil si causas daños a terceros.",
     whoIsItForText: "Esencial para propietarios de viviendas, ya sean habituales, secundarias o en alquiler. También para inquilinos que quieran proteger su contenido.",
@@ -253,8 +278,22 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
         description: "Cubre la reparación de tuberías, goteras, y la rotura accidental de cristales, espejos, sanitarios o placas vitrocerámicas."
       }
     ],
-    leadFormTitle: "Encuentra el Mejor Seguro para tu Hogar",
-    leadFormSubtitle: "Te ayudamos a proteger lo que más importa. Solicita tu estudio gratuito.",
+    faq: [
+      {
+        question: "¿Qué diferencia hay entre continente y contenido en un seguro de hogar?",
+        answer: "El continente se refiere a la estructura de la vivienda (paredes, techos, suelos, instalaciones fijas como tuberías o sistema eléctrico). El contenido son tus bienes personales dentro de la casa (muebles, electrodomésticos, ropa, joyas, etc.)."
+      },
+      {
+        question: "¿Estoy cubierto si alquilo mi vivienda a terceros?",
+        answer: "Sí, existen seguros de hogar específicos para propietarios que alquilan su vivienda. Estos cubren el continente y la responsabilidad civil del propietario. Es recomendable que el inquilino asegure su propio contenido."
+      },
+      {
+        question: "¿Qué hago en caso de siniestro en mi hogar?",
+        answer: "Contacta con tu aseguradora lo antes posible. Toma medidas para minimizar los daños (si es seguro hacerlo), recopila información (fotos, facturas de objetos dañados) y sigue las instrucciones de la compañía para la gestión del siniestro."
+      }
+    ],
+    leadFormTitle: "Protege tu Hogar Hoy Mismo",
+    leadFormSubtitle: "Descubre cómo podemos ayudarte a proteger tu hogar. Solicita tu presupuesto personalizado sin compromiso.",
     secondaryBenefitsTitle: "Tu Hogar, Siempre Protegido y Conectado",
     secondaryBenefitsSubtitle: "Servicios que van más allá de la cobertura básica para tu tranquilidad.",
     secondaryBenefits: [
@@ -262,7 +301,10 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
       { text: "Asistencia informática remota para tus dispositivos.", icon: "Laptop" },
       { text: "Defensa jurídica y reclamación de daños.", icon: "Scale" },
       { text: "Servicio de control de plagas.", icon: "Bug" }
-    ]
+    ],
+    contactSectionTitle: "¿Listo para Proteger lo que Más Quieres?",
+    contactSectionSubtitle: "No dejes tus dudas para después. Un asesor te espera para ofrecerte la mejor solución en seguros de hogar.",
+    contactSectionCtaText: "Solicitar Asesoría Gratuita"
   },
   pymes: {
     id: "pymes",
@@ -270,8 +312,8 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     shortDescription: "Soluciones personalizadas para proteger tu negocio.",
     heroImage: "/images/hero-pymes.jpg",
     heroImagePosition: 'center',
-    heroDescription: "Tu empresa es el motor de tu futuro. Asegura su continuidad y crecimiento con un seguro para PYMES adaptado a los riesgos específicos de tu actividad.",
-    heroCtaText: "Protege tu Negocio",
+    heroDescription: "Impulsa el futuro de tu empresa con la seguridad que necesitas. Te ofrecemos un seguro para PYMES adaptado a los riesgos específicos de tu actividad, garantizando su continuidad y crecimiento.",
+    heroCtaText: "Solicitar Asesoría Gratuita",
     explanationTitle: "¿Qué cubre un Seguro para PYMES?",
     explanationText: "Los seguros para PYMES ofrecen un conjunto de coberturas para proteger el patrimonio de la empresa (instalaciones, maquinaria, existencias) y su responsabilidad ante reclamaciones de terceros.",
     whoIsItForText: "Para pequeñas y medianas empresas de cualquier sector que quieran asegurar sus activos, cubrir su responsabilidad civil y garantizar la continuidad del negocio.",
@@ -298,8 +340,22 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
         description: "Protección frente a reclamaciones por accidentes laborales de tus empleados o por daños causados por los productos que vendes."
       }
     ],
-    leadFormTitle: "Asesoramiento experto para el Seguro de tu PYME",
-    leadFormSubtitle: "Analizamos los riesgos de tu negocio y te ofrecemos la solución aseguradora más completa.",
+    faq: [
+      {
+        question: "¿Qué tipo de seguro necesita mi PYME?",
+        answer: "Depende de tu actividad, tamaño y riesgos específicos. Los más comunes son Responsabilidad Civil (general, profesional, patronal), Daños Materiales (multirriesgo empresarial) y Pérdida de Beneficios. Un asesor te ayudará a identificar tus necesidades exactas."
+      },
+      {
+        question: "¿Cubre el seguro de PYME los ciberataques?",
+        answer: "Algunos seguros multirriesgo pueden incluir coberturas básicas de ciberriesgos, pero para una protección completa y especializada suele ser necesario un seguro de Ciberriesgos específico. Consúltanos para evaluar tu exposición y encontrar la mejor solución."
+      },
+      {
+        question: "¿Cómo se calcula la prima de un seguro para PYMES?",
+        answer: "La prima se calcula en base a múltiples factores, como el sector de actividad, la facturación, el número de empleados, las medidas de seguridad implementadas, el historial de siniestralidad y las coberturas y capitales contratados."
+      }
+    ],
+    leadFormTitle: "Obtén Asesoramiento Experto para tu PYME",
+    leadFormSubtitle: "Analizamos a fondo los riesgos de tu negocio para ofrecerte una solución aseguradora completa y a medida. ¡Solicita tu estudio!",
     secondaryBenefitsTitle: "Más que un Seguro, una Gestión Eficaz de tu Negocio",
     secondaryBenefitsSubtitle: "Servicios adicionales para optimizar la rentabilidad y seguridad de tu empresa.",
     secondaryBenefits: [
@@ -307,7 +363,10 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
       { text: "Gestión de riesgos y prevención de siniestros.", icon: "ShieldCheck" },
       { text: "Servicio de asistencia técnica.", icon: "Wrench" },
       { text: "Acceso a programas de formación y capacitación.", icon: "Award" }
-    ]
+    ],
+    contactSectionTitle: "¿Listo para Proteger lo que Más Quieres?",
+    contactSectionSubtitle: "No dejes tus dudas para después. Un asesor te espera para ofrecerte la mejor solución en seguros de PYMES.",
+    contactSectionCtaText: "Solicitar Asesoría Gratuita"
   },
   decesos: {
     id: "decesos",
@@ -315,8 +374,8 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     shortDescription: "Cubre los gastos funerarios y gestiones necesarias.",
     heroImage: "/images/hero-decesos.jpg",
     heroImagePosition: 'center',
-    heroDescription: "Evita preocupaciones y cargas económicas a tus seres queridos en momentos difíciles. Un seguro de decesos se encarga de todo.",
-    heroCtaText: "Infórmate sobre Seguro de Decesos",
+    heroDescription: "Brinda tranquilidad a tus seres queridos en los momentos más difíciles. Nuestro seguro de decesos se encarga de todos los detalles y gastos, para que puedan enfocarse en lo importante.",
+    heroCtaText: "Solicitar Asesoría Gratuita",
     explanationTitle: "¿Qué es el Seguro de Decesos?",
     explanationText: "Es una póliza que cubre los gastos asociados al sepelio del asegurado, además de ofrecer asistencia a la familia en los trámites y gestiones necesarias tras el fallecimiento.",
     whoIsItForText: "Para personas previsoras que no quieren dejar esta carga económica y emocional a sus familiares.",
@@ -343,8 +402,22 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
         description: "Ofrecemos asistencia psicológica especializada para ayudar a tus seres queridos a sobrellevar el duelo en momentos tan difíciles."
       }
     ],
-    leadFormTitle: "Planifica con Tranquilidad tu Seguro de Decesos",
-    leadFormSubtitle: "Solicita información y te asesoraremos sobre la opción que mejor se ajuste a tus necesidades.",
+    faq: [
+      {
+        question: "¿Qué ocurre si fallezco en el extranjero?",
+        answer: "La mayoría de los seguros de decesos incluyen la cobertura de repatriación, encargándose del traslado del fallecido desde cualquier lugar del mundo hasta el lugar de sepelio elegido en España, según las condiciones de la póliza."
+      },
+      {
+        question: "¿Puedo elegir la funeraria y el tipo de sepelio?",
+        answer: "Sí, generalmente puedes expresar tus preferencias sobre la funeraria, el tipo de ceremonia y otros detalles. La aseguradora gestionará el servicio según lo acordado en la póliza, dentro de los límites y capitales contratados."
+      },
+      {
+        question: "¿Qué pasa si el coste del servicio funerario es menor al capital asegurado?",
+        answer: "Si existe un sobrante después de cubrir todos los gastos del sepelio estipulados en la póliza, este se entregará a los herederos legales del asegurado o a quien se haya designado."
+      }
+    ],
+    leadFormTitle: "Planifica tu Tranquilidad y la de tu Familia",
+    leadFormSubtitle: "Evita cargas innecesarias a tus seres queridos. Solicita información y te ayudaremos a encontrar el plan de decesos que mejor se ajuste a tus deseos y presupuesto.",
     secondaryBenefitsTitle: "Asistencia Integral en Momentos Difíciles",
     secondaryBenefitsSubtitle: "Beneficios adicionales para apoyar a tus seres queridos.",
     secondaryBenefits: [
@@ -352,7 +425,10 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
       { text: "Servicio de acompañamiento.", icon: "Users" },
       { text: "Gestión de trámites burocráticos.", icon: "ClipboardList" },
       { text: "Acceso a programas de apoyo emocional.", icon: "Smile" }
-    ]
+    ],
+    contactSectionTitle: "¿Listo para Proteger lo que Más Quieres?",
+    contactSectionSubtitle: "No dejes tus dudas para después. Un asesor te espera para ofrecerte la mejor solución en seguros de decesos.",
+    contactSectionCtaText: "Solicitar Asesoría Gratuita"
   },
   mascotas: {
     id: "mascotas",
@@ -361,7 +437,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     heroImage: "/images/hero-mascotas.jpg",
     heroImagePosition: 'center',
     heroDescription: "Descubre la tranquilidad de tener a tu mascota protegida con nuestro seguro especializado.",
-    heroCtaText: "Calcula Seguro de Mascota",
+    heroCtaText: "Solicitar Asesoría Gratuita",
     explanationTitle: "¿Qué es el Seguro de Mascotas?",
     explanationText: "Este seguro está diseñado para ofrecerte la máxima cobertura y tranquilidad para tu mascota, cubriendo gastos veterinarios, responsabilidad civil y más.",
     whoIsItForText: "Ideal para todos los dueños de perros y gatos que buscan seguridad y respaldo ante imprevistos y enfermedades de sus compañeros.",
@@ -390,14 +466,20 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     ],
     coveragesCtaText: "Ver Todas las Coberturas",
     faq: [
-      { question: "¿Qué tipo de mascotas cubre el seguro?", answer: "Principalmente perros y gatos, aunque algunas pólizas pueden cubrir otras mascotas exóticas. Consúltanos." },
-      { question: "¿Hay límite de edad para asegurar a mi mascota?", answer: "Sí, la mayoría de las aseguradoras tienen límites de edad para la contratación, tanto mínima como máxima." }
+      { question: "¿Qué tipo de mascotas cubre el seguro?", answer: "Principalmente perros y gatos. Algunas aseguradoras pueden ofrecer coberturas para otras mascotas exóticas bajo condiciones específicas. Es importante consultarlo."
+      },
+      { question: "¿Hay límite de edad para asegurar a mi mascota?", answer: "Sí, la mayoría de las aseguradoras establecen una edad mínima (generalmente unos meses) y una máxima (alrededor de los 7-9 años) para la primera contratación. Una vez asegurada, la cobertura suele continuar."
+      },
+      { 
+        question: "¿Cubre el seguro las enfermedades preexistentes de mi mascota?", 
+        answer: "Generalmente, las enfermedades o condiciones que tu mascota ya padecía antes de contratar el seguro (preexistencias) no están cubiertas. Es fundamental ser transparente al declarar el estado de salud de tu mascota."
+      }
     ],
     leadFormTitle: "Solicita Información para tu Seguro de Mascotas",
     leadFormSubtitle: "Uno de nuestros asesores te contactará para ofrecerte la mejor solución para tu fiel amigo.",
-    contactSectionTitle: "¿Dudas sobre el Seguro de Mascotas?",
-    contactSectionSubtitle: "Estamos aquí para ayudarte a proteger a tu compañero.",
-    contactSectionCtaText: "Hablar con un Asesor",
+    contactSectionTitle: "¿Listo para Proteger lo que Más Quieres?",
+    contactSectionSubtitle: "No dejes tus dudas para después. Un asesor te espera para ofrecerte la mejor solución en seguros de mascotas.",
+    contactSectionCtaText: "Solicitar Asesoría Gratuita",
     secondaryBenefitsTitle: "Cuidado Extra para tu Compañero Fiel",
     secondaryBenefitsSubtitle: "Beneficios adicionales para el bienestar y la felicidad de tu mascota.",
     secondaryBenefits: [
@@ -414,7 +496,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     heroImage: "/images/hero-motos.jpg",
     heroImagePosition: 'center',
     heroDescription: "Disfruta la libertad de la carretera con la seguridad de estar completamente protegido.",
-    heroCtaText: "Calcula Seguro de Moto",
+    heroCtaText: "Solicitar Asesoría Gratuita",
     explanationTitle: "¿Qué es el Seguro de Motos?",
     explanationText: "Un seguro de moto te protege frente a los riesgos asociados a la conducción, cubriendo desde la responsabilidad civil obligatoria hasta daños propios, robo o asistencia en viaje.",
     whoIsItForText: "Para cualquier propietario de motocicleta, scooter o ciclomotor que quiera circular con tranquilidad y cumplir con la ley.",
@@ -447,8 +529,18 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
       }
     ],
     faq: [
-      { question: "¿Es obligatorio el seguro de moto?", answer: "Sí, como mínimo es obligatorio el seguro de Responsabilidad Civil para poder circular." },
-      { question: "¿Qué tipo de seguro de moto me conviene más?", answer: "Depende del uso que le des a tu moto, su antigüedad y tu presupuesto. Podemos asesorarte para encontrar el más adecuado." }
+      { 
+        question: "¿Es obligatorio el seguro de moto?", 
+        answer: "Sí, en España es obligatorio contar como mínimo con un seguro de Responsabilidad Civil para cualquier vehículo a motor, incluidas las motocicletas, para poder circular legalmente."
+      },
+      { 
+        question: "¿Qué tipo de seguro de moto me conviene más: terceros, robo e incendio, o todo riesgo?", 
+        answer: "Depende del valor y antigüedad de tu moto, el uso que le das y tu presupuesto. Terceros es lo básico. Robo e incendio añade protección importante. Todo riesgo es lo más completo, ideal para motos nuevas o de alto valor. Te asesoramos para elegir."
+      },
+      { 
+        question: "¿El seguro de moto cubre el robo de accesorios como el casco o la chaqueta?", 
+        answer: "Algunas pólizas, especialmente las de todo riesgo o con coberturas ampliadas, pueden incluir la cobertura de robo de equipamiento del motorista (casco, guantes, chaqueta) hasta un cierto límite y bajo condiciones específicas. Es importante verificarlo."
+      }
     ],
     leadFormTitle: "Encuentra el Mejor Seguro para tu Moto",
     leadFormSubtitle: "Compara opciones y elige la cobertura perfecta para tus dos ruedas.",
@@ -459,7 +551,10 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
       { text: "Cobertura de equipamiento (casco, chaqueta).", icon: "Shirt" },
       { text: "Cursos de conducción segura con descuento.", icon: "Award" },
       { text: "Guardería de moto en invierno (servicio opcional).", icon: "ParkingCircle" }
-    ]
+    ],
+    contactSectionTitle: "¿Listo para Proteger lo que Más Quieres?",
+    contactSectionSubtitle: "No dejes tus dudas para después. Un asesor te espera para ofrecerte la mejor solución en seguros de motos.",
+    contactSectionCtaText: "Solicitar Asesoría Gratuita"
   },
   arrendamiento: {
     id: "arrendamiento",
@@ -468,7 +563,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     heroImage: "/images/hero-arrendamiento.jpg",
     heroImagePosition: 'center',
     heroDescription: "Alquila tu propiedad con total tranquilidad. Nuestro seguro de impago te protege frente a inquilinos morosos y cubre posibles daños.",
-    heroCtaText: "Protege tu Alquiler",
+    heroCtaText: "Solicitar Asesoría Gratuita",
     explanationTitle: "¿Qué es el Seguro de Impago de Alquiler?",
     explanationText: "Es una póliza diseñada para propietarios de inmuebles en alquiler. Garantiza el cobro de las rentas mensuales en caso de impago por parte del inquilino y puede cubrir los gastos de desahucio y daños en la vivienda.",
     whoIsItForText: "Para propietarios que desean asegurar sus ingresos por alquiler y protegerse de los riesgos asociados al arrendamiento.",
@@ -496,8 +591,18 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
       }
     ],
     faq: [
-      { question: "¿Quién paga el seguro de impago de alquiler?", answer: "Generalmente lo contrata y paga el propietario del inmueble." },
-      { question: "¿Qué requisitos debe cumplir el inquilino?", answer: "La aseguradora realizará un estudio de solvencia del inquilino para aprobar la póliza." }
+      { 
+        question: "¿Quién paga el seguro de impago de alquiler, el propietario o el inquilino?", 
+        answer: "Generalmente, el seguro de impago de alquiler lo contrata y paga el propietario del inmueble, ya que es quien se beneficia directamente de la garantía de cobro de rentas y protección jurídica."
+      },
+      { 
+        question: "¿Qué requisitos debe cumplir el inquilino para que el seguro sea aprobado?", 
+        answer: "La aseguradora realizará un estudio de solvencia del inquilino. Normalmente se solicita documentación que acredite ingresos estables (contrato de trabajo, nóminas, declaración de la renta para autónomos) y que la renta no supere un porcentaje de sus ingresos (suele ser entre el 30% y 45%)."
+      },
+      { 
+        question: "¿Cuánto tiempo tarda la aseguradora en pagar las rentas impagadas una vez se produce el impago?", 
+        answer: "Una vez notificado el impago y presentada la documentación requerida, la aseguradora suele adelantar las rentas en un plazo breve, que puede variar entre 1 y 3 meses según la póliza, mientras se inician las gestiones de reclamación o desahucio."
+      }
     ],
     leadFormTitle: "Asegura tus Ingresos por Alquiler",
     leadFormSubtitle: "Infórmate sobre cómo proteger tu inversión inmobiliaria.",
@@ -508,7 +613,10 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
       { text: "Gestión de contratos y asesoramiento legal continuo.", icon: "FileSignature" },
       { text: "Servicio de mediación en caso de conflictos con el inquilino.", icon: "Users" },
       { text: "Mantenimiento y reparaciones urgentes en la vivienda.", icon: "Wrench" }
-    ]
+    ],
+    contactSectionTitle: "¿Listo para Proteger lo que Más Quieres?",
+    contactSectionSubtitle: "No dejes tus dudas para después. Un asesor te espera para ofrecerte la mejor solución en seguros de impago de alquiler.",
+    contactSectionCtaText: "Solicitar Asesoría Gratuita"
   },
   viaje: {
     id: "viaje",
@@ -517,7 +625,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     heroImage: "/images/hero-viaje.jpg",
     heroImagePosition: 'center',
     heroDescription: "Explora el mundo sin preocupaciones. Nuestro seguro de viaje te protege ante cualquier imprevisto, estés donde estés.",
-    heroCtaText: "Asegura tu Aventura",
+    heroCtaText: "Solicitar Asesoría Gratuita",
     explanationTitle: "¿Por qué necesitas un Seguro de Viaje?",
     explanationText: "Un seguro de viaje te cubre ante eventualidades como gastos médicos por enfermedad o accidente, cancelación del viaje, pérdida de equipaje, repatriación y responsabilidad civil en el extranjero.",
     whoIsItForText: "Para cualquier persona que viaje, ya sea por ocio o trabajo, tanto a destinos nacionales como internacionales.",
@@ -530,8 +638,18 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
       { icon: "ShieldCheck", title: "Responsabilidad Civil Privada", description: "Cubre los daños que puedas causar a terceros durante tu viaje." }
     ],
     faq: [
-      { question: "¿Cuándo debo contratar el seguro de viaje?", answer: "Lo ideal es contratarlo al mismo tiempo que reservas tu viaje para estar cubierto ante posibles cancelaciones previas." },
-      { question: "¿El seguro de viaje cubre deportes de aventura?", answer: "Algunas pólizas ofrecen coberturas específicas para deportes de aventura. Es importante verificarlo y contratar la opción adecuada." }
+      { 
+        question: "¿Cuándo debo contratar el seguro de viaje?", 
+        answer: "Lo ideal es contratarlo tan pronto como reserves tu viaje (vuelos, alojamiento). Así estarás cubierto ante imprevistos que puedan llevar a la cancelación del viaje antes de la salida."
+      },
+      { 
+        question: "¿El seguro de viaje cubre la práctica de deportes de aventura?", 
+        answer: "Depende de la póliza. Muchos seguros básicos no cubren deportes considerados de riesgo. Si vas a practicar actividades como esquí, buceo, senderismo de alta montaña, etc., asegúrate de que tu póliza incluya una cobertura específica para deportes de aventura."
+      },
+      { 
+        question: "¿Qué hago si necesito asistencia médica urgente en el extranjero?", 
+        answer: "Contacta inmediatamente con el teléfono de asistencia 24 horas que te proporciona la aseguradora. Ellos te indicarán los pasos a seguir, te dirigirán a centros médicos concertados si es posible, y gestionarán la cobertura de los gastos según tu póliza."
+      }
     ],
     leadFormTitle: "Viaja Seguro y sin Preocupaciones",
     leadFormSubtitle: "Obtén tu presupuesto de seguro de viaje personalizado en minutos.",
@@ -542,6 +660,9 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
       { text: "Adelanto de fondos en caso de robo o pérdida de tarjeta.", icon: "CreditCard" },
       { text: "Información sobre visados y vacunas necesarias.", icon: "Info" },
       { text: "Servicio de localización y envío de equipaje extraviado.", icon: "Luggage" }
-    ]
+    ],
+    contactSectionTitle: "¿Listo para Proteger lo que Más Quieres?",
+    contactSectionSubtitle: "No dejes tus dudas para después. Un asesor te espera para ofrecerte la mejor solución en seguros de viaje.",
+    contactSectionCtaText: "Solicitar Asesoría Gratuita"
   }
 };
