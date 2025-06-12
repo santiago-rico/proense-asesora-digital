@@ -1,204 +1,205 @@
-
-import React from "react";
+import React, { useState } from "react";
 import Layout from "@/components/layout/Layout";
+import LeadGenerationDialog from "@/components/forms/LeadGenerationDialog";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
-import { Shield, Briefcase, Users } from "lucide-react";
+import { Shield, Users, Heart, Zap, BarChart2, UserCheck, Handshake, LifeBuoy } from "lucide-react";
 
 const AboutPage: React.FC = () => {
-  return (
-    <Layout>
-      <div className="pt-16">
-        {/* Page Header */}
-        <div className="bg-primary text-white py-16">
-          <div className="container mx-auto px-4">
-            <h1 className="text-3xl md:text-4xl font-bold mb-4 text-center">Sobre Nosotros</h1>
-            <p className="text-lg text-center max-w-3xl mx-auto">
-              Más de 25 años de experiencia ayudando a colombianos a proteger lo que más valoran.
-            </p>
-          </div>
-        </div>
+  const [isLeadDialogOpen, setIsLeadDialogOpen] = useState(false);
 
-        {/* Our Story */}
-        <section className="py-16">
+  const handleOpenLeadDialog = () => setIsLeadDialogOpen(true);
+
+  // Updated years of experience
+  const yearsOfExperience = "25+"; 
+
+  return (
+    <Layout handleOpenLeadDialog={handleOpenLeadDialog}>
+      <div className="pt-16">
+        {/* Image Hero Section */}
+        <section className="relative h-[300px] md:h-[400px] bg-gray-800">
+          <img 
+            src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80" // Placeholder image - replace with your desired image
+            alt="Sobre Nosotros Proense Asesores" 
+            className="absolute inset-0 w-full h-full object-cover opacity-50" // Added opacity to image for better text readability
+          />
+          <div className="absolute inset-0 bg-black/30"></div> {/* Dark overlay for better text contrast */}
+          <div className="relative z-10 container mx-auto px-4 h-full flex flex-col justify-center items-center text-center">
+            <h1 className="text-4xl md:text-5xl font-bold text-white">Sobre Nosotros</h1>
+          </div>
+        </section>
+
+        {/* Introductory Text Section */}
+        <section className="py-12 md:py-16 bg-white">
+          <div className="container mx-auto px-4">
+            <div className="max-w-3xl mx-auto text-center">
+              <h2 className="text-3xl md:text-4xl font-bold mb-6 text-primary">Proense Asesores: Tu Aliado Estratégico en Seguros</h2>
+              <p className="text-lg text-gray-700 leading-relaxed">
+                En Proense Asesores, entendemos que la tranquilidad no tiene precio. Por eso, nos dedicamos a ser tu socio de confianza en el mundo de los seguros, ofreciéndote soluciones claras, personalizadas y efectivas para proteger tu futuro, el de tu familia y tu patrimonio.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Nuestra Trayectoria (Our History) */}
+        <section className="py-16 md:py-20">
           <div className="container mx-auto px-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-              <div>
-                <h2 className="text-3xl font-bold mb-6">Nuestra Historia</h2>
+              <div className="order-2 md:order-1">
+                <h2 className="text-3xl md:text-4xl font-bold mb-6 text-secondary">Nuestra Trayectoria: {yearsOfExperience} Años Protegiendo lo que Más Importa</h2>
                 <p className="text-gray-700 mb-4">
-                  Proense Seguros nació en 1998 con una misión clara: brindar asesoría personalizada y 
-                  de calidad en seguros para las familias colombianas. Lo que comenzó como una pequeña 
-                  oficina en Bogotá ha crecido hasta convertirse en una correduría de seguros 
-                  reconocida a nivel nacional.
+                  Proense Asesores nació con una misión clara: brindar asesoría personalizada y de calidad en seguros. Lo que comenzó como una visión enfocada en el cliente ha crecido hasta convertirse en una correduría de seguros reconocida por su compromiso y experticia.
                 </p>
                 <p className="text-gray-700 mb-4">
-                  Durante más de 25 años, hemos ayudado a miles de familias y empresas a encontrar 
-                  la protección adecuada para sus necesidades específicas, siempre poniendo el 
-                  servicio al cliente y la transparencia como pilares fundamentales.
+                  Durante {yearsOfExperience} años, hemos acompañado a miles de personas, familias y empresas a encontrar la protección adecuada para sus necesidades específicas, construyendo relaciones basadas en la confianza y la transparencia.
                 </p>
                 <p className="text-gray-700">
-                  Hoy, seguimos comprometidos con brindar soluciones personalizadas y un 
-                  acompañamiento integral a cada uno de nuestros clientes, adaptándonos a las nuevas 
-                  tecnologías y necesidades del mercado sin perder nuestra esencia.
+                  Hoy, mantenemos firme nuestro compromiso de brindar soluciones innovadoras y un acompañamiento integral, adaptándonos a un mundo en constante cambio sin perder la esencia de un servicio cercano y humano.
                 </p>
               </div>
-              <div className="relative h-96 rounded-lg overflow-hidden">
+              <div className="relative h-80 md:h-96 rounded-lg overflow-hidden shadow-xl order-1 md:order-2 bg-slate-100 flex items-center justify-center p-8">
                 <img 
-                  src="https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d" 
-                  alt="Oficina de Proense Seguros" 
-                  className="absolute inset-0 w-full h-full object-cover"
+                  src="/images/logo.png"
+                  alt="Proense Asesores Logo" 
+                  className="max-w-full max-h-full"
                 />
-                <div className="absolute inset-0 bg-primary/20"></div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Values */}
-        <section className="py-16 bg-gray-50">
+        {/* Por Qué Elegirnos (Why Choose Us) - REORDERED AND REFINED */}
+        <section className="py-16 md:py-20 bg-slate-50">
           <div className="container mx-auto px-4">
-            <div className="text-center max-w-3xl mx-auto mb-12">
-              <h2 className="text-3xl font-bold mb-4">Nuestros Valores</h2>
-              <p className="text-gray-700">
-                Estos son los principios que guían nuestro trabajo diario y la relación con nuestros clientes.
+            <div className="text-center max-w-3xl mx-auto mb-12 md:mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">La Diferencia Proense: Valor Agregado para Ti</h2>
+              <p className="text-lg text-gray-700">
+                Elegir Proense Asesores significa optar por un servicio que va más allá de una simple póliza. Te ofrecemos:
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              <div className="flex flex-col items-center text-center p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+                <div className="rounded-full bg-secondary/10 p-4 mb-4">
+                  <UserCheck className="h-10 w-10 text-secondary" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Asesoría Experta y Personalizada</h3>
+                <p className="text-gray-600 text-sm">Analizamos tus necesidades para ofrecerte una cobertura a la medida. Más que una cotización, te ayudamos a elegir la solución más adecuada.</p>
+              </div>
+              <div className="flex flex-col items-center text-center p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+                <div className="rounded-full bg-secondary/10 p-4 mb-4">
+                  <BarChart2 className="h-10 w-10 text-secondary" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Encontramos el Seguro Perfecto para Ti</h3>
+                <p className="text-gray-600 text-sm">Comparamos las mejores aseguradoras del país analizando tres factores clave: precios competitivos, coberturas amplias y condiciones claras, para que tomes la mejor decisión.</p>
+              </div>
+              <div className="flex flex-col items-center text-center p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+                <div className="rounded-full bg-secondary/10 p-4 mb-4">
+                  <Handshake className="h-10 w-10 text-secondary" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Acompañamiento Permanente</h3>
+                <p className="text-gray-600 text-sm">Te acompañamos durante toda la vida de tu póliza, gestionando vencimientos y manteniéndote informado para que siempre estés protegido.</p>
+              </div>
+              <div className="flex flex-col items-center text-center p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+                <div className="rounded-full bg-secondary/10 p-4 mb-4">
+                  <LifeBuoy className="h-10 w-10 text-secondary" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Soporte Integral en Reclamaciones</h3>
+                <p className="text-gray-600 text-sm">Cuando más nos necesitas, te ofrecemos nuestro respaldo en la presentación de reclamaciones, asegurando un proceso ágil y sin estrés.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Nuestra Filosofía (Our Philosophy & Values) */}
+        <section className="py-16 md:py-20">
+          <div className="container mx-auto px-4">
+            <div className="text-center max-w-3xl mx-auto mb-12 md:mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">Nuestra Filosofía</h2>
+              <p className="text-lg text-gray-700">
+                Creemos firmemente que la base de una asesoría excepcional radica en valores sólidos y un enfoque centrado en el cliente.
               </p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <Card>
-                <CardContent className="pt-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+              <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
+                <CardContent className="pt-6 flex flex-col items-center text-center">
                   <div className="mb-4 flex justify-center">
                     <div className="rounded-full bg-primary/10 p-4">
                       <Shield className="h-8 w-8 text-primary" />
                     </div>
                   </div>
-                  <h3 className="text-xl font-bold mb-2 text-center">Confianza</h3>
-                  <p className="text-gray-700 text-center">
-                    Construimos relaciones a largo plazo basadas en la transparencia y la honestidad.
+                  <h3 className="text-xl font-semibold mb-2">Confianza y Transparencia</h3>
+                  <p className="text-gray-600 text-sm">
+                    Construimos relaciones duraderas basadas en la honestidad, la comunicación clara y la total transparencia en cada paso.
                   </p>
                 </CardContent>
               </Card>
               
-              <Card>
-                <CardContent className="pt-6">
+              <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
+                <CardContent className="pt-6 flex flex-col items-center text-center">
                   <div className="mb-4 flex justify-center">
                     <div className="rounded-full bg-primary/10 p-4">
                       <Users className="h-8 w-8 text-primary" />
                     </div>
                   </div>
-                  <h3 className="text-xl font-bold mb-2 text-center">Servicio</h3>
-                  <p className="text-gray-700 text-center">
-                    Brindamos atención personalizada y soluciones adaptadas a cada cliente.
+                  <h3 className="text-xl font-semibold mb-2">Asesoría Personalizada</h3>
+                  <p className="text-gray-600 text-sm">
+                    Nuestro equipo de expertos se dedica a entender tus necesidades únicas para ofrecerte soluciones de seguros a tu medida.
                   </p>
                 </CardContent>
               </Card>
-              
-              <Card>
-                <CardContent className="pt-6">
+
+              <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
+                <CardContent className="pt-6 flex flex-col items-center text-center">
                   <div className="mb-4 flex justify-center">
                     <div className="rounded-full bg-primary/10 p-4">
-                      <Briefcase className="h-8 w-8 text-primary" />
+                      <Heart className="h-8 w-8 text-primary" />
                     </div>
                   </div>
-                  <h3 className="text-xl font-bold mb-2 text-center">Profesionalismo</h3>
-                  <p className="text-gray-700 text-center">
-                    Contamos con un equipo de expertos altamente capacitados en el sector asegurador.
+                  <h3 className="text-xl font-semibold mb-2">Compromiso Contigo</h3>
+                  <p className="text-gray-600 text-sm">
+                    Tu paz mental es nuestra prioridad. Trabajamos para asegurar que tengas la cobertura adecuada y el respaldo necesario.
                   </p>
                 </CardContent>
               </Card>
-            </div>
-          </div>
-        </section>
-
-        {/* Our Team */}
-        <section className="py-16">
-          <div className="container mx-auto px-4">
-            <div className="text-center max-w-3xl mx-auto mb-12">
-              <h2 className="text-3xl font-bold mb-4">Nuestro Equipo</h2>
-              <p className="text-gray-700">
-                Un grupo de profesionales comprometidos con brindarte el mejor servicio y asesoría.
-              </p>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {/* Team Member 1 */}
-              <div className="bg-white rounded-lg overflow-hidden shadow-md">
-                <div className="h-64 overflow-hidden">
-                  <img 
-                    src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7" 
-                    alt="Carlos Rodríguez" 
-                    className="w-full h-full object-cover object-center"
-                  />
-                </div>
-                <div className="p-6">
-                  <h3 className="text-xl font-bold mb-1">Carlos Rodríguez</h3>
-                  <p className="text-primary mb-3">Director General</p>
-                  <p className="text-gray-700">
-                    Con más de 20 años en el sector, Carlos lidera nuestro equipo con una visión clara y un profundo conocimiento del mercado asegurador colombiano.
-                  </p>
-                </div>
-              </div>
               
-              {/* Team Member 2 */}
-              <div className="bg-white rounded-lg overflow-hidden shadow-md">
-                <div className="h-64 overflow-hidden">
-                  <img 
-                    src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2" 
-                    alt="Ana Martínez" 
-                    className="w-full h-full object-cover object-center"
-                  />
-                </div>
-                <div className="p-6">
-                  <h3 className="text-xl font-bold mb-1">Ana Martínez</h3>
-                  <p className="text-primary mb-3">Directora Comercial</p>
-                  <p className="text-gray-700">
-                    Ana se especializa en desarrollar soluciones personalizadas para grandes clientes y empresas, garantizando la mejor protección posible.
+              <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
+                <CardContent className="pt-6 flex flex-col items-center text-center">
+                  <div className="mb-4 flex justify-center">
+                    <div className="rounded-full bg-primary/10 p-4">
+                      <Zap className="h-8 w-8 text-primary" />
+                    </div>
+                  </div>
+                  <h3 className="text-xl font-semibold mb-2">Innovación Constante</h3>
+                  <p className="text-gray-600 text-sm">
+                    Adoptamos la innovación para mejorar continuamente tu experiencia y la eficiencia de nuestros servicios de asesoría.
                   </p>
-                </div>
-              </div>
-              
-              {/* Team Member 3 */}
-              <div className="bg-white rounded-lg overflow-hidden shadow-md">
-                <div className="h-64 overflow-hidden">
-                  <img 
-                    src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d" 
-                    alt="Javier López" 
-                    className="w-full h-full object-cover object-center"
-                  />
-                </div>
-                <div className="p-6">
-                  <h3 className="text-xl font-bold mb-1">Javier López</h3>
-                  <p className="text-primary mb-3">Asesor Senior</p>
-                  <p className="text-gray-700">
-                    Con 15 años de experiencia, Javier es experto en seguros de vida y salud, ayudando a nuestros clientes a proteger lo que más importa.
-                  </p>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </section>
 
         {/* Call to Action */}
-        <section className="py-20 bg-primary text-white">
+        <section className="py-16 md:py-20 bg-primary text-white">
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto text-center">
-              <h2 className="text-3xl font-bold mb-4">¿Listo para trabajar con nosotros?</h2>
-              <p className="mb-8 text-white/90">
-                Permítenos ayudarte a encontrar la protección adecuada para ti, tu familia o tu negocio.
-              </p>
-              <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-                <Button asChild variant="secondary">
-                  <Link to="/contacto">Contáctanos</Link>
-                </Button>
-                <Button asChild variant="outline" className="border-white text-white hover:bg-white/20">
-                  <a href="#servicios">Conocer Servicios</a>
-                </Button>
-              </div>
+              <h2 className="text-3xl md:text-4xl font-bold mb-6">¿Listo para Proteger lo que Más Quieres?</h2>
+              <p className="mb-8 text-lg text-white/90">Nuestros asesores están listos para ayudarte a encontrar la protección adecuada para ti, tu familia o tu negocio.</p>
+              <Button
+                onClick={handleOpenLeadDialog}
+                size="lg"
+                variant="secondary"
+                className="px-10 py-6 text-lg"
+              >
+                Solicitar Asesoría Gratuita
+              </Button>
             </div>
           </div>
         </section>
       </div>
+      <LeadGenerationDialog open={isLeadDialogOpen} onOpenChange={setIsLeadDialogOpen} />
     </Layout>
   );
 };
