@@ -20,7 +20,7 @@ const AboutPage: React.FC = () => {
         {/* Image Hero Section */}
         <section className="relative h-[300px] md:h-[400px] bg-gray-800">
           <img 
-            src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80" // Placeholder image - replace with your desired image
+            src="/images/hero-about-us.jpeg" // Placeholder image - replace with your desired image
             alt="Sobre Nosotros Proense Asesores" 
             className="absolute inset-0 w-full h-full object-cover opacity-50" // Added opacity to image for better text readability
           />
