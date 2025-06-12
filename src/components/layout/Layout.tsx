@@ -11,7 +11,7 @@ function Layout({ children, handleOpenLeadDialog }: LayoutProps) {
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar handleOpenLeadDialog={handleOpenLeadDialog} />
-      <main className="flex-grow pt-16 md:pt-20">{children}</main>
+      <main className="flex-grow pt-16">{children}</main>
       <Footer />
     </div>
   );
