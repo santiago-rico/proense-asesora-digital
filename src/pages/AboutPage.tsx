@@ -1,14 +1,19 @@
 
-import React from "react";
+import React, { useState } from "react";
 import Layout from "@/components/layout/Layout";
+import LeadGenerationDialog from "@/components/forms/LeadGenerationDialog";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Shield, Briefcase, Users } from "lucide-react";
 
 const AboutPage: React.FC = () => {
+  const [isLeadDialogOpen, setIsLeadDialogOpen] = useState(false);
+
+  const handleOpenLeadDialog = () => setIsLeadDialogOpen(true);
+  // const handleCloseLeadDialog = () => setIsLeadDialogOpen(false); // Not strictly needed if onOpenChange is used directly
   return (
-    <Layout>
+    <Layout handleOpenLeadDialog={handleOpenLeadDialog}>
       <div className="pt-16">
         {/* Page Header */}
         <div className="bg-primary text-white py-16">
@@ -180,25 +185,22 @@ const AboutPage: React.FC = () => {
         </section>
 
         {/* Call to Action */}
-        <section className="py-20 bg-primary text-white">
+        <section className="py-12 md:py-16 bg-primary text-white">
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto text-center">
-              <h2 className="text-3xl font-bold mb-4">¿Listo para trabajar con nosotros?</h2>
-              <p className="mb-8 text-white/90">
-                Permítenos ayudarte a encontrar la protección adecuada para ti, tu familia o tu negocio.
-              </p>
-              <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-                <Button asChild variant="secondary">
-                  <Link to="/contacto">Contáctanos</Link>
-                </Button>
-                <Button asChild variant="outline" className="border-white text-white hover:bg-white/20">
-                  <a href="#servicios">Conocer Servicios</a>
-                </Button>
-              </div>
+              <h2 className="text-2xl md:text-3xl font-bold mb-4">¿Listo para Proteger lo que Más Quieres?</h2>
+              <p className="mb-6 text-lg text-white/90">Nuestros asesores están listos para ayudarte a encontrar la protección adecuada para ti, tu familia o tu negocio.</p>
+              <button
+                onClick={handleOpenLeadDialog}
+                className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-secondary text-secondary-foreground hover:bg-secondary/80 h-11 rounded-md px-8"
+              >
+                Solicitar Asesoría Gratuita
+              </button>
             </div>
           </div>
         </section>
       </div>
+      <LeadGenerationDialog open={isLeadDialogOpen} onOpenChange={setIsLeadDialogOpen} />
     </Layout>
   );
 };
