@@ -10,8 +10,9 @@ const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
           {/* Company Info */}
           <div className="mb-6 md:mb-0">
-            <Link to="/" className="inline-block mb-4">
+            <Link to="/" className="inline-flex items-center mb-4 space-x-2">
               <img src="/images/logo.png" alt="Proense Seguros" className="h-8" />
+              <span className="text-white text-2xl font-bold">Proense Seguros</span>
             </Link>
             <p className="text-gray-300 mb-4">
               Más de 25 años de experiencia en el mercado de seguros en Colombia,
