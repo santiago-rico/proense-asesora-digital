@@ -70,13 +70,14 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
     <>
       <nav
         className={`fixed w-full z-50 transition-all duration-300 ${
-          scrolled ? "bg-white shadow-md py-2" : "bg-white/95 py-4"
+          scrolled ? "bg-white shadow-md py-2" : "bg-white py-2"
         }`}
       >
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center">
             <Link to="/" className="flex items-center">
-              <span className="text-2xl font-bold text-primary">Proense <span className="text-accent">Seguros</span></span>
+              <img src="/images/logo.png" alt="Proense Seguros Logo" className="h-12 w-auto" />
+              <img src="/images/text-logo.png" alt="Proense Seguros Text" className="h-8 w-auto ml-2" />
             </Link>
 
             {/* Desktop Navigation */}
@@ -87,6 +88,7 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
                   <NavigationMenuItem key="inicio">
                     <NavigationMenuLink asChild className={cn(
                       navigationMenuTriggerStyle(),
+                      "text-base", // Increased font size
                       isActive("/") ? "text-primary font-medium" : "text-gray-700"
                     )}>
                       <Link to="/">Inicio</Link>
@@ -96,6 +98,7 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
                   {/* Seguros Dropdown */}
                   <NavigationMenuItem key="seguros">
                     <NavigationMenuTrigger className={cn(
+                      "text-base", // Increased font size
                       isActive("/seguros") ? "text-primary font-medium" : "text-gray-700"
                     )}>Seguros</NavigationMenuTrigger>
                     <NavigationMenuContent>
@@ -116,6 +119,7 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
                   {/* Servicios Dropdown */}
                   <NavigationMenuItem key="servicios">
                     <NavigationMenuTrigger className={cn(
+                      "text-base", // Increased font size
                       isActive("/servicios") ? "text-primary font-medium" : "text-gray-700"
                     )}>Servicios</NavigationMenuTrigger>
                     <NavigationMenuContent>
@@ -135,6 +139,7 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
                   <NavigationMenuItem key="nosotros">
                     <NavigationMenuLink asChild className={cn(
                       navigationMenuTriggerStyle(),
+                      "text-base", // Increased font size
                       isActive("/nosotros") ? "text-primary font-medium" : "text-gray-700"
                     )}>
                       <Link to="/nosotros">Nosotros</Link>
@@ -145,6 +150,7 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
                   <NavigationMenuItem key="blog">
                     <NavigationMenuLink asChild className={cn(
                       navigationMenuTriggerStyle(),
+                      "text-base", // Increased font size
                       isActive("/blog") ? "text-primary font-medium" : "text-gray-700"
                     )}>
                       <Link to="/blog">Blog</Link>
@@ -154,6 +160,7 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
                   <NavigationMenuItem key="contacto">
                     <NavigationMenuLink asChild className={cn(
                       navigationMenuTriggerStyle(),
+                      "text-base", // Increased font size
                       isActive("/contacto") ? "text-primary font-medium" : "text-gray-700"
                     )}>
                       <Link to="/contacto">Contacto</Link>
@@ -162,7 +169,7 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
                 </NavigationMenuList>
               </NavigationMenu>
               
-              <Button className="ml-4" size="sm" variant="secondary" onClick={handleOpenLeadDialog}>
+              <Button className="ml-4" size="default" variant="secondary" onClick={handleOpenLeadDialog}>
                 <Phone size={16} className="mr-2" />
                 Solicitar Asesoría Gratuita
               </Button>
