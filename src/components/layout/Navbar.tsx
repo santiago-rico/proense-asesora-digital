@@ -69,9 +69,10 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
   return (
     <>
       <nav
-        className={`fixed w-full z-50 transition-all duration-300 ${
+        className={`fixed z-50 ${
           scrolled ? "bg-white shadow-md py-2" : "bg-white py-2"
         }`}
+        style={{ width: 'calc(100% - var(--removed-body-scroll-bar-size, 0px))' }}
       >
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center">
