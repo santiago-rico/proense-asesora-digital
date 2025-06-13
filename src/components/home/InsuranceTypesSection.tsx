@@ -69,13 +69,7 @@ const InsuranceTypesSection: React.FC = () => {
           ))}
         </div>
 
-        <div className="text-center mt-12">
-          <Button asChild size="lg" className="bg-secondary hover:bg-secondary/90 text-white">
-            <Link to="/seguros">
-              Consulta todos nuestros seguros
-            </Link>
-          </Button>
-        </div>
+
       </div>
     </section>
   );

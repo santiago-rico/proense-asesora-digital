@@ -14,6 +14,7 @@ const ContactPage: React.FC<ContactPageProps> = ({ handleOpenLeadDialog }) => {
       {/* Hero Section */}
       <div 
         className="bg-[url('/images/hero-contact.jpg')] bg-cover bg-center text-white py-24 md:py-32 relative"
+        style={{ backgroundPosition: 'center 15%' }}
       >
         <div className="absolute inset-0 bg-black opacity-50"></div>
         <div className="container mx-auto px-4 relative z-10">
