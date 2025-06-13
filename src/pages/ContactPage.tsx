@@ -4,9 +4,13 @@ import Layout from "@/components/layout/Layout";
 import LeadForm from "@/components/forms/LeadForm";
 import { Phone, Mail, Home } from "lucide-react";
 
-const ContactPage: React.FC = () => {
+interface ContactPageProps {
+  handleOpenLeadDialog: () => void;
+}
+
+const ContactPage: React.FC<ContactPageProps> = ({ handleOpenLeadDialog }) => {
   return (
-    <Layout>
+    <Layout handleOpenLeadDialog={handleOpenLeadDialog}>
       <div className="pt-16">
         {/* Page Header */}
         <div className="bg-primary text-white py-16">
@@ -111,18 +115,7 @@ const ContactPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Map */}
-        <div className="mt-10 bg-gray-100 py-12">
-          <div className="container mx-auto px-4">
-            <h2 className="text-2xl font-bold mb-6 text-center">Encuéntranos</h2>
-            <div className="max-w-4xl mx-auto rounded-lg overflow-hidden shadow-lg">
-              {/* Placeholder for a real map */}
-              <div className="bg-gray-300 h-96 flex items-center justify-center">
-                <span className="text-gray-600">Mapa embebido iría aquí</span>
-              </div>
-            </div>
-          </div>
-        </div>
+
       </div>
     </Layout>
   );

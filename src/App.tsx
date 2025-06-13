@@ -32,7 +32,7 @@ const App = () => {
           <ScrollToTop />
           <Routes>
             <Route path="/" element={<Index handleOpenLeadDialog={handleOpenLeadDialog} />} />
-            <Route path="/contacto" element={<ContactPage />} />
+            <Route path="/contacto" element={<ContactPage handleOpenLeadDialog={handleOpenLeadDialog} />} />
             <Route path="/nosotros" element={<AboutPage />} />
             <Route path="/blog" element={<BlogListPage />} />
             <Route path="/blog/:slug" element={<BlogPostPage />} />
