@@ -13,6 +13,8 @@ import BlogPostPage from "./pages/BlogPostPage";
 import InsuranceProductPage from "./pages/InsuranceProductPage";
 import ClientServicePage from "./pages/ClientServicePage";
 import NotFound from "./pages/NotFound";
+import PoliticaPrivacidadPage from "./pages/PoliticaPrivacidadPage";
+import TerminosCondicionesPage from "./pages/TerminosCondicionesPage";
 import LeadGenerationDialog from "@/components/forms/LeadGenerationDialog";
 
 const queryClient = new QueryClient();
@@ -53,6 +55,10 @@ const App = () => {
             <Route path="/servicios/modificaciones" element={<ClientServicePage type="modificacion" />} />
             <Route path="/servicios/cancelaciones" element={<ClientServicePage type="cancelacion" />} />
             <Route path="/servicios/siniestros" element={<ClientServicePage type="siniestro" />} />
+
+            {/* Legal Pages */}
+            <Route path="/politica-de-privacidad" element={<PoliticaPrivacidadPage />} />
+            <Route path="/terminos-y-condiciones" element={<TerminosCondicionesPage />} />
             
             <Route path="*" element={<NotFound />} />
           </Routes>
