@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
@@ -31,6 +32,9 @@ const formSchema = z.object({
   telefono: z.string().refine(isValidPhoneNumber, { message: "Número de teléfono inválido" }),
   tipoSeguro: z.string().min(1, { message: "Por favor seleccione un tipo de seguro" }),
   mensaje: z.string().optional(),
+  terminos: z.boolean().refine((val) => val === true, {
+    message: "Debes aceptar los términos y condiciones",
+  }),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -51,6 +55,7 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick }
       telefono: "",
       tipoSeguro: initialInsuranceType || "",
       mensaje: "",
+      terminos: false,
     },
   });
 
@@ -89,6 +94,7 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick }
         telefono: "",
         tipoSeguro: initialInsuranceType || "",
         mensaje: "",
+        terminos: false,
       });
     } catch (error) {
       let errorMessage = "Ocurrió un error al enviar tu solicitud. Por favor, intenta de nuevo.";
@@ -199,17 +205,36 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick }
             )}
           />
 
-          <p className="text-xs text-gray-500 mt-4 text-center">
-            Al enviar tu solicitud, aceptas nuestra{" "}
-            <Link to="/politica-de-privacidad" className="underline hover:text-gray-700" onClick={onLinkClick}>
-              Política de Privacidad
-            </Link>{" "}
-            y nuestros{" "}
-            <Link to="/terminos-y-condiciones" className="underline hover:text-gray-700" onClick={onLinkClick}>
-              Términos y Condiciones
-            </Link>
-            .
-          </p>
+          <FormField
+            control={form.control}
+            name="terminos"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-start space-x-3 space-y-0 mt-4">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel>
+                    <span className="text-xs text-gray-600">
+                      Acepto la{" "}
+                      <Link to="/politica-de-privacidad" className="underline hover:text-gray-900" onClick={onLinkClick}>
+                        Política de Privacidad
+                      </Link>{" "}
+                      y los{" "}
+                      <Link to="/terminos-y-condiciones" className="underline hover:text-gray-900" onClick={onLinkClick}>
+                        Términos y Condiciones
+                      </Link>
+                      .
+                    </span>
+                  </FormLabel>
+                  <FormMessage />
+                </div>
+              </FormItem>
+            )}
+          />
           <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading ? 'Enviando...' : 'Enviar Solicitud'}
           </Button>
