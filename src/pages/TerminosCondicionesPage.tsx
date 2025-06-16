@@ -1,9 +1,13 @@
 import React from 'react';
 import Layout from '@/components/layout/Layout';
 
-const TerminosCondicionesPage: React.FC = () => {
+interface TerminosCondicionesPageProps {
+  handleOpenLeadDialog: () => void;
+}
+
+const TerminosCondicionesPage: React.FC<TerminosCondicionesPageProps> = ({ handleOpenLeadDialog }) => {
   return (
-    <Layout handleOpenLeadDialog={() => { /* No lead dialog needed for this page */ }}>
+    <Layout handleOpenLeadDialog={handleOpenLeadDialog}>
       {/* Hero Section */}
       <section className="bg-primary text-white py-12 md:py-16">
         <div className="container mx-auto px-4 text-center">

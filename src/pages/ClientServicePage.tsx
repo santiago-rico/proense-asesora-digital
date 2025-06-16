@@ -16,9 +16,10 @@ import { Check, Upload } from "lucide-react";
 
 interface ClientServicePageProps {
   type: "emision" | "modificacion" | "cancelacion" | "siniestro";
+  handleOpenLeadDialog: () => void;
 }
 
-const ClientServicePage: React.FC<ClientServicePageProps> = ({ type }) => {
+const ClientServicePage: React.FC<ClientServicePageProps> = ({ type, handleOpenLeadDialog }) => {
   const { toast } = useToast();
 
   const serviceData = {
@@ -151,14 +152,13 @@ const ClientServicePage: React.FC<ClientServicePageProps> = ({ type }) => {
   };
 
   return (
-    <Layout>
-      {/* Hero Banner */}
-      <HeroBanner
+    <Layout handleOpenLeadDialog={handleOpenLeadDialog}>
+      <HeroBanner 
         title={data.title}
-        subtitle={data.description}
+        description={data.description} 
         ctaText="Ir al Formulario"
-        ctaLink="#service-form"
         backgroundImage={data.heroImage}
+        handleOpenLeadDialog={handleOpenLeadDialog}
       />
 
       {/* Steps Section */}

@@ -7,7 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { getBlogPosts } from "@/services/blogService";
 
-const BlogListPage: React.FC = () => {
+interface BlogListPageProps {
+  handleOpenLeadDialog: () => void;
+}
+
+const BlogListPage: React.FC<BlogListPageProps> = ({ handleOpenLeadDialog }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeCategory, setActiveCategory] = useState("todos");
 
@@ -37,7 +41,7 @@ const BlogListPage: React.FC = () => {
   });
 
   return (
-    <Layout>
+    <Layout handleOpenLeadDialog={handleOpenLeadDialog}>
       <div className="pt-16">
         {/* Page Header */}
         <div className="bg-primary text-white py-16">
