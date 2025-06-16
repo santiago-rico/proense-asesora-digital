@@ -13,12 +13,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Check, Upload } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Link } from "react-router-dom";
 
 interface ClientServicePageProps {
   type: "emision" | "modificacion" | "cancelacion" | "siniestro";
+  handleOpenLeadDialog: () => void;
 }
 
-const ClientServicePage: React.FC<ClientServicePageProps> = ({ type }) => {
+const ClientServicePage: React.FC<ClientServicePageProps> = ({ type, handleOpenLeadDialog }) => {
   const { toast } = useToast();
 
   const serviceData = {
@@ -83,9 +86,7 @@ const ClientServicePage: React.FC<ClientServicePageProps> = ({ type }) => {
     metodoPago: type === "emision" ? z.string().min(1, { message: "Por favor seleccione un método de pago" }) : z.string().optional(),
     periodicidadPago: type === "emision" ? z.string().min(1, { message: "Por favor seleccione la periodicidad" }) : z.string().optional(),
     detallesSolicitud: z.string().min(10, { message: "Por favor proporcione detalles de su solicitud" }),
-    aceptaTerminos: z.boolean().refine((val) => val === true, {
-      message: "Debe aceptar los términos y condiciones",
-    }),
+    terminos: z.boolean().refine((val) => val === true, { message: "Debes aceptar los términos y condiciones" }),
   });
 
   type FormData = z.infer<typeof formSchema>;
@@ -101,7 +102,7 @@ const ClientServicePage: React.FC<ClientServicePageProps> = ({ type }) => {
       metodoPago: "",
       periodicidadPago: "",
       detallesSolicitud: "",
-      aceptaTerminos: false,
+      terminos: false,
     },
   });
 
@@ -151,14 +152,13 @@ const ClientServicePage: React.FC<ClientServicePageProps> = ({ type }) => {
   };
 
   return (
-    <Layout>
-      {/* Hero Banner */}
-      <HeroBanner
+    <Layout handleOpenLeadDialog={handleOpenLeadDialog}>
+      <HeroBanner 
         title={data.title}
-        subtitle={data.description}
+        description={data.description} 
         ctaText="Ir al Formulario"
-        ctaLink="#service-form"
         backgroundImage={data.heroImage}
+        handleOpenLeadDialog={handleOpenLeadDialog}
       />
 
       {/* Steps Section */}
@@ -378,21 +378,36 @@ const ClientServicePage: React.FC<ClientServicePageProps> = ({ type }) => {
                         </p>
                       </div>
 
-                      <div className="flex items-center space-x-2">
-                        <input
-                          type="checkbox"
-                          id="aceptaTerminos"
-                          className="rounded border-gray-300"
-                          checked={form.watch("aceptaTerminos")}
-                          onChange={(e) => form.setValue("aceptaTerminos", e.target.checked)}
-                        />
-                        <label htmlFor="aceptaTerminos" className="text-sm">
-                          Acepto los <a href="#" className="text-primary underline">términos y condiciones</a> y autorizo el tratamiento de mis datos personales.
-                        </label>
-                      </div>
-                      {form.formState.errors.aceptaTerminos && (
-                        <p className="text-sm text-red-500">{form.formState.errors.aceptaTerminos.message}</p>
+                    <FormField
+                      control={form.control}
+                      name="terminos"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 mt-4">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                          <div className="space-y-1 leading-none">
+                            <FormLabel>
+                              <span className="text-xs text-gray-600">
+                                Acepto la{" "}
+                                <Link to="/politica-de-privacidad" className="underline hover:text-gray-900">
+                                  Política de Privacidad
+                                </Link>{" "}
+                                y los{" "}
+                                <Link to="/terminos-y-condiciones" className="underline hover:text-gray-900">
+                                  Términos y Condiciones
+                                </Link>
+                                .
+                              </span>
+                            </FormLabel>
+                            <FormMessage />
+                          </div>
+                        </FormItem>
                       )}
+                    />
                     </div>
 
                     <div>

@@ -1,9 +1,14 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 
-const TerminosCondicionesPage: React.FC = () => {
+interface TerminosCondicionesPageProps {
+  handleOpenLeadDialog: () => void;
+}
+
+const TerminosCondicionesPage: React.FC<TerminosCondicionesPageProps> = ({ handleOpenLeadDialog }) => {
   return (
-    <Layout handleOpenLeadDialog={() => { /* No lead dialog needed for this page */ }}>
+    <Layout handleOpenLeadDialog={handleOpenLeadDialog}>
       {/* Hero Section */}
       <section className="bg-primary text-white py-12 md:py-16">
         <div className="container mx-auto px-4 text-center">
@@ -13,147 +18,76 @@ const TerminosCondicionesPage: React.FC = () => {
 
       {/* Main Content Section */}
       <section className="py-12 md:py-16 bg-white">
-        <div className="container mx-auto px-4 max-w-4xl">
-    
-      
+        <div className="container mx-auto px-4 max-w-4xl prose lg:prose-xl">
+          <p className="text-sm text-gray-600 mb-6">Fecha de Última Actualización: 16 de Junio de 2025</p>
 
-      <section className="mb-6">
-        <h2 className="text-2xl font-semibold mb-3">1. Aceptación de los Términos</h2>
-        <p className="mb-2">
-          Bienvenido al sitio web de [Nombre de la Empresa Asesora de Seguros] (en adelante, "la Compañía", "nosotros"). Con NIT [Número de NIT], domiciliada en [Dirección Completa, Ciudad, Colombia].
-        </p>
-        <p className="mb-2">
-          Estos Términos y Condiciones (en adelante, "Términos") rigen el acceso y uso de nuestro sitio web [URL del sitio web] (en adelante, "el Sitio Web") y los servicios de intermediación de seguros ofrecidos a través del mismo (en adelante, "los Servicios").
-        </p>
-        <p className="mb-2">
-          Al acceder, navegar o utilizar el Sitio Web y/o los Servicios, usted (en adelante, "el Usuario") declara haber leído, entendido y aceptado de manera voluntaria e inequívoca la totalidad de estos Términos, así como nuestra Política de Privacidad. Si no está de acuerdo con estos Términos, por favor absténgase de utilizar el Sitio Web y los Servicios.
-        </p>
+          <h2 className="text-2xl font-semibold mb-3">1. TÉRMINOS Y CONDICIONES GENERALES Y ACEPTACIÓN</h2>
+          <p className="mb-4">
+            El presente documento regula el acceso y uso del sitio web www.proense.com.co (el “Sitio Web”), titularidad de PROENSE AGENCIA DE SEGUROS LTDA (en adelante “PROENSE”). La utilización del Sitio Web le atribuye la condición de “Usuario” e implica su aceptación plena, consciente y sin reservas de todas las disposiciones aquí contenidas. Si el Usuario no está de acuerdo con estos Términos y Condiciones, deberá abstenerse de acceder y/o utilizar este Sitio Web.
+          </p>
+
+          <h2 className="text-2xl font-semibold mb-3">2. IDENTIFICACIÓN DEL TITULAR DEL SITIO WEB</h2>
+          <ul className="list-none mb-4 pl-0">
+            <li><strong>Razón Social:</strong> PROENSE AGENCIA DE SEGUROS LTDA</li>
+            <li><strong>NIT:</strong> 901.915.787-3</li>
+            <li><strong>Domicilio Principal:</strong> Pereira, Risaralda, República de Colombia.</li>
+          </ul>
+
+          <h2 className="text-2xl font-semibold mb-3">3. OBJETO DEL SITIO Y NATURALEZA DEL SERVICIO</h2>
+          <p className="mb-4">
+            El Sitio Web es una plataforma digital cuyo objeto es presentar el portafolio de servicios de intermediación de seguros de PROENSE, ofrecer información de valor y facilitar un canal de contacto para que los Usuarios puedan solicitar asesoría. El Usuario reconoce que PROENSE actúa como intermediario de seguros y no como una compañía aseguradora.
+          </p>
+
+          <h2 className="text-2xl font-semibold mb-3">4. ALTERACIONES AL SITIO WEB Y A LOS SERVICIOS</h2>
+          <p className="mb-4">
+            PROENSE se reserva el derecho, de forma unilateral y en cualquier momento, de modificar, suspender, interrumpir o descontinuar el Sitio Web, ya sea de forma temporal o permanente. Esto incluye la alteración, adición o eliminación de cualquier contenido, herramienta o servicio ofrecido, sin necesidad de previo aviso al Usuario y sin que ello genere derecho a reclamo o indemnización alguna a su favor.
+          </p>
+
+          <h2 className="text-2xl font-semibold mb-3">5. COTIZACIONES</h2>
+          <p className="mb-4">
+            La solicitud de cotizaciones a través del Sitio Web constituye una mera solicitud de información por parte del Usuario y no representa una oferta comercial vinculante por parte de PROENSE ni de las compañías aseguradoras. Las condiciones, tarifas, coberturas y deducibles son de carácter informativo y preliminar, y están sujetos a la evaluación del riesgo y a la confirmación final por parte de la entidad aseguradora. El contrato de seguro se entiende perfeccionado únicamente con la emisión formal de la póliza por parte de la compañía de seguros y el pago de la prima correspondiente.
+          </p>
+
+          <h2 className="text-2xl font-semibold mb-3">6. CONTENIDO Y USO ADECUADO</h2>
+          <p className="mb-4">
+            El Usuario se compromete a hacer un uso diligente y lícito del contenido informativo provisto en el Sitio Web. Este contenido es de carácter orientativo y no debe ser interpretado como asesoría legal, financiera o de cualquier otra índole que sustituya la consulta profesional personalizada. PROENSE no se responsabiliza por las decisiones que el Usuario tome basándose únicamente en la información generalista del Sitio Web.
+          </p>
+
+          <h2 className="text-2xl font-semibold mb-3">7. ENLACES A TERCERAS PARTES</h2>
+          <p className="mb-4">
+            El Sitio Web puede contener hipervínculos o enlaces a sitios web de terceros (ej: compañías de seguros, entidades regulatorias, etc.). Estos enlaces se proporcionan únicamente para conveniencia del Usuario. PROENSE no ejerce control sobre dichos sitios, no respalda su contenido y, por lo tanto, no asume ninguna responsabilidad por la información, las prácticas de privacidad, la seguridad o la funcionalidad de los mismos. El acceso a cualquier sitio de terceros enlazado desde este Sitio Web se realiza bajo el exclusivo riesgo del Usuario.
+          </p>
+
+          <h2 className="text-2xl font-semibold mb-3">8. PROPIEDAD INTELECTUAL</h2>
+          <p className="mb-4">
+            La totalidad de los contenidos del Sitio Web, incluyendo, a título enunciativo, textos, gráficos, logotipos, código fuente, imágenes, videos y marcas comerciales, son propiedad exclusiva de PROENSE o de terceros que han autorizado su uso. Dichos contenidos están protegidos por la legislación colombiana y supranacional en materia de propiedad intelectual e industrial. Queda estrictamente prohibida su reproducción, copia, distribución o cualquier otra forma de explotación sin la autorización previa, expresa y por escrito de PROENSE.
+          </p>
+
+          <h2 className="text-2xl font-semibold mb-3">9. INFORMACIÓN PERSONAL</h2>
+          <p className="mb-4">
+            El tratamiento de los datos personales que el Usuario suministre a través del Sitio Web se rige por nuestra Política de Tratamiento de la Información y Datos Personales, la cual es parte integral de estos Términos y Condiciones. El Usuario declara haberla leído y aceptado. Puede consultarla{' '}
+            <Link to="/politica-de-privacidad" className="text-primary hover:underline">
+              aquí
+            </Link>.
+          </p>
+
+          <h2 className="text-2xl font-semibold mb-3">10. Inexistencia de Garantía</h2>
+          <p className="mb-4">
+            El Sitio Web y todo su contenido se proporcionan "tal cual" y "según disponibilidad". PROENSE no ofrece garantías de ningún tipo, ni expresas ni implícitas, sobre la operatividad del Sitio o la información, contenido o materiales incluidos en el mismo. El Usuario acepta expresamente que el uso del Sitio Web es bajo su propio riesgo. PROENSE no garantiza que el Sitio Web esté libre de virus u otros componentes dañinos, ni que su funcionamiento sea ininterrumpido o libre de errores.
+          </p>
+
+          <h2 className="text-2xl font-semibold mb-3">11. LIBERACIÓN Y LIMITACIÓN DE RESPONSABILIDAD</h2>
+          <p className="mb-4">
+            En la máxima medida permitida por la ley aplicable, el Usuario acepta que PROENSE, sus directores, empleados o agentes, no serán responsables por ningún daño directo, indirecto, incidental, consecuencial o especial que surja de o esté relacionado con el uso o la imposibilidad de uso del Sitio Web. Esta liberación de responsabilidad incluye, sin limitación, daños por pérdida de datos, interrupción del negocio, errores, omisiones o cualquier otro perjuicio, incluso si PROENSE hubiese sido advertido de la posibilidad de dichos daños.
+          </p>
+
+          <h2 className="text-2xl font-semibold mb-3">12. LEGISLACIÓN APLICABLE Y JURISDICCIÓN</h2>
+          <p className="mb-4">
+            Estos Términos y Condiciones se rigen e interpretan en su totalidad por las leyes de la República de Colombia. Cualquier controversia que surja de su interpretación o aplicación será sometida a la jurisdicción de los jueces y tribunales competentes de la ciudad de Pereira, Risaralda, renunciando el Usuario a cualquier otro fuero que pudiera corresponderle.
+          </p>
+        </div>
       </section>
-
-      <section className="mb-6">
-        <h2 className="text-2xl font-semibold mb-3">2. Definiciones Clave</h2>
-        <ul className="list-disc list-inside mb-2">
-          <li><strong>Usuario:</strong> Toda persona natural o jurídica que acceda, navegue o utilice el Sitio Web y/o solicite o utilice los Servicios.</li>
-          <li><strong>Sitio Web:</strong> La plataforma digital accesible a través de la URL [URL del sitio web] y todas sus páginas y contenidos asociados.</li>
-          <li><strong>Servicios:</strong> Las actividades de intermediación de seguros, incluyendo la provisión de información, cotización, comparación, asesoría y facilitación en la contratación de pólizas de seguros con diversas compañías aseguradoras.</li>
-          <li><strong>Compañía Aseguradora:</strong> Entidad legalmente autorizada en Colombia para expedir pólizas de seguros.</li>
-          <li><strong>Póliza de Seguros:</strong> Contrato de seguro celebrado entre el Usuario (tomador/asegurado) y una Compañía Aseguradora.</li>
-        </ul>
-      </section>
-
-      <section className="mb-6">
-        <h2 className="text-2xl font-semibold mb-3">3. Objeto de los Servicios</h2>
-        <p className="mb-2">
-          La Compañía actúa como un intermediario de seguros independiente, debidamente autorizado por la Superintendencia Financiera de Colombia (si aplica, o la entidad correspondiente). Nuestro objetivo es asesorar al Usuario de manera profesional e imparcial para ayudarle a encontrar soluciones de aseguramiento que se ajusten a sus necesidades y perfil de riesgo, facilitando el proceso de cotización y adquisición de pólizas de seguros ofrecidas por diversas Compañías Aseguradoras aliadas.
-        </p>
-        <p className="mb-2">
-          La Compañía no es una entidad aseguradora y no asume riesgos de seguros. Las pólizas son emitidas directamente por las Compañías Aseguradoras, quienes son las únicas responsables por la cobertura, términos, condiciones y exclusiones de las mismas, así como del pago de siniestros.
-        </p>
-      </section>
-
-      <section className="mb-6">
-        <h2 className="text-2xl font-semibold mb-3">4. Capacidad Legal del Usuario</h2>
-        <p className="mb-2">
-          Los Servicios están dirigidos exclusivamente a personas mayores de edad (18 años en Colombia) con plena capacidad legal para contratar y obligarse según las leyes colombianas. Al utilizar los Servicios, el Usuario declara cumplir con este requisito.
-        </p>
-      </section>
-
-      <section className="mb-6">
-        <h2 className="text-2xl font-semibold mb-3">5. Obligaciones del Usuario</h2>
-        <p className="mb-2">
-          El Usuario se compromete a:
-        </p>
-        <ul className="list-disc list-inside mb-2">
-          <li>Utilizar el Sitio Web y los Servicios de manera lícita, de buena fe y de acuerdo con estos Términos y la legislación colombiana.</li>
-          <li>Proporcionar información veraz, completa, exacta y actualizada al momento de solicitar cotizaciones, asesoría o contratar pólizas de seguros. El Usuario es el único responsable por la exactitud de la información suministrada y por las consecuencias derivadas de su omisión, inexactitud o falsedad.</li>
-          <li>Leer detenidamente toda la información proporcionada por la Compañía y por las Compañías Aseguradoras, incluyendo cotizaciones, condiciones generales y particulares de las pólizas, antes de tomar cualquier decisión de aseguramiento.</li>
-          <li>No utilizar el Sitio Web para fines fraudulentos, ilegales o que puedan dañar la imagen o los derechos de la Compañía o de terceros.</li>
-          <li>Custodiar diligentemente cualquier credencial de acceso (nombre de usuario, contraseña) que se le proporcione, siendo responsable por su uso indebido.</li>
-          <li>Informar oportunamente a la Compañía sobre cualquier cambio en su información personal o en las circunstancias que puedan afectar sus seguros.</li>
-        </ul>
-      </section>
-
-      <section className="mb-6">
-        <h2 className="text-2xl font-semibold mb-3">6. Información sobre Productos y Servicios de Seguros</h2>
-        <p className="mb-2">
-          La información sobre productos y servicios de seguros presentada en el Sitio Web tiene un carácter general e informativo. Las cotizaciones generadas son estimaciones basadas en la información proporcionada por el Usuario y están sujetas a la evaluación y aceptación final por parte de la Compañía Aseguradora respectiva.
-        </p>
-        <p className="mb-2">
-          Los términos, condiciones, coberturas, exclusiones y primas finales de las pólizas de seguros son establecidos exclusivamente por cada Compañía Aseguradora y se encuentran detallados en los documentos contractuales de la póliza. Es responsabilidad del Usuario revisar cuidadosamente dichos documentos antes de la contratación.
-        </p>
-      </section>
-
-      <section className="mb-6">
-        <h2 className="text-2xl font-semibold mb-3">7. Proceso de Cotización y Contratación</h2>
-        <p className="mb-2">
-          El Sitio Web puede ofrecer herramientas para solicitar cotizaciones. El envío de una solicitud de cotización no implica la aceptación ni la obligación de emisión de una póliza por parte de la Compañía Aseguradora. La Compañía facilitará el contacto y la información necesaria para que el Usuario pueda, si así lo decide, contratar la póliza directamente con la Aseguradora o con nuestra asistencia.
-        </p>
-      </section>
-
-      <section className="mb-6">
-        <h2 className="text-2xl font-semibold mb-3">8. Propiedad Intelectual</h2>
-        <p className="mb-2">
-          Todo el contenido del Sitio Web, incluyendo pero no limitándose a textos, gráficos, logotipos, iconos, imágenes, software, diseño y código fuente, es propiedad de la Compañía o de sus licenciantes y está protegido por las leyes colombianas e internacionales sobre propiedad intelectual e industrial.
-        </p>
-        <p className="mb-2">
-          Queda prohibida la reproducción, distribución, modificación, transmisión, publicación o cualquier otro uso no autorizado expresamente por escrito por la Compañía.
-        </p>
-      </section>
-
-      <section className="mb-6">
-        <h2 className="text-2xl font-semibold mb-3">9. Privacidad y Protección de Datos Personales</h2>
-        <p className="mb-2">
-          El tratamiento de los datos personales del Usuario se rige por nuestra <a href="/politica-de-privacidad" className="text-blue-600 hover:underline">Política de Privacidad</a>, la cual forma parte integral de estos Términos. Al aceptar estos Términos, el Usuario también acepta nuestra Política de Privacidad.
-        </p>
-      </section>
-
-      <section className="mb-6">
-        <h2 className="text-2xl font-semibold mb-3">10. Limitación de Responsabilidad</h2>
-        <p className="mb-2">
-          La Compañía actúa con la debida diligencia profesional en la prestación de sus Servicios de intermediación. Sin embargo, no garantiza que el Sitio Web esté libre de errores o interrupciones, ni se responsabiliza por:
-        </p>
-        <ul className="list-disc list-inside mb-2">
-          <li>Decisiones tomadas por el Usuario basadas exclusivamente en la información del Sitio Web sin la debida asesoría personalizada.</li>
-          <li>El contenido, términos o cumplimiento de las pólizas emitidas por las Compañías Aseguradoras.</li>
-          <li>Daños directos o indirectos que puedan surgir del uso o imposibilidad de uso del Sitio Web o los Servicios, salvo que medie dolo o culpa grave de la Compañía.</li>
-          <li>Información incorrecta, incompleta o desactualizada proporcionada por el Usuario.</li>
-          <li>Fallas técnicas, virus informáticos o cualquier otro elemento dañino que pueda afectar el equipo del Usuario como consecuencia del acceso o uso del Sitio Web.</li>
-        </ul>
-      </section>
-
-      <section className="mb-6">
-        <h2 className="text-2xl font-semibold mb-3">11. Modificaciones a los Términos y Condiciones</h2>
-        <p className="mb-2">
-          La Compañía se reserva el derecho de modificar estos Términos en cualquier momento. Cualquier cambio será publicado en el Sitio Web y entrará en vigor desde su publicación. Se recomienda al Usuario revisar periódicamente estos Términos. El uso continuado del Sitio Web o los Servicios después de la publicación de los cambios constituirá la aceptación de los mismos.
-        </p>
-      </section>
-
-      <section className="mb-6">
-        <h2 className="text-2xl font-semibold mb-3">12. Ley Aplicable y Jurisdicción</h2>
-        <p className="mb-2">
-          Estos Términos se rigen por las leyes de la República de Colombia. Cualquier controversia derivada de su interpretación o aplicación será sometida a la jurisdicción de los tribunales competentes de [Ciudad de Domicilio de la Empresa], Colombia, o a los mecanismos de resolución de conflictos previstos en la ley colombiana, como la Superintendencia de Industria y Comercio para asuntos de protección al consumidor, o la Superintendencia Financiera de Colombia para asuntos relacionados con la actividad aseguradora y de intermediación, según corresponda.
-        </p>
-      </section>
-
-      <section className="mb-6">
-        <h2 className="text-2xl font-semibold mb-3">13. Comunicaciones</h2>
-        <p className="mb-2">
-          Cualquier comunicación relacionada con estos Términos o los Servicios deberá dirigirse a:
-        </p>
-        <p className="mb-2">
-          [Nombre de la Empresa Asesora de Seguros]<br />
-          Atención: Departamento Legal / Servicio al Cliente<br />
-          Dirección: [Dirección Completa]<br />
-          Correo electrónico: [correo electrónico de contacto para términos y condiciones]
-        </p>
-      </section>
-
-      <p className="mt-8 text-sm text-gray-600">
-        <strong>Última actualización:</strong> [Fecha de la última actualización]
-      </p>
-      </div>
-    </section>
-  </Layout>
+    </Layout>
   );
 };
 

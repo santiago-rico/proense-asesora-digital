@@ -10,7 +10,11 @@ import { Separator } from "@/components/ui/separator";
 import { getBlogPostBySlug, getRecentBlogPosts } from "@/services/blogService";
 import { BlogPost } from "@/components/shared/BlogPostCard";
 
-const BlogPostPage: React.FC = () => {
+interface BlogPostPageProps {
+  handleOpenLeadDialog: () => void;
+}
+
+const BlogPostPage: React.FC<BlogPostPageProps> = ({ handleOpenLeadDialog }) => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
 
@@ -34,7 +38,7 @@ const BlogPostPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <Layout>
+      <Layout handleOpenLeadDialog={handleOpenLeadDialog}>
         <div className="container mx-auto px-4 py-16 mt-16">
           <div className="animate-pulse max-w-4xl mx-auto">
             <div className="h-8 bg-gray-200 rounded mb-4 w-3/4"></div>
@@ -58,7 +62,7 @@ const BlogPostPage: React.FC = () => {
   }
 
   return (
-    <Layout>
+    <Layout handleOpenLeadDialog={handleOpenLeadDialog}>
       <div className="pt-16">
         {/* Article Header */}
         <div className="bg-primary text-white py-16">
@@ -112,8 +116,8 @@ const BlogPostPage: React.FC = () => {
                     <Link to="/blog" className="text-primary hover:underline">
                       ← Volver al Blog
                     </Link>
-                    <Button asChild>
-                      <Link to="/contacto">Solicitar Información</Link>
+                    <Button onClick={handleOpenLeadDialog}>
+                      Solicitar Información
                     </Button>
                   </div>
                 </div>
@@ -127,8 +131,8 @@ const BlogPostPage: React.FC = () => {
                   <p className="text-gray-700 mb-4">
                     Contáctanos para recibir información personalizada sobre tus opciones de seguros.
                   </p>
-                  <Button asChild className="w-full">
-                    <Link to="/contacto">Solicitar Información</Link>
+                  <Button onClick={handleOpenLeadDialog} className="w-full">
+                    Solicitar Información
                   </Button>
                 </Card>
 

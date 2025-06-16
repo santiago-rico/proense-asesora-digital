@@ -1,9 +1,13 @@
 import React from 'react';
 import Layout from '@/components/layout/Layout';
 
-const PoliticaPrivacidadPage: React.FC = () => {
+interface PoliticaPrivacidadPageProps {
+  handleOpenLeadDialog: () => void;
+}
+
+const PoliticaPrivacidadPage: React.FC<PoliticaPrivacidadPageProps> = ({ handleOpenLeadDialog }) => {
   return (
-    <Layout handleOpenLeadDialog={() => { /* No lead dialog needed for this page */ }}>
+    <Layout handleOpenLeadDialog={handleOpenLeadDialog}>
       {/* Hero Section */}
       <section className="bg-primary text-white py-12 md:py-16">
         <div className="container mx-auto px-4 text-center">
@@ -15,155 +19,136 @@ const PoliticaPrivacidadPage: React.FC = () => {
       <section className="py-12 md:py-16 bg-white">
         <div className="container mx-auto px-4 max-w-4xl">
 
-      <section className="mb-6">
-        <h2 className="text-2xl font-semibold mb-3">1. Introducción y Responsable del Tratamiento</h2>
-        <p className="mb-2">
-          Bienvenido a [Nombre de la Empresa Asesora de Seguros] (en adelante, "la Compañía", "nosotros"). Con NIT [Número de NIT], domiciliada en [Dirección Completa, Ciudad, Colombia], y correo electrónico de contacto [correo electrónico de contacto], somos responsables del tratamiento de sus datos personales.
-        </p>
-        <p className="mb-2">
-          Esta Política de Privacidad describe cómo recolectamos, usamos, almacenamos, circulamos y suprimimos la información personal de nuestros usuarios y clientes, en cumplimiento de la Ley Estatutaria 1581 de 2012, el Decreto 1377 de 2013, y demás normas concordantes sobre protección de datos personales en Colombia.
-        </p>
-      </section>
+          <p className="mb-4 text-sm text-gray-600">Versión 1.0 Fecha de Entrada en Vigor: 16 de Junio de 2025</p>
 
-      <section className="mb-6">
-        <h2 className="text-2xl font-semibold mb-3">2. Definiciones Clave</h2>
-        <ul className="list-disc list-inside mb-2">
-          <li><strong>Dato Personal:</strong> Cualquier información vinculada o que pueda asociarse a una o varias personas naturales determinadas o determinables.</li>
-          <li><strong>Titular:</strong> Persona natural cuyos datos personales sean objeto de Tratamiento.</li>
-          <li><strong>Tratamiento:</strong> Cualquier operación o conjunto de operaciones sobre datos personales, tales como la recolección, almacenamiento, uso, circulación o supresión.</li>
-          <li><strong>Responsable del Tratamiento:</strong> Persona natural o jurídica, pública o privada, que por sí misma o en asocio con otros, decida sobre la base de datos y/o el Tratamiento de los datos. Para efectos de esta política, [Nombre de la Empresa Asesora de Seguros] es el Responsable.</li>
-          <li><strong>Encargado del Tratamiento:</strong> Persona natural o jurídica, pública o privada, que por sí misma o en asocio con otros, realice el Tratamiento de datos personales por cuenta del Responsable del Tratamiento.</li>
-          <li><strong>Autorización:</strong> Consentimiento previo, expreso e informado del Titular para llevar a cabo el Tratamiento de datos personales.</li>
-        </ul>
-      </section>
+          <section className="mb-6">
+              <h2 className="text-2xl font-semibold mb-3">1. OBJETO Y ÁMBITO DE APLICACIÓN</h2>
+              <p className="mb-2">
+                  El presente documento constituye la Política de Tratamiento de Información y Datos Personales de PROENSE AGENCIA DE SEGUROS LTDA (en adelante, el “Responsable” o “PROENSE”). Ha sido elaborada en estricto cumplimiento del régimen de protección de datos personales consagrado en la Ley 1581 de 2012, el Decreto 1377 de 2013 y demás normas concordantes.
+              </p>
+              <p className="mb-2">
+                  Esta política se aplica a todo tratamiento de datos de carácter personal que PROENSE realice, y es de obligatorio cumplimiento para todos sus empleados, contratistas y terceros con quienes se mantenga una relación que implique el tratamiento de datos personales contenidos en las bases de datos de la compañía.
+              </p>
+          </section>
 
-      <section className="mb-6">
-        <h2 className="text-2xl font-semibold mb-3">3. Principios para el Tratamiento de Datos Personales</h2>
-        <p className="mb-2">
-          El tratamiento de sus datos personales se realizará de conformidad con los siguientes principios:
-        </p>
-        <ul className="list-disc list-inside mb-2">
-          <li><strong>Legalidad en materia de Tratamiento de datos:</strong> El Tratamiento a que se refiere la presente política es una actividad reglada que debe sujetarse a lo establecido en ella y en las demás disposiciones que la desarrollen.</li>
-          <li><strong>Finalidad:</strong> El Tratamiento debe obedecer a una finalidad legítima de acuerdo con la Constitución y la Ley, la cual debe ser informada al Titular.</li>
-          <li><strong>Libertad:</strong> El Tratamiento sólo puede ejercerse con el consentimiento, previo, expreso e informado del Titular. Los datos personales no podrán ser obtenidos o divulgados sin previa autorización, o en ausencia de mandato legal o judicial que releve el consentimiento.</li>
-          <li><strong>Veracidad o calidad:</strong> La información sujeta a Tratamiento debe ser veraz, completa, exacta, actualizada, comprobable y comprensible. Se prohíbe el Tratamiento de datos parciales, incompletos, fraccionados o que induzcan a error.</li>
-          <li><strong>Transparencia:</strong> En el Tratamiento debe garantizarse el derecho del Titular a obtener del Responsable del Tratamiento o del Encargado del Tratamiento, en cualquier momento y sin restricciones, información acerca de la existencia de datos que le conciernan.</li>
-          <li><strong>Acceso y circulación restringida:</strong> El Tratamiento se sujeta a los límites que se derivan de la naturaleza de los datos personales, de las disposiciones de la presente ley y la Constitución.</li>
-          <li><strong>Seguridad:</strong> La información sujeta a Tratamiento por el Responsable del Tratamiento o Encargado del Tratamiento se deberá manejar con las medidas técnicas, humanas y administrativas que sean necesarias para otorgar seguridad a los registros evitando su adulteración, pérdida, consulta, uso o acceso no autorizado o fraudulento.</li>
-          <li><strong>Confidencialidad:</strong> Todas las personas que intervengan en el Tratamiento de datos personales que no tengan la naturaleza de públicos están obligadas a garantizar la reserva de la información, inclusive después de finalizada su relación con alguna de las labores que comprende el Tratamiento.</li>
-        </ul>
-      </section>
+          <section className="mb-6">
+              <h2 className="text-2xl font-semibold mb-3">2. IDENTIFICACIÓN DEL RESPONSABLE DEL TRATAMIENTO</h2>
+              <ul className="list-none mb-2 space-y-1">
+                  <li><strong>Razón Social:</strong> PROENSE AGENCIA DE SEGUROS LTDA</li>
+                  <li><strong>NIT:</strong> 901.915.787-3</li>
+                  <li><strong>Domicilio y Dirección Principal:</strong> CR 20 2 06, Pereira, Risaralda, República de Colombia.</li>
+                  <li>
+                    <strong>Canal de Atención (Consultas y Reclamos):</strong>
+                    <ul className="list-none ml-4 mt-1">
+                      <li><strong>Correo Electrónico:</strong> comercial@proense.co</li>
+                      <li><strong>Teléfono:</strong> +573113776655</li>
+                    </ul>
+                  </li>
+              </ul>
+          </section>
 
-      <section className="mb-6">
-        <h2 className="text-2xl font-semibold mb-3">4. Finalidades del Tratamiento de Datos Personales</h2>
-        <p className="mb-2">
-          Sus datos personales serán tratados para las siguientes finalidades:
-        </p>
-        <ul className="list-disc list-inside mb-2">
-          <li>Prestar nuestros servicios de intermediación de seguros, incluyendo la cotización, comparación, asesoría, y facilitación en la contratación de pólizas de seguros.</li>
-          <li>Gestionar la relación contractual y/o comercial con usted.</li>
-          <li>Realizar comunicaciones informativas, comerciales y publicitarias relacionadas con nuestros productos, servicios, ofertas, promociones, alianzas, estudios, concursos, contenidos, así como de compañías aliadas, siempre que contemos con su autorización.</li>
-          <li>Evaluar la calidad de nuestros servicios y realizar estudios de mercado.</li>
-          <li>Atender sus peticiones, quejas, reclamos y sugerencias (PQRS).</li>
-          <li>Cumplir con obligaciones legales y contractuales, incluyendo requerimientos de autoridades competentes.</li>
-          <li>Realizar análisis estadísticos y de comportamiento de uso de nuestros servicios y sitio web.</li>
-          <li>Prevenir fraudes y gestionar riesgos.</li>
-          <li>[Añadir otras finalidades específicas de su negocio]</li>
-        </ul>
-      </section>
+          <section className="mb-6">
+              <h2 className="text-2xl font-semibold mb-3">3. MARCO CONCEPTUAL Y DEFINICIONES</h2>
+              <p className="mb-2">Para la correcta interpretación de esta política, se adoptan las siguientes definiciones legales:</p>
+              <ul className="list-disc list-inside mb-2 space-y-1">
+                  <li><strong>Titular:</strong> Persona natural cuyos datos personales son objeto de Tratamiento.</li>
+                  <li><strong>Dato Personal:</strong> Cualquier información vinculada o que pueda asociarse a una o varias personas naturales determinadas o determinables.</li>
+                  <li><strong>Dato Sensible:</strong> Aquellos datos que afectan la intimidad del Titular o cuyo uso indebido puede generar su discriminación (ej: datos relativos a la salud, origen racial o étnico, vida sexual, datos biométricos).</li>
+                  <li><strong>Tratamiento:</strong> Cualquier operación sobre datos personales, como la recolección, almacenamiento, uso, circulación o supresión.</li>
+                  <li><strong>Autorización:</strong> Consentimiento previo, expreso e informado del Titular para llevar a cabo el Tratamiento de sus datos personales.</li>
+                  <li><strong>Base de Datos:</strong> Conjunto organizado de datos personales que sea objeto de Tratamiento.</li>
+                  <li><strong>Transferencia:</strong> Envío de datos personales a un receptor que, a su vez, es Responsable del Tratamiento y se encuentra dentro o fuera del país.</li>
+                  <li><strong>Transmisión:</strong> Tratamiento de datos personales que implica la comunicación de los mismos dentro o fuera del territorio colombiano, cuando tenga por objeto la realización de un Tratamiento por el Encargado por cuenta del Responsable.</li>
+              </ul>
+          </section>
 
-      <section className="mb-6">
-        <h2 className="text-2xl font-semibold mb-3">5. Tipos de Datos Personales Recolectados</h2>
-        <p className="mb-2">
-          Podemos recolectar, entre otros, los siguientes datos personales:
-        </p>
-        <ul className="list-disc list-inside mb-2">
-          <li><strong>Datos de identificación:</strong> Nombre completo, tipo y número de documento de identidad, fecha de nacimiento, género, nacionalidad.</li>
-          <li><strong>Datos de contacto:</strong> Dirección de residencia, correo electrónico, número de teléfono fijo y/o celular.</li>
-          <li><strong>Datos financieros:</strong> Información necesaria para la cotización y contratación de seguros (ej. información sobre bienes a asegurar, ingresos, historial crediticio si es pertinente y autorizado).</li>
-          <li><strong>Datos sensibles:</strong> (Si aplica, por ejemplo, datos de salud para seguros de vida o salud). En caso de recolectar datos sensibles, solicitaremos su autorización expresa, informándole sobre el carácter facultativo de su respuesta.</li>
-          <li><strong>Datos de navegación:</strong> Dirección IP, tipo de navegador, páginas visitadas en nuestro sitio web, tiempo de permanencia, cookies (ver política de cookies si existe).</li>
-          <li>[Añadir otros tipos de datos específicos que recolecten]</li>
-        </ul>
-      </section>
+          <section className="mb-6">
+              <h2 className="text-2xl font-semibold mb-3">4. PRINCIPIOS RECTORES</h2>
+              <p className="mb-2">El tratamiento de datos personales por parte de PROENSE se regirá por los principios de: legalidad, finalidad, libertad, veracidad o calidad, transparencia, acceso y circulación restringida, seguridad y confidencialidad.</p>
+          </section>
 
-      <section className="mb-6">
-        <h2 className="text-2xl font-semibold mb-3">6. Derechos de los Titulares de los Datos</h2>
-        <p className="mb-2">
-          Como Titular de sus datos personales, usted tiene derecho a:
-        </p>
-        <ul className="list-disc list-inside mb-2">
-          <li>Conocer, actualizar y rectificar sus datos personales frente a nosotros como Responsables del Tratamiento.</li>
-          <li>Solicitar prueba de la autorización otorgada para el tratamiento de sus datos, salvo las excepciones legales.</li>
-          <li>Ser informado, previa solicitud, respecto del uso que se le ha dado a sus datos personales.</li>
-          <li>Presentar ante la Superintendencia de Industria y Comercio quejas por infracciones a lo dispuesto en la Ley 1581 de 2012 y demás normas que la modifiquen, adicionen o complementen.</li>
-          <li>Revocar la autorización y/o solicitar la supresión del dato cuando en el Tratamiento no se respeten los principios, derechos y garantías constitucionales y legales. La revocatoria y/o supresión procederá cuando la Superintendencia de Industria y Comercio haya determinado que en el Tratamiento el Responsable o Encargado han incurrido en conductas contrarias a esta ley y a la Constitución.</li>
-          <li>Acceder en forma gratuita a sus datos personales que hayan sido objeto de Tratamiento.</li>
-        </ul>
-      </section>
+          <section className="mb-6">
+              <h2 className="text-2xl font-semibold mb-3">5. TRATAMIENTO AL CUAL SERÁN SOMETIDOS LOS DATOS Y FINALIDAD DEL MISMO</h2>
+              <p className="mb-2">PROENSE, en su calidad de intermediario de seguros, requiere recolectar, almacenar, usar y transferir datos personales para el desarrollo de su objeto social. El tratamiento de datos se fundamenta en la autorización previa, expresa e informada del Titular, la cual será obtenida por medios físicos o electrónicos que permitan su posterior consulta.</p>
+              <p className="mb-2">Las finalidades para las cuales serán tratados sus datos son las siguientes:</p>
+              <h3 className="text-xl font-semibold mt-4 mb-2">A. Finalidades Inherentes a la Actividad de Intermediación de Seguros:</h3>
+              <ul className="list-disc list-inside mb-2 space-y-1">
+                  <li>Realizar la gestión de análisis de riesgo y la estructuración de programas de seguros adecuados al perfil del Titular.</li>
+                  <li>Transferir la información personal, financiera y sensible del Titular a las compañías aseguradoras, reaseguradoras y/o afianzadoras con el fin de que estas puedan evaluar el riesgo, generar cotizaciones, emitir, modificar o renovar las pólizas de seguro solicitadas. El Titular entiende y acepta que esta transferencia es un elemento esencial e indispensable para la prestación del servicio de intermediación.</li>
+                  <li>Administrar la relación contractual, incluyendo la gestión de pagos de primas y la ejecución de los contratos de seguro.</li>
+                  <li>Prestar asesoría y acompañamiento integral en caso de siniestro, lo cual implica compartir la información pertinente con ajustadores, abogados, centros de servicios y demás actores del proceso de reclamación.</li>
+                  <li>Dar cumplimiento a obligaciones legales, incluyendo, pero sin limitarse a, reportes a autoridades de control y vigilancia y la implementación del Sistema de Administración del Riesgo de Lavado de Activos y Financiación del Terrorismo (SARLAFT).</li>
+              </ul>
+              <h3 className="text-xl font-semibold mt-4 mb-2">B. Otras Finalidades:</h3>
+              <ul className="list-disc list-inside mb-2 space-y-1">
+                  <li>Contactar al Titular para ofrecer nuevos productos o servicios del portafolio de PROENSE que puedan ser de su interés.</li>
+                  <li>Realizar encuestas de satisfacción, estudios de mercado y análisis estadísticos para la mejora del servicio.</li>
+                  <li>Enviar comunicaciones comerciales, boletines informativos y material publicitario a través de correo electrónico, SMS o canales análogos.</li>
+              </ul>
+          </section>
 
-      <section className="mb-6">
-        <h2 className="text-2xl font-semibold mb-3">7. Procedimiento para Ejercer los Derechos</h2>
-        <p className="mb-2">
-          Para el ejercicio de sus derechos (consultas, reclamos, rectificación, actualización, supresión o revocatoria de la autorización), usted podrá contactarnos a través de:
-        </p>
-        <ul className="list-disc list-inside mb-2">
-          <li>Correo electrónico: [correo electrónico para ejercicio de derechos]</li>
-          <li>Dirección física: [Dirección física para correspondencia]</li>
-          <li>Teléfono: [Número de teléfono de contacto]</li>
-        </ul>
-        <p className="mb-2">
-          Su solicitud deberá contener como mínimo: nombre completo del titular, número de identificación, descripción de los hechos que dan lugar a la solicitud, dirección de notificación y documentos que desee adjuntar.
-        </p>
-        <p className="mb-2">
-          Las consultas serán atendidas en un término máximo de diez (10) días hábiles contados a partir de la fecha de recibo. Cuando no fuere posible atender la consulta dentro de dicho término, se informará al interesado, expresando los motivos de la demora y señalando la fecha en que se atenderá su consulta, la cual en ningún caso podrá superar los cinco (5) días hábiles siguientes al vencimiento del primer término.
-        </p>
-        <p className="mb-2">
-          Los reclamos para corrección, actualización, supresión o revocatoria serán atendidos en un término máximo de quince (15) días hábiles contados a partir del día siguiente a la fecha de su recibo. Cuando no fuere posible atender el reclamo dentro de dicho término, se informará al interesado los motivos de la demora y la fecha en que se atenderá su reclamo, la cual en ningún caso podrá superar los ocho (8) días hábiles siguientes al vencimiento del primer término.
-        </p>
-      </section>
+          <section className="mb-6">
+              <h2 className="text-2xl font-semibold mb-3">6. TRATAMIENTO DE DATOS SENSIBLES</h2>
+              <p className="mb-2">El tratamiento de datos sensibles (ej: información de salud para seguros de vida o salud) se realizará únicamente cuando sea estrictamente necesario para la estructuración y cotización de un producto de seguro, y requerirá de la autorización explícita, previa e informada del Titular, informándole que no está obligado a autorizar su tratamiento. Dichos datos serán manejados con los más altos estándares de seguridad y confidencialidad.</p>
+          </section>
 
-      <section className="mb-6">
-        <h2 className="text-2xl font-semibold mb-3">8. Seguridad de la Información</h2>
-        <p className="mb-2">
-          Hemos implementado medidas técnicas, humanas y administrativas necesarias para garantizar la seguridad de sus datos personales, evitando su adulteración, pérdida, consulta, uso o acceso no autorizado o fraudulento. Estas medidas incluyen [Mencionar brevemente tipos de medidas, ej: controles de acceso, copias de seguridad, cifrado si aplica].
-        </p>
-      </section>
+          <section className="mb-6">
+              <h2 className="text-2xl font-semibold mb-3">7. DERECHOS QUE ASISTEN AL TITULAR (HABEAS DATA)</h2>
+              <p className="mb-2">Conforme al artículo 8 de la Ley 1581 de 2012, el Titular de los datos personales tiene los siguientes derechos:</p>
+              <ul className="list-disc list-inside mb-2 space-y-1" style={{ listStyleType: 'lower-alpha' }}>
+                  <li>Conocer, actualizar y rectificar sus datos personales frente a PROENSE.</li>
+                  <li>Solicitar prueba de la autorización otorgada.</li>
+                  <li>Ser informado por PROENSE, previa solicitud, respecto del uso que se le ha dado a sus datos.</li>
+                  <li>Presentar quejas ante la Superintendencia de Industria y Comercio por infracciones a lo dispuesto en la ley.</li>
+                  <li>Revocar la autorización y/o solicitar la supresión del dato cuando en el Tratamiento no se respeten los principios, derechos y garantías constitucionales y legales.</li>
+                  <li>Acceder en forma gratuita a sus datos personales que hayan sido objeto de Tratamiento.</li>
+              </ul>
+          </section>
 
-      <section className="mb-6">
-        <h2 className="text-2xl font-semibold mb-3">9. Transferencia y Transmisión de Datos Personales</h2>
-        <p className="mb-2">
-          [Si aplica: Describir si se realizan transferencias (a países sin nivel adecuado de protección) o transmisiones (a encargados) de datos, y bajo qué condiciones y finalidades, asegurando el cumplimiento de la ley colombiana. Si no aplica, indicar que no se realizan o que solo se harán con autorización expresa o excepciones legales.]
-        </p>
-        <p className="mb-2">
-          Ejemplo: Podremos compartir su información con compañías aseguradoras para la cotización y emisión de pólizas, con proveedores de servicios tecnológicos que nos asisten en la operación, o con autoridades competentes, siempre bajo el amparo de la ley y/o su autorización.
-        </p>
-      </section>
+          <section className="mb-6">
+              <h2 className="text-2xl font-semibold mb-3">8. PROCEDIMIENTO PARA EL EJERCICIO DE LOS DERECHOS</h2>
+              <p className="mb-2">El Titular o sus causahabientes podrán ejercer sus derechos a través de los canales de atención definidos en el numeral 2 de esta política. La solicitud deberá contener:</p>
+              <ul className="list-disc list-inside mb-2 space-y-1">
+                  <li>Identificación completa del Titular.</li>
+                  <li>Descripción precisa de los hechos que dan lugar a la consulta o reclamo.</li>
+                  <li>Dirección física o electrónica para recibir notificaciones.</li>
+                  <li>Documentos que se quieran hacer valer.</li>
+              </ul>
+              <h3 className="text-lg font-semibold mt-4 mb-2">Términos de Respuesta:</h3>
+              <ul className="list-disc list-inside mb-2 space-y-1">
+                  <li><strong>Consultas:</strong> Serán atendidas en un término máximo de diez (10) días hábiles.</li>
+                  <li><strong>Reclamos:</strong> Serán atendidos en un término máximo de quince (15) días hábiles.</li>
+              </ul>
+          </section>
 
-      <section className="mb-6">
-        <h2 className="text-2xl font-semibold mb-3">10. Uso de Cookies</h2>
-        <p className="mb-2">
-          Nuestro sitio web utiliza cookies para mejorar su experiencia de navegación, recordar sus preferencias y obtener estadísticas de uso. Puede configurar su navegador para rechazar las cookies, aunque esto podría afectar la funcionalidad de algunas partes del sitio. Para más información, consulte nuestra [Política de Cookies] (si la tiene por separado, de lo contrario, detallar aquí).
-        </p>
-      </section>
+          <section className="mb-6">
+              <h2 className="text-2xl font-semibold mb-3">9. MEDIDAS DE SEGURIDAD</h2>
+              <p className="mb-2">PROENSE ha implementado medidas técnicas, humanas y administrativas idóneas y necesarias para garantizar la seguridad de los datos personales, evitando su adulteración, pérdida, consulta, uso o acceso no autorizado o fraudulento.</p>
+          </section>
 
-      <section className="mb-6">
-        <h2 className="text-2xl font-semibold mb-3">11. Vigencia de la Política y de las Bases de Datos</h2>
-        <p className="mb-2">
-          La presente Política de Privacidad rige a partir del [Fecha de entrada en vigencia]. Los datos personales proporcionados se conservarán mientras se mantenga la finalidad para la cual fueron recolectados, o por los términos legales o contractuales que establezcan su permanencia.
-        </p>
-      </section>
+          <section className="mb-6">
+              <h2 className="text-2xl font-semibold mb-3">10. VIGENCIA DE LA POLÍTICA Y PERIODO DE VIGENCIA DE LA BASE DE DATOS</h2>
+              <p className="mb-2">La presente política rige a partir de su fecha de publicación. Las bases de datos que contienen datos personales tendrán una vigencia igual al periodo en que se mantenga la finalidad para la cual los datos fueron recolectados, más el tiempo adicional exigido por la normativa legal aplicable para el cumplimiento de obligaciones contables, fiscales y contractuales. Cualquier modificación sustancial a esta política será comunicada oportunamente a los Titulares.</p>
+          </section>
 
-      <section className="mb-6">
-        <h2 className="text-2xl font-semibold mb-3">12. Modificaciones a la Política de Privacidad</h2>
-        <p className="mb-2">
-          Nos reservamos el derecho de modificar esta Política de Privacidad en cualquier momento. Cualquier cambio será informado y publicado oportunamente en nuestro sitio web. El uso continuado de nuestros servicios después de la publicación de los cambios constituirá su aceptación de los mismos.
-        </p>
-      </section>
+          <section className="mb-6">
+              <h2 className="text-2xl font-semibold mb-3">11. USO DE TECNOLOGÍAS DE RASTREO Y COOKIES</h2>
+              <p className="mb-2">El sitio web de PROENSE puede hacer uso de cookies y otras tecnologías de rastreo similares (en adelante, "Cookies") para facilitar la navegación, mejorar la experiencia del usuario y realizar análisis estadísticos. Las Cookies son archivos de datos que se instalan en el dispositivo del Titular y que permiten recolectar información como la dirección IP, el tipo de navegador, las páginas visitadas y la duración de la sesión.</p>
+              <p className="mb-2">El tratamiento de la información recolectada a través de estas tecnologías tiene las siguientes finalidades:</p>
+              <ul className="list-disc list-inside mb-2 space-y-1">
+                  <li><strong>Técnicas:</strong> Garantizar el correcto funcionamiento del sitio web y la seguridad de la navegación.</li>
+                  <li><strong>Analíticas:</strong> Medir la actividad de los usuarios y analizar el tráfico web para la optimización de nuestros servicios y plataformas digitales.</li>
+                  <li><strong>De Personalización:</strong> Recordar las preferencias del usuario para ofrecer una experiencia más ágil y personalizada en futuras visitas.</li>
+              </ul>
+              <p className="mb-2">El Titular tiene el control sobre estas tecnologías y puede configurar su navegador para aceptar, rechazar o eliminar las Cookies. Sin embargo, se le informa que la desactivación de ciertas Cookies podría afectar o limitar la funcionalidad total o parcial de nuestro sitio web. La permanencia en el sitio web constituye una aceptación tácita del uso de las Cookies indispensables para su funcionamiento.</p>
+          </section>
 
-            <p className="mt-8 text-sm text-gray-600">
-              <strong>Última actualización:</strong> [Fecha de la última actualización]
-            </p>
+          <section className="mb-6">
+              <h2 className="text-2xl font-semibold mb-3">12. MODIFICACIONES A LA POLÍTICA</h2>
+              <p className="mb-2">PROENSE se reserva el derecho de modificar, en cualquier momento y de forma unilateral, la presente Política de Tratamiento de la Información. Cualquier modificación será motivada por cambios en la normativa aplicable, nuevas directrices jurisprudenciales o políticas internas de la compañía.</p>
+              <p className="mb-2">De conformidad con el Decreto 1377 de 2013, toda modificación sustancial a esta política, referida a la identificación del Responsable o a la finalidad del tratamiento que afecte el contenido de la autorización, será comunicada oportunamente a los Titulares antes de su implementación. Dicha comunicación se realizará a través del sitio web oficial de la compañía o mediante correo electrónico a los Titulares que así lo hayan autorizado.</p>
+              <p className="mb-2">La versión actualizada de la política siempre estará disponible para su consulta en el sitio web de PROENSE.</p>
+          </section>
           </div>
         </section>
       </Layout>

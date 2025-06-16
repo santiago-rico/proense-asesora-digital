@@ -22,11 +22,10 @@ interface InsuranceProductPageProps {
   // The 'type' prop might not be strictly needed if we derive it from useParams
   // but keeping it for potential direct usage or testing.
   type?: string; 
+  handleOpenLeadDialog: () => void;
 }
 
-const InsuranceProductPage: React.FC<InsuranceProductPageProps> = ({ type: propType }) => {
-  const [isLeadDialogOpen, setIsLeadDialogOpen] = useState(false);
-  const handleOpenLeadDialog = () => setIsLeadDialogOpen(true);
+const InsuranceProductPage: React.FC<InsuranceProductPageProps> = ({ type: propType, handleOpenLeadDialog }) => {
 
   const params = useParams();
   const routeType = params.type;
@@ -229,11 +228,7 @@ const InsuranceProductPage: React.FC<InsuranceProductPageProps> = ({ type: propT
         </section>
       )}
       
-      <LeadGenerationDialog 
-        open={isLeadDialogOpen} 
-        onOpenChange={setIsLeadDialogOpen}
-        initialInsuranceType={currentInsuranceType || ""}
-      />
+
     </Layout>
   );
 };

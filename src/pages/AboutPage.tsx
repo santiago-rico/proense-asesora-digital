@@ -6,10 +6,11 @@ import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Shield, Users, Heart, Zap, BarChart2, UserCheck, Handshake, LifeBuoy } from "lucide-react";
 
-const AboutPage: React.FC = () => {
-  const [isLeadDialogOpen, setIsLeadDialogOpen] = useState(false);
+interface AboutPageProps {
+  handleOpenLeadDialog: () => void;
+}
 
-  const handleOpenLeadDialog = () => setIsLeadDialogOpen(true);
+const AboutPage: React.FC<AboutPageProps> = ({ handleOpenLeadDialog }) => {
 
   // Updated years of experience
   const yearsOfExperience = "25+"; 
@@ -199,7 +200,7 @@ const AboutPage: React.FC = () => {
           </div>
         </section>
       </div>
-      <LeadGenerationDialog open={isLeadDialogOpen} onOpenChange={setIsLeadDialogOpen} />
+      
     </Layout>
   );
 };
