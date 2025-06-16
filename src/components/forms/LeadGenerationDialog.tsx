@@ -19,7 +19,7 @@ const LeadGenerationDialog: React.FC<LeadGenerationDialogProps> = ({ open, onOpe
             Déjanos tus datos y un asesor se pondrá en contacto contigo para brindarte asesoría personalizada.
           </DialogDescription>
         </DialogHeader>
-        <LeadForm initialInsuranceType={initialInsuranceType} />
+        <LeadForm initialInsuranceType={initialInsuranceType} onLinkClick={() => onOpenChange(false)} />
       </DialogContent>
     </Dialog>
   );

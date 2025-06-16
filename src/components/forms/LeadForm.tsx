@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -36,9 +37,10 @@ type FormData = z.infer<typeof formSchema>;
 
 interface LeadFormProps {
   initialInsuranceType?: string;
+  onLinkClick?: () => void;
 }
 
-const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType }) => {
+const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick }) => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const form = useForm<FormData>({
@@ -197,6 +199,17 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType }) => {
             )}
           />
 
+          <p className="text-xs text-gray-500 mt-4 text-center">
+            Al enviar tu solicitud, aceptas nuestra{" "}
+            <Link to="/politica-de-privacidad" className="underline hover:text-gray-700" onClick={onLinkClick}>
+              Política de Privacidad
+            </Link>{" "}
+            y nuestros{" "}
+            <Link to="/terminos-y-condiciones" className="underline hover:text-gray-700" onClick={onLinkClick}>
+              Términos y Condiciones
+            </Link>
+            .
+          </p>
           <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading ? 'Enviando...' : 'Enviar Solicitud'}
           </Button>

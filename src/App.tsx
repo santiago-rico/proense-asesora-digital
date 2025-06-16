@@ -62,8 +62,8 @@ const App = () => {
             
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <LeadGenerationDialog open={showLeadDialog} onOpenChange={setShowLeadDialog} />
         </BrowserRouter>
-        <LeadGenerationDialog open={showLeadDialog} onOpenChange={setShowLeadDialog} />
       </TooltipProvider>
     </QueryClientProvider>
   );
