@@ -113,7 +113,7 @@ const Step5_Summary: React.FC = () => {
           return (
             <div key={fieldName} className="flex flex-col sm:flex-row sm:justify-between py-1 border-b border-gray-100 dark:border-gray-700 last:border-b-0">
               <p className="font-medium text-sm text-gray-700 dark:text-gray-300">{fieldLabels[fieldName] || fieldName.replace(/([A-Z])/g, ' $1')}:</p>
-              <p className="text-sm text-gray-600 dark:text-gray-400 sm:text-right">{displayValue}</p>
+              <div className="text-sm text-gray-600 dark:text-gray-400 sm:text-right">{displayValue}</div>
             </div>
           );
         })}

@@ -15,7 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 const fileSchema = z.instanceof(File, { message: 'Se requiere un archivo.' }).optional();
 const fileArraySchema = z.array(z.instanceof(File)).optional();
 
-const formSchema = z.object({
+export const formSchema = z.object({
   nombreCompleto: z.string().min(1, 'El nombre es requerido'),
   telefono: z.string().refine(isValidPhoneNumber, { message: 'Número de teléfono inválido' }),
   email: z.string().email('Email inválido'),
@@ -157,6 +157,8 @@ const formSchema = z.object({
   }
 });
 
+export type FormSchemaType = z.infer<typeof formSchema>;
+
 const steps = [
   { id: 1, name: 'Información Básica', fields: ['nombreCompleto', 'telefono', 'email'] },
   { id: 2, name: 'Selección de Seguro', fields: ['tipoSeguro', 'metodoPago', 'periodicidadPago'] },
@@ -167,9 +169,10 @@ const steps = [
 
 const MultiStepForm = () => {
   const [currentStep, setCurrentStep] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
-  const methods = useForm({
+  const methods = useForm<FormSchemaType>({
     mode: 'onChange', // Validate on input change for immediate feedback
     reValidateMode: 'onChange', // Re-validate on change after submission/trigger for dynamic error clearing
     resolver: zodResolver(formSchema),
@@ -228,13 +231,65 @@ const MultiStepForm = () => {
     }
   };
 
-  const onSubmit = (data: any) => {
+  const onSubmit = async (data: FormSchemaType) => {
+    setIsSubmitting(true);
     console.log('Form data submitted:', data);
-    // Here you would handle the API call to Brevo
-    toast({
-        title: "Solicitud Enviada",
-        description: "Hemos recibido tu solicitud. Un asesor te contactará pronto.",
+
+    const formData = new FormData();
+
+    Object.entries(data).forEach(([key, value]) => {
+      if (value === null || value === undefined) {
+        return; // No adjuntar valores nulos o indefinidos
+      } 
+
+      if (Array.isArray(value) && value.length > 0 && value[0] instanceof File) {
+        // Es un array de archivos
+        value.forEach(file => {
+          formData.append(key, file);
+        });
+      } else if (value instanceof File) {
+        // Es un solo archivo
+        formData.append(key, value);
+      } else {
+        // Es un string, booleano, etc.
+        formData.append(key, String(value));
+      }
     });
+
+    try {
+      const response = await fetch('/api/send-insurance-application-email', {
+        method: 'POST',
+        body: formData, // El navegador establecerá automáticamente el Content-Type a multipart/form-data
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        toast({
+          title: "Solicitud Enviada Exitosamente",
+          description: result.message || "Tu solicitud ha sido procesada. Nos pondremos en contacto pronto.",
+        });
+        // Opcionalmente, reiniciar el formulario o redirigir al usuario
+        // methods.reset();
+        // setCurrentStep(0);
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error al Enviar Solicitud",
+          description: result.message || "Ocurrió un error inesperado. Por favor, intenta de nuevo.",
+        });
+        console.error('API Error:', result);
+      }
+    } catch (error) {
+      console.error('Error de red u otro error:', error);
+      toast({
+        variant: "destructive",
+        title: "Error de Conexión",
+        description: "No se pudo enviar la solicitud. Verifica tu conexión a internet e intenta de nuevo.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -264,7 +319,7 @@ const MultiStepForm = () => {
             </Button>
           )}
           {currentStep === steps.length - 1 && (
-            <Button type="submit">
+            <Button type="submit" disabled={isSubmitting}>
               Firmar y Enviar Solicitud
             </Button>
           )}

@@ -4,6 +4,10 @@
     "lib": ["ES2023"],
     "module": "ESNext",
     "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
 
     /* Bundler mode */
     "moduleResolution": "bundler",
@@ -16,7 +20,13 @@
     "strict": true,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "types": ["node", "vitest/globals"] // Added vitest/globals
   },
-  "include": ["vite.config.ts"]
+  "include": [
+    "vite.config.ts", 
+    "api/**/*.ts", 
+    "src/**/*.test.ts", // Added common test file pattern
+    "src/utils/brevo.test.ts" // Specifically including the problematic file for good measure
+  ]
 }
