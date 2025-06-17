@@ -24,11 +24,21 @@ interface ClientServicePageProps {
 const ClientServicePage: React.FC<ClientServicePageProps> = ({ type, handleOpenLeadDialog }) => {
   const { toast } = useToast();
 
-  const serviceData = {
+  interface ServiceDataType {
+  title: string;
+  description: string;
+  heroImage: string;
+  imagePosition?: string;
+  formTitle: string;
+  steps: string[];
+}
+
+const serviceData: Record<ClientServicePageProps["type"], ServiceDataType> = {
     emision: {
       title: "Emisión de Pólizas",
       description: "Solicita la emisión de una nueva póliza con nuestro proceso sencillo y seguro.",
-      heroImage: "https://images.unsplash.com/photo-1565688534245-05d6b5be184a?auto=format&fit=crop&q=80",
+      heroImage: "/images/hero-emision.jpg",
+      imagePosition: "center center",
       formTitle: "Solicitud de Emisión de Póliza",
       steps: [
         "Completa el formulario con tus datos personales y la información del seguro solicitado.",
@@ -41,6 +51,7 @@ const ClientServicePage: React.FC<ClientServicePageProps> = ({ type, handleOpenL
       title: "Modificaciones de Pólizas",
       description: "Gestiona cambios en tu póliza existente de manera rápida y efectiva.",
       heroImage: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&q=80",
+      imagePosition: "center center",
       formTitle: "Solicitud de Modificación de Póliza",
       steps: [
         "Indica tu número de póliza y datos personales.",
@@ -53,6 +64,7 @@ const ClientServicePage: React.FC<ClientServicePageProps> = ({ type, handleOpenL
       title: "Cancelación de Pólizas",
       description: "Solicita la cancelación de tu póliza siguiendo nuestro proceso estructurado.",
       heroImage: "https://images.unsplash.com/photo-1634733988138-bf2c3a2a13fa?auto=format&fit=crop&q=80",
+      imagePosition: "center center",
       formTitle: "Solicitud de Cancelación de Póliza",
       steps: [
         "Proporciona los datos de identificación de tu póliza.",
@@ -65,6 +77,7 @@ const ClientServicePage: React.FC<ClientServicePageProps> = ({ type, handleOpenL
       title: "Información de Siniestros",
       description: "Reporta un siniestro o solicita información sobre el estado de un reclamo existente.",
       heroImage: "https://images.unsplash.com/photo-1584438784894-089d6a62b8fa?auto=format&fit=crop&q=80",
+      imagePosition: "center center",
       formTitle: "Solicitud de Información sobre Siniestros",
       steps: [
         "Proporciona los detalles de tu póliza y del siniestro.",
@@ -153,12 +166,18 @@ const ClientServicePage: React.FC<ClientServicePageProps> = ({ type, handleOpenL
 
   return (
     <Layout handleOpenLeadDialog={handleOpenLeadDialog}>
-      <HeroBanner 
+      <HeroBanner
         title={data.title}
-        description={data.description} 
+        description={data.description}
         ctaText="Ir al Formulario"
         backgroundImage={data.heroImage}
-        handleOpenLeadDialog={handleOpenLeadDialog}
+        imagePosition={data.imagePosition}
+        handleOpenLeadDialog={() => {
+          const formElement = document.getElementById("service-form");
+          if (formElement) {
+            formElement.scrollIntoView({ behavior: "smooth" });
+          }
+        }}
       />
 
       {/* Steps Section */}
