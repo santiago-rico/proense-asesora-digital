@@ -40,6 +40,11 @@ const formSchema = z.object({
   }),
   archivoDeclaracionRenta: fileArraySchema,
   contratoArrendamiento: fileArraySchema, // Added for Seguro de Rentas
+  // Fields for Seguro de Vida - Crédito Protegido
+  tieneEnfermedadesDiagnosticadas: z.enum(['si', 'no']).optional(),
+  enfermedadesEspecificar: z.string().optional(),
+  valorActualDeuda: z.string().optional(),
+  conduceMoto: z.enum(['si', 'no']).optional(),
   // Fields for non-declarers
   ingresosNoDeclarante: z.string().optional(),
   egresosNoDeclarante: z.string().optional(),
@@ -51,7 +56,7 @@ const formSchema = z.object({
   }),
 }).superRefine((data, ctx) => {
   // Step 3: Conditional validation based on tipoSeguro
-  const commonFieldsNeeded = ['vida', 'salud', 'hogar', 'auto', 'mascotas', 'rentas', 'responsabilidad_civil'].includes(data.tipoSeguro);
+  const commonFieldsNeeded = ['vida', 'salud', 'hogar', 'auto', 'mascotas', 'rentas', 'responsabilidad_civil', 'vida_credito_protegido'].includes(data.tipoSeguro);
   if (commonFieldsNeeded) {
     if (!data.numeroCedula || data.numeroCedula.trim() === "") {
       ctx.addIssue({ code: z.ZodIssueCode.custom, message: "El número de cédula es requerido.", path: ["numeroCedula"] });
@@ -92,6 +97,27 @@ const formSchema = z.object({
   } else if (data.tipoSeguro === 'responsabilidad_civil') {
     // numeroCedula and fotoCedula are covered by commonFieldsNeeded
     // Beneficiary fields are no longer required for responsabilidad_civil
+  } else if (data.tipoSeguro === 'vida_credito_protegido') {
+    // numeroCedula and fotoCedula are covered by commonFieldsNeeded
+    if (!data.tieneEnfermedadesDiagnosticadas) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Debes indicar si tienes enfermedades diagnosticadas.", path: ["tieneEnfermedadesDiagnosticadas"] });
+    } else if (data.tieneEnfermedadesDiagnosticadas === 'si' && (!data.enfermedadesEspecificar || data.enfermedadesEspecificar.trim() === "")) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Debes especificar tus enfermedades.", path: ["enfermedadesEspecificar"] });
+    }
+
+    if (!data.valorActualDeuda || data.valorActualDeuda.trim() === "") {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "El valor actual de la deuda es requerido.", path: ["valorActualDeuda"] });
+    } else {
+      // Attempt to parse after removing common currency symbols and spaces
+      const deudaNum = Number(data.valorActualDeuda.replace(/[$,.]/g, '').replace(/\s/g, ''));
+      if (isNaN(deudaNum) || deudaNum <= 0) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: "El valor de la deuda debe ser un número positivo.", path: ["valorActualDeuda"] });
+      }
+    }
+
+    if (!data.conduceMoto) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Debes indicar si conduces motocicleta.", path: ["conduceMoto"] });
+    }
   } else if (data.tipoSeguro === 'empresarial') {
     if (!data.numeroCedulaRepLegal || data.numeroCedulaRepLegal.trim() === "") {
       ctx.addIssue({ code: z.ZodIssueCode.custom, message: "El número de cédula del representante legal es requerido.", path: ["numeroCedulaRepLegal"] });
@@ -134,7 +160,7 @@ const formSchema = z.object({
 const steps = [
   { id: 1, name: 'Información Básica', fields: ['nombreCompleto', 'telefono', 'email'] },
   { id: 2, name: 'Selección de Seguro', fields: ['tipoSeguro', 'metodoPago', 'periodicidadPago'] },
-  { id: 3, name: 'Detalles del Seguro', fields: ['numeroCedula', 'fotoCedula', 'beneficiarios', 'documentosBeneficiarios', 'listaBeneficiarios', 'certificadoLibertad', 'tarjetaPropiedad', 'numeroCedulaRepLegal', 'fotoCedulaRepLegal', 'nit', 'rut', 'camaraComercio', 'contratoArrendamiento'] },
+  { id: 3, name: 'Detalles del Seguro', fields: ['numeroCedula', 'fotoCedula', 'beneficiarios', 'documentosBeneficiarios', 'listaBeneficiarios', 'certificadoLibertad', 'tarjetaPropiedad', 'numeroCedulaRepLegal', 'fotoCedulaRepLegal', 'nit', 'rut', 'camaraComercio', 'contratoArrendamiento', 'tieneEnfermedadesDiagnosticadas', 'enfermedadesEspecificar', 'valorActualDeuda', 'conduceMoto'] },
   { id: 4, name: 'Declaración', fields: ['declaraRenta', 'archivoDeclaracionRenta', 'ingresosNoDeclarante', 'egresosNoDeclarante', 'activosNoDeclarante', 'pasivosNoDeclarante'] },
   { id: 5, name: 'Resumen y Envío', fields: ['aceptaTerminosYPolitica'] },
 ];
@@ -164,6 +190,11 @@ const MultiStepForm = () => {
         camaraComercio: [],
         archivoDeclaracionRenta: [],
         contratoArrendamiento: [],
+        // vida_credito_protegido defaults
+        tieneEnfermedadesDiagnosticadas: undefined,
+        enfermedadesEspecificar: '',
+        valorActualDeuda: '',
+        conduceMoto: undefined,
         // Step 5 defaults
         aceptaTerminosYPolitica: false,
     }

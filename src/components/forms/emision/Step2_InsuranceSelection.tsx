@@ -12,6 +12,7 @@ const tiposDeSeguro = [
     { value: "rentas", label: "Seguro de Rentas" },
     { value: "mascotas", label: "Seguro para Mascotas" },
     { value: "responsabilidad_civil", label: "Seguro de Responsabilidad Civil" },
+    { value: "vida_credito_protegido", label: "Seguro de Vida - Crédito Protegido" },
 ];
 
 const metodosPago = [

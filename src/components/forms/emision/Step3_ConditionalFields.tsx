@@ -2,11 +2,13 @@ import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import FileUpload from './FileUpload';
 
 const Step3_ConditionalFields = () => {
   const { control, watch } = useFormContext();
   const tipoSeguro = watch('tipoSeguro');
+  const tieneEnfermedadesDiagnosticadas = watch('tieneEnfermedadesDiagnosticadas');
 
   const renderCommonFields = () => (
     <>
@@ -136,6 +138,82 @@ const Step3_ConditionalFields = () => {
         return (
           <>
             {renderCommonFields()}
+          </>
+        );
+      case 'vida_credito_protegido':
+        return (
+          <>
+            {renderCommonFields()}
+            <FormField
+              control={control}
+              name="tieneEnfermedadesDiagnosticadas"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>¿Tienes enfermedades preexistentes diagnosticadas? <span className="text-red-500">*</span></FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccione una opción" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="si">Sí</SelectItem>
+                      <SelectItem value="no">No</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {tieneEnfermedadesDiagnosticadas === 'si' && (
+              <FormField
+                control={control}
+                name="enfermedadesEspecificar"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>En caso afirmativo, especifica cuáles: <span className="text-red-500">*</span></FormLabel>
+                    <FormControl>
+                      <Input placeholder="Especifica tus enfermedades" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+            <FormField
+              control={control}
+              name="valorActualDeuda"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Valor actual de la deuda a asegurar: <span className="text-red-500">*</span></FormLabel>
+                  <FormControl>
+                    <Input type="text" placeholder="Ej: 50000000" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={control}
+              name="conduceMoto"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>¿Conduces motocicleta habitualmente? <span className="text-red-500">*</span></FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccione una opción" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="si">Sí</SelectItem>
+                      <SelectItem value="no">No</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </>
         );
       default:
