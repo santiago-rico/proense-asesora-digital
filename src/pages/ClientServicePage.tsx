@@ -1,20 +1,12 @@
 
 import React from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import Layout from "@/components/layout/Layout";
 import HeroBanner from "@/components/shared/HeroBanner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Check, Upload } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Link } from "react-router-dom";
+import { Check } from "lucide-react";
+import MultiStepForm from "@/components/forms/emision/MultiStepForm";
 
 interface ClientServicePageProps {
   type: "emision" | "modificacion" | "cancelacion" | "siniestro";
@@ -90,78 +82,12 @@ const serviceData: Record<ClientServicePageProps["type"], ServiceDataType> = {
 
   const data = serviceData[type];
 
-  const formSchema = z.object({
-    nombreCompleto: z.string().min(2, { message: "El nombre es requerido" }),
-    email: z.string().email({ message: "Email inválido" }),
-    telefono: z.string().min(7, { message: "Teléfono inválido" }),
-    numeroPóliza: z.string().optional(),
-    tipoSeguro: z.string().min(1, { message: "Por favor seleccione un tipo de seguro" }),
-    metodoPago: type === "emision" ? z.string().min(1, { message: "Por favor seleccione un método de pago" }) : z.string().optional(),
-    periodicidadPago: type === "emision" ? z.string().min(1, { message: "Por favor seleccione la periodicidad" }) : z.string().optional(),
-    detallesSolicitud: z.string().min(10, { message: "Por favor proporcione detalles de su solicitud" }),
-    terminos: z.boolean().refine((val) => val === true, { message: "Debes aceptar los términos y condiciones" }),
-  });
-
-  type FormData = z.infer<typeof formSchema>;
-
-  const form = useForm<FormData>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      nombreCompleto: "",
-      email: "",
-      telefono: "",
-      numeroPóliza: "",
-      tipoSeguro: "",
-      metodoPago: "",
-      periodicidadPago: "",
-      detallesSolicitud: "",
-      terminos: false,
-    },
-  });
-
-  const tiposSeguro = [
-    { value: "vida", label: "Seguro de Vida" },
-    { value: "salud", label: "Seguro de Salud" },
-    { value: "auto", label: "Seguro de Auto" },
-    { value: "hogar", label: "Seguro de Hogar" },
-    { value: "pymes", label: "Seguro para PYMES" },
-    { value: "mascotas", label: "Seguro para Mascotas" },
-    { value: "arrendamiento", label: "Seguro de Arrendamiento" },
-    { value: "viaje", label: "Seguro de Viaje" },
-    { value: "otro", label: "Otro" },
-  ];
-
-  const metodosPago = [
-    { value: "tarjeta", label: "Tarjeta de Crédito" },
-    { value: "debito", label: "Débito Automático" },
-    { value: "transferencia", label: "Transferencia Bancaria" },
-    { value: "efectivo", label: "Pago en Efectivo" },
-  ];
-
-  const periodicidades = [
-    { value: "mensual", label: "Mensual" },
-    { value: "trimestral", label: "Trimestral" },
-    { value: "semestral", label: "Semestral" },
-    { value: "anual", label: "Anual" },
-  ];
-
-  const onSubmit = (formData: FormData) => {
+  const onSubmit = (formData: any) => {
     console.log("Form data:", formData);
     toast({
       title: "Solicitud enviada",
       description: "Gracias por tu solicitud. Un asesor se pondrá en contacto contigo pronto.",
     });
-    form.reset();
-  };
-
-  // Mock file upload function
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      toast({
-        title: "Archivo cargado",
-        description: `Se ha subido el archivo: ${e.target.files[0].name}`,
-      });
-    }
   };
 
   return (
@@ -212,236 +138,11 @@ const serviceData: Record<ClientServicePageProps["type"], ServiceDataType> = {
             <Card>
               <CardContent className="p-6">
                 <h2 className="text-2xl font-bold mb-6">{data.formTitle}</h2>
-                
-                <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <FormField
-                        control={form.control}
-                        name="nombreCompleto"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Nombre Completo</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Tu nombre completo" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="email"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Correo Electrónico</FormLabel>
-                            <FormControl>
-                              <Input placeholder="tu@email.com" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <FormField
-                        control={form.control}
-                        name="telefono"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Número de Teléfono</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Tu número telefónico" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      {(type === "modificacion" || type === "cancelacion" || type === "siniestro") && (
-                        <FormField
-                          control={form.control}
-                          name="numeroPóliza"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Número de Póliza</FormLabel>
-                              <FormControl>
-                                <Input placeholder="Ej: POL-12345678" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      )}
-                      
-                      <FormField
-                        control={form.control}
-                        name="tipoSeguro"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Tipo de Seguro</FormLabel>
-                            <FormControl>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Selecciona un tipo de seguro" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {tiposSeguro.map((tipo) => (
-                                    <SelectItem key={tipo.value} value={tipo.value}>
-                                      {tipo.label}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-
-                    {type === "emision" && (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <FormField
-                          control={form.control}
-                          name="metodoPago"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Método de Pago Preferido</FormLabel>
-                              <FormControl>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Selecciona un método de pago" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {metodosPago.map((metodo) => (
-                                      <SelectItem key={metodo.value} value={metodo.value}>
-                                        {metodo.label}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name="periodicidadPago"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Periodicidad de Pago</FormLabel>
-                              <FormControl>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Selecciona la periodicidad" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {periodicidades.map((period) => (
-                                      <SelectItem key={period.value} value={period.value}>
-                                        {period.label}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    )}
-
-                    <FormField
-                      control={form.control}
-                      name="detallesSolicitud"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Detalles de la Solicitud</FormLabel>
-                          <FormControl>
-                            <Textarea 
-                              placeholder="Por favor proporciona todos los detalles relevantes para tu solicitud"
-                              rows={5}
-                              {...field} 
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <div className="space-y-4">
-                      <div>
-                        <p className="text-sm font-medium mb-2">Documentos Adjuntos</p>
-                        <div className="border-2 border-dashed border-gray-300 rounded-md p-6 text-center">
-                          <Upload className="mx-auto h-8 w-8 text-gray-400" />
-                          <p className="mt-2 text-sm text-gray-600">Arrastra archivos aquí o</p>
-                          <label className="mt-2 inline-block">
-                            <span className="rounded bg-primary px-3 py-1 text-sm text-white cursor-pointer">
-                              Seleccionar archivos
-                            </span>
-                            <input 
-                              type="file" 
-                              className="hidden" 
-                              onChange={handleFileUpload}
-                              multiple
-                            />
-                          </label>
-                        </div>
-                        <p className="text-xs text-gray-500 mt-2">
-                          Formatos aceptados: PDF, JPG, PNG (máx. 5MB por archivo)
-                        </p>
-                      </div>
-
-                    <FormField
-                      control={form.control}
-                      name="terminos"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 mt-4">
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                          <div className="space-y-1 leading-none">
-                            <FormLabel>
-                              <span className="text-xs text-gray-600">
-                                Acepto la{" "}
-                                <Link to="/politica-de-privacidad" className="underline hover:text-gray-900">
-                                  Política de Privacidad
-                                </Link>{" "}
-                                y los{" "}
-                                <Link to="/terminos-y-condiciones" className="underline hover:text-gray-900">
-                                  Términos y Condiciones
-                                </Link>
-                                .
-                              </span>
-                            </FormLabel>
-                            <FormMessage />
-                          </div>
-                        </FormItem>
-                      )}
-                    />
-                    </div>
-
-                    <div>
-                      <p className="text-sm font-medium mb-2">Firma Electrónica</p>
-                      <div className="border border-gray-300 rounded-md p-4 bg-gray-50 text-center">
-                        <p className="text-sm text-gray-600 mb-2">
-                          Al hacer clic en "Firmar y Enviar", usted está firmando electrónicamente este documento según lo establecido en la Ley 527 de 1999.
-                        </p>
-                        <Button type="submit" className="w-full">
-                          Firmar y Enviar Solicitud
-                        </Button>
-                      </div>
-                    </div>
-                  </form>
-                </Form>
+                {type === 'emision' ? (
+                  <MultiStepForm />
+                ) : (
+                  <p>Funcionalidad de {data.title} en construcción.</p>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -449,7 +150,7 @@ const serviceData: Record<ClientServicePageProps["type"], ServiceDataType> = {
       </section>
 
       {/* Support Section */}
-      <section className="py-12 bg-white">
+      <section className="py-12">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-2xl font-bold mb-4">¿Necesitas ayuda?</h2>
