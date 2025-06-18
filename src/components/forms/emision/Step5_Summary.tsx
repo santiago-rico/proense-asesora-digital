@@ -69,8 +69,23 @@ const summaryFieldOrder = [
 ];
 
 const Step5_Summary: React.FC = () => {
-  const { control, getValues } = useFormContext();
+  const { 
+    control, 
+    getValues, 
+    clearErrors, 
+    formState: { errors } 
+  } = useFormContext();
   const formData = getValues();
+
+  const handleCheckboxChange = (checked: boolean, onChange: (checked: boolean) => void) => {
+    // Update the checkbox value
+    onChange(checked);
+    
+    // Clear the error if the checkbox is checked
+    if (checked) {
+      clearErrors('aceptaTerminosYPolitica');
+    }
+  };
 
   const renderValue = (value: any, fieldName: string) => {
     if (value === undefined || value === null || value === '') return null; // Hide if no value
@@ -126,7 +141,11 @@ const Step5_Summary: React.FC = () => {
           render={({ field }) => (
             <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow">
               <FormControl>
-                <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                <Checkbox 
+                  checked={field.value} 
+                  onCheckedChange={(checked) => handleCheckboxChange(checked as boolean, field.onChange)} 
+                  className={errors.aceptaTerminosYPolitica ? 'border-red-500' : ''}
+                />
               </FormControl>
               <div className="space-y-1 leading-none">
                 <FormLabel>

@@ -201,8 +201,8 @@ const MultiStepForm = () => {
   const { toast } = useToast();
 
   const methods = useForm<FormSchemaType>({
-    mode: 'onChange',
-    reValidateMode: 'onChange',
+    mode: 'onBlur',
+    reValidateMode: 'onBlur',
     resolver: zodResolver(formSchema),
     defaultValues: {
       nombreCompleto: '',
@@ -264,6 +264,7 @@ const MultiStepForm = () => {
 
   const handleNext = async () => {
     const fields = steps[currentStep].fields;
+    // Validate all fields in the current step when proceeding
     const output = await trigger(fields as any, { shouldFocus: true });
 
     if (!output) return;
