@@ -150,19 +150,16 @@ const serviceData: Record<ClientServicePageProps["type"], ServiceDataType> = {
       </section>
 
       {/* Support Section */}
-      <section className="py-12">
+      <section className="py-12 md:py-16 bg-primary text-white">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-2xl font-bold mb-4">¿Necesitas ayuda?</h2>
-            <p className="mb-6 text-gray-700">
+          <div className="max-w-3xl mx-auto text-center">
+            <h2 className="text-2xl md:text-3xl font-bold mb-4">¿Necesitas ayuda?</h2>
+            <p className="mb-6 text-lg text-white/90">
               Si tienes dudas sobre cómo completar este formulario, nuestro equipo está listo para asistirte.
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-              <Button asChild variant="outline">
+            <div className="mt-6">
+              <Button asChild className="bg-secondary hover:bg-secondary/90 h-11 px-8 text-white">
                 <a href="/contacto">Contactar a un Asesor</a>
-              </Button>
-              <Button asChild variant="link">
-                <a href="/faq">Preguntas Frecuentes</a>
               </Button>
             </div>
           </div>
