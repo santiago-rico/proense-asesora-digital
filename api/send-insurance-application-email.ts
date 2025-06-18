@@ -5,6 +5,16 @@ import { sendTransactionalEmail } from '../src/utils/brevo.js';
 import formidable from 'formidable';
 import fs from 'fs';
 
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+const ALLOWED_MIME_TYPES = [
+  'application/pdf',
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+];
+
 // Disable Vercel's default body parser to handle multipart/form-data
 export const config = {
   api: {
@@ -177,19 +187,40 @@ export default async function handler(
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
+  let tempFilePaths: string[] = [];
+
   try {
     const { fields, files } = await parseForm(req);
 
-    const formData: any = {};
-    for (const key in fields) {
-      if (fields[key]) {
-        formData[key] = fields[key]?.[0];
+    // Collect all temp file paths for reliable cleanup and validate them
+    for (const key in files) {
+      const fileArray = files[key];
+      if (fileArray) {
+        for (const file of fileArray) {
+          tempFilePaths.push(file.filepath);
+
+          // Validate file size
+          if (file.size > MAX_FILE_SIZE) {
+            throw new Error(`El archivo \"${file.originalFilename}\" excede el tamaño máximo de 5MB.`);
+          }
+
+          // Validate MIME type
+          if (!file.mimetype || !ALLOWED_MIME_TYPES.includes(file.mimetype)) {
+            throw new Error(`El tipo de archivo \"${file.originalFilename}\" no es válido. Solo se aceptan PDF, JPG, PNG, WEBP.`);
+          }
+        }
       }
     }
-    // Convert boolean string back to boolean
-    if (formData.aceptaTerminosYPolitica) {
-        formData.aceptaTerminosYPolitica = formData.aceptaTerminosYPolitica === 'true';
-    }
+
+    // Type assertion for form fields
+    const formData = Object.entries(fields).reduce((acc, [key, value]) => {
+      if (value !== undefined) {
+        // The `formidable` library wraps all field values in an array.
+        // We take the first element, as we don't expect multiple values for a single field.
+        acc[key] = Array.isArray(value) ? value[0] : value;
+      }
+      return acc;
+    }, {} as Record<string, any>) as InsuranceApplicationData;
 
     const attachments: { name: string; content: string }[] = [];
     const attachedFileNames: Record<string, string[]> = {};
@@ -206,8 +237,7 @@ export default async function handler(
             content: fileContent.toString('base64'),
           });
           attachedFileNames[key].push(filename);
-          // Clean up the temporary file
-          fs.unlinkSync(file.filepath);
+          // Note: Temp files are not unlinked here; they are handled in the `finally` block.
         }
       }
     }
@@ -263,11 +293,13 @@ export default async function handler(
     const userEmailResult = await sendTransactionalEmail(userBrevoPayload);
     if (!userEmailResult.success) {
       console.error('Failed to send email to user:', userEmailResult.error);
+      // We don't abort here; the agent email is more critical.
     }
 
     const agentEmailResult = await sendTransactionalEmail(agentBrevoPayload);
     if (!agentEmailResult.success) {
       console.error('Failed to send email to agent:', agentEmailResult.error);
+      // This is a critical failure.
       return res.status(agentEmailResult.status || 500).json({
         message: 'Error enviando email de notificación al agente.',
         details: agentEmailResult.error,
@@ -279,9 +311,23 @@ export default async function handler(
   } catch (error) {
     console.error('Error processing form submission:', error);
     let errorMessage = 'Error interno del servidor.';
+    let statusCode = 500;
     if (error instanceof Error) {
         errorMessage = error.message;
+        // Check if it's one of our validation errors and set status to 400
+        if (errorMessage.includes("excede el tamaño máximo") || errorMessage.includes("no es válido")) {
+          statusCode = 400; // Bad Request
+        }
     }
-    return res.status(500).json({ message: errorMessage });
+    return res.status(statusCode).json({ message: errorMessage });
+  } finally {
+    // Reliably clean up all temporary files
+    for (const path of tempFilePaths) {
+      fs.unlink(path, (err) => {
+        if (err) {
+          console.error(`Failed to delete temporary file: ${path}`, err);
+        }
+      });
+    }
   }
 }

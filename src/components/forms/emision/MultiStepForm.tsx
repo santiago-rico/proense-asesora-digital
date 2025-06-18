@@ -12,8 +12,35 @@ import { Button } from '@/components/ui/button';
 import NumberedProgressBar from './NumberedProgressBar';
 import { useToast } from '@/hooks/use-toast';
 
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+const ACCEPTED_MIME_TYPES = [
+  'application/pdf',
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+];
+
 const fileSchema = z.instanceof(File, { message: 'Se requiere un archivo.' }).optional();
-const fileArraySchema = z.array(z.instanceof(File)).optional();
+
+const detailedFileArraySchema = z.array(z.instanceof(File))
+  .optional()
+  .superRefine((files, ctx) => {
+    if (!files || files.length === 0) return true;
+
+    for (const file of files) {
+      if (file.size > MAX_FILE_SIZE || !ACCEPTED_MIME_TYPES.includes(file.type)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Verifica los archivos: solo se aceptan PDF, JPG, PNG, WEBP, DOC, DOCX (máx. 5MB).",
+        });
+        return false; // Stop validation on first error
+      }
+    }
+    return true;
+  });
+
 
 export const formSchema = z.object({
   nombreCompleto: z.string().min(1, 'El nombre es requerido'),
@@ -23,23 +50,23 @@ export const formSchema = z.object({
   metodoPago: z.string().min(1, 'Selecciona un método de pago'),
   periodicidadPago: z.string().min(1, 'Selecciona la periodicidad de pago'),
   numeroCedula: z.string().optional(),
-  fotoCedula: fileArraySchema,
+  fotoCedula: detailedFileArraySchema,
   beneficiarios: z.string().optional(),
-  documentosBeneficiarios: fileArraySchema,
+  documentosBeneficiarios: detailedFileArraySchema,
   listaBeneficiarios: z.string().optional(),
-  certificadoLibertad: fileArraySchema,
-  tarjetaPropiedad: fileArraySchema,
+  certificadoLibertad: detailedFileArraySchema,
+  tarjetaPropiedad: detailedFileArraySchema,
   numeroCedulaRepLegal: z.string().optional(),
-  fotoCedulaRepLegal: fileArraySchema,
+  fotoCedulaRepLegal: detailedFileArraySchema,
   nit: z.string().optional(),
-  rut: fileArraySchema,
-  camaraComercio: fileArraySchema,
+  rut: detailedFileArraySchema,
+  camaraComercio: detailedFileArraySchema,
   declaraRenta: z.enum(['si', 'no'], {
     required_error: "Debes seleccionar una opción para declarar renta.",
     invalid_type_error: "Debes seleccionar una opción para declarar renta.",
   }),
-  archivoDeclaracionRenta: fileArraySchema,
-  contratoArrendamiento: fileArraySchema, // Added for Seguro de Rentas
+  archivoDeclaracionRenta: detailedFileArraySchema,
+  contratoArrendamiento: detailedFileArraySchema, // Added for Seguro de Rentas
   // Fields for Seguro de Vida - Crédito Protegido
   tieneEnfermedadesDiagnosticadas: z.enum(['si', 'no']).optional(),
   enfermedadesEspecificar: z.string().optional(),

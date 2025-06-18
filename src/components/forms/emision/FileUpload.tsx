@@ -11,22 +11,36 @@ interface FileUploadProps {
 }
 
 const FileUpload: React.FC<FileUploadProps> = ({ name, label, description, multiple = false }) => {
-  const { setValue, getValues } = useFormContext();
+  const { setValue, getValues, formState: { errors }, clearErrors } = useFormContext();
   const [myFiles, setMyFiles] = useState<File[]>(getValues(name) || []);
+  const [fileDropError, setFileDropError] = useState<string | null>(null);
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
+  const onDropAccepted = useCallback((acceptedFiles: File[]) => {
+    setFileDropError(null); // Clear previous drop rejection error
+    clearErrors(name); // Clear previous react-hook-form error for this field
     const currentFiles = getValues(name) || [];
     const newFiles = multiple ? [...currentFiles, ...acceptedFiles] : acceptedFiles;
     setMyFiles(newFiles);
     setValue(name, newFiles, { shouldValidate: true });
-  }, [multiple, name, setValue, getValues]);
+  }, [multiple, name, setValue, getValues, clearErrors]);
+
+  const onDropRejected = useCallback((fileRejections: any[]) => {
+    if (fileRejections && fileRejections.length > 0) {
+      clearErrors(name); // Clear existing Zod error for this field
+      setFileDropError("El tipo de archivo no es válido. Solo puedes subir: PDF, JPG, PNG, WEBP, DOC, DOCX.");
+    }
+  }, [name, clearErrors]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
+    onDropAccepted,
+    onDropRejected,
     accept: {
-      'image/jpeg': [],
-      'image/png': [],
-      'application/pdf': [],
+      'image/jpeg': ['.jpg', '.jpeg'],
+      'image/png': ['.png'],
+      'image/webp': ['.webp'],
+      'application/pdf': ['.pdf'],
+      'application/msword': ['.doc'],
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
     },
   });
 
@@ -35,6 +49,9 @@ const FileUpload: React.FC<FileUploadProps> = ({ name, label, description, multi
     setMyFiles(newFiles);
     setValue(name, newFiles, { shouldValidate: true });
   };
+
+  const zodError = errors[name]?.message as string | undefined;
+  const displayError = fileDropError || zodError;
 
   return (
     <div className="space-y-2">
@@ -45,7 +62,8 @@ const FileUpload: React.FC<FileUploadProps> = ({ name, label, description, multi
       <div
         {...getRootProps()}
         className={`flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-md cursor-pointer
-        ${isDragActive ? 'border-primary bg-primary/10' : 'border-gray-300'}`}
+        ${isDragActive ? 'border-primary bg-primary/10' : 'border-gray-300'}
+        ${displayError ? 'border-red-500' : ''}`}
       >
         <input {...getInputProps()} />
         <Upload className="w-8 h-8 text-gray-500 mb-2" />
@@ -53,7 +71,9 @@ const FileUpload: React.FC<FileUploadProps> = ({ name, label, description, multi
           {isDragActive ? 'Suelta los archivos aquí...' : 'Arrastra y suelta archivos aquí, o haz clic para seleccionar'}
         </p>
         {description && <p className="text-xs text-gray-500 mt-1">{description}</p>}
+        <p className="text-xs text-gray-500 mt-2">PDF, JPG, PNG, WEBP, DOC, DOCX. (Max 5MB)</p>
       </div>
+      {displayError && <p className="text-sm text-red-600 mt-1">{displayError}</p>}
       {myFiles.length > 0 && (
         <div className="mt-4 space-y-2">
           <h4 className="text-sm font-medium">Archivos seleccionados:</h4>
