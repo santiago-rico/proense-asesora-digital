@@ -36,7 +36,7 @@ const serviceData: Record<ClientServicePageProps["type"], ServiceDataType> = {
       steps: [
         "Completa el formulario con tus datos personales y la información del seguro solicitado.",
         "Adjunta la documentación requerida según el tipo de seguro.",
-        "Firma electrónicamente para confirmar la solicitud.",
+        "Acepta la solictud de emisión respondiendo al correo electrónico de confirmación.",
         "Un asesor revisará tu solicitud y te contactará para finalizar el proceso."
       ]
     },
@@ -50,7 +50,7 @@ const serviceData: Record<ClientServicePageProps["type"], ServiceDataType> = {
         "Indica tu número de póliza y datos personales.",
         "Especifica los cambios que deseas realizar en tu póliza.",
         "Adjunta documentación de respaldo si es necesario.",
-        "Firma electrónicamente para autorizar los cambios."
+        "Acepta la solictud de modificación respondiendo al correo electrónico de confirmación."
       ]
     },
     cancelacion: {
