@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Check } from "lucide-react";
 import MultiStepForm from "@/components/forms/emision/MultiStepForm";
+import { ModificationForm } from '@/components/forms/modificacion/ModificationForm';
 
 interface ClientServicePageProps {
   type: "emision" | "modificacion" | "cancelacion" | "siniestro";
@@ -140,6 +141,8 @@ const serviceData: Record<ClientServicePageProps["type"], ServiceDataType> = {
                 <h2 className="text-2xl font-bold mb-6">{data.formTitle}</h2>
                 {type === 'emision' ? (
                   <MultiStepForm />
+                ) : type === 'modificacion' ? (
+                  <ModificationForm />
                 ) : (
                   <p>Funcionalidad de {data.title} en construcción.</p>
                 )}

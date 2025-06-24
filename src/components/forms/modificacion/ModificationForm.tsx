@@ -1,0 +1,243 @@
+import React from 'react';
+import { useForm, SubmitHandler } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { PhoneInput } from '@/components/ui/phone-input';
+import { Checkbox } from '@/components/ui/checkbox';
+import es from 'react-phone-number-input/locale/es.json';
+import { isValidPhoneNumber } from 'react-phone-number-input';
+
+const tiposDeSeguro = [
+  { value: 'vida', label: 'Seguro de Vida' },
+  { value: 'salud', label: 'Seguro de Salud' },
+  { value: 'empresarial', label: 'Seguro Empresarial' },
+  { value: 'rentas', label: 'Seguro de Rentas' },
+  { value: 'responsabilidad_civil', label: 'Seguro de Responsabilidad Civil' },
+  { value: 'vida_credito_protegido', label: 'Seguro de Vida - Crédito Protegido' },
+  { value: 'otro', label: 'Otro' },
+];
+
+const modificationSchema = z.object({
+  nombreCompleto: z.string().min(1, 'El nombre completo es requerido'),
+  numeroCedula: z.string().min(1, 'El número de cédula es requerido'),
+  telefono: z.string().refine(isValidPhoneNumber, { message: 'Número de teléfono inválido' }),
+  email: z.string().email('Correo electrónico inválido'),
+  nombreAseguradora: z.string().min(1, 'El nombre de la aseguradora es requerido'),
+  numeroPoliza: z.string().optional(),
+  tipoSeguro: z.string().min(1, 'Debe seleccionar un tipo de seguro'),
+  otroSeguro: z.string().optional(),
+  modificaciones: z.string().min(1, 'Debe describir las modificaciones que desea hacer'),
+  aceptaTerminosYPolitica: z.boolean().refine(val => val === true, {
+    message: 'Debes aceptar la política de privacidad y los términos y condiciones para continuar.',
+  }),
+}).superRefine((data, ctx) => {
+  if (data.tipoSeguro === 'otro' && (!data.otroSeguro || data.otroSeguro.trim() === '')) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['otroSeguro'],
+      message: 'Debe especificar el tipo de seguro',
+    });
+  }
+});
+
+type ModificationFormValues = z.infer<typeof modificationSchema>;
+
+export const ModificationForm = () => {
+  const form = useForm<ModificationFormValues>({
+    resolver: zodResolver(modificationSchema),
+    defaultValues: {
+      nombreCompleto: '',
+      numeroCedula: '',
+      telefono: '',
+      email: '',
+      nombreAseguradora: '',
+      numeroPoliza: '',
+      tipoSeguro: '',
+      otroSeguro: '',
+      modificaciones: '',
+      aceptaTerminosYPolitica: false,
+    },
+  });
+
+  const tipoSeguro = form.watch('tipoSeguro');
+
+  const onSubmit: SubmitHandler<ModificationFormValues> = (data) => {
+    console.log(data);
+    // Handle form submission
+  };
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="nombreCompleto"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nombre completo <span className="text-red-500">*</span></FormLabel>
+                <FormControl>
+                  <Input placeholder="Nombre completo" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="numeroCedula"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Número de cédula <span className="text-red-500">*</span></FormLabel>
+                <FormControl>
+                  <Input placeholder="Número de cédula" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="telefono"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Teléfono de contacto <span className="text-red-500">*</span></FormLabel>
+                <FormControl>
+                  <PhoneInput
+                    {...field}
+                    labels={es}
+                    defaultCountry="CO"
+                    placeholder="300 123 4567"
+                    searchPlaceholder="Buscar país..."
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Correo electrónico <span className="text-red-500">*</span></FormLabel>
+                <FormControl>
+                  <Input placeholder="correo@ejemplo.com" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="nombreAseguradora"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nombre de la aseguradora <span className="text-red-500">*</span></FormLabel>
+                <FormControl>
+                  <Input placeholder="Nombre de la aseguradora" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="numeroPoliza"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Número de póliza de seguro (Opcional)</FormLabel>
+                <FormControl>
+                  <Input placeholder="Número de póliza" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="tipoSeguro"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>¿Qué seguro quieres modificar? <span className="text-red-500">*</span></FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecciona un tipo de seguro" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {tiposDeSeguro.map((tipo) => (
+                      <SelectItem key={tipo.value} value={tipo.value}>
+                        {tipo.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          {tipoSeguro === 'otro' && (
+            <FormField
+              control={form.control}
+              name="otroSeguro"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Especifica qué seguro <span className="text-red-500">*</span></FormLabel>
+                  <FormControl>
+                    <Input placeholder="Especifica el seguro" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
+        </div>
+        <FormField
+          control={form.control}
+          name="modificaciones"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>¿Qué modificaciones quieres hacer? <span className="text-red-500">*</span></FormLabel>
+              <FormControl>
+                <Textarea
+                  placeholder="Describe las modificaciones"
+                  className="resize-none"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="aceptaTerminosYPolitica"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow">
+              <FormControl>
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+              <div className="space-y-1 leading-none">
+                <FormLabel>
+                  Acepto la <a href="/politica-de-privacidad" target="_blank" className="text-primary hover:underline">Política de Privacidad</a> y los <a href="/terminos-y-condiciones" target="_blank" className="text-primary hover:underline">Términos y Condiciones</a> <span className="text-red-500">*</span>
+                </FormLabel>
+                <FormMessage />
+              </div>
+            </FormItem>
+          )}
+        />
+        <Button type="submit">Enviar Solicitud</Button>
+      </form>
+    </Form>
+  );
+};
