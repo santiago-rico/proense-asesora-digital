@@ -74,6 +74,7 @@ export const ModificationForm = () => {
   const [formSubmitted, setFormSubmitted] = useState(false);
   const form = useForm<ModificationFormValues>({
     resolver: zodResolver(modificationSchema),
+    mode: 'onBlur',
     defaultValues: {
       nombreCompleto: '',
       numeroCedula: '',
