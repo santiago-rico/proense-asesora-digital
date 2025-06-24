@@ -13,6 +13,7 @@ import es from 'react-phone-number-input/locale/es.json';
 import { isValidPhoneNumber } from 'react-phone-number-input';
 import FileUpload from '@/components/forms/emision/FileUpload';
 import { useToast } from '@/hooks/use-toast';
+import { CheckCircle2 } from 'lucide-react';
 
 const tiposDeSeguro = [
   { value: 'vida', label: 'Seguro de Vida' },
@@ -50,9 +51,27 @@ const modificationSchema = z.object({
 
 type ModificationFormValues = z.infer<typeof modificationSchema>;
 
+const SuccessScreen = ({ onReset }: { onReset: () => void }) => (
+  <div className="bg-white rounded-lg shadow-lg p-8 max-w-lg mx-auto text-center border border-green-200">
+    <CheckCircle2 className="mx-auto h-16 w-16 text-green-500 mb-4" />
+    <h2 className="text-2xl font-bold text-gray-800 mb-3">¡Solicitud Enviada con Éxito!</h2>
+    <p className="text-gray-600 mb-4">
+      Hemos recibido tu solicitud de modificación y hemos enviado un correo electrónico a tu dirección con los detalles.
+    </p>
+    <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 my-6 text-left">
+      <p className="font-bold text-yellow-900">Importante: Acción Requerida</p>
+      <p className="text-yellow-800 mt-1">
+        Para que tu solicitud sea procesada, es <strong>indispensable</strong> que respondas al correo que te hemos enviado confirmando los cambios. De lo contrario, la modificación no se hará efectiva.
+      </p>
+    </div>
+    <Button onClick={onReset} size="lg">Realizar otra modificación</Button>
+  </div>
+);
+
 export const ModificationForm = () => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formSubmitted, setFormSubmitted] = useState(false);
   const form = useForm<ModificationFormValues>({
     resolver: zodResolver(modificationSchema),
     defaultValues: {
@@ -95,11 +114,7 @@ export const ModificationForm = () => {
       const result = await response.json();
 
       if (response.ok) {
-        toast({
-          title: "Solicitud Enviada",
-          description: "Hemos recibido tu solicitud de modificación. Recibirás un correo para confirmar.",
-        });
-        form.reset();
+        setFormSubmitted(true);
       } else {
         throw new Error(result.message || 'Ocurrió un error al enviar el formulario.');
       }
@@ -114,6 +129,13 @@ export const ModificationForm = () => {
       setIsSubmitting(false);
     }
   };
+
+  if (formSubmitted) {
+    return <SuccessScreen onReset={() => {
+      form.reset();
+      setFormSubmitted(false);
+    }} />;
+  }
 
   return (
     <Form {...form}>
