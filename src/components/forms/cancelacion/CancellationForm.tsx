@@ -18,10 +18,13 @@ import { CheckCircle2 } from 'lucide-react';
 const tiposDeSeguro = [
   { value: 'vida', label: 'Seguro de Vida' },
   { value: 'salud', label: 'Seguro de Salud' },
-  { value: 'empresarial', label: 'Seguro Empresarial' },
-  { value: 'rentas', label: 'Seguro de Rentas' },
-  { value: 'responsabilidad_civil', label: 'Seguro de Responsabilidad Civil' },
-  { value: 'vida_credito_protegido', label: 'Seguro de Vida - Crédito Protegido' },
+  { value: 'auto', label: 'Seguro de Auto' },
+  { value: 'hogar', label: 'Seguro de Hogar' },
+  { value: 'pymes', label: 'Seguro para PYMES' },
+  { value: 'mascotas', label: 'Seguro de Mascotas' },
+  { value: 'motos', label: 'Seguro de Motos' },
+  { value: 'arrendamiento', label: 'Seguro de Arrendamiento' },
+  { value: 'viaje', label: 'Seguro de Viaje' },
   { value: 'otro', label: 'Otro' },
 ];
 
