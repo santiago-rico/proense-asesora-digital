@@ -7,6 +7,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Check } from "lucide-react";
 import MultiStepForm from "@/components/forms/emision/MultiStepForm";
+import { CancellationForm } from '@/components/forms/cancelacion/CancellationForm';
+import { ModificationForm } from '@/components/forms/modificacion/ModificationForm';
 
 interface ClientServicePageProps {
   type: "emision" | "modificacion" | "cancelacion" | "siniestro";
@@ -17,15 +19,15 @@ const ClientServicePage: React.FC<ClientServicePageProps> = ({ type, handleOpenL
   const { toast } = useToast();
 
   interface ServiceDataType {
-  title: string;
-  description: string;
-  heroImage: string;
-  imagePosition?: string;
-  formTitle: string;
-  steps: string[];
-}
+    title: string;
+    description: string;
+    heroImage: string;
+    imagePosition?: string;
+    formTitle: string;
+    steps: string[];
+  }
 
-const serviceData: Record<ClientServicePageProps["type"], ServiceDataType> = {
+  const serviceData: Record<ClientServicePageProps["type"], ServiceDataType> = {
     emision: {
       title: "Emisión de Pólizas",
       description: "Solicita la emisión de una nueva póliza con nuestro proceso sencillo y seguro.",
@@ -35,7 +37,7 @@ const serviceData: Record<ClientServicePageProps["type"], ServiceDataType> = {
       steps: [
         "Completa el formulario con tus datos personales y la información del seguro solicitado.",
         "Adjunta la documentación requerida según el tipo de seguro.",
-        "Firma electrónicamente para confirmar la solicitud.",
+        "Acepta la solictud de emisión respondiendo al correo electrónico de confirmación.",
         "Un asesor revisará tu solicitud y te contactará para finalizar el proceso."
       ]
     },
@@ -49,7 +51,7 @@ const serviceData: Record<ClientServicePageProps["type"], ServiceDataType> = {
         "Indica tu número de póliza y datos personales.",
         "Especifica los cambios que deseas realizar en tu póliza.",
         "Adjunta documentación de respaldo si es necesario.",
-        "Firma electrónicamente para autorizar los cambios."
+        "Acepta la solictud de modificación respondiendo al correo electrónico de confirmación."
       ]
     },
     cancelacion: {
@@ -140,6 +142,10 @@ const serviceData: Record<ClientServicePageProps["type"], ServiceDataType> = {
                 <h2 className="text-2xl font-bold mb-6">{data.formTitle}</h2>
                 {type === 'emision' ? (
                   <MultiStepForm />
+                ) : type === 'modificacion' ? (
+                  <ModificationForm />
+                ) : type === 'cancelacion' ? (
+                  <CancellationForm />
                 ) : (
                   <p>Funcionalidad de {data.title} en construcción.</p>
                 )}
