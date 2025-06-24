@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -11,6 +11,8 @@ import { PhoneInput } from '@/components/ui/phone-input';
 import { Checkbox } from '@/components/ui/checkbox';
 import es from 'react-phone-number-input/locale/es.json';
 import { isValidPhoneNumber } from 'react-phone-number-input';
+import FileUpload from '@/components/forms/emision/FileUpload';
+import { useToast } from '@/hooks/use-toast';
 
 const tiposDeSeguro = [
   { value: 'vida', label: 'Seguro de Vida' },
@@ -23,6 +25,7 @@ const tiposDeSeguro = [
 ];
 
 const modificationSchema = z.object({
+  documentosAdicionales: z.any().optional(),
   nombreCompleto: z.string().min(1, 'El nombre completo es requerido'),
   numeroCedula: z.string().min(1, 'El número de cédula es requerido'),
   telefono: z.string().refine(isValidPhoneNumber, { message: 'Número de teléfono inválido' }),
@@ -48,6 +51,8 @@ const modificationSchema = z.object({
 type ModificationFormValues = z.infer<typeof modificationSchema>;
 
 export const ModificationForm = () => {
+  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const form = useForm<ModificationFormValues>({
     resolver: zodResolver(modificationSchema),
     defaultValues: {
@@ -61,14 +66,53 @@ export const ModificationForm = () => {
       otroSeguro: '',
       modificaciones: '',
       aceptaTerminosYPolitica: false,
+      documentosAdicionales: [],
     },
   });
 
   const tipoSeguro = form.watch('tipoSeguro');
 
-  const onSubmit: SubmitHandler<ModificationFormValues> = (data) => {
-    console.log(data);
-    // Handle form submission
+  const onSubmit: SubmitHandler<ModificationFormValues> = async (data) => {
+    setIsSubmitting(true);
+    const formData = new FormData();
+
+    Object.entries(data).forEach(([key, value]) => {
+      if (key === 'documentosAdicionales' && Array.isArray(value)) {
+        value.forEach(file => {
+          formData.append(key, file);
+        });
+      } else if (value !== null && value !== undefined) {
+        formData.append(key, String(value));
+      }
+    });
+
+    try {
+      const response = await fetch('/api/send-modification-request', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        toast({
+          title: "Solicitud Enviada",
+          description: "Hemos recibido tu solicitud de modificación. Recibirás un correo para confirmar.",
+        });
+        form.reset();
+      } else {
+        throw new Error(result.message || 'Ocurrió un error al enviar el formulario.');
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Ocurrió un error desconocido.';
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -216,6 +260,13 @@ export const ModificationForm = () => {
             </FormItem>
           )}
         />
+
+        <FileUpload 
+          name="documentosAdicionales"
+          label="Documentos Adicionales (Opcional)"
+          multiple
+        />
+
         <FormField
           control={form.control}
           name="aceptaTerminosYPolitica"
@@ -236,7 +287,9 @@ export const ModificationForm = () => {
             </FormItem>
           )}
         />
-        <Button type="submit">Enviar Solicitud</Button>
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Enviando...' : 'Enviar Solicitud'}
+        </Button>
       </form>
     </Form>
   );
