@@ -45,7 +45,6 @@
     "@radix-ui/react-tooltip": "^1.1.4",
     "@sanity/client": "^7.6.0",
     "@sanity/image-url": "^1.1.0",
-    "@sendinblue/client": "^3.3.1",
     "@tanstack/react-query": "^5.56.2",
     "@types/react-dropzone": "^4.2.2",
     "class-variance-authority": "^0.7.1",
@@ -83,7 +82,7 @@
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@vercel/node": "^5.1.16",
-    "@vitejs/plugin-react-swc": "^3.9.0",
+    "@vitejs/plugin-react-swc": "^3.10.2",
     "autoprefixer": "^10.4.20",
     "dotenv": "^16.5.0",
     "eslint": "^9.9.0",
@@ -97,6 +96,6 @@
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.0.1",
     "vite": "^6.3.5",
-    "vitest": "^3.2.3"
+    "vitest": "^2.0.4"
   }
 }
