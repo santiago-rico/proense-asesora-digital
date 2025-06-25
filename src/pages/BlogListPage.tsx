@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { getBlogPosts } from "@/services/blogService";
 import { urlFor } from "@/sanity/imageUrl";
 import { ArrowRight, ShieldCheck } from 'lucide-react';
+import LeadForm from "@/components/forms/LeadForm";
 
 interface BlogListPageProps {
   handleOpenLeadDialog: () => void;
@@ -24,6 +25,7 @@ const BlogListPage: React.FC<BlogListPageProps> = ({ handleOpenLeadDialog }) => 
 
   const [currentPage, setCurrentPage] = useState(1);
   const postsPerPage = 6;
+  const latestArticlesRef = useRef<HTMLHeadingElement>(null);
 
   const featuredPost = useMemo(() => posts?.[0], [posts]);
   const latestPosts = useMemo(() => posts?.slice(1) || [], [posts]);
@@ -35,6 +37,17 @@ const BlogListPage: React.FC<BlogListPageProps> = ({ handleOpenLeadDialog }) => 
   }, [latestPosts, currentPage]);
 
   const totalPages = Math.ceil(latestPosts.length / postsPerPage);
+
+  useEffect(() => {
+    if (currentPage > 1) {
+      latestArticlesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else if (currentPage === 1 && latestArticlesRef.current) {
+      // Optional: Only scroll if the user is not already near the top
+      if (window.scrollY > latestArticlesRef.current.offsetTop) {
+        latestArticlesRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  }, [currentPage]);
 
   const renderSkeleton = () => (
     <div className="container mx-auto px-4 py-12">
@@ -84,7 +97,7 @@ const BlogListPage: React.FC<BlogListPageProps> = ({ handleOpenLeadDialog }) => 
               ) : null}
 
               <section className="mt-12">
-                <h2 className="text-3xl font-bold mb-6">Últimos Artículos</h2>
+                <h2 ref={latestArticlesRef} className="text-3xl font-bold mb-6 scroll-mt-24">Últimos Artículos</h2>
                 {latestPosts.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {paginatedPosts.map((post) => (
@@ -111,20 +124,10 @@ const BlogListPage: React.FC<BlogListPageProps> = ({ handleOpenLeadDialog }) => 
             <aside className="lg:col-span-1">
                 <div className="sticky top-24 space-y-8">
                     {/* Get Your Free Quote */}
-                    <Card className="shadow-lg border-gray-200 rounded-xl">
-                        <CardHeader>
-                            <CardTitle className="text-xl">Cotiza Tu Seguro Gratis</CardTitle>
-                            <p className="text-sm text-gray-500 pt-1">Protege lo que más importa. Obtén una cotización personalizada en minutos.</p>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <Input placeholder="Nombre Completo" />
-                            <Input type="email" placeholder="Correo Electrónico" />
-                            <Input type="tel" placeholder="Número de Celular" />
-                            <Input placeholder="Tipo de Seguro" />
-                            <Button className="w-full" onClick={handleOpenLeadDialog}>Cotizar Gratis</Button>
-                            <p className="text-xs text-center text-gray-500 flex items-center justify-center"><ShieldCheck className="h-4 w-4 mr-1 text-green-600"/> Seguro y Confidencial</p>
-                        </CardContent>
-                    </Card>
+                    <LeadForm 
+                        title="¡Queremos acompañarte a encontrar la mejor protección!"
+                        subtitle="Déjanos tus datos y te contactaremos para brindarte asesoría personalizada y gratuita."
+                    />
 
                     {/* Popular Articles */}
                     <Card className="shadow-lg border-gray-200 rounded-xl">
@@ -141,15 +144,7 @@ const BlogListPage: React.FC<BlogListPageProps> = ({ handleOpenLeadDialog }) => 
                         </CardContent>
                     </Card>
 
-                    {/* Stay Updated */}
-                    <Card className="shadow-lg bg-blue-600 text-white rounded-xl p-6">
-                        <h3 className="text-xl font-bold">Mantente Actualizado</h3>
-                        <p className="text-sm text-blue-100 mt-1 mb-4">Recibe los últimos consejos de seguros y noticias del sector en tu correo.</p>
-                        <div className="space-y-3">
-                            <Input type="email" placeholder="Tu correo electrónico" className="bg-white text-gray-900"/>
-                            <Button variant="secondary" className="w-full bg-white text-blue-600 hover:bg-gray-100">Suscríbete Ahora</Button>
-                        </div>
-                    </Card>
+
                 </div>
             </aside>
           </div>

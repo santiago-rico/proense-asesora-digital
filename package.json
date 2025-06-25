@@ -9,7 +9,9 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "vitest"
+    "test": "vitest",
+    "db:seed": "tsx src/sanity/seed.ts",
+    "db:clear": "tsx src/sanity/clear.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
@@ -74,6 +76,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
+    "@faker-js/faker": "^9.8.0",
     "@tailwindcss/typography": "^0.5.15",
     "@types/formidable": "^3.4.5",
     "@types/node": "^22.5.5",
@@ -82,6 +85,7 @@
     "@vercel/node": "^5.1.16",
     "@vitejs/plugin-react-swc": "^3.9.0",
     "autoprefixer": "^10.4.20",
+    "dotenv": "^16.5.0",
     "eslint": "^9.9.0",
     "eslint-plugin-react-hooks": "^5.1.0-rc.0",
     "eslint-plugin-react-refresh": "^0.4.9",
@@ -89,6 +93,7 @@
     "jsdom": "^26.1.0",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.11",
+    "tsx": "^4.20.3",
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.0.1",
     "vite": "^6.3.5",

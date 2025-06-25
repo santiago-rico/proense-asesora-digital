@@ -10,7 +10,7 @@ const postFields = `
   'slug': slug.current,
     featuredImage,
   'author': author->name,
-  'category': category->title,
+  'category': categories[0]->title,
 `;
 
 export const getBlogPosts = async (): Promise<BlogPost[]> => {
@@ -36,7 +36,7 @@ export const getRecentBlogPosts = async (limit: number = 3): Promise<BlogPost[]>
 };
 
 export const getBlogPostsByCategory = async (category: string): Promise<BlogPost[]> => {
-  const query = `*[_type == "post" && category->title match $category] | order(date desc) { ${postFields} }`;
+  const query = `*[_type == "post" && $category in categories[]->title] | order(date desc) { ${postFields} }`;
   const posts = await client.fetch(query, { category });
   return posts;
 };
