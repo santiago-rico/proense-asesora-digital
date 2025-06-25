@@ -9,6 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { getBlogPostBySlug, getRecentBlogPosts } from "@/services/blogService";
 import { BlogPost } from "@/components/shared/BlogPostCard";
+import { PortableText } from "@portabletext/react";
+import { urlFor } from "@/sanity/imageUrl";
 
 interface BlogPostPageProps {
   handleOpenLeadDialog: () => void;
@@ -89,13 +91,13 @@ const BlogPostPage: React.FC<BlogPostPageProps> = ({ handleOpenLeadDialog }) => 
               <article className="prose prose-lg max-w-none">
                 <div className="mb-8">
                   <img
-                    src={post.featuredImage}
+                    src={urlFor(post.featuredImage).width(1200).url()}
                     alt={post.title}
                     className="w-full h-auto rounded-lg"
                   />
                 </div>
                 
-                <div dangerouslySetInnerHTML={{ __html: post.content }} />
+                                {post.body && <PortableText value={post.body} />} 
 
                 {post.tags && (
                   <div className="mt-8">
@@ -140,10 +142,10 @@ const BlogPostPage: React.FC<BlogPostPageProps> = ({ handleOpenLeadDialog }) => 
                   <h3 className="text-xl font-bold mb-4">Artículos Relacionados</h3>
                   <div className="space-y-4">
                     {relatedPosts?.filter((p: BlogPost) => p.slug !== slug).map((relatedPost: BlogPost) => (
-                      <Card key={relatedPost.id} className="overflow-hidden">
+                      <Card key={relatedPost._id} className="overflow-hidden">
                         <div className="h-32 overflow-hidden">
                           <img
-                            src={relatedPost.featuredImage}
+                            src={urlFor(relatedPost.featuredImage).width(400).url()}
                             alt={relatedPost.title}
                             className="w-full h-full object-cover"
                           />
