@@ -12,6 +12,7 @@ import BlogListPage from "./pages/BlogListPage";
 import BlogPostPage from "./pages/BlogPostPage";
 import InsuranceProductPage from "./pages/InsuranceProductPage";
 import ClientServicePage from "./pages/ClientServicePage";
+import PaymentsPage from "./pages/PaymentsPage";
 import NotFound from "./pages/NotFound";
 import PoliticaPrivacidadPage from "./pages/PoliticaPrivacidadPage";
 import TerminosCondicionesPage from "./pages/TerminosCondicionesPage";
@@ -55,6 +56,7 @@ const App = () => {
             <Route path="/servicios/modificaciones" element={<ClientServicePage type="modificacion" handleOpenLeadDialog={handleOpenLeadDialog} />} />
             <Route path="/servicios/cancelaciones" element={<ClientServicePage type="cancelacion" handleOpenLeadDialog={handleOpenLeadDialog} />} />
             <Route path="/servicios/siniestros" element={<ClientServicePage type="siniestro" handleOpenLeadDialog={handleOpenLeadDialog} />} />
+              <Route path="/servicios/pagos" element={<PaymentsPage handleOpenLeadDialog={handleOpenLeadDialog} />} />
 
             {/* Legal Pages */}
             <Route path="/politica-de-privacidad" element={<PoliticaPrivacidadPage handleOpenLeadDialog={handleOpenLeadDialog} />} />

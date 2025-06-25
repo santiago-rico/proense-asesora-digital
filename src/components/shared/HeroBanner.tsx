@@ -4,10 +4,10 @@ import { Button } from "@/components/ui/button";
 interface HeroBannerProps {
   title: string;
   description: string;
-  ctaText: string;
   backgroundImage: string;
   imagePosition?: string;
-  handleOpenLeadDialog: () => void;
+  ctaText?: string;
+  handleOpenLeadDialog?: () => void;
 }
 
 function HeroBanner({
@@ -35,15 +35,17 @@ function HeroBanner({
           <h1 className="text-4xl md:text-5xl font-bold mb-4 animate-slide-in">{title}</h1>
           <p className="text-lg md:text-xl mb-8 animate-fade-in opacity-90">{description}</p>
           <div className="flex">
-            <Button 
-              size="lg" 
-              variant="secondary" 
-              className="animate-fade-in" 
-              style={{ animationDelay: "200ms" }} 
-              onClick={handleOpenLeadDialog}
-            >
-              {ctaText}
-            </Button>
+            {ctaText && handleOpenLeadDialog && (
+              <Button 
+                size="lg" 
+                variant="secondary" 
+                className="animate-fade-in" 
+                style={{ animationDelay: "200ms" }} 
+                onClick={handleOpenLeadDialog}
+              >
+                {ctaText}
+              </Button>
+            )}
           </div>
         </div>
       </div>

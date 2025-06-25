@@ -49,6 +49,7 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
     { name: "Modificaciones", href: "/servicios/modificaciones" },
     { name: "Cancelaciones", href: "/servicios/cancelaciones" },
     { name: "Siniestros y Emergencias", href: "/servicios/siniestros" },
+    { name: "Pagos", href: "/servicios/pagos" },
   ];
 
   const navLinks = [

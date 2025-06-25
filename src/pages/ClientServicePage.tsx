@@ -114,7 +114,6 @@ const ClientServicePage: React.FC<ClientServicePageProps> = ({ type, handleOpenL
       description: "En Proense Seguros, estamos aquí para ayudarte. Sigue estos pasos para reportar tu siniestro de manera efectiva y recibir el soporte que necesitas.",
       heroImage: "/images/hero-contact.jpg",
       imagePosition: "center center",
-      ctaText: "Ver Líneas de Emergencia",
     }
   };
 
