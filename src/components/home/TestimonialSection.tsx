@@ -55,7 +55,7 @@ const TestimonialSection: React.FC = () => {
         </div>
 
         <Carousel className="max-w-5xl mx-auto">
-          <CarouselContent>
+          <CarouselContent className="py-4 pl-4">
             {testimonials.map((testimonial) => (
               <CarouselItem key={testimonial.id} className="md:basis-1/2 lg:basis-1/3 p-2">
                 <TestimonialCard testimonial={testimonial} />
