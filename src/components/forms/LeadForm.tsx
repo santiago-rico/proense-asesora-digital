@@ -42,9 +42,11 @@ type FormData = z.infer<typeof formSchema>;
 interface LeadFormProps {
   initialInsuranceType?: string;
   onLinkClick?: () => void;
+  title?: string;
+  subtitle?: string;
 }
 
-const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick }) => {
+const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick, title, subtitle }) => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const form = useForm<FormData>({
@@ -112,8 +114,8 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick }
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
-      {/* The following h3 tag has been removed:
-      <h3 className="text-xl font-bold mb-4">Solicita Información</h3> */}
+      {title && <h3 className="text-xl font-bold mb-2">{title}</h3>}
+      {subtitle && <p className="text-sm text-gray-600 mb-4">{subtitle}</p>}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
@@ -235,7 +237,7 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick }
               </FormItem>
             )}
           />
-          <Button type="submit" className="w-full" disabled={isLoading}>
+          <Button type="submit" variant="secondary" className="w-full" disabled={isLoading}>
             {isLoading ? 'Enviando...' : 'Enviar Solicitud'}
           </Button>
         </form>

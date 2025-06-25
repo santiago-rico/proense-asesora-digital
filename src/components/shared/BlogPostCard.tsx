@@ -3,16 +3,18 @@ import React from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
+import { urlFor } from "@/sanity/imageUrl";
 
 export interface BlogPost {
-  id: number;
+  _id: string;
   slug: string;
   title: string;
   excerpt: string;
-  featuredImage: string;
+  featuredImage: any; // Sanity image asset
   category: string;
   date: string;
   author: string;
+  body?: any[]; // Portable Text
 }
 
 interface BlogPostCardProps {
@@ -24,7 +26,7 @@ const BlogPostCard: React.FC<BlogPostCardProps> = ({ post }) => {
     <Card className="overflow-hidden flex flex-col h-full hover:shadow-lg transition-shadow duration-300">
       <div className="aspect-video overflow-hidden">
         <img
-          src={post.featuredImage}
+          src={urlFor(post.featuredImage).width(800).url()}
           alt={post.title}
           className="object-cover w-full h-full transition-transform duration-300 hover:scale-105"
         />
