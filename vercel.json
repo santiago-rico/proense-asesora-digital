@@ -2,7 +2,7 @@
   "framework": "vite",
   "rewrites": [
     {
-      "source": "/((?!api/|_next/|favicon.ico|.*\\..*).*)",
+      "source": "/((?!api/|@vite/|@react-refresh|_next/|favicon.ico|.*\\..*).*)",
       "destination": "/"
     }
   ]
