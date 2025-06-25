@@ -237,7 +237,7 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick, 
               </FormItem>
             )}
           />
-          <Button type="submit" className="w-full" disabled={isLoading}>
+          <Button type="submit" variant="secondary" className="w-full" disabled={isLoading}>
             {isLoading ? 'Enviando...' : 'Enviar Solicitud'}
           </Button>
         </form>

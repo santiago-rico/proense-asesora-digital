@@ -12,6 +12,7 @@ import { getBlogPosts } from "@/services/blogService";
 import { urlFor } from "@/sanity/imageUrl";
 import { ArrowRight, ShieldCheck } from 'lucide-react';
 import LeadForm from "@/components/forms/LeadForm";
+import BlogCtaSection from "@/components/layout/BlogCtaSection";
 
 interface BlogListPageProps {
   handleOpenLeadDialog: () => void;
@@ -125,7 +126,7 @@ const BlogListPage: React.FC<BlogListPageProps> = ({ handleOpenLeadDialog }) => 
                 <div className="sticky top-24 space-y-8">
                     {/* Get Your Free Quote */}
                     <LeadForm 
-                        title="¡Queremos acompañarte a encontrar la mejor protección!"
+                        title="¡Hablemos de tu Protección!"
                         subtitle="Déjanos tus datos y te contactaremos para brindarte asesoría personalizada y gratuita."
                     />
 
@@ -150,6 +151,7 @@ const BlogListPage: React.FC<BlogListPageProps> = ({ handleOpenLeadDialog }) => 
           </div>
         </div>
       </div>
+      <BlogCtaSection handleOpenLeadDialog={handleOpenLeadDialog} />
     </Layout>
   );
 };
