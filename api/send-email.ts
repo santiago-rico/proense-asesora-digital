@@ -78,17 +78,14 @@ export default async function handler(
       });
     }
 
-    // Brevo API returns 201 Created for successful email sending
-    // or 202 Accepted if queued by messageId (though simple send usually is 201)
-    if (brevoResponse.status === 201 || brevoResponse.status === 202) {
-        const responseData = await brevoResponse.json();
-        return res.status(200).json({ message: 'Solicitud enviada con éxito.', data: responseData });
-    } else {
-        // Handle other potential success codes if necessary, or treat as unexpected
-        const responseData = await brevoResponse.json();
-        console.warn('Brevo API unexpected success status:', brevoResponse.status, responseData);
-        return res.status(200).json({ message: 'Solicitud procesada, estado inesperado de Brevo.', data: responseData });
-    }
+    // If the response is OK (2xx status), we can assume success.
+    const responseData = await brevoResponse.json();
+
+    // Brevo API typically returns 201 Created. A 200 response here confirms receipt.
+    return res.status(200).json({ 
+        message: 'Solicitud enviada con éxito.', 
+        data: responseData 
+    });
 
   } catch (error) {
     console.error('Error sending email:', error);
