@@ -21,21 +21,23 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 
+const RPNInputComponent = RPNInput.default;
+
 type PhoneInputProps = Omit<
   React.ComponentProps<"input">,
   "onChange" | "value" | "ref"
 > &
-  Omit<RPNInput.Props<typeof RPNInput.default>, "onChange"> & {
+  Omit<RPNInput.Props<typeof RPNInputComponent>, "onChange"> & {
     onChange?: (value: RPNInput.Value) => void;
     labels?: RPNInput.Labels;
     searchPlaceholder?: string;
   };
 
 const PhoneInput: React.ForwardRefExoticComponent<PhoneInputProps> =
-  React.forwardRef<React.ElementRef<typeof RPNInput.default>, PhoneInputProps>(
+  React.forwardRef<React.ElementRef<typeof RPNInputComponent>, PhoneInputProps>(
     ({ className, onChange, value, labels, searchPlaceholder, ...props }, ref) => {
       return (
-        <RPNInput.default
+        <RPNInputComponent
           ref={ref}
           className={cn("flex", className)}
           flagComponent={FlagComponent}

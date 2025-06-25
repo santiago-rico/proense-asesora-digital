@@ -40,7 +40,7 @@ const RecentBlogSection: React.FC = () => {
             ))
           ) : (
             recentPosts?.map((post) => (
-              <BlogPostCard key={post.id} post={post} />
+              <BlogPostCard key={post._id} post={post} />
             ))
           )}
         </div>
