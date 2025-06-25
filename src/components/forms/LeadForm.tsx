@@ -51,6 +51,7 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick, 
   const [isLoading, setIsLoading] = useState(false);
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
+    mode: "onBlur",
     defaultValues: {
       nombre: "",
       email: "",
