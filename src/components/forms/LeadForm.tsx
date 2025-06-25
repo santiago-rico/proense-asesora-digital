@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { PhoneInput } from "@/components/ui/phone-input";
 import { isValidPhoneNumber } from "react-phone-number-input";
 import es from 'react-phone-number-input/locale/es.json';
+import { CheckCircle } from "lucide-react";
 
 const tiposSeguro = [
   { value: "vida", label: "Seguro de Vida" },
@@ -44,11 +45,14 @@ interface LeadFormProps {
   onLinkClick?: () => void;
   title?: string;
   subtitle?: string;
+  onClose?: () => void;
 }
 
-const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick, title, subtitle }) => {
+const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick, title, subtitle, onClose }) => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     mode: "onBlur",
@@ -87,10 +91,7 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick, 
         throw new Error(result.message || 'Error al enviar la solicitud.');
       }
 
-      toast({
-        title: "Solicitud enviada con éxito",
-        description: result.message || "Gracias por contactarnos. Un asesor se pondrá en contacto contigo pronto.",
-      });
+      setIsSubmitted(true);
       form.reset({
         nombre: "",
         email: "",
@@ -99,6 +100,7 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick, 
         mensaje: "",
         terminos: false,
       });
+
     } catch (error) {
       let errorMessage = "Ocurrió un error al enviar tu solicitud. Por favor, intenta de nuevo.";
       if (error instanceof Error) {
@@ -112,6 +114,23 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick, 
     }
     setIsLoading(false);
   };
+
+  const handleReset = () => {
+    setIsSubmitted(false);
+  };
+
+  if (isSubmitted) {
+    return (
+      <div className="bg-white p-6 rounded-lg shadow-md text-center flex flex-col items-center justify-center h-full min-h-[720px]">
+        <CheckCircle className="w-16 h-16 text-green-500 mb-4" />
+        <h3 className="text-xl font-bold mb-2">¡Solicitud Enviada!</h3>
+        <p className="text-gray-600 mb-6">Gracias por contactarnos. Un asesor se pondrá en contacto contigo pronto.</p>
+        <Button onClick={onClose} variant="secondary" className="w-full">
+          Cerrar
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
