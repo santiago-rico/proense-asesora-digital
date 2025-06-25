@@ -144,8 +144,8 @@ const ClientServicePage: React.FC<ClientServicePageProps> = ({ type, handleOpenL
           <section className="py-16 bg-white">
             <div className="container mx-auto px-4">
               <div className="text-center max-w-3xl mx-auto mb-12">
-                <h2 className="text-3xl font-bold mb-4">Pasos a seguir</h2>
-                <p className="text-gray-700">Actúa con calma y sigue estas recomendaciones.</p>
+                <h2 className="text-3xl font-bold mb-4">Pasos a seguir en caso de un siniestro o emergencia</h2>
+                <p className="text-gray-700">Actúa con calma y sigue estas recomendaciones. Estamos aquí para ayudarte.</p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                 <Card className="relative">

@@ -48,7 +48,7 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
     { name: "Emisión de Pólizas", href: "/servicios/emision-polizas" },
     { name: "Modificaciones", href: "/servicios/modificaciones" },
     { name: "Cancelaciones", href: "/servicios/cancelaciones" },
-    { name: "Información de Siniestros", href: "/servicios/siniestros" },
+    { name: "Siniestros y Emergencias", href: "/servicios/siniestros" },
   ];
 
   const navLinks = [
