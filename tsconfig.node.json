@@ -12,7 +12,7 @@
     },
 
     /* Bundler mode */
-    "moduleResolution": "bundler",
+    "moduleResolution": "node",
     "isolatedModules": true,
     "moduleDetection": "force",
     "noEmit": false,
@@ -31,4 +31,3 @@
     "src/utils/brevo.test.ts" // Specifically including the problematic file for good measure
   ]
 }
-
