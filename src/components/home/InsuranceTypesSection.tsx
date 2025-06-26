@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -47,12 +46,12 @@ const insuranceTypes = [
 
 const InsuranceTypesSection: React.FC = () => {
   return (
-    <section className="py-16 bg-gray-50">
+    <section className="py-14 bg-gray-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-4xl mx-auto mb-16">
+        <div className="text-center max-w-4xl mx-auto mb-14">
           <h2 className="text-4xl font-bold text-gray-900 mb-4">Nuestros Seguros</h2>
           <p className="text-lg text-gray-600">
-            Ofrecemos una amplia gama de soluciones de seguros para proteger lo que más valoras.
+            Te acompañamos a encontrar soluciones de seguros para cada aspecto de tu vida, familia y negocio para que vivas con la tranquilidad de estar protegido
           </p>
         </div>
 
@@ -68,8 +67,6 @@ const InsuranceTypesSection: React.FC = () => {
             />
           ))}
         </div>
-
-
       </div>
     </section>
   );

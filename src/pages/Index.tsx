@@ -18,7 +18,7 @@ function Index({ handleOpenLeadDialog }: IndexProps) {
     <Layout handleOpenLeadDialog={handleOpenLeadDialog}> 
       <HeroBanner
         title="Protege lo que más valoras con expertos a tu lado"
-        description="Más de 25 años de experiencia ayudando a familias y profesionales colombianos a encontrar la protección adecuada."
+        description="Asesores en seguros con más de 25 años de experiencia ayudando a familias y profesionales colombianos a encontrar la protección adecuada."
         ctaText="Solicitar asesoría gratuita"
         handleOpenLeadDialog={handleOpenLeadDialog}
         backgroundImage="/images/hero-image.jpg"
