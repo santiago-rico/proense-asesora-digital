@@ -31,7 +31,7 @@ function HeroBanner({
       <div className="absolute inset-0 bg-black/30"></div>
       
       <div className="container relative mx-auto px-4 h-full flex items-center">
-        <div className="relative z-10 max-w-2xl ml-40 text-white">
+        <div className="relative z-10 max-w-2xl ml-[7rem] text-white">
           <h1 className="text-4xl md:text-5xl font-bold mb-4 animate-slide-in">{title}</h1>
           <p className="text-lg md:text-xl mb-8 animate-fade-in opacity-90">{description}</p>
           <div className="flex">

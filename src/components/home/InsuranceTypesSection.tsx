@@ -2,44 +2,43 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import InsuranceCard from "@/components/shared/InsuranceCard";
+import { Heart, Landmark, Stethoscope, Car, Home, Briefcase } from 'lucide-react';
 
 const insuranceTypes = [
-  // First row
   {
     title: "Seguro de Vida",
     description: "Protege a tus seres queridos y garantiza su futuro financiero ante cualquier eventualidad, asegurando su bienestar y tranquilidad.",
-    icon: <span>❤️</span>,
+    icon: <Heart className="w-10 h-10 text-primary" />,
     link: "/seguros/vida",
   },
   {
     title: "Seguro de Vida Deudores",
     description: "Protege a tu familia de las deudas en caso de fallecimiento o incapacidad, asegurando que no hereden obligaciones financieras y mantengan su estabilidad económica.",
-    icon: <span>🏦</span>,
+    icon: <Landmark className="w-10 h-10 text-primary" />,
     link: "/seguros/vida-deudores",
   },
   {
     title: "Seguro de Salud",
     description: "Te brinda acceso a una amplia red de clínicas y especialistas, cubriendo consultas, hospitalización, cirugías y tratamientos.",
-    icon: <span>⚕️</span>,
+    icon: <Stethoscope className="w-10 h-10 text-primary" />,
     link: "/seguros/salud",
   },
-  // Second row
   {
     title: "Seguro de Auto",
     description: "Protección total para tu vehículo contra accidentes, robo, daños a terceros y asistencia en carretera para tu tranquilidad al conducir.",
-    icon: <span>🚗</span>,
+    icon: <Car className="w-10 h-10 text-primary" />,
     link: "/seguros/auto",
   },
   {
     title: "Seguro de Hogar",
     description: "Asegura tu vivienda y contenidos ante incendios, robos, daños por agua y otros imprevistos, cuidando tu patrimonio más importante.",
-    icon: <span>🏠</span>,
+    icon: <Home className="w-10 h-10 text-primary" />,
     link: "/seguros/hogar",
   },
   {
     title: "Seguro para PYMES",
     description: "Ofrecemos coberturas adaptadas a las necesidades de tu pequeña o mediana empresa, protegiendo tus activos y continuidad operativa.",
-    icon: <span>💼</span>,
+    icon: <Briefcase className="w-10 h-10 text-primary" />,
     link: "/seguros/pymes",
   },
 ];

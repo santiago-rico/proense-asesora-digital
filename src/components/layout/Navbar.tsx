@@ -45,17 +45,17 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
   ];
 
   const clientServices = [
-    { name: "Emisión de Pólizas", href: "/servicios/emision-polizas" },
-    { name: "Modificaciones", href: "/servicios/modificaciones" },
-    { name: "Cancelaciones", href: "/servicios/cancelaciones" },
-    { name: "Siniestros y Emergencias", href: "/servicios/siniestros" },
-    { name: "Pagos", href: "/servicios/pagos" },
+    { name: "Emisión de Pólizas", href: "/clientes/emision-polizas" },
+    { name: "Modificaciones", href: "/clientes/modificaciones" },
+    { name: "Cancelaciones", href: "/clientes/cancelaciones" },
+    { name: "Siniestros y Emergencias", href: "/clientes/siniestros" },
+    { name: "Pagos", href: "/clientes/pagos" },
   ];
 
   const navLinks = [
     { name: "Inicio", href: "/" },
     { name: "Seguros", href: "/seguros", dropdown: true },
-    { name: "Servicios", href: "/servicios", dropdown: true },
+    { name: "Clientes", href: "/clientes", dropdown: true },
     { name: "Nosotros", href: "/nosotros" },
     { name: "Blog", href: "/blog" },
     { name: "Contacto", href: "/contacto" },
@@ -118,12 +118,12 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
                     </NavigationMenuContent>
                   </NavigationMenuItem>
 
-                  {/* Servicios Dropdown */}
-                  <NavigationMenuItem key="servicios">
+                  {/* Clientes Dropdown */}
+                  <NavigationMenuItem key="clientes">
                     <NavigationMenuTrigger className={cn(
                       "text-base", // Increased font size
-                      isActive("/servicios") ? "text-primary font-medium" : "text-gray-700"
-                    )}>Servicios</NavigationMenuTrigger>
+                      isActive("/clientes") ? "text-primary font-medium" : "text-gray-700"
+                    )}>Clientes</NavigationMenuTrigger>
                     <NavigationMenuContent>
                       <ul className="grid w-[300px] gap-3 p-4 md:w-[400px] ">
                         {clientServices.map((service) => (
