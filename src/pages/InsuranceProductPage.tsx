@@ -13,6 +13,7 @@ import { getIcon } from "@/lib/utils";
 import HowItWorksSection from '../components/insurance/HowItWorksSection';
 import FaqSchema from '../components/seo/FaqSchema';
 import RelatedArticlesSection from '@/components/insurance/RelatedArticlesSection';
+import ValuePropositionSection from '../components/shared/ValuePropositionSection';
 
 interface InsuranceProductPageProps {
   type?: string;
@@ -140,34 +141,8 @@ const InsuranceProductPage: React.FC<InsuranceProductPageProps> = ({ type: propT
         </div>
       </section>
 
-      {/* Benefits Section */}
-      {data.features && data.features.length > 0 && (
-        <section className="py-12 md:py-20 bg-white">
-          <div className="container mx-auto px-4">
-            <div className="max-w-3xl mx-auto text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4 text-primary">Más que una Póliza: El Respaldo Personalizado de Proense</h2>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {data.features.map((feature, index) => {
-                const IconComponent = getIcon(feature.icon);
-                return (
-                  <div key={index} className="flex items-start p-6 bg-gray-50 rounded-lg shadow-sm">
-                    {IconComponent && (
-                      <div className="flex-shrink-0">
-                        <IconComponent className="h-8 w-8 text-primary" />
-                      </div>
-                    )}
-                    <div className="ml-4">
-                      <h4 className="font-semibold text-lg mb-1">{feature.title}</h4>
-                      {feature.description && <p className="text-gray-600">{feature.description}</p>}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-      )}
+      {/* Value Proposition Section */}
+      <ValuePropositionSection title="Más que una Póliza: El Respaldo Personalizado de Proense" className="bg-white" />
 
       {/* How It Works Section */}
       <HowItWorksSection />

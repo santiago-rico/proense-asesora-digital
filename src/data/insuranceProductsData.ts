@@ -16,11 +16,6 @@ export interface InsuranceProductData {
     description?: string;
   }>;
   coveragesCtaText?: string; // Optional CTA after coverages
-  features?: Array<{
-    icon?: string;
-    title: string;
-    description?: string;
-  }>; // Kept for additional distinct points if needed
   faq?: Array<{
     question: string;
     answer: string;
@@ -126,29 +121,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     leadFormSubtitle: "Completa el formulario y un asesor especializado te contactará para ofrecerte la mejor solución adaptada a tus necesidades y presupuesto.",
     contactSectionTitle: "¿Listo para Proteger lo que Más Quieres?",
     contactSectionSubtitle: "No dejes tus dudas para después. Un asesor te espera para ofrecerte la mejor solución en seguros de vida.",
-    contactSectionCtaText: "Solicitar Asesoría Gratuita",
-    features: [
-      {
-        icon: "Landmark",
-        title: "Asesoría Legal y Fiscal",
-        description: "No solo entregamos un capital, te acompañamos. Nuestro equipo de expertos guía a tus beneficiarios en el proceso de sucesión y los impuestos asociados, asegurando que reciban el monto completo de la forma más rápida y eficiente, sin enredos legales."
-      },
-      {
-        icon: "ClipboardList",
-        title: "Gestión de Trámites",
-        description: "En los momentos más duros, la burocracia es lo último en lo que tu familia debería pensar. Nos hacemos cargo de todo el papeleo, desde los trámites de sepelio hasta las últimas voluntades, para que puedan vivir su duelo en paz."
-      },
-      {
-        icon: "DollarSign",
-        title: "Adelanto para Gastos Urgentes",
-        description: "La vida no se detiene, y los gastos tampoco. Liberamos un porcentaje del capital asegurado de forma casi inmediata para cubrir los gastos funerarios y otros costos urgentes, brindando un respiro financiero vital a tu familia cuando más lo necesita."
-      },
-      {
-        icon: "HeartHandshake",
-        title: "Apoyo Psicológico para Beneficiarios",
-        description: "El verdadero legado es el bienestar emocional de los que dejas atrás. Por eso, incluimos sesiones de apoyo psicológico con profesionales para ayudar a tus seres queridos a transitar el duelo y encontrar consuelo en un momento tan delicado."
-      }
-    ]
+    contactSectionCtaText: "Solicitar Asesoría Gratuita"
   },
   salud: {
     id: "salud",
@@ -233,29 +206,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     leadFormSubtitle: "Déjanos tus datos y te ayudaremos a comparar opciones para que elijas el seguro de salud que mejor se adapte a ti y a tu familia.",
     contactSectionTitle: "¿Listo para Proteger lo que Más Quieres?",
     contactSectionSubtitle: "No dejes tus dudas para después. Un asesor te espera para ofrecerte la mejor solución en seguros de salud.",
-    contactSectionCtaText: "Solicitar Asesoría Gratuita",
-    features: [
-      {
-        icon: "Users",
-        title: "Segunda Opinión Médica Internacional",
-        description: "Accede a la valoración de expertos de prestigio mundial para contrastar un diagnóstico o tratamiento complejo, sin salir de casa."
-      },
-      {
-        icon: "MonitorSmartphone",
-        title: "Telemedicina 24/7",
-        description: "Resuelve tus dudas médicas al instante a través de videollamada o chat, evitando desplazamientos y esperas innecesarias."
-      },
-      {
-        icon: "Smile",
-        title: "Club de Bienestar",
-        description: "Disfruta de descuentos exclusivos en gimnasios, spas, nutricionistas y otros servicios que complementan tu salud y bienestar."
-      },
-      {
-        icon: "Activity",
-        title: "Programas de Prevención Personalizados",
-        description: "Te ayudamos a cuidarte con planes de prevención adaptados a tu edad y estilo de vida, para anticiparnos a cualquier problema de salud."
-      }
-    ]
+    contactSectionCtaText: "Solicitar Asesoría Gratuita"
   },
   auto: {
     id: "auto",
@@ -330,28 +281,6 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     ],
     leadFormTitle: "Obtén el Mejor Precio para tu Seguro de Auto",
     leadFormSubtitle: "Rápido y fácil: completa tus datos y recibe una comparativa personalizada para proteger tu vehículo al mejor precio.",
-    features: [
-      {
-        icon: "Wrench",
-        title: "Asistencia en Viaje Premium",
-        description: "Cobertura desde el km 0, 24/7. Incluye grúa, reparación en el acto para averías leves y soluciones para problemas como pinchazos o falta de batería."
-      },
-      {
-        icon: "Car",
-        title: "Vehículo de Sustitución Garantizado",
-        description: "No te quedes parado. Te proporcionamos un coche de sustitución no solo por accidente, sino también por avería, para que tu ritmo no pare."
-      },
-      {
-        icon: "Gavel",
-        title: "Gestión Integral de Multas",
-        description: "Nos encargamos de recurrir tus multas de tráfico, ahorrándote tiempo y preocupaciones con nuestro equipo de expertos legales."
-      },
-      {
-        icon: "ShieldCheck",
-        title: "Revisión Anual de Seguridad",
-        description: "Fomentamos la prevención con una revisión gratuita anual de los puntos clave de seguridad de tu vehículo en talleres concertados."
-      }
-    ],
     contactSectionTitle: "¿Listo para Proteger lo que Más Quieres?",
     contactSectionSubtitle: "No dejes tus dudas para después. Un asesor te espera para ofrecerte la mejor solución en seguros de auto.",
     contactSectionCtaText: "Solicitar Asesoría Gratuita"
@@ -429,28 +358,6 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     ],
     leadFormTitle: "Protege tu Hogar Hoy Mismo",
     leadFormSubtitle: "Descubre cómo podemos ayudarte a proteger tu hogar. Solicita tu presupuesto personalizado sin compromiso.",
-    features: [
-      {
-        icon: "Home",
-        title: "Servicio de Bricolaje en Casa",
-        description: "Un 'manitas' profesional a tu disposición para pequeñas tareas de mantenimiento como colgar cuadros, montar muebles o instalar lámparas."
-      },
-      {
-        icon: "Laptop",
-        title: "Asistencia Tecnológica",
-        description: "Soporte informático remoto para solucionar problemas con tu ordenador, tablet o smartphone, y proteger tus dispositivos de virus."
-      },
-      {
-        icon: "Scale",
-        title: "Protección Jurídica Familiar",
-        description: "Asesoramiento legal telefónico sobre cualquier ámbito de tu vida privada y cobertura de los gastos de defensa jurídica."
-      },
-      {
-        icon: "Bug",
-        title: "Control de Plagas",
-        description: "Si tienes un problema con insectos o roedores, enviamos a un profesional para que realice el tratamiento necesario sin coste adicional."
-      }
-    ],
     contactSectionTitle: "¿Listo para Proteger lo que Más Quieres?",
     contactSectionSubtitle: "No dejes tus dudas para después. Un asesor te espera para ofrecerte la mejor solución en seguros de hogar.",
     contactSectionCtaText: "Solicitar Asesoría Gratuita"
@@ -532,28 +439,6 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     ],
     leadFormTitle: "Obtén Asesoramiento Experto para tu PYME",
     leadFormSubtitle: "Analizamos a fondo los riesgos de tu negocio para ofrecerte una solución aseguradora completa y a medida. ¡Solicita tu estudio!",
-    features: [
-      {
-        icon: "Landmark",
-        title: "Asesoramiento Legal y Fiscal Experto",
-        description: "Accede a un equipo de abogados y asesores para resolver dudas sobre contratos, impuestos, normativa laboral y cualquier aspecto legal de tu negocio."
-      },
-      {
-        icon: "ShieldCheck",
-        title: "Análisis y Prevención de Riesgos",
-        description: "Un experto evaluará tus instalaciones y procesos para identificar vulnerabilidades y recomendarte medidas que minimicen el riesgo de siniestros."
-      },
-      {
-        icon: "Wrench",
-        title: "Asistencia Informática para Empresas",
-        description: "Soporte técnico remoto para los equipos de tu negocio, garantizando la continuidad operativa y la seguridad de tu información."
-      },
-      {
-        icon: "Award",
-        title: "Subvenciones y Formación",
-        description: "Te mantenemos informado sobre ayudas y subvenciones para tu sector y te damos acceso a programas de formación para ti y tus empleados."
-      }
-    ],
     contactSectionTitle: "¿Listo para Proteger lo que Más Quieres?",
     contactSectionSubtitle: "No dejes tus dudas para después. Un asesor te espera para ofrecerte la mejor solución en seguros de PYMES.",
     contactSectionCtaText: "Solicitar Asesoría Gratuita"
@@ -629,28 +514,6 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     ],
     leadFormTitle: "Planifica tu Tranquilidad y la de tu Familia",
     leadFormSubtitle: "Evita cargas innecesarias a tus seres queridos. Solicita información y te ayudaremos a encontrar el plan de decesos que mejor se ajuste a tus deseos y presupuesto.",
-    features: [
-      {
-        icon: "FileSignature",
-        title: "Gestión Digital del Legado",
-        description: "Facilitamos la creación de tu testamento online y nos encargamos del borrado de tu huella digital para proteger tu privacidad póstuma."
-      },
-      {
-        icon: "Scale",
-        title: "Asistencia Jurídica Integral",
-        description: "Un equipo de abogados te asiste con todos los trámites legales post-fallecimiento, como la obtención de certificados y la gestión de pensiones."
-      },
-      {
-        icon: "HeartHandshake",
-        title: "Apoyo Psicológico Familiar",
-        description: "Ofrecemos sesiones de apoyo psicológico para tus seres queridos, ayudándoles a sobrellevar el duelo en un momento tan delicado."
-      },
-      {
-        icon: "Plane",
-        title: "Repatriación sin Fronteras",
-        description: "Coordinamos y cubrimos el traslado del fallecido desde cualquier lugar del mundo hasta el lugar de sepelio que elija la familia."
-      }
-    ],
     contactSectionTitle: "¿Listo para Proteger lo que Más Quieres?",
     contactSectionSubtitle: "No dejes tus dudas para después. Un asesor te espera para ofrecerte la mejor solución en seguros de decesos.",
     contactSectionCtaText: "Solicitar Asesoría Gratuita"
@@ -706,10 +569,8 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     ],
     coveragesCtaText: "Ver Todas las Coberturas",
     faq: [
-      { question: "¿Qué tipo de mascotas cubre el seguro?", answer: "Principalmente perros y gatos. Algunas aseguradoras pueden ofrecer coberturas para otras mascotas exóticas bajo condiciones específicas. Es importante consultarlo."
-      },
-      { question: "¿Hay límite de edad para asegurar a mi mascota?", answer: "Sí, la mayoría de las aseguradoras establecen una edad mínima (generalmente unos meses) y una máxima (alrededor de los 7-9 años) para la primera contratación. Una vez asegurada, la cobertura suele continuar."
-      },
+      { question: "¿Qué tipo de mascotas cubre el seguro?", answer: "Principalmente perros y gatos. Algunas aseguradoras pueden ofrecer coberturas para otras mascotas exóticas bajo condiciones específicas. Es importante consultarlo." },
+      { question: "¿Hay límite de edad para asegurar a mi mascota?", answer: "Sí, la mayoría de las aseguradoras establecen una edad mínima (generalmente unos meses) y una máxima (alrededor de los 7-9 años) para la primera contratación. Una vez asegurada, la cobertura suele continuar." },
       { 
         question: "¿Cubre el seguro las enfermedades preexistentes de mi mascota?", 
         answer: "Generalmente, las enfermedades o condiciones que tu mascota ya padecía antes de contratar el seguro (preexistencias) no están cubiertas. Es fundamental ser transparente al declarar el estado de salud de tu mascota."
@@ -719,29 +580,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     leadFormSubtitle: "Uno de nuestros asesores te contactará para ofrecerte la mejor solución para tu fiel amigo.",
     contactSectionTitle: "¿Listo para Proteger lo que Más Quieres?",
     contactSectionSubtitle: "No dejes tus dudas para después. Un asesor te espera para ofrecerte la mejor solución en seguros de mascotas.",
-    contactSectionCtaText: "Solicitar Asesoría Gratuita",
-    features: [
-      {
-        icon: "Phone",
-        title: "Veterinario Online 24/7",
-        description: "Resuelve dudas sobre la salud de tu mascota al instante con nuestro servicio de consultas veterinarias por teléfono o videollamada, a cualquier hora."
-      },
-      {
-        icon: "Home",
-        title: "Cuidado Garantizado si te Ocurre Algo",
-        description: "Si tienes que ser hospitalizado, nos encargamos de que tu mascota esté cuidada en una residencia de confianza hasta que te recuperes."
-      },
-      {
-        icon: "Info",
-        title: "Asesor Experto en Viajes",
-        description: "Te ayudamos a planificar tus viajes con tu mascota, informándote sobre normativas, alojamientos pet-friendly y todo lo que necesitas."
-      },
-      {
-        icon: "Percent",
-        title: "Club de Ahorro para Mascotas",
-        description: "Disfruta de una red de descuentos en alimentación, accesorios, peluquerías y otros servicios para que cuidar de tu mejor amigo cueste menos."
-      }
-    ]
+    contactSectionCtaText: "Solicitar Asesoría Gratuita"
   },
   motos: {
     id: "motos",
@@ -808,28 +647,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     ],
     leadFormTitle: "Encuentra el Mejor Seguro para tu Moto",
     leadFormSubtitle: "Compara opciones y elige la cobertura perfecta para tus dos ruedas.",
-    features: [
-      {
-        icon: "Wrench",
-        title: "Asistencia Motera Especializada",
-        description: "Servicio de asistencia en viaje diseñado por y para moteros, con soluciones rápidas para averías comunes y conocimiento de tus necesidades."
-      },
-      {
-        icon: "Shirt",
-        title: "Protección para tu Equipamiento",
-        description: "Tu seguridad es clave. Cubrimos los daños o el robo de tu casco, guantes y chaqueta en caso de accidente."
-      },
-      {
-        icon: "Gavel",
-        title: "Defensa Jurídica del Motorista",
-        description: "Te defendemos ante multas de tráfico y te ayudamos a gestionar la recuperación de puntos del carnet para que sigas en la carretera."
-      },
-      {
-        icon: "Truck",
-        title: "Grúa con Remolque Adaptado",
-        description: "Garantizamos que tu moto será transportada de forma segura en una grúa con plataforma o anclajes específicos para vehículos de dos ruedas."
-      }
-    ],
+
     contactSectionTitle: "¿Listo para Proteger lo que Más Quieres?",
     contactSectionSubtitle: "No dejes tus dudas para después. Un asesor te espera para ofrecerte la mejor solución en seguros de motos.",
     contactSectionCtaText: "Solicitar Asesoría Gratuita"
@@ -899,28 +717,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     ],
     leadFormTitle: "Asegura tus Ingresos por Alquiler",
     leadFormSubtitle: "Infórmate sobre cómo proteger tu inversión inmobiliaria.",
-    features: [
-      {
-        icon: "Scale",
-        title: "Defensa Jurídica Integral del Arrendador",
-        description: "Cubrimos todos los gastos legales para defender tus derechos en caso de impago, obras no consentidas o cualquier conflicto con el inquilino."
-      },
-      {
-        icon: "Bomb",
-        title: "Protección Frente a Vandalismo",
-        description: "Reparamos los daños malintencionados que el inquilino pueda causar en tu vivienda, protegiendo el valor de tu propiedad."
-      },
-      {
-        icon: "SprayCan",
-        title: "Compensación por Impago de Suministros",
-        description: "Si el inquilino deja de pagar las facturas de luz, agua o gas, nos hacemos cargo de la deuda pendiente hasta el límite pactado."
-      },
-      {
-        icon: "Tool",
-        title: "Selección Rigurosa de Inquilinos",
-        description: "Realizamos un estudio de viabilidad financiera de los candidatos para asegurar que eliges a un inquilino solvente y fiable."
-      }
-    ],
+
     contactSectionTitle: "¿Listo para Proteger lo que Más Quieres?",
     contactSectionSubtitle: "No dejes tus dudas para después. Un asesor te espera para ofrecerte la mejor solución en seguros de impago de alquiler.",
     contactSectionCtaText: "Solicitar Asesoría Gratuita"
@@ -966,28 +763,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     ],
     leadFormTitle: "Viaja Seguro y sin Preocupaciones",
     leadFormSubtitle: "Obtén tu presupuesto de seguro de viaje personalizado en minutos.",
-    features: [
-      {
-        icon: "HeartPulse",
-        title: "Asistencia Médica Mundial 24/7",
-        description: "Accede a una red médica global y a un equipo de asistencia que habla tu idioma para gestionar cualquier emergencia sanitaria, estés donde estés."
-      },
-      {
-        icon: "FileX",
-        title: "Flexibilidad Total para Cancelaciones",
-        description: "Recupera los gastos de tu viaje si tienes que cancelarlo por una de las múltiples causas cubiertas, incluyendo imprevistos de última hora."
-      },
-      {
-        icon: "Briefcase",
-        title: "Protección Completa para tu Equipaje",
-        description: "Te indemnizamos por la pérdida, robo o daño de tu equipaje y te ayudamos con los gastos de primera necesidad si se retrasa su entrega."
-      },
-      {
-        icon: "CreditCard",
-        title: "Adelanto de Fondos y Ayuda Urgente",
-        description: "Si te roban la cartera o tienes una emergencia, te adelantamos dinero y te ayudamos con la gestión de documentos para que puedas continuar tu viaje."
-      }
-    ],
+
     contactSectionTitle: "¿Listo para Proteger lo que Más Quieres?",
     contactSectionSubtitle: "No dejes tus dudas para después. Un asesor te espera para ofrecerte la mejor solución en seguros de viaje.",
     contactSectionCtaText: "Solicitar Asesoría Gratuita"
