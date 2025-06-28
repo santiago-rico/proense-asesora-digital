@@ -40,7 +40,7 @@ const Step2_InsuranceSelection = () => {
             render={({ field }) => (
                 <FormItem>
                     <FormLabel>Tipo de seguro que deseas cotizar <span className="text-red-500">*</span></FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value || ''}>
                         <FormControl>
                             <SelectTrigger>
                                 <SelectValue placeholder="Selecciona un tipo de seguro" />
@@ -64,7 +64,7 @@ const Step2_InsuranceSelection = () => {
             render={({ field }) => (
                 <FormItem>
                     <FormLabel>Método de pago preferido <span className="text-red-500">*</span></FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value || ''}>
                         <FormControl>
                             <SelectTrigger>
                                 <SelectValue placeholder="Selecciona un método de pago" />
@@ -88,7 +88,7 @@ const Step2_InsuranceSelection = () => {
             render={({ field }) => (
                 <FormItem>
                     <FormLabel>Periodicidad de pago <span className="text-red-500">*</span></FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value || ''}>
                         <FormControl>
                             <SelectTrigger>
                                 <SelectValue placeholder="Selecciona la periodicidad" />

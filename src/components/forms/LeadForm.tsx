@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -36,6 +36,7 @@ const formSchema = z.object({
   terminos: z.boolean().refine((val) => val === true, {
     message: "Debes aceptar los términos y condiciones",
   }),
+  website: z.string().optional(), // Honeypot field
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -52,6 +53,26 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick, 
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [csrfToken, setCsrfToken] = useState('');
+
+  useEffect(() => {
+    const fetchCsrfToken = async () => {
+      try {
+        const response = await fetch('/api/csrf-token');
+        const data = await response.json();
+        setCsrfToken(data.token);
+      } catch (error) {
+        console.error('Error fetching CSRF token:', error);
+        toast({
+          title: "Error de Seguridad",
+          description: "No se pudo verificar la seguridad del formulario. Por favor, recarga la página.",
+          variant: "destructive",
+        });
+      }
+    };
+
+    fetchCsrfToken();
+  }, [toast]);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -63,6 +84,7 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick, 
       tipoSeguro: initialInsuranceType || "",
       mensaje: "",
       terminos: false,
+      website: "", // Honeypot field
     },
   });
 
@@ -75,12 +97,14 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick, 
         telefono: data.telefono,
         tipoSeguro: data.tipoSeguro,
         mensaje: data.mensaje,
+        website: data.website, // Honeypot field
       };
 
       const response = await fetch('/api/send-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken,
         },
         body: JSON.stringify(payload),
       });
@@ -99,6 +123,7 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick, 
         tipoSeguro: initialInsuranceType || "",
         mensaje: "",
         terminos: false,
+        website: "",
       });
 
     } catch (error) {
@@ -143,9 +168,14 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick, 
             name="nombre"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Nombre</FormLabel>
+                <FormLabel>Nombre Completo</FormLabel>
                 <FormControl>
-                  <Input placeholder="Tu nombre" {...field} />
+                  <Input
+                    placeholder="Nombre completo"
+                    {...field}
+                    autoComplete="name"
+                    required
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -159,7 +189,12 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick, 
               <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input placeholder="tu@email.com" {...field} />
+                  <Input
+                    placeholder="tu@email.com"
+                    {...field}
+                    autoComplete="email"
+                    required
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -174,12 +209,14 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick, 
                 <FormItem className="w-full">
                   <FormLabel>Teléfono</FormLabel>
                   <FormControl>
-                    <PhoneInput 
+                    <PhoneInput
                       placeholder="Número telefónico"
-                      defaultCountry="CO" 
+                      defaultCountry="CO"
                       labels={es}
                       searchPlaceholder="Buscar país..."
-                      {...field} 
+                      {...field}
+                      autoComplete="tel"
+                      required
                     />
                   </FormControl>
                   <FormMessage />
@@ -195,7 +232,7 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick, 
               <FormItem>
                 <FormLabel>Tipo de Seguro de Interés</FormLabel>
                 <FormControl>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} defaultValue={field.value} required>
                     <SelectTrigger>
                       <SelectValue placeholder="Selecciona un tipo de seguro" />
                     </SelectTrigger>
@@ -236,6 +273,7 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick, 
                   <Checkbox
                     checked={field.value}
                     onCheckedChange={field.onChange}
+                    required
                   />
                 </FormControl>
                 <div className="space-y-1 leading-none">
@@ -257,6 +295,20 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick, 
               </FormItem>
             )}
           />
+          {/* Honeypot field for bot protection */}
+          <FormField
+            control={form.control}
+            name="website"
+            render={({ field }) => (
+              <FormItem className="sr-only">
+                <FormLabel>Website</FormLabel>
+                <FormControl>
+                  <Input {...field} tabIndex={-1} autoComplete="off" />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+
           <Button type="submit" variant="secondary" className="w-full" disabled={isLoading}>
             {isLoading ? 'Enviando...' : 'Obtener Mi Asesoría Gratuita'}
           </Button>

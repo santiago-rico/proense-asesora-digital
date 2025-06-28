@@ -1,64 +1,112 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { z } from 'zod';
+import { JSDOM } from 'jsdom';
+
+// Define the validation schema with Zod
+const leadFormSchema = z.object({
+  nombre: z.string().trim().min(2, 'El nombre es requerido'),
+  email: z.string().trim().email('Email inválido'),
+  telefono: z.string().trim().optional(),
+  tipoSeguro: z.string().trim().min(1, 'El tipo de seguro es requerido'),
+  mensaje: z.string().trim().optional(),
+  website: z.string().optional(), // Honeypot field
+});
 
 export default async function handler(
   req: VercelRequest,
   res: VercelResponse,
 ) {
-  if (req.method !== 'POST') {
-    res.setHeader('Allow', ['POST']);
-    return res.status(405).end(`Method ${req.method} Not Allowed`);
-  }
-
-  const {
-    nombre,
-    email,
-    telefono,
-    tipoSeguro,
-    mensaje,
-  } = req.body;
-
-  // Basic validation
-  if (!nombre || !email || !tipoSeguro) {
-    return res.status(400).json({ message: 'Nombre, email, and tipo de seguro are required.' });
-  }
-
-  const apiKey = process.env.BREVO_API_KEY;
-  const leadNotificationEmail = process.env.LEAD_NOTIFICATION_EMAIL;
-  const senderEmail = process.env.BREVO_SENDER_EMAIL;
-  const senderName = process.env.BREVO_SENDER_NAME;
-
-  if (!apiKey || !leadNotificationEmail || !senderEmail || !senderName) {
-    console.error('Missing environment variables for email sending');
-    return res.status(500).json({ message: 'Server configuration error for sending email.' });
-  }
-
-  const subject = `Nuevo Lead de Asesoría Gratuita: ${nombre}`;
-  const htmlContent = `
-    <h1>Nueva Solicitud de Asesoría Gratuita</h1>
-    <p><strong>Nombre:</strong> ${nombre}</p>
-    <p><strong>Email:</strong> ${email}</p>
-    <p><strong>Teléfono:</strong> ${telefono || 'No proporcionado'}</p>
-    <p><strong>Tipo de Seguro de Interés:</strong> ${tipoSeguro}</p>
-    <p><strong>Mensaje:</strong></p>
-    <p>${mensaje || 'No proporcionado'}</p>
-  `;
-
-  const brevoPayload = {
-    sender: {
-      name: senderName,
-      email: senderEmail,
-    },
-    to: [
-      {
-        email: leadNotificationEmail,
-        name: 'Proense Asesor Digital',
-      },
-    ],
-    subject,
-    htmlContent,
-  };
-
   try {
+    // Dynamic imports for CommonJS modules
+    const dompurifyModule = await import('dompurify');
+    // Handle both default export and named export cases
+    const DOMPurify = (dompurifyModule as any).default || dompurifyModule;
+    const { parse } = await import('cookie');
+    const { default: Tokens } = await import('csrf') as any;
+    const tokens = new Tokens();
+    
+    // Initialize DOMPurify with JSDOM
+    const window = new JSDOM('').window;
+    const DOMPurifyInstance = DOMPurify(window);
+    
+    // Verify CSRF token
+    const cookies = parse(req.headers.cookie || '');
+    const secret = cookies._csrf_secret;
+    const token = req.headers['x-csrf-token'] as string;
+    
+    if (!secret || !token || !tokens.verify(secret, token)) {
+      return res.status(403).json({ message: 'Invalid CSRF token' });
+    }
+
+    if (req.method !== 'POST') {
+      res.setHeader('Allow', ['POST']);
+      return res.status(405).end(`Method ${req.method} Not Allowed`);
+    }
+
+    // Honeypot check
+    if (req.body.website) {
+      // This is likely a bot, return a success response to not alert them
+      return res.status(200).json({ message: 'Solicitud enviada con éxito.' });
+    }
+
+    // Validate and parse the request body
+    const validationResult = leadFormSchema.safeParse(req.body);
+
+    if (!validationResult.success) {
+      return res.status(400).json({ 
+        message: 'Datos inválidos.', 
+        errors: validationResult.error.flatten().fieldErrors 
+      });
+    }
+
+    const {
+      nombre,
+      email,
+      telefono,
+      tipoSeguro,
+      mensaje,
+    } = validationResult.data;
+
+    const apiKey = process.env.BREVO_API_KEY;
+    const leadNotificationEmail = process.env.LEAD_NOTIFICATION_EMAIL;
+    const senderEmail = process.env.BREVO_SENDER_EMAIL;
+    const senderName = process.env.BREVO_SENDER_NAME;
+
+    if (!apiKey || !leadNotificationEmail || !senderEmail || !senderName) {
+      console.error('Missing environment variables for email sending');
+      return res.status(500).json({ message: 'Server configuration error for sending email.' });
+    }
+
+    // Sanitize inputs to prevent XSS
+    const sanitizedNombre = DOMPurifyInstance.sanitize(nombre);
+    const sanitizedMensaje = DOMPurifyInstance.sanitize(mensaje || '');
+
+    const subject = `Nuevo Lead de Asesoría Gratuita: ${sanitizedNombre}`;
+    const htmlContent = `
+      <h1>Nueva Solicitud de Asesoría Gratuita</h1>
+      <p><strong>Nombre:</strong> ${sanitizedNombre}</p>
+      <p><strong>Email:</strong> ${email}</p>
+      <p><strong>Teléfono:</strong> ${telefono || 'No proporcionado'}</p>
+      <p><strong>Tipo de Seguro de Interés:</strong> ${tipoSeguro}</p>
+      <p><strong>Mensaje:</strong></p>
+      <p>${sanitizedMensaje || 'No proporcionado'}</p>
+    `;
+
+    const brevoPayload = {
+      sender: {
+        name: senderName,
+        email: senderEmail,
+      },
+      to: [
+        {
+          email: leadNotificationEmail,
+          name: 'Proense Asesor Digital',
+        },
+      ],
+      subject,
+      htmlContent,
+    };
+
     const brevoResponse = await fetch('https://api.brevo.com/v3/smtp/email', {
       method: 'POST',
       headers: {
@@ -88,7 +136,7 @@ export default async function handler(
     });
 
   } catch (error) {
-    console.error('Error sending email:', error);
+    console.error('Error in send-email handler:', error);
     let errorMessage = 'Internal server error.';
     if (error instanceof Error) {
         errorMessage = error.message;

@@ -17,7 +17,13 @@ const Step1_BasicInfo = () => {
           <FormItem>
             <FormLabel>Nombre completo <span className="text-red-500">*</span></FormLabel>
             <FormControl>
-              <Input placeholder="Tu nombre completo" {...field} />
+              <Input 
+                placeholder="Tu nombre completo" 
+                autoComplete="name"
+                required
+                aria-required="true"
+                {...field} 
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -35,6 +41,9 @@ const Step1_BasicInfo = () => {
                 defaultCountry="CO" 
                 labels={es}
                 searchPlaceholder="Buscar país..."
+                autoComplete="tel"
+                required
+                aria-required="true"
                 {...field} 
               />
             </FormControl>
@@ -49,7 +58,14 @@ const Step1_BasicInfo = () => {
           <FormItem>
             <FormLabel>Correo Electrónico <span className="text-red-500">*</span></FormLabel>
             <FormControl>
-              <Input type="email" placeholder="tu@email.com" {...field} />
+              <Input 
+                type="email" 
+                placeholder="tu@email.com" 
+                autoComplete="email"
+                required
+                aria-required="true"
+                {...field} 
+              />
             </FormControl>
             <FormMessage />
           </FormItem>

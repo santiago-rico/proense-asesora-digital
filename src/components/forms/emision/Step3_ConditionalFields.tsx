@@ -19,7 +19,13 @@ const Step3_ConditionalFields = () => {
           <FormItem>
             <FormLabel>Número de cédula <span className="text-red-500">*</span></FormLabel>
             <FormControl>
-              <Input placeholder="Tu número de cédula" {...field} />
+              <Input 
+                placeholder="Tu número de cédula" 
+                autoComplete="off"
+                required
+                aria-required="true"
+                {...field} 
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -39,7 +45,13 @@ const Step3_ConditionalFields = () => {
             <FormItem>
                 <FormLabel>Nombres de beneficiarios y porcentajes <span className="text-red-500">*</span></FormLabel>
                 <FormControl>
-                <Input placeholder="Ej: Maria Perez 50%, Juan Perez 50%" {...field} />
+                <Input 
+                  placeholder="Ej: Maria Perez 50%, Juan Perez 50%" 
+                  autoComplete="off"
+                  required
+                  aria-required="true"
+                  {...field} 
+                />
                 </FormControl>
                 <FormMessage />
             </FormItem>
@@ -69,7 +81,13 @@ const Step3_ConditionalFields = () => {
                 <FormItem>
                     <FormLabel>Lista de beneficiarios <span className="text-red-500">*</span></FormLabel>
                     <FormControl>
-                    <Input placeholder="Nombres completos de los beneficiarios" {...field} />
+                    <Input 
+                      placeholder="Nombres completos de los beneficiarios" 
+                      autoComplete="off"
+                      required
+                      aria-required="true"
+                      {...field} 
+                    />
                     </FormControl>
                     <FormMessage />
                 </FormItem>
@@ -108,7 +126,13 @@ const Step3_ConditionalFields = () => {
                 <FormItem>
                     <FormLabel>Número de cédula (Representante Legal) <span className="text-red-500">*</span></FormLabel>
                     <FormControl>
-                    <Input placeholder="Cédula del representante legal" {...field} />
+                    <Input 
+                      placeholder="Cédula del representante legal" 
+                      autoComplete="off"
+                      required
+                      aria-required="true"
+                      {...field} 
+                    />
                     </FormControl>
                     <FormMessage />
                 </FormItem>
@@ -122,7 +146,13 @@ const Step3_ConditionalFields = () => {
                 <FormItem>
                     <FormLabel>NIT (Sin espacios ni guiones) <span className="text-red-500">*</span></FormLabel>
                     <FormControl>
-                    <Input placeholder="NIT de la empresa (sin espacios ni guiones)" {...field} />
+                    <Input 
+                      placeholder="NIT de la empresa (sin espacios ni guiones)" 
+                      autoComplete="off"
+                      required
+                      aria-required="true"
+                      {...field} 
+                    />
                     </FormControl>
                     <FormMessage />
                 </FormItem>
@@ -150,7 +180,7 @@ const Step3_ConditionalFields = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>¿Tienes enfermedades preexistentes diagnosticadas? <span className="text-red-500">*</span></FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value || ''}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Seleccione una opción" />
@@ -173,7 +203,13 @@ const Step3_ConditionalFields = () => {
                   <FormItem>
                     <FormLabel>En caso afirmativo, especifica cuáles: <span className="text-red-500">*</span></FormLabel>
                     <FormControl>
-                      <Input placeholder="Especifica tus enfermedades" {...field} />
+                      <Input 
+                        placeholder="Especifica tus enfermedades" 
+                        autoComplete="off"
+                        required
+                        aria-required="true"
+                        {...field} 
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -187,7 +223,14 @@ const Step3_ConditionalFields = () => {
                 <FormItem>
                   <FormLabel>Valor actual de la deuda a asegurar: <span className="text-red-500">*</span></FormLabel>
                   <FormControl>
-                    <Input type="text" placeholder="Ej: 50000000" {...field} />
+                    <Input 
+                      type="text" 
+                      placeholder="Ej: 50000000" 
+                      autoComplete="off"
+                      required
+                      aria-required="true"
+                      {...field} 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -199,7 +242,7 @@ const Step3_ConditionalFields = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>¿Conduces motocicleta habitualmente? <span className="text-red-500">*</span></FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value || ''}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Seleccione una opción" />

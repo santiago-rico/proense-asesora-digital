@@ -43,9 +43,9 @@ const detailedFileArraySchema = z.array(z.instanceof(File))
 
 
 export const formSchema = z.object({
-  nombreCompleto: z.string().min(1, 'El nombre es requerido'),
-  telefono: z.string().refine(isValidPhoneNumber, { message: 'Número de teléfono inválido' }),
-  email: z.string().email('Email inválido'),
+  nombreCompleto: z.string().min(1, 'El nombre es requerido').transform(str => str.trim()),
+  telefono: z.string().refine(isValidPhoneNumber, { message: 'Número de teléfono inválido' }).transform(str => str.trim()),
+  email: z.string().transform(str => str.trim().toLowerCase()).refine(val => z.string().email().safeParse(val).success, { message: 'Email inválido' }),
   tipoSeguro: z.string().min(1, 'Selecciona un tipo de seguro'),
   metodoPago: z.string().min(1, 'Selecciona un método de pago'),
   periodicidadPago: z.string().min(1, 'Selecciona la periodicidad de pago'),
@@ -68,10 +68,10 @@ export const formSchema = z.object({
   archivoDeclaracionRenta: detailedFileArraySchema,
   contratoArrendamiento: detailedFileArraySchema, // Added for Seguro de Rentas
   // Fields for Seguro de Vida - Crédito Protegido
-  tieneEnfermedadesDiagnosticadas: z.enum(['si', 'no']).optional(),
+  tieneEnfermedadesDiagnosticadas: z.union([z.enum(['si', 'no']), z.literal('')]).optional(),
   enfermedadesEspecificar: z.string().optional(),
   valorActualDeuda: z.string().optional(),
-  conduceMoto: z.enum(['si', 'no']).optional(),
+  conduceMoto: z.union([z.enum(['si', 'no']), z.literal('')]).optional(),
   // Fields for non-declarers
   ingresosNoDeclarante: z.string().optional(),
   egresosNoDeclarante: z.string().optional(),
@@ -81,6 +81,9 @@ export const formSchema = z.object({
   aceptaTerminosYPolitica: z.boolean().refine(val => val === true, {
     message: 'Debes aceptar la política de privacidad y los términos y condiciones para continuar.',
   }),
+  
+  // Honeypot field for bot protection
+  website: z.string().optional(),
 }).superRefine((data, ctx) => {
   // Step 3: Conditional validation based on tipoSeguro
   const commonFieldsNeeded = ['vida', 'salud', 'hogar', 'auto', 'mascotas', 'rentas', 'responsabilidad_civil', 'vida_credito_protegido'].includes(data.tipoSeguro);
@@ -126,7 +129,7 @@ export const formSchema = z.object({
     // Beneficiary fields are no longer required for responsabilidad_civil
   } else if (data.tipoSeguro === 'vida_credito_protegido') {
     // numeroCedula and fotoCedula are covered by commonFieldsNeeded
-    if (!data.tieneEnfermedadesDiagnosticadas) {
+    if (!data.tieneEnfermedadesDiagnosticadas || data.tieneEnfermedadesDiagnosticadas === '') {
       ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Debes indicar si tienes enfermedades diagnosticadas.", path: ["tieneEnfermedadesDiagnosticadas"] });
     } else if (data.tieneEnfermedadesDiagnosticadas === 'si' && (!data.enfermedadesEspecificar || data.enfermedadesEspecificar.trim() === "")) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Debes especificar tus enfermedades.", path: ["enfermedadesEspecificar"] });
@@ -142,7 +145,7 @@ export const formSchema = z.object({
       }
     }
 
-    if (!data.conduceMoto) {
+    if (!data.conduceMoto || data.conduceMoto === '') {
       ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Debes indicar si conduces motocicleta.", path: ["conduceMoto"] });
     }
   } else if (data.tipoSeguro === 'empresarial') {
@@ -198,6 +201,7 @@ const MultiStepForm = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const [csrfToken, setCsrfToken] = useState('');
   const { toast } = useToast();
 
   const methods = useForm<FormSchemaType>({
@@ -211,6 +215,11 @@ const MultiStepForm = () => {
       tipoSeguro: '',
       metodoPago: '',
       periodicidadPago: '',
+      numeroCedula: '',
+      beneficiarios: '',
+      listaBeneficiarios: '',
+      numeroCedulaRepLegal: '',
+      nit: '',
       declaraRenta: 'si',
       fotoCedula: [],
       documentosBeneficiarios: [],
@@ -221,15 +230,41 @@ const MultiStepForm = () => {
       camaraComercio: [],
       archivoDeclaracionRenta: [],
       contratoArrendamiento: [],
-      tieneEnfermedadesDiagnosticadas: undefined,
+      tieneEnfermedadesDiagnosticadas: '',
       enfermedadesEspecificar: '',
       valorActualDeuda: '',
-      conduceMoto: undefined,
+      conduceMoto: '',
+      ingresosNoDeclarante: '',
+      egresosNoDeclarante: '',
+      activosNoDeclarante: '',
+      pasivosNoDeclarante: '',
       aceptaTerminosYPolitica: false,
+      website: '', // Honeypot field
     }
   });
 
-  const { handleSubmit, trigger, clearErrors } = methods;
+  const { handleSubmit, trigger, clearErrors, register } = methods;
+  
+  // Fetch CSRF token on component mount
+  useEffect(() => {
+    const fetchCsrfToken = async () => {
+      try {
+        const response = await fetch('/api/csrf-token', {
+          credentials: 'include'
+        });
+        const data = await response.json();
+        setCsrfToken(data.token);
+      } catch (error) {
+        console.error('Error fetching CSRF token:', error);
+        toast({
+          title: "Error de Seguridad",
+          description: "No se pudo verificar la seguridad del formulario. Por favor, recarga la página.",
+          variant: "destructive",
+        });
+      }
+    };
+    fetchCsrfToken();
+  }, [toast]);
   
   const SuccessScreen = () => (
     <div className="text-center py-12 px-4 sm:px-6 lg:px-8">
@@ -281,6 +316,15 @@ const MultiStepForm = () => {
   };
 
   const onSubmit = async (data: FormSchemaType) => {
+    if (!csrfToken) {
+      toast({
+        title: "Error",
+        description: "Por favor, recarga la página e intenta nuevamente.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setIsSubmitting(true);
     console.log('Form data submitted:', data);
 
@@ -308,7 +352,11 @@ const MultiStepForm = () => {
     try {
       const response = await fetch('/api/send-insurance-application-email', {
         method: 'POST',
+        headers: {
+          'X-CSRF-Token': csrfToken,
+        },
         body: formData, // El navegador establecerá automáticamente el Content-Type a multipart/form-data
+        credentials: 'include',
       });
 
       const result = await response.json();
@@ -358,6 +406,16 @@ const MultiStepForm = () => {
         {currentStep === 2 && <Step3_ConditionalFields />}
         {currentStep === 3 && <Step4_Declaration />}
         {currentStep === 4 && <Step5_Summary />}
+        
+        {/* Honeypot field - hidden from users but visible to bots */}
+        <input
+          type="text"
+          {...register('website')}
+          style={{ display: 'none' }}
+          tabIndex={-1}
+          autoComplete="off"
+          aria-hidden="true"
+        />
 
         <div className="flex justify-between">
           {currentStep > 0 && (
@@ -372,8 +430,8 @@ const MultiStepForm = () => {
             </Button>
           )}
           {currentStep === steps.length - 1 && (
-            <Button type="submit" disabled={isSubmitting}>
-              Firmar y Enviar Solicitud
+            <Button type="submit" disabled={isSubmitting || !csrfToken}>
+              {!csrfToken ? 'Cargando...' : isSubmitting ? 'Enviando...' : 'Firmar y Enviar Solicitud'}
             </Button>
           )}
         </div>
