@@ -105,7 +105,7 @@ const InsuranceProductPage: React.FC<InsuranceProductPageProps> = ({ type: propT
       </section>
 
       {/* Coverages Section */}
-      <section className="py-12 md:py-20 bg-gray-50">
+      <section className="pt-12 md:pt-20 pb-16 md:pb-24 bg-gray-50">
         <div className="container mx-auto px-4">
           <div>
             <div className="mb-10 max-w-3xl mx-auto text-center">
@@ -131,9 +131,12 @@ const InsuranceProductPage: React.FC<InsuranceProductPageProps> = ({ type: propT
               })}
             </div>
             {data.coveragesCtaText && (
-              <div className="mt-12 text-center">
-                <Button size="lg" onClick={handleScrollToForm} variant="secondary">
-                  Cotizar mi Seguro
+              <div className="mt-16 text-center">
+                <Button
+                  onClick={handleScrollToForm}
+                  className="bg-secondary text-secondary-foreground font-bold py-4 px-8 rounded-lg text-xl hover:bg-secondary/80 transition-colors"
+                >
+                   ¡Quiero cotizar mi seguro ahora!
                 </Button>
               </div>
             )}
