@@ -1,16 +1,17 @@
 import React from 'react';
+import { FileText, Lightbulb, ShieldCheck } from 'lucide-react';
 
 interface StepProps {
-  number: string;
+  icon: React.ReactNode;
   title: string;
   description: string;
 }
 
-const StepCard: React.FC<StepProps> = ({ number, title, description }) => {
+const StepCard: React.FC<StepProps> = ({ icon, title, description }) => {
   return (
     <div className="flex flex-col items-center text-center p-4 md:p-6 bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
-      <div className="w-16 h-16 bg-blue-500 text-white rounded-full flex items-center justify-center text-3xl font-bold mb-6">
-        {number}
+      <div className="w-16 h-16 bg-blue-500 text-white rounded-full flex items-center justify-center mb-6">
+        {icon}
       </div>
       <h3 className="text-xl font-semibold text-gray-800 mb-2">{title}</h3>
       <p className="text-gray-600 text-sm">{description}</p>
@@ -21,17 +22,17 @@ const StepCard: React.FC<StepProps> = ({ number, title, description }) => {
 const HowItWorksSection: React.FC = () => {
   const steps: StepProps[] = [
     {
-      number: '1',
+      icon: <FileText size={32} />,
       title: 'Comparte tus necesidades',
       description: 'Cuéntanos qué necesitas proteger. En menos de 2 minutos, tendremos la información clave para empezar a buscar tu seguro ideal.',
     },
     {
-      number: '2',
+      icon: <Lightbulb size={32} />,
       title: 'Recibe asesoría experta y gratuita',
       description: 'Un asesor de Proense, experto en seguros, analizará tu caso y te presentará opciones claras y sin jerga, comparando por ti.',
     },
     {
-      number: '3',
+      icon: <ShieldCheck size={32} />,
       title: 'Elige el plan perfecto para ti',
       description: 'Elige con confianza la opción que mejor se adapta a tu vida y presupuesto. Nos encargamos del resto para que tu protección se active de inmediato.',
     },
@@ -50,7 +51,7 @@ const HowItWorksSection: React.FC = () => {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
           {steps.map((step) => (
-            <StepCard key={step.number} {...step} />
+            <StepCard key={step.title} {...step} />
           ))}
         </div>
       </div>

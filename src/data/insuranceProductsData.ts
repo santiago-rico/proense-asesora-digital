@@ -122,7 +122,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
         answer: "Sí, si tienes un seguro de vida permanente con valor de rescate acumulado, puedes solicitar un préstamo a la aseguradora usando ese valor como garantía. Es una opción flexible para obtener liquidez en caso de necesidad sin tener que cancelar tu protección."
       }
     ],
-    leadFormTitle: "Obtén tu cotización de Seguro de Vida",
+    leadFormTitle: "Comienza tu Asesoría Gratuita Aquí",
     leadFormSubtitle: "Completa el formulario y un asesor especializado te contactará para ofrecerte la mejor solución adaptada a tus necesidades y presupuesto.",
     contactSectionTitle: "¿Listo para Proteger lo que Más Quieres?",
     contactSectionSubtitle: "No dejes tus dudas para después. Un asesor te espera para ofrecerte la mejor solución en seguros de vida.",
