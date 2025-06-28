@@ -25,23 +25,27 @@ const RecentBlogSection: React.FC = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {isLoading ? (
-            Array(3).fill(0).map((_, index) => (
-              <Card key={index} className="h-[400px]">
-                <div className="animate-pulse">
-                  <div className="bg-gray-200 aspect-video" />
-                  <div className="p-4">
-                    <div className="h-4 bg-gray-200 rounded my-2" />
-                    <div className="h-8 bg-gray-200 rounded my-2" />
-                    <div className="h-4 bg-gray-200 rounded my-2" />
-                    <div className="h-4 bg-gray-200 rounded my-2" />
+            Array(3)
+              .fill(0)
+              .map((_, index) => (
+                <Card key={index} className="h-[400px]">
+                  <div className="animate-pulse">
+                    <div className="bg-gray-200 aspect-video" />
+                    <div className="p-4">
+                      <div className="h-4 bg-gray-200 rounded my-2" />
+                      <div className="h-8 bg-gray-200 rounded my-2" />
+                      <div className="h-4 bg-gray-200 rounded my-2" />
+                      <div className="h-4 bg-gray-200 rounded my-2" />
+                    </div>
                   </div>
-                </div>
-              </Card>
-            ))
+                </Card>
+              ))
+          ) : !recentPosts || recentPosts.length === 0 ? (
+            <div className="col-span-1 md:col-span-2 lg:col-span-3 text-center text-gray-500">
+              <p>No hay artículos recientes disponibles en este momento.</p>
+            </div>
           ) : (
-            recentPosts?.map((post) => (
-              <BlogPostCard key={post._id} post={post} />
-            ))
+            recentPosts.map(post => <BlogPostCard key={post._id} post={post} />)
           )}
         </div>
 
