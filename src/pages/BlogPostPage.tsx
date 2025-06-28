@@ -18,6 +18,18 @@ interface BlogPostPageProps {
   handleOpenLeadDialog: () => void;
 }
 
+const categoryToProductPage: { [key: string]: string } = {
+  'Seguro de Vida': '/seguros/vida',
+  'Seguro de Salud': '/seguros/salud',
+  'Seguro de Auto': '/seguros/auto',
+  'Seguro de Hogar': '/seguros/hogar',
+  'Seguros para PYMES': '/seguros/empresarial',
+  'Seguro de Arrendamiento': '/seguros/rentas',
+  'Seguro de Viaje': '/seguros/viaje',
+  'Seguro para Mascotas': '/seguros/mascotas',
+  'Seguro para Motos': '/seguros/motos',
+};
+
 const BlogPostPage: React.FC<BlogPostPageProps> = ({ handleOpenLeadDialog }) => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
@@ -65,6 +77,8 @@ const BlogPostPage: React.FC<BlogPostPageProps> = ({ handleOpenLeadDialog }) => 
     return null;
   }
 
+  const productPageUrl = categoryToProductPage[post.category];
+
   return (
     <Layout handleOpenLeadDialog={handleOpenLeadDialog}>
       <div className="pt-16">
@@ -99,7 +113,21 @@ const BlogPostPage: React.FC<BlogPostPageProps> = ({ handleOpenLeadDialog }) => 
                   />
                 </div>
                 
-                                {post.body && <PortableText value={post.body} />} 
+                                {post.body && <PortableText value={post.body} />}
+
+                {productPageUrl && (
+                  <div className="mt-12 p-6 bg-blue-50 border-l-4 border-primary rounded-r-lg not-prose">
+                    <h3 className="text-xl font-bold text-primary">
+                      Conoce más sobre el {post.category}
+                    </h3>
+                    <p className="mt-2 text-gray-700">
+                      En Proense, te ofrecemos asesoría experta para que encuentres el plan que mejor se adapta a tus necesidades.
+                    </p>
+                    <Button asChild className="mt-4">
+                      <Link to={productPageUrl}>Ver detalles del seguro</Link>
+                    </Button>
+                  </div>
+                )}
 
                 {post.tags && (
                   <div className="mt-8">

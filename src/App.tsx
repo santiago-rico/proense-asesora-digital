@@ -52,11 +52,11 @@ const App = () => {
             <Route path="/seguros/viaje" element={<InsuranceProductPage type="viaje" handleOpenLeadDialog={handleOpenLeadDialog} />} />
             
             {/* Client Service Pages */}
-            <Route path="/servicios/emision-polizas" element={<ClientServicePage type="emision" handleOpenLeadDialog={handleOpenLeadDialog} />} />
-            <Route path="/servicios/modificaciones" element={<ClientServicePage type="modificacion" handleOpenLeadDialog={handleOpenLeadDialog} />} />
-            <Route path="/servicios/cancelaciones" element={<ClientServicePage type="cancelacion" handleOpenLeadDialog={handleOpenLeadDialog} />} />
-            <Route path="/servicios/siniestros" element={<ClientServicePage type="siniestro" handleOpenLeadDialog={handleOpenLeadDialog} />} />
-              <Route path="/servicios/pagos" element={<PaymentsPage handleOpenLeadDialog={handleOpenLeadDialog} />} />
+            <Route path="/clientes/emision-polizas" element={<ClientServicePage type="emision" handleOpenLeadDialog={handleOpenLeadDialog} />} />
+            <Route path="/clientes/modificaciones" element={<ClientServicePage type="modificacion" handleOpenLeadDialog={handleOpenLeadDialog} />} />
+            <Route path="/clientes/cancelaciones" element={<ClientServicePage type="cancelacion" handleOpenLeadDialog={handleOpenLeadDialog} />} />
+            <Route path="/clientes/siniestros" element={<ClientServicePage type="siniestro" handleOpenLeadDialog={handleOpenLeadDialog} />} />
+              <Route path="/clientes/pagos" element={<PaymentsPage handleOpenLeadDialog={handleOpenLeadDialog} />} />
 
             {/* Legal Pages */}
             <Route path="/politica-de-privacidad" element={<PoliticaPrivacidadPage handleOpenLeadDialog={handleOpenLeadDialog} />} />
