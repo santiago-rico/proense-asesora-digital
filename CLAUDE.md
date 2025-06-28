@@ -68,6 +68,9 @@ The project uses a sophisticated multi-step form system for insurance applicatio
 - **File uploads** handled through React Dropzone
 - **Validation** using Zod schemas with React Hook Form
 - **CSRF protection** on all form submissions
+- **XSS protection** through server-side input sanitization
+- **Bot protection** using honeypot fields
+- **Accessibility** with proper autocomplete and ARIA attributes
 
 #### API Communication
 All API endpoints follow this pattern:
@@ -108,6 +111,48 @@ Required environment variables:
 - Tests are written using Vitest
 - Test files follow `*.test.ts` or `*.test.tsx` pattern
 - Run a single test file: `npm test path/to/file.test.ts`
+- Security tests available in `test-*-security.js` files
+
+### Security Implementation
+
+#### CSRF Protection
+All forms implement CSRF (Cross-Site Request Forgery) protection:
+- **Client Side**: `useCsrf` hook fetches token from `/api/csrf-token`
+- **Server Side**: Token validation using `csrf` library with httpOnly cookies
+- **Headers**: Token sent in `X-CSRF-Token` header
+- **Error Handling**: Graceful fallback with token refresh on 403 errors
+
+```typescript
+// Example usage in forms
+const { token: csrfToken, loading, error } = useCsrf();
+
+// Form submission with CSRF token
+const response = await fetch('/api/endpoint', {
+  method: 'POST',
+  headers: { 'X-CSRF-Token': csrfToken },
+  credentials: 'include',
+  body: formData,
+});
+```
+
+#### XSS Protection
+Server-side input sanitization prevents Cross-Site Scripting:
+- **DOMPurify**: All user inputs sanitized using DOMPurify with JSDOM
+- **File Names**: File upload names are sanitized
+- **Email Content**: HTML content is sanitized before email generation
+
+#### Bot Protection
+Honeypot fields catch automated submissions:
+- **Hidden Fields**: Invisible to users but detectable by bots
+- **Server Validation**: Submissions with filled honeypot fields are silently filtered
+- **No Indication**: Bots receive success response to avoid detection
+
+#### File Upload Security
+Comprehensive file validation:
+- **Size Limits**: Maximum 5MB per file
+- **Type Validation**: Only allowed MIME types (PDF, images, documents)
+- **Count Limits**: Maximum number of files per submission
+- **Temporary Cleanup**: Files deleted after processing
 
 ### Important Security Considerations
 - All forms implement CSRF protection
