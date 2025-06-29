@@ -16,8 +16,9 @@ vi.mock('@/hooks/use-csrf', () => ({
 }));
 
 // Mock the useToast hook
+const mockToast = vi.fn();
 vi.mock('@/hooks/use-toast', () => ({
-  useToast: () => ({ toast: vi.fn() }),
+  useToast: vi.fn(() => ({ toast: mockToast })),
 }));
 
 // Mock fetch globally
@@ -34,9 +35,12 @@ vi.mock('@/components/forms/emision/FileUpload', () => ({
 }));
 
 describe('ModificationForm', () => {
-  const mockToast = vi.fn();
+  let user: ReturnType<typeof userEvent.setup>;
 
   beforeEach(() => {
+    // Setup userEvent
+    user = userEvent.setup();
+    
     // Reset all mocks
     vi.clearAllMocks();
     
@@ -144,27 +148,34 @@ describe('ModificationForm', () => {
 
   describe('Form Validation', () => {
     it('validates required fields', async () => {
-      const user = userEvent.setup();
       render(<ModificationForm />);
       
+      const nombreField = screen.getByLabelText(/nombre completo/i);
       const submitButton = screen.getByRole('button', { name: /enviar solicitud/i });
       
-      // Try to submit empty form
-      await user.click(submitButton);
+      // Focus and blur empty field to trigger onBlur validation
+      await user.click(nombreField);
+      await user.tab();
       
-      // Should show validation errors
+      // Should show validation error for empty field
       await waitFor(() => {
         expect(screen.getByText(/el nombre completo es requerido/i)).toBeInTheDocument();
       });
+      
+      // Try to submit empty form should also work
+      await user.click(submitButton);
+      
+      // Should NOT call fetch because validation should fail
+      expect(global.fetch).not.toHaveBeenCalled();
     });
 
     it('validates email format', async () => {
-      const user = userEvent.setup();
       render(<ModificationForm />);
       
       const emailField = screen.getByLabelText(/correo electrónico/i);
       
-      // Enter invalid email
+      // Enter invalid email and trigger validation
+      await user.click(emailField);
       await user.type(emailField, 'invalid-email');
       await user.tab(); // Trigger onBlur validation
       
@@ -174,14 +185,14 @@ describe('ModificationForm', () => {
     });
 
     it('validates conditional otroSeguro field', async () => {
-      const user = userEvent.setup();
       render(<ModificationForm />);
       
       // Select "otro" option for tipo de seguro
       const tipoSeguroSelect = screen.getByRole('combobox');
       await user.click(tipoSeguroSelect);
       
-      const otroOption = screen.getByText('Otro');
+      // Find the Otro option in the dropdown
+      const otroOption = screen.getByRole('option', { name: 'Otro' });
       await user.click(otroOption);
       
       // Should show otroSeguro field
@@ -189,9 +200,10 @@ describe('ModificationForm', () => {
         expect(screen.getByLabelText(/especifica qué seguro/i)).toBeInTheDocument();
       });
       
-      // Submit form without filling otroSeguro
-      const submitButton = screen.getByRole('button', { name: /enviar solicitud/i });
-      await user.click(submitButton);
+      // Focus on the otroSeguro field and leave it empty to trigger validation
+      const otroSeguroField = screen.getByLabelText(/especifica qué seguro/i);
+      await user.click(otroSeguroField);
+      await user.tab(); // Trigger onBlur validation
       
       await waitFor(() => {
         expect(screen.getByText(/debe especificar el tipo de seguro/i)).toBeInTheDocument();
@@ -199,15 +211,21 @@ describe('ModificationForm', () => {
     });
 
     it('requires terms and conditions acceptance', async () => {
-      const user = userEvent.setup();
       render(<ModificationForm />);
       
-      // Fill required fields but don't accept terms
+      // Fill all required fields but don't accept terms
       await user.type(screen.getByLabelText(/nombre completo/i), 'Test User');
       await user.type(screen.getByLabelText(/número de cédula/i), '12345678');
+      await user.type(screen.getByLabelText(/teléfono de contacto/i), '+573001234567');
+      await user.type(screen.getByLabelText(/correo electrónico/i), 'test@example.com');
+      await user.type(screen.getByLabelText(/nombre de la aseguradora/i), 'Test Insurance');
+      await user.type(screen.getByLabelText(/qué modificaciones/i), 'Test modification');
       
       const submitButton = screen.getByRole('button', { name: /enviar solicitud/i });
       await user.click(submitButton);
+      
+      // Should NOT call fetch because terms validation should fail
+      expect(global.fetch).not.toHaveBeenCalled();
       
       await waitFor(() => {
         expect(screen.getByText(/debes aceptar la política/i)).toBeInTheDocument();
@@ -253,7 +271,6 @@ describe('ModificationForm', () => {
 
   describe('Form Submission', () => {
     it('submits form with valid data and CSRF token', async () => {
-      const user = userEvent.setup();
       render(<ModificationForm />);
       
       // Fill out form
@@ -263,6 +280,12 @@ describe('ModificationForm', () => {
       await user.type(screen.getByLabelText(/correo electrónico/i), 'test@example.com');
       await user.type(screen.getByLabelText(/nombre de la aseguradora/i), 'Test Insurance');
       await user.type(screen.getByLabelText(/qué modificaciones/i), 'Test modification');
+      
+      // Select a seguro type
+      const tipoSeguroSelect = screen.getByRole('combobox');
+      await user.click(tipoSeguroSelect);
+      const autoOption = screen.getByRole('option', { name: 'Seguro de Auto' });
+      await user.click(autoOption);
       
       // Accept terms
       const termsCheckbox = screen.getByLabelText(/acepto la política/i);
@@ -298,6 +321,12 @@ describe('ModificationForm', () => {
       await user.type(screen.getByLabelText(/nombre de la aseguradora/i), 'Test Insurance');
       await user.type(screen.getByLabelText(/qué modificaciones/i), 'Test modification');
       
+      // Select a seguro type
+      const tipoSeguroSelect = screen.getByRole('combobox');
+      await user.click(tipoSeguroSelect);
+      const autoOption = screen.getByRole('option', { name: 'Seguro de Auto' });
+      await user.click(autoOption);
+      
       const termsCheckbox = screen.getByLabelText(/acepto la política/i);
       await user.click(termsCheckbox);
       
@@ -329,6 +358,12 @@ describe('ModificationForm', () => {
       await user.type(screen.getByLabelText(/nombre de la aseguradora/i), 'Test Insurance');
       await user.type(screen.getByLabelText(/qué modificaciones/i), 'Test modification');
       
+      // Select a seguro type
+      const tipoSeguroSelect = screen.getByRole('combobox');
+      await user.click(tipoSeguroSelect);
+      const autoOption = screen.getByRole('option', { name: 'Seguro de Auto' });
+      await user.click(autoOption);
+      
       const termsCheckbox = screen.getByLabelText(/acepto la política/i);
       await user.click(termsCheckbox);
       
@@ -357,6 +392,23 @@ describe('ModificationForm', () => {
 
       render(<ModificationForm />);
       
+      // Fill out form first to pass validation
+      await user.type(screen.getByLabelText(/nombre completo/i), 'Test User');
+      await user.type(screen.getByLabelText(/número de cédula/i), '12345678');
+      await user.type(screen.getByLabelText(/teléfono de contacto/i), '+573001234567');
+      await user.type(screen.getByLabelText(/correo electrónico/i), 'test@example.com');
+      await user.type(screen.getByLabelText(/nombre de la aseguradora/i), 'Test Insurance');
+      await user.type(screen.getByLabelText(/qué modificaciones/i), 'Test modification');
+      
+      // Select a seguro type
+      const tipoSeguroSelect = screen.getByRole('combobox');
+      await user.click(tipoSeguroSelect);
+      const autoOption = screen.getByRole('option', { name: 'Seguro de Auto' });
+      await user.click(autoOption);
+      
+      const termsCheckbox = screen.getByLabelText(/acepto la política/i);
+      await user.click(termsCheckbox);
+      
       // Submit form
       const submitButton = screen.getByRole('button', { name: /enviar solicitud/i });
       await user.click(submitButton);
@@ -384,17 +436,11 @@ describe('ModificationForm', () => {
       render(<ModificationForm />);
       
       const submitButton = screen.getByRole('button', { name: /enviar solicitud/i });
-      await user.click(submitButton);
       
-      // Should show error and not call fetch
-      expect(mockToast).toHaveBeenCalledWith(
-        expect.objectContaining({
-          title: 'Error de Seguridad',
-          description: expect.stringContaining('Token de seguridad no disponible'),
-          variant: 'destructive',
-        })
-      );
+      // Button should be disabled when there's no CSRF token
+      expect(submitButton).toBeDisabled();
       
+      // Fetch should not be called
       expect(global.fetch).not.toHaveBeenCalled();
     });
   });
@@ -410,6 +456,12 @@ describe('ModificationForm', () => {
       await user.type(screen.getByLabelText(/correo electrónico/i), 'test@example.com');
       await user.type(screen.getByLabelText(/nombre de la aseguradora/i), 'Test Insurance');
       await user.type(screen.getByLabelText(/qué modificaciones/i), 'Test modification');
+      
+      // Select a seguro type
+      const tipoSeguroSelect = screen.getByRole('combobox');
+      await user.click(tipoSeguroSelect);
+      const autoOption = screen.getByRole('option', { name: 'Seguro de Auto' });
+      await user.click(autoOption);
       
       const termsCheckbox = screen.getByLabelText(/acepto la política/i);
       await user.click(termsCheckbox);
@@ -427,16 +479,30 @@ describe('ModificationForm', () => {
     });
 
     it('disables form fields during submission', async () => {
-      const user = userEvent.setup();
-      // Mock slow response
+      // Mock slow response that doesn't resolve immediately
+      let resolveResponse: (value: Response) => void;
       (global.fetch as vi.Mock).mockImplementation(() => 
-        new Promise<Response>(resolve => setTimeout(() => resolve({} as Response), 1000))
+        new Promise<Response>(resolve => {
+          resolveResponse = resolve;
+        })
       );
 
       render(<ModificationForm />);
       
-      // Fill and submit form
+      // Fill required fields and submit form
       await user.type(screen.getByLabelText(/nombre completo/i), 'Test User');
+      await user.type(screen.getByLabelText(/número de cédula/i), '12345678');
+      await user.type(screen.getByLabelText(/teléfono de contacto/i), '+573001234567');
+      await user.type(screen.getByLabelText(/correo electrónico/i), 'test@example.com');
+      await user.type(screen.getByLabelText(/nombre de la aseguradora/i), 'Test Insurance');
+      await user.type(screen.getByLabelText(/qué modificaciones/i), 'Test modification');
+      
+      // Select a seguro type
+      const tipoSeguroSelect = screen.getByRole('combobox');
+      await user.click(tipoSeguroSelect);
+      const autoOption = screen.getByRole('option', { name: 'Seguro de Auto' });
+      await user.click(autoOption);
+      
       const termsCheckbox = screen.getByLabelText(/acepto la política/i);
       await user.click(termsCheckbox);
       
@@ -444,9 +510,17 @@ describe('ModificationForm', () => {
       await user.click(submitButton);
       
       // Fields should be disabled during submission
-      expect(screen.getByLabelText(/nombre completo/i)).toBeDisabled();
-      expect(submitButton).toBeDisabled();
-      expect(submitButton).toHaveTextContent(/enviando/i);
+      await waitFor(() => {
+        expect(screen.getByLabelText(/nombre completo/i)).toBeDisabled();
+        expect(submitButton).toBeDisabled();
+        expect(submitButton).toHaveTextContent(/enviando/i);
+      });
+      
+      // Clean up by resolving the promise
+      resolveResponse!({
+        ok: true,
+        json: () => Promise.resolve({ message: 'Success' }),
+      } as Response);
     });
   });
 });

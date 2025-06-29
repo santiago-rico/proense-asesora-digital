@@ -10,17 +10,17 @@ import { CancellationForm } from '../CancellationForm';
 // Mock the useToast hook
 const mockToast = vi.fn();
 vi.mock('@/hooks/use-toast', () => ({
-  useToast: () => ({ toast: mockToast }),
+  useToast: vi.fn(() => ({ toast: mockToast })),
 }));
 
 // Mock the useCsrf hook
 vi.mock('@/hooks/use-csrf', () => ({
-  useCsrf: () => ({
+  useCsrf: vi.fn(() => ({
     token: 'test-csrf-token-123',
     loading: false,
     error: null,
     refetch: vi.fn(),
-  }),
+  })),
 }));
 
 // Mock fetch globally
