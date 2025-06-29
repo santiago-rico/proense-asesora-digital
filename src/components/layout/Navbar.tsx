@@ -9,8 +9,8 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
+import { navigationMenuTriggerStyle } from "@/lib/navigation-menu-styles";
 import { cn } from "@/lib/utils";
 
 interface NavbarProps {

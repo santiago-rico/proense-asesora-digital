@@ -12,7 +12,7 @@ export default async function handler(
 
   try {
     // Dynamic import for the csrf library
-    const { default: Tokens } = await import('csrf') as any;
+    const { default: Tokens } = await import('csrf') as { default: new () => { secretSync(): string; create(secret: string): string } };
     const tokens = new Tokens();
     
     // Generate a secret for this session

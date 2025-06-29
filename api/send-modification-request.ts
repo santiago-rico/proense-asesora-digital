@@ -57,7 +57,7 @@ interface ModificationData {
   otroSeguro?: string;
   modificaciones: string;
   aceptaTerminosYPolitica: boolean;
-  [key: string]: any;
+  [key: string]: string | boolean | undefined;
 }
 
 function formatDataToHtml(data: Omit<ModificationData, 'documentosAdicionales'>, attachedFiles: Record<string, string[]>): string {
@@ -103,7 +103,7 @@ async function parseForm(req: VercelRequest): Promise<{ fields: formidable.Field
     });
 
     return new Promise((resolve, reject) => {
-        form.parse(req, (err, fields, files) => {
+        form.parse(req, (err: Error | null, fields: formidable.Fields, files: formidable.Files) => {
             if (err) {
                 return reject(err);
             }
@@ -123,14 +123,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     try {
         // Dynamic imports for security modules
         const dompurifyModule = await import('dompurify');
-        const DOMPurify = (dompurifyModule as any).default || dompurifyModule;
+        const DOMPurify = typeof dompurifyModule.default === 'function' ? dompurifyModule.default : dompurifyModule;
         const { parse } = await import('cookie');
-        const { default: Tokens } = await import('csrf') as any;
+        const { default: Tokens } = await import('csrf') as unknown as { default: new() => { verify: (secret: string, token: string) => boolean } };
         const tokens = new Tokens();
         
         // Initialize DOMPurify with JSDOM
         const window = new JSDOM('').window;
-        const DOMPurifyInstance = DOMPurify(window);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const DOMPurifyInstance = (DOMPurify as any)(window);
         
         // Verify CSRF token
         const cookies = parse(req.headers.cookie || '');
@@ -157,7 +158,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 acc[key] = Array.isArray(value) ? value[0] : value;
             }
             return acc;
-        }, {} as Record<string, any>);
+        }, {} as Record<string, string>);
 
         // Parse and validate the form data
         const validationResult = modificationValidationSchema.safeParse({
@@ -278,7 +279,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(statusCode).json({ message: errorMessage });
     } finally {
         for (const path of tempFilePaths) {
-            fs.unlink(path, (err) => {
+            fs.unlink(path, (err: NodeJS.ErrnoException | null) => {
                 if (err) console.error(`Failed to delete temporary file: ${path}`, err);
             });
         }

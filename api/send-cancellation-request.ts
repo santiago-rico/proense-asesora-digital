@@ -30,7 +30,7 @@ interface CancellationData {
   otroSeguro?: string;
   cancellationReason?: string;
   aceptaTerminosYPolitica: boolean;
-  [key: string]: any;
+  [key: string]: string | boolean | undefined;
 }
 
 function formatDataToHtml(data: Omit<CancellationData, 'documentosAdicionales'>, attachedFiles: Record<string, string[]>): string {
@@ -76,7 +76,7 @@ async function parseForm(req: VercelRequest): Promise<{ fields: formidable.Field
     });
 
     return new Promise((resolve, reject) => {
-        form.parse(req, (err, fields, files) => {
+        form.parse(req, (err: Error | null, fields: formidable.Fields, files: formidable.Files) => {
             if (err) {
                 return reject(err);
             }
@@ -203,7 +203,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(statusCode).json({ message: errorMessage });
     } finally {
         for (const path of tempFilePaths) {
-            fs.unlink(path, (err) => {
+            fs.unlink(path, (err: NodeJS.ErrnoException | null) => {
                 if (err) console.error(`Failed to delete temporary file: ${path}`, err);
             });
         }

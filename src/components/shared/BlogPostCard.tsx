@@ -4,17 +4,45 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { urlFor } from "@/sanity/imageUrl";
+import { SanityImageSource } from "@sanity/image-url/lib/types/types";
+
+interface SanityImageAsset {
+  _type: 'image';
+  asset: {
+    _ref: string;
+    _type: 'reference';
+  };
+  alt?: string;
+}
+
+interface PortableTextBlock {
+  _type: string;
+  _key: string;
+  children?: Array<{
+    _type: string;
+    _key: string;
+    text: string;
+    marks?: string[];
+  }>;
+  markDefs?: Array<{
+    _type: string;
+    _key: string;
+    [key: string]: unknown;
+  }>;
+  style?: string;
+  level?: number;
+}
 
 export interface BlogPost {
   _id: string;
   slug: string;
   title: string;
   excerpt: string;
-  featuredImage: any; // Sanity image asset
+  featuredImage: SanityImageSource;
   category: string;
   date: string;
   author: string;
-  body?: any[]; // Portable Text
+  body?: PortableTextBlock[];
 }
 
 interface BlogPostCardProps {

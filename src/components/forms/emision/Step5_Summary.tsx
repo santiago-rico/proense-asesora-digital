@@ -87,7 +87,7 @@ const Step5_Summary: React.FC = () => {
     }
   };
 
-  const renderValue = (value: any, fieldName: string) => {
+  const renderValue = (value: unknown, fieldName: string) => {
     if (value === undefined || value === null || value === '') return null; // Hide if no value
 
     if (Array.isArray(value)) {

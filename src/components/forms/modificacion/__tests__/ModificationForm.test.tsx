@@ -7,17 +7,17 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ModificationForm } from '../ModificationForm';
+import { useCsrf } from '@/hooks/use-csrf';
+import { useToast } from '@/hooks/use-toast';
 
 // Mock the useCsrf hook
-const mockUseCsrf = vi.fn();
 vi.mock('@/hooks/use-csrf', () => ({
-  useCsrf: mockUseCsrf,
+  useCsrf: vi.fn(),
 }));
 
 // Mock the useToast hook
-const mockToast = vi.fn();
 vi.mock('@/hooks/use-toast', () => ({
-  useToast: () => ({ toast: mockToast }),
+  useToast: () => ({ toast: vi.fn() }),
 }));
 
 // Mock fetch globally
@@ -35,21 +35,25 @@ vi.mock('@/components/forms/emision/FileUpload', () => ({
 
 describe('ModificationForm', () => {
   const user = userEvent.setup();
+  const mockToast = vi.fn();
 
   beforeEach(() => {
     // Reset all mocks
     vi.clearAllMocks();
     
     // Default CSRF mock - successful state
-    mockUseCsrf.mockReturnValue({
+    vi.mocked(useCsrf).mockReturnValue({
       token: 'test-csrf-token-123',
       loading: false,
       error: null,
       refetch: vi.fn(),
     });
 
+    // Mock useToast
+    vi.mocked(useToast).mockReturnValue({ toast: mockToast });
+
     // Mock successful fetch response
-    (global.fetch as any).mockResolvedValue({
+    (global.fetch as vi.Mock).mockResolvedValue({
       ok: true,
       json: () => Promise.resolve({ message: 'Success' }),
     });
@@ -93,7 +97,7 @@ describe('ModificationForm', () => {
 
   describe('CSRF Token Integration', () => {
     it('shows loading state when CSRF token is loading', () => {
-      mockUseCsrf.mockReturnValue({
+      vi.mocked(useCsrf).mockReturnValue({
         token: null,
         loading: true,
         error: null,
@@ -108,7 +112,7 @@ describe('ModificationForm', () => {
 
     it('shows error state when CSRF token fails to load', () => {
       const mockRefetch = vi.fn();
-      mockUseCsrf.mockReturnValue({
+      vi.mocked(useCsrf).mockReturnValue({
         token: null,
         loading: false,
         error: 'Failed to fetch token',
@@ -125,7 +129,7 @@ describe('ModificationForm', () => {
     });
 
     it('disables submit button when CSRF token is not available', () => {
-      mockUseCsrf.mockReturnValue({
+      vi.mocked(useCsrf).mockReturnValue({
         token: null,
         loading: false,
         error: null,
@@ -305,7 +309,7 @@ describe('ModificationForm', () => {
 
     it('handles submission errors gracefully', async () => {
       // Mock failed response
-      (global.fetch as any).mockResolvedValue({
+      (global.fetch as vi.Mock).mockResolvedValue({
         ok: false,
         status: 400,
         json: () => Promise.resolve({ message: 'Validation error' }),
@@ -341,7 +345,7 @@ describe('ModificationForm', () => {
 
     it('handles CSRF token validation errors', async () => {
       // Mock CSRF error response
-      (global.fetch as any).mockResolvedValue({
+      (global.fetch as vi.Mock).mockResolvedValue({
         ok: false,
         status: 403,
         json: () => Promise.resolve({ message: 'Invalid CSRF token' }),
@@ -366,7 +370,7 @@ describe('ModificationForm', () => {
     });
 
     it('prevents submission without CSRF token', async () => {
-      mockUseCsrf.mockReturnValue({
+      vi.mocked(useCsrf).mockReturnValue({
         token: null,
         loading: false,
         error: null,
@@ -412,7 +416,7 @@ describe('ModificationForm', () => {
       // Check that FormData was created with honeypot field
       await waitFor(() => {
         expect(global.fetch).toHaveBeenCalled();
-        const [, options] = (global.fetch as any).mock.calls[0];
+        const [, options] = (global.fetch as vi.Mock).mock.calls[0] as [string, RequestInit];
         const formData = options.body;
         expect(formData).toBeInstanceOf(FormData);
       });
@@ -420,8 +424,8 @@ describe('ModificationForm', () => {
 
     it('disables form fields during submission', async () => {
       // Mock slow response
-      (global.fetch as any).mockImplementation(() => 
-        new Promise(resolve => setTimeout(resolve, 1000))
+      (global.fetch as vi.Mock).mockImplementation(() => 
+        new Promise<Response>(resolve => setTimeout(() => resolve({} as Response), 1000))
       );
 
       render(<ModificationForm />);

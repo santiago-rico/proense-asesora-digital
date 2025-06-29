@@ -20,7 +20,7 @@ interface EmailParams {
 interface BrevoResponse {
   success: boolean;
   messageId?: string;
-  error?: any;
+  error?: string | Record<string, unknown>;
   status?: number;
 }
 

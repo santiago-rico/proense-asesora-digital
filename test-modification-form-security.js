@@ -5,7 +5,7 @@
  */
 
 async function testModificationFormSecurity() {
-  const baseUrl = 'http://localhost:8080';
+  const baseUrl = 'http://localhost:8082';
   
   console.log('🔐 Testing ModificationForm Security Features\n');
   console.log('='.repeat(60));
@@ -314,7 +314,7 @@ function createTestFile(content, filename, mimeType) {
 
 // Run the test suite
 console.log('🚀 Starting ModificationForm Security Test Suite...');
-console.log('📍 Target URL: http://localhost:8080');
+console.log('📍 Target URL: http://localhost:8082');
 console.log('📅 Test Date:', new Date().toISOString());
 console.log();
 

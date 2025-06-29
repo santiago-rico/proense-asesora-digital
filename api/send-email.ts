@@ -20,9 +20,9 @@ export default async function handler(
     // Dynamic imports for CommonJS modules
     const dompurifyModule = await import('dompurify');
     // Handle both default export and named export cases
-    const DOMPurify = (dompurifyModule as any).default || dompurifyModule;
+    const DOMPurify = (dompurifyModule as unknown as { default?: unknown }).default || dompurifyModule;
     const { parse } = await import('cookie');
-    const { default: Tokens } = await import('csrf') as any;
+    const { default: Tokens } = await import('csrf') as unknown as { default: new() => { verify: (secret: string, token: string) => boolean } };
     const tokens = new Tokens();
     
     // Initialize DOMPurify with JSDOM

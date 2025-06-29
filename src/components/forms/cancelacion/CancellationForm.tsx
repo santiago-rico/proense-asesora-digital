@@ -124,11 +124,11 @@ export function CancellationForm() {
       }
 
       setFormSubmitted(true);
-    } catch (error: any) {
+    } catch (error) {
       toast({
         variant: 'destructive',
         title: 'Error en el envío',
-        description: error.message || 'Ocurrió un problema al procesar tu solicitud. Por favor, inténtalo de nuevo.',
+        description: error instanceof Error ? error.message : 'Ocurrió un problema al procesar tu solicitud. Por favor, inténtalo de nuevo.',
       });
     } finally {
       setIsSubmitting(false);

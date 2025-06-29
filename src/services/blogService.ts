@@ -2,6 +2,28 @@
 import { client } from '@/sanity/client';
 import { BlogPost } from '@/components/shared/BlogPostCard';
 
+// Extended blog post type with additional fields for detailed view
+interface BlogPostDetailed extends BlogPost {
+  body?: Array<{
+    _type: string;
+    _key: string;
+    children?: Array<{
+      _type: string;
+      _key: string;
+      text: string;
+      marks?: string[];
+    }>;
+    markDefs?: Array<{
+      _type: string;
+      _key: string;
+      [key: string]: unknown;
+    }>;
+    style?: string;
+    level?: number;
+  }>; // Portable Text blocks
+  tags?: string[];
+}
+
 const postFields = `
   _id,
   title,
@@ -19,7 +41,7 @@ export const getBlogPosts = async (): Promise<BlogPost[]> => {
   return posts;
 };
 
-export const getBlogPostBySlug = async (slug: string): Promise<any> => {
+export const getBlogPostBySlug = async (slug: string): Promise<BlogPostDetailed | null> => {
   const query = `*[_type == "post" && slug.current == $slug][0] {
     ${postFields}
     body,

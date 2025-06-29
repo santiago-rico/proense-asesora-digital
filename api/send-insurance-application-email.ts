@@ -77,7 +77,7 @@ interface InsuranceApplicationData {
   aceptaTerminosYPolitica: boolean;
 
   // Allow other fields that might be dynamically added or part of the broader form state
-  [key: string]: any;
+  [key: string]: string | boolean | File[] | undefined;
 }
 
 // Helper function to format form data as HTML for emails
@@ -137,7 +137,7 @@ function formatDataToHtml(
 
   for (const key of orderedKeys) {
     const label = fieldLabels[key];
-    const value = (data as any)[key];
+    const value = data[key as keyof typeof data];
 
     if (value === undefined || value === null || value === '') {
         // For non-file fields, if they are empty, don't render them.
@@ -169,7 +169,7 @@ const parseForm = (
 ): Promise<{ fields: formidable.Fields; files: formidable.Files }> => {
   return new Promise((resolve, reject) => {
     const form = formidable({});
-    form.parse(req, (err: any, fields: formidable.Fields, files: formidable.Files) => {
+    form.parse(req, (err: Error | null, fields: formidable.Fields, files: formidable.Files) => {
       if (err) {
         reject(err);
         return;
@@ -224,19 +224,20 @@ export default async function handler(
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
-  let tempFilePaths: string[] = [];
+  const tempFilePaths: string[] = [];
 
   try {
     // Dynamic imports for security modules
     const dompurifyModule = await import('dompurify');
-    const DOMPurify = (dompurifyModule as any).default || dompurifyModule;
+    const DOMPurify = typeof dompurifyModule.default === 'function' ? dompurifyModule.default : dompurifyModule;
     const { parse } = await import('cookie');
-    const { default: Tokens } = await import('csrf') as any;
+    const { default: Tokens } = await import('csrf') as unknown as { default: new() => { verify: (secret: string, token: string) => boolean } };
     const tokens = new Tokens();
     
     // Initialize DOMPurify with JSDOM
     const window = new JSDOM('').window;
-    const DOMPurifyInstance = DOMPurify(window);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const DOMPurifyInstance = (DOMPurify as any)(window);
     
     // Verify CSRF token
     const cookies = parse(req.headers.cookie || '');
@@ -258,12 +259,12 @@ export default async function handler(
 
           // Validate file size
           if (file.size > MAX_FILE_SIZE) {
-            throw new Error(`El archivo \"${file.originalFilename}\" excede el tamaño máximo de 5MB.`);
+            throw new Error(`El archivo "${file.originalFilename}" excede el tamaño máximo de 5MB.`);
           }
 
           // Validate MIME type
           if (!file.mimetype || !ALLOWED_MIME_TYPES.includes(file.mimetype)) {
-            throw new Error(`El tipo de archivo \"${file.originalFilename}\" no es válido. Solo se aceptan PDF, JPG, PNG, WEBP.`);
+            throw new Error(`El tipo de archivo "${file.originalFilename}" no es válido. Solo se aceptan PDF, JPG, PNG, WEBP.`);
           }
         }
       }
@@ -277,7 +278,7 @@ export default async function handler(
         acc[key] = Array.isArray(value) ? value[0] : value;
       }
       return acc;
-    }, {} as Record<string, any>);
+    }, {} as Record<string, string>);
     
     // Check honeypot field first
     if (rawFormData.website && rawFormData.website.length > 0) {

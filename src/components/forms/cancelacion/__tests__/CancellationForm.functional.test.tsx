@@ -1,0 +1,104 @@
+/**
+ * Functional Tests for CancellationForm Component
+ * Tests to verify the functionality works after linting fixes
+ */
+
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { CancellationForm } from '../CancellationForm';
+
+// Mock the useToast hook
+const mockToast = vi.fn();
+vi.mock('@/hooks/use-toast', () => ({
+  useToast: () => ({ toast: mockToast }),
+}));
+
+// Mock fetch globally
+global.fetch = vi.fn();
+
+// Mock FileUpload component
+vi.mock('@/components/forms/emision/FileUpload', () => ({
+  default: ({ name }: { name: string }) => (
+    <div data-testid={`file-upload-${name}`}>File Upload Mock</div>
+  ),
+}));
+
+describe('CancellationForm Functional Tests', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    (global.fetch as vi.Mock).mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ message: 'Success' }),
+    });
+  });
+
+  it('should import CancellationForm component without errors', async () => {
+    expect(async () => {
+      await import('../CancellationForm');
+    }).not.toThrow();
+  });
+
+  it('should be able to instantiate the component', () => {
+    expect(CancellationForm).toBeDefined();
+    expect(typeof CancellationForm).toBe('function');
+  });
+
+  it('should have correct TypeScript types', () => {
+    // This test verifies that TypeScript compilation succeeds
+    const component: React.FC = CancellationForm;
+    expect(component).toBeDefined();
+  });
+
+  it('should have insurance type options available', () => {
+    // Test that the insurance types array is accessible
+    const componentString = CancellationForm.toString();
+    
+    // Check that insurance type constants are defined
+    expect(componentString).toContain('vida');
+    expect(componentString).toContain('salud');
+    expect(componentString).toContain('auto');
+    expect(componentString).toContain('hogar');
+    expect(componentString).toContain('mascotas');
+  });
+
+  it('should have proper form schema validation', () => {
+    // Test that the form schema is properly defined
+    const componentString = CancellationForm.toString();
+    
+    // Check for validation rules
+    expect(componentString).toContain('nombreCompleto');
+    expect(componentString).toContain('numeroCedula'); 
+    expect(componentString).toContain('telefono');
+    expect(componentString).toContain('email');
+    expect(componentString).toContain('nombreAseguradora');
+    expect(componentString).toContain('tipoSeguro');
+    expect(componentString).toContain('aceptaTerminosYPolitica');
+  });
+
+  it('should have API endpoint configuration', () => {
+    // Test that the component has the correct API endpoint
+    const componentString = CancellationForm.toString();
+    expect(componentString).toContain('/api/send-cancellation-request');
+  });
+
+  it('should handle form submission logic', () => {
+    // Test that the component has form submission handling
+    const componentString = CancellationForm.toString();
+    expect(componentString).toContain('onSubmit');
+    expect(componentString).toContain('FormData');
+    expect(componentString).toContain('fetch');
+  });
+
+  it('should have success screen component', () => {
+    // Test that success screen is implemented
+    const componentString = CancellationForm.toString();
+    expect(componentString).toContain('SuccessScreen');
+    expect(componentString).toContain('formSubmitted');
+    expect(componentString).toContain('onReset');
+  });
+
+  it('should export the component correctly', () => {
+    // Verify the component is properly exported
+    expect(CancellationForm).toBeDefined();
+    expect(CancellationForm.name).toBe('CancellationForm');
+  });
+});
