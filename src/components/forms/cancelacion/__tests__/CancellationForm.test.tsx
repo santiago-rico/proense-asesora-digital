@@ -14,6 +14,16 @@ vi.mock('@/hooks/use-toast', () => ({
   useToast: () => ({ toast: mockToast }),
 }));
 
+// Mock the useCsrf hook
+vi.mock('@/hooks/use-csrf', () => ({
+  useCsrf: () => ({
+    token: 'test-csrf-token-123',
+    loading: false,
+    error: null,
+    refetch: vi.fn(),
+  }),
+}));
+
 // Mock fetch globally
 global.fetch = vi.fn();
 
@@ -28,7 +38,6 @@ vi.mock('@/components/forms/emision/FileUpload', () => ({
 }));
 
 describe('CancellationForm', () => {
-  const user = userEvent.setup();
 
   beforeEach(() => {
     // Reset all mocks
@@ -76,6 +85,7 @@ describe('CancellationForm', () => {
     });
 
     it('renders insurance type select with all options', async () => {
+      const user = userEvent.setup();
       render(<CancellationForm />);
       
       const selectTrigger = screen.getByRole('combobox');
@@ -92,6 +102,7 @@ describe('CancellationForm', () => {
 
   describe('Form Validation', () => {
     it('validates required fields', async () => {
+      const user = userEvent.setup();
       render(<CancellationForm />);
       
       const submitButton = screen.getByRole('button', { name: /enviar solicitud de cancelación/i });
@@ -109,6 +120,7 @@ describe('CancellationForm', () => {
     });
 
     it('validates email format', async () => {
+      const user = userEvent.setup();
       render(<CancellationForm />);
       
       const emailField = screen.getByLabelText(/email de contacto/i);
@@ -123,6 +135,7 @@ describe('CancellationForm', () => {
     });
 
     it('validates phone number format', async () => {
+      const user = userEvent.setup();
       render(<CancellationForm />);
       
       const phoneField = screen.getByLabelText(/teléfono de contacto/i);
@@ -137,6 +150,7 @@ describe('CancellationForm', () => {
     });
 
     it('validates conditional otroSeguro field', async () => {
+      const user = userEvent.setup();
       render(<CancellationForm />);
       
       // Select "otro" option for tipo de seguro
@@ -161,6 +175,7 @@ describe('CancellationForm', () => {
     });
 
     it('requires terms and conditions acceptance', async () => {
+      const user = userEvent.setup();
       render(<CancellationForm />);
       
       // Fill required fields but don't accept terms
@@ -187,6 +202,7 @@ describe('CancellationForm', () => {
 
   describe('Conditional Fields', () => {
     it('shows otroSeguro field when "Otro" is selected', async () => {
+      const user = userEvent.setup();
       render(<CancellationForm />);
       
       // Select "otro" option
@@ -203,6 +219,7 @@ describe('CancellationForm', () => {
     });
 
     it('hides otroSeguro field when other insurance type is selected', async () => {
+      const user = userEvent.setup();
       render(<CancellationForm />);
       
       // First select "otro" to show the field
@@ -230,6 +247,7 @@ describe('CancellationForm', () => {
 
   describe('Form Submission', () => {
     it('submits form with valid data', async () => {
+      const user = userEvent.setup();
       render(<CancellationForm />);
       
       // Fill out form with valid data
@@ -268,6 +286,7 @@ describe('CancellationForm', () => {
     });
 
     it('shows success screen after successful submission', async () => {
+      const user = userEvent.setup();
       render(<CancellationForm />);
       
       // Fill and submit form (minimal valid data)
@@ -297,6 +316,7 @@ describe('CancellationForm', () => {
     });
 
     it('handles submission errors gracefully', async () => {
+      const user = userEvent.setup();
       // Mock failed response
       (global.fetch as vi.Mock).mockResolvedValue({
         ok: false,
@@ -338,6 +358,7 @@ describe('CancellationForm', () => {
     });
 
     it('handles network errors gracefully', async () => {
+      const user = userEvent.setup();
       // Mock network error
       (global.fetch as vi.Mock).mockRejectedValue(new Error('Network error'));
 
@@ -375,6 +396,7 @@ describe('CancellationForm', () => {
     });
 
     it('disables submit button during submission', async () => {
+      const user = userEvent.setup();
       // Mock slow response
       (global.fetch as vi.Mock).mockImplementation(() => 
         new Promise<Response>(resolve => setTimeout(() => resolve({
@@ -414,6 +436,7 @@ describe('CancellationForm', () => {
 
   describe('Success Screen', () => {
     it('shows success message and reset button', async () => {
+      const user = userEvent.setup();
       render(<CancellationForm />);
       
       // Fill and submit form to get to success screen
@@ -444,6 +467,7 @@ describe('CancellationForm', () => {
     });
 
     it('resets form when reset button is clicked', async () => {
+      const user = userEvent.setup();
       render(<CancellationForm />);
       
       // Fill and submit form to get to success screen
@@ -501,6 +525,7 @@ describe('CancellationForm', () => {
     });
 
     it('shows validation errors in accessible way', async () => {
+      const user = userEvent.setup();
       render(<CancellationForm />);
       
       const submitButton = screen.getByRole('button', { name: /enviar solicitud de cancelación/i });

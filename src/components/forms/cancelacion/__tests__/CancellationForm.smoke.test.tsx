@@ -13,6 +13,16 @@ vi.mock('@/hooks/use-toast', () => ({
   useToast: () => ({ toast: mockToast }),
 }));
 
+// Mock the useCsrf hook
+vi.mock('@/hooks/use-csrf', () => ({
+  useCsrf: () => ({
+    token: 'test-csrf-token-123',
+    loading: false,
+    error: null,
+    refetch: vi.fn(),
+  }),
+}));
+
 // Mock fetch globally
 global.fetch = vi.fn();
 

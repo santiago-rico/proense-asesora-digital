@@ -4,6 +4,7 @@ import formidable from 'formidable';
 import fs from 'fs';
 import { z } from 'zod';
 import { JSDOM } from 'jsdom';
+import { withRateLimit, rateLimitConfigs } from './utils/rate-limiter.js';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 const ALLOWED_MIME_TYPES = [
@@ -124,7 +125,7 @@ async function parseForm(req: VercelRequest): Promise<{ fields: formidable.Field
     });
 }
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method !== 'POST') {
         res.setHeader('Allow', 'POST');
         return res.status(405).json({ message: 'Method Not Allowed' });
@@ -326,3 +327,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
     }
 }
+
+// Export the handler with rate limiting applied
+export default withRateLimit(rateLimitConfigs.forms, handler);

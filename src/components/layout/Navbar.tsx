@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/navigation-menu";
 import { navigationMenuTriggerStyle } from "@/lib/navigation-menu-styles";
 import { cn } from "@/lib/utils";
+import OptimizedImage from "@/components/shared/OptimizedImage";
 
 interface NavbarProps {
   handleOpenLeadDialog: () => void;
@@ -70,6 +71,9 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
   return (
     <>
       <nav
+        id="main-navigation"
+        role="navigation"
+        aria-label="Navegación principal"
         className={`fixed z-50 ${
           scrolled ? "bg-white shadow-md py-2" : "bg-white py-2"
         }`}
@@ -78,8 +82,18 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center">
             <Link to="/" className="flex items-center">
-              <img src="/images/logo.png" alt="Proense Seguros Logo" className="h-12 w-auto" />
-              <img src="/images/text-logo.png" alt="Proense Seguros Text" className="h-8 w-auto ml-2" />
+              <OptimizedImage 
+                src="/images/logo.png" 
+                alt="Proense Seguros Logo" 
+                className="h-12 w-auto" 
+                loading="eager"
+              />
+              <OptimizedImage 
+                src="/images/text-logo.png" 
+                alt="Proense Seguros Text" 
+                className="h-8 w-auto ml-2" 
+                loading="eager"
+              />
             </Link>
 
             {/* Desktop Navigation */}
@@ -181,8 +195,11 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
             <div className="md:hidden">
               <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="text-gray-700 focus:outline-none"
-                aria-label="Toggle menu"
+                className="text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-md p-2"
+                aria-label={isOpen ? "Cerrar menú de navegación" : "Abrir menú de navegación"}
+                aria-expanded={isOpen}
+                aria-controls="mobile-navigation-menu"
+                type="button"
               >
                 {isOpen ? (
                   <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -199,8 +216,13 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
 
           {/* Mobile Navigation */}
           {isOpen && (
-            <div className="md:hidden mt-4 animate-fade-in">
-              <ul className="flex flex-col space-y-2 pb-4">
+            <div 
+              id="mobile-navigation-menu"
+              className="md:hidden mt-4 animate-fade-in"
+              role="menu"
+              aria-label="Menú de navegación móvil"
+            >
+              <ul className="flex flex-col space-y-2 pb-4" role="none">
                 {navLinks.map((link) => {
                   if (link.dropdown) {
                     const items = link.href === "/seguros" ? insuranceProducts : clientServices;

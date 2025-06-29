@@ -1,0 +1,132 @@
+name: Security Monitoring
+
+on:
+  schedule:
+    # Run every day at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch: # Allow manual triggers
+
+jobs:
+  security-scan:
+    name: Daily Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Run comprehensive security audit
+        run: |
+          echo "Running npm audit..."
+          npm audit --audit-level=moderate || true
+          
+          echo "Generating detailed security report..."
+          npm audit --json > security-report.json || true
+          
+          echo "Checking for high/critical vulnerabilities..."
+          if npm audit --audit-level=high; then
+            echo "✅ No high/critical vulnerabilities found"
+          else
+            echo "⚠️ High/critical vulnerabilities detected"
+            echo "Please review and update dependencies"
+          fi
+          
+      - name: Check for outdated dependencies
+        run: |
+          echo "Checking for outdated packages..."
+          npm outdated || echo "Some packages are outdated"
+          
+      - name: Upload security report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: security-report-${{ github.run_number }}
+          path: security-report.json
+          retention-days: 30
+          
+      - name: Create issue on security findings
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = `Security Alert: Vulnerabilities detected - ${new Date().toISOString().split('T')[0]}`;
+            const body = `
+            ## Security Scan Results
+            
+            The daily security scan has detected potential vulnerabilities in the project dependencies.
+            
+            ### Action Required
+            - Review the security report artifact from this workflow run
+            - Update vulnerable dependencies
+            - Run \`npm audit fix\` to automatically fix issues where possible
+            - For manual fixes, update package.json and run \`npm install\`
+            
+            ### Workflow Run
+            [View full security scan results](${context.payload.repository.html_url}/actions/runs/${context.runId})
+            
+            This issue was automatically created by the security monitoring workflow.
+            `;
+            
+            // Check if similar issue already exists
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ['security', 'automated'],
+              state: 'open'
+            });
+            
+            if (issues.data.length === 0) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: title,
+                body: body,
+                labels: ['security', 'automated', 'high-priority']
+              });
+            }
+
+  dependency-review:
+    name: Dependency License Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+          cache: 'npm'
+          
+      - name: Install license checker
+        run: npm install -g license-checker
+        
+      - name: Check licenses
+        run: |
+          echo "Checking dependency licenses..."
+          license-checker --summary || true
+          license-checker --json > licenses.json || true
+          
+          echo "Checking for restrictive licenses..."
+          if license-checker --excludeLicenses "MIT,Apache-2.0,BSD-2-Clause,BSD-3-Clause,ISC,CC0-1.0" --failOn "GPL,AGPL,LGPL"; then
+            echo "✅ No restrictive licenses found"
+          else
+            echo "⚠️ Potentially restrictive licenses detected"
+          fi
+          
+      - name: Upload license report
+        uses: actions/upload-artifact@v4
+        with:
+          name: license-report-${{ github.run_number }}
+          path: licenses.json
+          retention-days: 30

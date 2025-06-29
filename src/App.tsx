@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, Suspense, lazy } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,16 +7,26 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ScrollToTop from "./components/utils/ScrollToTop";
 import Index from "./pages/Index";
 import ContactPage from "./pages/ContactPage";
-import AboutPage from "./pages/AboutPage";
-import BlogListPage from "./pages/BlogListPage";
-import BlogPostPage from "./pages/BlogPostPage";
-import InsuranceProductPage from "./pages/InsuranceProductPage";
-import ClientServicePage from "./pages/ClientServicePage";
-import PaymentsPage from "./pages/PaymentsPage";
 import NotFound from "./pages/NotFound";
-import PoliticaPrivacidadPage from "./pages/PoliticaPrivacidadPage";
-import TerminosCondicionesPage from "./pages/TerminosCondicionesPage";
 import LeadGenerationDialog from "@/components/forms/LeadGenerationDialog";
+import CookieConsent from "@/components/shared/CookieConsent";
+
+// Lazy load heavy pages to reduce initial bundle size
+const AboutPage = lazy(() => import("./pages/AboutPage"));
+const BlogListPage = lazy(() => import("./pages/BlogListPage"));
+const BlogPostPage = lazy(() => import("./pages/BlogPostPage"));
+const InsuranceProductPage = lazy(() => import("./pages/InsuranceProductPage"));
+const ClientServicePage = lazy(() => import("./pages/ClientServicePage"));
+const PaymentsPage = lazy(() => import("./pages/PaymentsPage"));
+const PoliticaPrivacidadPage = lazy(() => import("./pages/PoliticaPrivacidadPage"));
+const TerminosCondicionesPage = lazy(() => import("./pages/TerminosCondicionesPage"));
+
+// Loading fallback component
+const PageLoadingSpinner = () => (
+  <div className="flex items-center justify-center min-h-screen">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+  </div>
+);
 
 const queryClient = new QueryClient();
 
@@ -31,40 +41,47 @@ const App = () => {
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
+        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <ScrollToTop />
-          <Routes>
-            <Route path="/" element={<Index handleOpenLeadDialog={handleOpenLeadDialog} />} />
-            <Route path="/contacto" element={<ContactPage handleOpenLeadDialog={handleOpenLeadDialog} />} />
-            <Route path="/nosotros" element={<AboutPage handleOpenLeadDialog={handleOpenLeadDialog} />} />
-            <Route path="/blog" element={<BlogListPage handleOpenLeadDialog={handleOpenLeadDialog} />} />
-            <Route path="/blog/:slug" element={<BlogPostPage handleOpenLeadDialog={handleOpenLeadDialog} />} />
-            
-            {/* Insurance Product Pages */}
-            <Route path="/seguros/vida" element={<InsuranceProductPage type="vida" handleOpenLeadDialog={handleOpenLeadDialog} />} />
-            <Route path="/seguros/salud" element={<InsuranceProductPage type="salud" handleOpenLeadDialog={handleOpenLeadDialog} />} />
-            <Route path="/seguros/auto" element={<InsuranceProductPage type="auto" handleOpenLeadDialog={handleOpenLeadDialog} />} />
-            <Route path="/seguros/hogar" element={<InsuranceProductPage type="hogar" handleOpenLeadDialog={handleOpenLeadDialog} />} />
-            <Route path="/seguros/pymes" element={<InsuranceProductPage type="pymes" handleOpenLeadDialog={handleOpenLeadDialog} />} />
-            <Route path="/seguros/mascotas" element={<InsuranceProductPage type="mascotas" handleOpenLeadDialog={handleOpenLeadDialog} />} />
-            <Route path="/seguros/motos" element={<InsuranceProductPage type="motos" handleOpenLeadDialog={handleOpenLeadDialog} />} />
-            <Route path="/seguros/arrendamiento" element={<InsuranceProductPage type="arrendamiento" handleOpenLeadDialog={handleOpenLeadDialog} />} />
-            <Route path="/seguros/viaje" element={<InsuranceProductPage type="viaje" handleOpenLeadDialog={handleOpenLeadDialog} />} />
-            
-            {/* Client Service Pages */}
-            <Route path="/clientes/emision-polizas" element={<ClientServicePage type="emision" handleOpenLeadDialog={handleOpenLeadDialog} />} />
-            <Route path="/clientes/modificaciones" element={<ClientServicePage type="modificacion" handleOpenLeadDialog={handleOpenLeadDialog} />} />
-            <Route path="/clientes/cancelaciones" element={<ClientServicePage type="cancelacion" handleOpenLeadDialog={handleOpenLeadDialog} />} />
-            <Route path="/clientes/siniestros" element={<ClientServicePage type="siniestro" handleOpenLeadDialog={handleOpenLeadDialog} />} />
+          <Suspense fallback={<PageLoadingSpinner />}>
+            <Routes>
+              {/* Keep core pages loaded immediately for better UX */}
+              <Route path="/" element={<Index handleOpenLeadDialog={handleOpenLeadDialog} />} />
+              <Route path="/contacto" element={<ContactPage handleOpenLeadDialog={handleOpenLeadDialog} />} />
+              <Route path="*" element={<NotFound />} />
+              
+              {/* Lazy load secondary pages */}
+              <Route path="/nosotros" element={<AboutPage handleOpenLeadDialog={handleOpenLeadDialog} />} />
+              
+              {/* Lazy load blog pages (saves ~200KB from Sanity dependencies) */}
+              <Route path="/blog" element={<BlogListPage handleOpenLeadDialog={handleOpenLeadDialog} />} />
+              <Route path="/blog/:slug" element={<BlogPostPage handleOpenLeadDialog={handleOpenLeadDialog} />} />
+              
+              {/* Lazy load insurance product pages (saves ~300KB from insurance data) */}
+              <Route path="/seguros/vida" element={<InsuranceProductPage type="vida" handleOpenLeadDialog={handleOpenLeadDialog} />} />
+              <Route path="/seguros/salud" element={<InsuranceProductPage type="salud" handleOpenLeadDialog={handleOpenLeadDialog} />} />
+              <Route path="/seguros/auto" element={<InsuranceProductPage type="auto" handleOpenLeadDialog={handleOpenLeadDialog} />} />
+              <Route path="/seguros/hogar" element={<InsuranceProductPage type="hogar" handleOpenLeadDialog={handleOpenLeadDialog} />} />
+              <Route path="/seguros/pymes" element={<InsuranceProductPage type="pymes" handleOpenLeadDialog={handleOpenLeadDialog} />} />
+              <Route path="/seguros/mascotas" element={<InsuranceProductPage type="mascotas" handleOpenLeadDialog={handleOpenLeadDialog} />} />
+              <Route path="/seguros/motos" element={<InsuranceProductPage type="motos" handleOpenLeadDialog={handleOpenLeadDialog} />} />
+              <Route path="/seguros/arrendamiento" element={<InsuranceProductPage type="arrendamiento" handleOpenLeadDialog={handleOpenLeadDialog} />} />
+              <Route path="/seguros/viaje" element={<InsuranceProductPage type="viaje" handleOpenLeadDialog={handleOpenLeadDialog} />} />
+              
+              {/* Lazy load client service pages (saves ~400KB from form components) */}
+              <Route path="/clientes/emision-polizas" element={<ClientServicePage type="emision" handleOpenLeadDialog={handleOpenLeadDialog} />} />
+              <Route path="/clientes/modificaciones" element={<ClientServicePage type="modificacion" handleOpenLeadDialog={handleOpenLeadDialog} />} />
+              <Route path="/clientes/cancelaciones" element={<ClientServicePage type="cancelacion" handleOpenLeadDialog={handleOpenLeadDialog} />} />
+              <Route path="/clientes/siniestros" element={<ClientServicePage type="siniestro" handleOpenLeadDialog={handleOpenLeadDialog} />} />
               <Route path="/clientes/pagos" element={<PaymentsPage handleOpenLeadDialog={handleOpenLeadDialog} />} />
 
-            {/* Legal Pages */}
-            <Route path="/politica-de-privacidad" element={<PoliticaPrivacidadPage handleOpenLeadDialog={handleOpenLeadDialog} />} />
-            <Route path="/terminos-y-condiciones" element={<TerminosCondicionesPage handleOpenLeadDialog={handleOpenLeadDialog} />} />
-            
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+              {/* Lazy load legal pages */}
+              <Route path="/politica-de-privacidad" element={<PoliticaPrivacidadPage handleOpenLeadDialog={handleOpenLeadDialog} />} />
+              <Route path="/terminos-y-condiciones" element={<TerminosCondicionesPage handleOpenLeadDialog={handleOpenLeadDialog} />} />
+            </Routes>
+          </Suspense>
           <LeadGenerationDialog open={showLeadDialog} onOpenChange={setShowLeadDialog} />
+          <CookieConsent />
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Shield, Users, Heart, Zap, BarChart2, UserCheck, Handshake, LifeBuoy } from "lucide-react";
+import OptimizedImage from "@/components/shared/OptimizedImage";
 
 interface AboutPageProps {
   handleOpenLeadDialog: () => void;
@@ -20,10 +21,12 @@ const AboutPage: React.FC<AboutPageProps> = ({ handleOpenLeadDialog }) => {
       <div className="pt-16">
         {/* Image Hero Section */}
         <section className="relative h-[300px] md:h-[400px] bg-gray-800">
-          <img 
+          <OptimizedImage 
             src="/images/hero-about-us.jpeg" // Placeholder image - replace with your desired image
             alt="Sobre Nosotros Proense Asesores" 
             className="absolute inset-0 w-full h-full object-cover opacity-50" // Added opacity to image for better text readability
+            loading="eager"
+            sizes="100vw"
           />
           <div className="absolute inset-0 bg-black/30"></div> {/* Dark overlay for better text contrast */}
           <div className="relative z-10 container mx-auto px-4 h-full flex flex-col justify-center items-center text-center">
@@ -60,10 +63,11 @@ const AboutPage: React.FC<AboutPageProps> = ({ handleOpenLeadDialog }) => {
                 </p>
               </div>
               <div className="relative h-80 md:h-96 rounded-lg overflow-hidden shadow-xl order-1 md:order-2 bg-slate-100 flex items-center justify-center p-8">
-                <img 
+                <OptimizedImage 
                   src="/images/logo.png"
                   alt="Proense Asesores Logo" 
                   className="max-w-full max-h-full"
+                  loading="lazy"
                 />
               </div>
             </div>

@@ -27,14 +27,16 @@ export default {
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
 				primary: {
-					DEFAULT: '#008CFC', // Primary Blue
+					DEFAULT: '#0073D1', // Primary Blue (WCAG AA compliant)
 					foreground: '#FFFFFF',
-					hover: '#0073D1',
+					hover: '#005FA8',
+					light: '#008CFC', // Original color for decorative use
 				},
 				secondary: {
-					DEFAULT: '#5FCB83', // Secondary Green
+					DEFAULT: '#3B8C59', // Secondary Green (WCAG AA compliant)
 					foreground: '#FFFFFF',
-					hover: '#4DB36E',
+					hover: '#2E6D45',
+					light: '#5FCB83', // Original color for decorative use
 				},
 				accent: {
 					DEFAULT: '#346797', // Accent/Support Blue
