@@ -14,7 +14,8 @@ import { isValidPhoneNumber } from 'react-phone-number-input';
 import FileUpload from '@/components/forms/emision/FileUpload';
 import { useToast } from '@/hooks/use-toast';
 import { useCsrf } from '@/hooks/use-csrf';
-import { CheckCircle2, AlertTriangle } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
+import { FormSuccessScreen } from '@/components/shared/FormSuccessScreen';
 
 const tiposDeSeguro = [
   { value: 'vida', label: 'Seguro de Vida' },
@@ -56,22 +57,6 @@ const modificationSchema = z.object({
 
 type ModificationFormValues = z.infer<typeof modificationSchema>;
 
-const SuccessScreen = ({ onReset }: { onReset: () => void }) => (
-  <div className="bg-white rounded-lg shadow-lg p-8 max-w-lg mx-auto text-center border border-green-200">
-    <CheckCircle2 className="mx-auto h-16 w-16 text-green-500 mb-4" />
-    <h2 className="text-2xl font-bold text-gray-800 mb-3">¡Solicitud Enviada con Éxito!</h2>
-    <p className="text-gray-600 mb-4">
-      Hemos recibido tu solicitud de modificación y hemos enviado un correo electrónico a tu dirección con los detalles.
-    </p>
-    <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 my-6 text-left">
-      <p className="font-bold text-yellow-900">Importante: Acción Requerida</p>
-      <p className="text-yellow-800 mt-1">
-        Para que tu solicitud sea procesada, es <strong>indispensable</strong> que respondas al correo que te hemos enviado confirmando los cambios. De lo contrario, la modificación no se hará efectiva.
-      </p>
-    </div>
-    <Button onClick={onReset} size="lg">Realizar otra modificación</Button>
-  </div>
-);
 
 interface ModificationFormProps {
   onSuccess?: () => void;
@@ -199,10 +184,21 @@ export const ModificationForm = ({ onSuccess }: ModificationFormProps) => {
   return (
     <div>
       {formSubmitted ? (
-        <SuccessScreen onReset={() => {
-          form.reset();
-          setFormSubmitted(false);
-        }} />
+        <FormSuccessScreen
+          title="¡Solicitud Enviada con Éxito!"
+          description="Hemos recibido tu solicitud de modificación y hemos enviado un correo electrónico a tu dirección con los detalles."
+          showWarning={true}
+          warningMessage="Para que tu solicitud sea procesada, es indispensable que respondas al correo que te hemos enviado confirmando los cambios. De lo contrario, la modificación no se hará efectiva."
+          onDismiss={() => {
+            form.reset();
+            setFormSubmitted(false);
+          }}
+          secondaryActionLabel="Realizar otra modificación"
+          onSecondaryAction={() => {
+            form.reset();
+            setFormSubmitted(false);
+          }}
+        />
       ) : csrfLoading ? (
         <div className="flex items-center justify-center p-8">
           <div className="text-center">

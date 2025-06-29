@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import NumberedProgressBar from './NumberedProgressBar';
 import { useToast } from '@/hooks/use-toast';
 import { formSchema, FormSchemaType } from './formSchema';
+import { FormSuccessScreen } from '@/components/shared/FormSuccessScreen';
 
 const steps = [
   { id: 1, name: 'Información Básica', fields: ['nombreCompleto', 'telefono', 'email'] },
@@ -92,27 +93,6 @@ const MultiStepForm = ({ onSuccess }: MultiStepFormProps) => {
     fetchCsrfToken();
   }, [toast]);
   
-  const SuccessScreen = () => (
-    <div className="text-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="mx-auto flex items-center justify-center h-24 w-24 rounded-full bg-green-100">
-        <svg className="h-16 w-16 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-        </svg>
-      </div>
-      <h2 className="mt-6 text-3xl font-extrabold text-gray-900">¡Solicitud Enviada!</h2>
-      <p className="mt-4 text-lg text-gray-600">
-        Hemos recibido tu solicitud correctamente.
-      </p>
-      <p className="mt-2 text-gray-600">
-        Por favor revisa tu correo electrónico <span className="font-medium">{methods.watch('email')}</span> y responde <b>"Acepto"</b> para que tu solicitud sea procesada.
-      </p>
-      <div className="mt-8">
-        <p className="text-sm text-gray-500">
-          Si no encuentras nuestro correo, por favor revisa tu carpeta de spam.
-        </p>
-      </div>
-    </div>
-  );
 
   useEffect(() => {
     // When the step changes, clear any existing errors for the fields of the new current step.
@@ -269,7 +249,19 @@ const MultiStepForm = ({ onSuccess }: MultiStepFormProps) => {
     <div>
       {formSubmitted ? (
         <div className="bg-white rounded-lg shadow-md p-6 max-w-3xl mx-auto">
-          <SuccessScreen />
+          <FormSuccessScreen
+            title="¡Solicitud Enviada!"
+            description="Hemos recibido tu solicitud correctamente."
+            showEmailConfirmation={true}
+            email={methods.watch('email')}
+            showWarning={true}
+            warningMessage='Por favor revisa tu correo electrónico y responde "Acepto" para que tu solicitud sea procesada. Si no encuentras nuestro correo, por favor revisa tu carpeta de spam.'
+            onDismiss={() => {
+              setFormSubmitted(false);
+              setCurrentStep(0);
+              methods.reset();
+            }}
+          />
         </div>
       ) : (
         <FormProvider {...methods}>

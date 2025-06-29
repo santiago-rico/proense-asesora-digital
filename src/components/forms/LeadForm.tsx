@@ -13,7 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { PhoneInput } from "@/components/ui/phone-input";
 import { isValidPhoneNumber } from "react-phone-number-input";
 import es from 'react-phone-number-input/locale/es.json';
-import { CheckCircle } from "lucide-react";
+import { FormSuccessScreen } from "@/components/shared/FormSuccessScreen";
 
 const tiposSeguro = [
   { value: "vida", label: "Seguro de Vida" },
@@ -178,14 +178,12 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick, 
 
   if (isSubmitted) {
     return (
-      <div className="bg-white p-6 rounded-lg shadow-md text-center flex flex-col items-center justify-center h-full min-h-[720px]">
-        <CheckCircle className="w-16 h-16 text-green-500 mb-4" />
-        <h3 className="text-xl font-bold mb-2">¡Solicitud Enviada!</h3>
-        <p className="text-gray-600 mb-6">Gracias por contactarnos. Un asesor se pondrá en contacto contigo pronto.</p>
-        <Button onClick={onClose} variant="secondary" className="w-full">
-          Cerrar
-        </Button>
-      </div>
+      <FormSuccessScreen
+        title="¡Solicitud Enviada!"
+        description="Gracias por contactarnos. Un asesor se pondrá en contacto contigo pronto."
+        onDismiss={onClose || handleReset}
+        className={onClose ? "" : "min-h-[720px] flex flex-col justify-center"}
+      />
     );
   }
 
