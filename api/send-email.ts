@@ -20,14 +20,15 @@ export default async function handler(
     // Dynamic imports for CommonJS modules
     const dompurifyModule = await import('dompurify');
     // Handle both default export and named export cases
-    const DOMPurify = (dompurifyModule as unknown as { default?: unknown }).default || dompurifyModule;
+    const DOMPurify = typeof dompurifyModule.default === 'function' ? dompurifyModule.default : dompurifyModule;
     const { parse } = await import('cookie');
     const { default: Tokens } = await import('csrf') as unknown as { default: new() => { verify: (secret: string, token: string) => boolean } };
     const tokens = new Tokens();
     
     // Initialize DOMPurify with JSDOM
     const window = new JSDOM('').window;
-    const DOMPurifyInstance = DOMPurify(window);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const DOMPurifyInstance = (DOMPurify as any)(window);
     
     // Verify CSRF token
     const cookies = parse(req.headers.cookie || '');
