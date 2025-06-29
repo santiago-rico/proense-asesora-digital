@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { PhoneInput } from '@/components/ui/phone-input';
@@ -13,7 +13,9 @@ import es from 'react-phone-number-input/locale/es.json';
 import { isValidPhoneNumber } from 'react-phone-number-input';
 import FileUpload from '@/components/forms/emision/FileUpload';
 import { useToast } from '@/hooks/use-toast';
-import { CheckCircle2 } from 'lucide-react';
+import { useCsrf } from '@/hooks/use-csrf';
+import { AlertTriangle } from 'lucide-react';
+import { FormSuccessScreen } from '@/components/shared/FormSuccessScreen';
 
 const tiposDeSeguro = [
   { value: 'vida', label: 'Seguro de Vida' },
@@ -42,6 +44,7 @@ const modificationSchema = z.object({
   aceptaTerminosYPolitica: z.boolean().refine(val => val === true, {
     message: 'Debes aceptar la política de privacidad y los términos y condiciones para continuar.',
   }),
+  website: z.string().optional(), // Honeypot field
 }).superRefine((data, ctx) => {
   if (data.tipoSeguro === 'otro' && (!data.otroSeguro || data.otroSeguro.trim() === '')) {
     ctx.addIssue({
@@ -54,27 +57,16 @@ const modificationSchema = z.object({
 
 type ModificationFormValues = z.infer<typeof modificationSchema>;
 
-const SuccessScreen = ({ onReset }: { onReset: () => void }) => (
-  <div className="bg-white rounded-lg shadow-lg p-8 max-w-lg mx-auto text-center border border-green-200">
-    <CheckCircle2 className="mx-auto h-16 w-16 text-green-500 mb-4" />
-    <h2 className="text-2xl font-bold text-gray-800 mb-3">¡Solicitud Enviada con Éxito!</h2>
-    <p className="text-gray-600 mb-4">
-      Hemos recibido tu solicitud de modificación y hemos enviado un correo electrónico a tu dirección con los detalles.
-    </p>
-    <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 my-6 text-left">
-      <p className="font-bold text-yellow-900">Importante: Acción Requerida</p>
-      <p className="text-yellow-800 mt-1">
-        Para que tu solicitud sea procesada, es <strong>indispensable</strong> que respondas al correo que te hemos enviado confirmando los cambios. De lo contrario, la modificación no se hará efectiva.
-      </p>
-    </div>
-    <Button onClick={onReset} size="lg">Realizar otra modificación</Button>
-  </div>
-);
 
-export const ModificationForm = () => {
+interface ModificationFormProps {
+  onSuccess?: () => void;
+}
+
+export const ModificationForm = ({ onSuccess }: ModificationFormProps) => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const { token: csrfToken, loading: csrfLoading, error: csrfError, refetch: refetchCsrf } = useCsrf();
   const form = useForm<ModificationFormValues>({
     resolver: zodResolver(modificationSchema),
     mode: 'onBlur',
@@ -90,12 +82,30 @@ export const ModificationForm = () => {
       modificaciones: '',
       aceptaTerminosYPolitica: false,
       documentosAdicionales: [],
+      website: '', // Honeypot field
     },
   });
 
   const tipoSeguro = form.watch('tipoSeguro');
 
+  // Call onSuccess callback when form is submitted
+  useEffect(() => {
+    if (formSubmitted && onSuccess) {
+      onSuccess();
+    }
+  }, [formSubmitted, onSuccess]);
+
   const onSubmit: SubmitHandler<ModificationFormValues> = async (data) => {
+    // Validate CSRF token is available
+    if (!csrfToken) {
+      toast({
+        title: "Error de Seguridad",
+        description: "Token de seguridad no disponible. Por favor, recarga la página e intenta de nuevo.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     const formData = new FormData();
 
@@ -113,6 +123,10 @@ export const ModificationForm = () => {
       const response = await fetch('/api/send-modification-request', {
         method: 'POST',
         body: formData,
+        credentials: 'include', // Include cookies for CSRF validation
+        headers: {
+          'X-CSRF-Token': csrfToken, // Send CSRF token in header
+        },
       });
 
       const result = await response.json();
@@ -120,6 +134,39 @@ export const ModificationForm = () => {
       if (response.ok) {
         setFormSubmitted(true);
       } else {
+        // Handle CSRF-specific errors
+        if (response.status === 403 && result.message?.includes('CSRF')) {
+          toast({
+            title: "Error de Seguridad",
+            description: "Token de seguridad inválido. Recargando página...",
+            variant: "destructive",
+          });
+          // Refetch CSRF token and reload form
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
+          return;
+        }
+        
+        // Handle validation errors
+        if (response.status === 400 && result.errors) {
+          Object.entries(result.errors).forEach(([field, messages]) => {
+            if (Array.isArray(messages) && messages.length > 0) {
+              form.setError(field as keyof ModificationFormValues, {
+                type: 'server',
+                message: messages[0]
+              });
+            }
+          });
+          
+          toast({
+            title: "Por favor revisa los campos del formulario",
+            description: "Algunos campos tienen errores que necesitan ser corregidos.",
+            variant: "destructive",
+          });
+          return;
+        }
+        
         throw new Error(result.message || 'Ocurrió un error al enviar el formulario.');
       }
     } catch (error) {
@@ -134,15 +181,54 @@ export const ModificationForm = () => {
     }
   };
 
-  if (formSubmitted) {
-    return <SuccessScreen onReset={() => {
-      form.reset();
-      setFormSubmitted(false);
-    }} />;
-  }
-
   return (
-    <Form {...form}>
+    <div>
+      {formSubmitted ? (
+        <FormSuccessScreen
+          title="¡Solicitud Enviada con Éxito!"
+          description="Hemos recibido tu solicitud de modificación y hemos enviado un correo electrónico a tu dirección con los detalles."
+          showWarning={true}
+          warningMessage="Para que tu solicitud sea procesada, es indispensable que respondas al correo que te hemos enviado confirmando los cambios. De lo contrario, la modificación no se hará efectiva."
+          onDismiss={() => {
+            form.reset();
+            setFormSubmitted(false);
+          }}
+          secondaryActionLabel="Realizar otra modificación"
+          onSecondaryAction={() => {
+            form.reset();
+            setFormSubmitted(false);
+          }}
+        />
+      ) : csrfLoading ? (
+        <div className="flex items-center justify-center p-8">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Cargando formulario seguro...</p>
+          </div>
+        </div>
+
+      ) : csrfError ? (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-lg mx-auto">
+          <div className="flex items-center mb-4">
+            <AlertTriangle className="h-5 w-5 text-red-600 mr-2" />
+            <h3 className="text-lg font-semibold text-red-800">Error de Seguridad</h3>
+          </div>
+          <p className="text-red-700 mb-4">
+            No se pudo cargar el token de seguridad necesario para el formulario.
+          </p>
+          <p className="text-sm text-red-600 mb-4">
+            Error: {csrfError}
+          </p>
+          <Button 
+            onClick={refetchCsrf}
+            variant="outline"
+            className="border-red-300 text-red-700 hover:bg-red-50"
+          >
+            Reintentar
+          </Button>
+        </div>
+      ) : (
+        <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
@@ -152,7 +238,14 @@ export const ModificationForm = () => {
               <FormItem>
                 <FormLabel>Nombre completo <span className="text-red-500">*</span></FormLabel>
                 <FormControl>
-                  <Input placeholder="Nombre completo" {...field} />
+                  <Input 
+                    placeholder="Nombre completo" 
+                    {...field} 
+                    autoComplete="name"
+                    required
+                    aria-required="true"
+                    disabled={isSubmitting}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -165,8 +258,18 @@ export const ModificationForm = () => {
               <FormItem>
                 <FormLabel>Número de cédula <span className="text-red-500">*</span></FormLabel>
                 <FormControl>
-                  <Input placeholder="Número de cédula" {...field} />
+                  <Input 
+                    placeholder="Número de cédula" 
+                    {...field} 
+                    autoComplete="off"
+                    required
+                    aria-required="true"
+                    disabled={isSubmitting}
+                  />
                 </FormControl>
+                <FormDescription>
+                  Ingresa tu número de cédula sin puntos ni espacios
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -184,6 +287,10 @@ export const ModificationForm = () => {
                     defaultCountry="CO"
                     placeholder="300 123 4567"
                     searchPlaceholder="Buscar país..."
+                    autoComplete="tel"
+                    required
+                    aria-required="true"
+                    disabled={isSubmitting}
                   />
                 </FormControl>
                 <FormMessage />
@@ -197,7 +304,15 @@ export const ModificationForm = () => {
               <FormItem>
                 <FormLabel>Correo electrónico <span className="text-red-500">*</span></FormLabel>
                 <FormControl>
-                  <Input placeholder="correo@ejemplo.com" {...field} />
+                  <Input 
+                    placeholder="correo@ejemplo.com" 
+                    {...field} 
+                    type="email"
+                    autoComplete="email"
+                    required
+                    aria-required="true"
+                    disabled={isSubmitting}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -210,7 +325,14 @@ export const ModificationForm = () => {
               <FormItem>
                 <FormLabel>Nombre de la aseguradora <span className="text-red-500">*</span></FormLabel>
                 <FormControl>
-                  <Input placeholder="Nombre de la aseguradora" {...field} />
+                  <Input 
+                    placeholder="Nombre de la aseguradora" 
+                    {...field} 
+                    autoComplete="organization"
+                    required
+                    aria-required="true"
+                    disabled={isSubmitting}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -223,7 +345,12 @@ export const ModificationForm = () => {
               <FormItem>
                 <FormLabel>Número de póliza de seguro (Opcional)</FormLabel>
                 <FormControl>
-                  <Input placeholder="Número de póliza" {...field} />
+                  <Input 
+                    placeholder="Número de póliza" 
+                    {...field} 
+                    autoComplete="off"
+                    disabled={isSubmitting}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -235,9 +362,9 @@ export const ModificationForm = () => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>¿Qué seguro quieres modificar? <span className="text-red-500">*</span></FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isSubmitting} required>
                   <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger aria-required="true">
                       <SelectValue placeholder="Selecciona un tipo de seguro" />
                     </SelectTrigger>
                   </FormControl>
@@ -261,7 +388,14 @@ export const ModificationForm = () => {
                 <FormItem>
                   <FormLabel>Especifica qué seguro <span className="text-red-500">*</span></FormLabel>
                   <FormControl>
-                    <Input placeholder="Especifica el seguro" {...field} />
+                    <Input 
+                      placeholder="Especifica el seguro" 
+                      {...field} 
+                      autoComplete="off"
+                      required
+                      aria-required="true"
+                      disabled={isSubmitting}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -280,6 +414,10 @@ export const ModificationForm = () => {
                   placeholder="Describe las modificaciones"
                   className="resize-none"
                   {...field}
+                  autoComplete="off"
+                  required
+                  aria-required="true"
+                  disabled={isSubmitting}
                 />
               </FormControl>
               <FormMessage />
@@ -313,10 +451,27 @@ export const ModificationForm = () => {
             </FormItem>
           )}
         />
-        <Button type="submit" disabled={isSubmitting}>
+
+        {/* Honeypot field - hidden from users */}
+        <FormField
+          control={form.control}
+          name="website"
+          render={({ field }) => (
+            <FormItem style={{ display: 'none' }}>
+              <FormLabel>Website</FormLabel>
+              <FormControl>
+                <Input {...field} tabIndex={-1} autoComplete="off" />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+
+        <Button type="submit" disabled={isSubmitting || !csrfToken}>
           {isSubmitting ? 'Enviando...' : 'Enviar Solicitud'}
         </Button>
-      </form>
-    </Form>
+        </form>
+      </Form>
+      )}
+    </div>
   );
 };

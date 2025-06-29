@@ -27,7 +27,7 @@ const Step4_Declaration: React.FC = () => {
             <FormControl>
               <RadioGroup
                 onValueChange={field.onChange}
-                defaultValue={field.value}
+                value={field.value || ''}
                 className="flex flex-col space-y-1 md:flex-row md:space-x-4 md:space-y-0"
               >
                 <FormItem className="flex items-center space-x-3 space-y-0">

@@ -24,7 +24,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ name, label, description, multi
     setValue(name, newFiles, { shouldValidate: true });
   }, [multiple, name, setValue, getValues, clearErrors]);
 
-  const onDropRejected = useCallback((fileRejections: any[]) => {
+  const onDropRejected = useCallback((fileRejections: { file: File; errors: Array<{ code: string; message: string }> }[]) => {
     if (fileRejections && fileRejections.length > 0) {
       clearErrors(name); // Clear existing Zod error for this field
       setFileDropError("El tipo de archivo no es válido. Solo puedes subir: PDF, JPG, PNG, WEBP, DOC, DOCX.");

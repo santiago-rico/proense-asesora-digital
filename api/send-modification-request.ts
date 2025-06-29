@@ -2,6 +2,8 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { sendTransactionalEmail } from '../src/utils/brevo.js';
 import formidable from 'formidable';
 import fs from 'fs';
+import { z } from 'zod';
+import { JSDOM } from 'jsdom';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 const ALLOWED_MIME_TYPES = [
@@ -19,6 +21,31 @@ export const config = {
   },
 };
 
+// Validation schema for the form data
+const modificationValidationSchema = z.object({
+  nombreCompleto: z.string().trim().min(1, 'El nombre completo es requerido'),
+  numeroCedula: z.string().trim().min(1, 'El número de cédula es requerido'),
+  telefono: z.string().trim().min(1, 'El teléfono es requerido'),
+  email: z.string().trim().email('Email inválido'),
+  nombreAseguradora: z.string().trim().min(1, 'El nombre de la aseguradora es requerido'),
+  numeroPoliza: z.string().trim().optional(),
+  tipoSeguro: z.string().trim().min(1, 'El tipo de seguro es requerido'),
+  otroSeguro: z.string().trim().optional(),
+  modificaciones: z.string().trim().min(1, 'Las modificaciones son requeridas'),
+  aceptaTerminosYPolitica: z.boolean().refine(val => val === true, {
+    message: 'Debes aceptar los términos y condiciones',
+  }),
+  website: z.string().optional(), // Honeypot field
+}).superRefine((data, ctx) => {
+  if (data.tipoSeguro === 'otro' && (!data.otroSeguro || data.otroSeguro.trim() === '')) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['otroSeguro'],
+      message: 'Debe especificar el tipo de seguro',
+    });
+  }
+});
+
 interface ModificationData {
   nombreCompleto: string;
   numeroCedula: string;
@@ -30,7 +57,7 @@ interface ModificationData {
   otroSeguro?: string;
   modificaciones: string;
   aceptaTerminosYPolitica: boolean;
-  [key: string]: any;
+  [key: string]: string | boolean | undefined;
 }
 
 function formatDataToHtml(data: Omit<ModificationData, 'documentosAdicionales'>, attachedFiles: Record<string, string[]>): string {
@@ -76,7 +103,7 @@ async function parseForm(req: VercelRequest): Promise<{ fields: formidable.Field
     });
 
     return new Promise((resolve, reject) => {
-        form.parse(req, (err, fields, files) => {
+        form.parse(req, (err: Error | null, fields: formidable.Fields, files: formidable.Files) => {
             if (err) {
                 return reject(err);
             }
@@ -94,19 +121,71 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const tempFilePaths: string[] = [];
 
     try {
+        // Dynamic imports for security modules
+        const dompurifyModule = await import('dompurify');
+        const DOMPurify = typeof dompurifyModule.default === 'function' ? dompurifyModule.default : dompurifyModule;
+        const { parse } = await import('cookie');
+        const { default: Tokens } = await import('csrf') as unknown as { default: new() => { verify: (secret: string, token: string) => boolean } };
+        const tokens = new Tokens();
+        
+        // Initialize DOMPurify with JSDOM
+        const window = new JSDOM('').window;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const DOMPurifyInstance = (DOMPurify as any)(window);
+        
+        // Verify CSRF token
+        const cookies = parse(req.headers.cookie || '');
+        const secret = cookies._csrf_secret;
+        const token = req.headers['x-csrf-token'] as string;
+        
+        if (!secret || !token || !tokens.verify(secret, token)) {
+            return res.status(403).json({ message: 'Invalid CSRF token' });
+        }
+
         const { fields, files } = await parseForm(req);
 
+        // Check honeypot field first
+        if (fields.website && fields.website[0] && fields.website[0].length > 0) {
+            // Silently accept but don't process spam submissions
+            return res.status(200).json({ 
+                message: 'Solicitud enviada con éxito.'
+            });
+        }
+
+        // Type-cast formidable fields for consistent processing
+        const rawFormData = Object.entries(fields).reduce((acc, [key, value]) => {
+            if (value !== undefined) {
+                acc[key] = Array.isArray(value) ? value[0] : value;
+            }
+            return acc;
+        }, {} as Record<string, string>);
+
+        // Parse and validate the form data
+        const validationResult = modificationValidationSchema.safeParse({
+            ...rawFormData,
+            aceptaTerminosYPolitica: rawFormData.aceptaTerminosYPolitica === 'true'
+        });
+
+        if (!validationResult.success) {
+            return res.status(400).json({
+                message: 'Datos inválidos.',
+                errors: validationResult.error.flatten().fieldErrors,
+            });
+        }
+
+        const validatedData = validationResult.data;
+
         const formData: ModificationData = {
-            nombreCompleto: fields.nombreCompleto?.[0] || '',
-            numeroCedula: fields.numeroCedula?.[0] || '',
-            telefono: fields.telefono?.[0] || '',
-            email: fields.email?.[0] || '',
-            nombreAseguradora: fields.nombreAseguradora?.[0] || '',
-            numeroPoliza: fields.numeroPoliza?.[0] || '',
-            tipoSeguro: fields.tipoSeguro?.[0] || '',
-            otroSeguro: fields.otroSeguro?.[0],
-            modificaciones: fields.modificaciones?.[0] || '',
-            aceptaTerminosYPolitica: fields.aceptaTerminosYPolitica?.[0] === 'true',
+            nombreCompleto: DOMPurifyInstance.sanitize(validatedData.nombreCompleto),
+            numeroCedula: DOMPurifyInstance.sanitize(validatedData.numeroCedula),
+            telefono: DOMPurifyInstance.sanitize(validatedData.telefono),
+            email: DOMPurifyInstance.sanitize(validatedData.email),
+            nombreAseguradora: DOMPurifyInstance.sanitize(validatedData.nombreAseguradora),
+            numeroPoliza: validatedData.numeroPoliza ? DOMPurifyInstance.sanitize(validatedData.numeroPoliza) : '',
+            tipoSeguro: DOMPurifyInstance.sanitize(validatedData.tipoSeguro),
+            otroSeguro: validatedData.otroSeguro ? DOMPurifyInstance.sanitize(validatedData.otroSeguro) : undefined,
+            modificaciones: DOMPurifyInstance.sanitize(validatedData.modificaciones),
+            aceptaTerminosYPolitica: validatedData.aceptaTerminosYPolitica,
         };
 
                 const attachments: { name: string; content: string }[] = [];
@@ -200,7 +279,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(statusCode).json({ message: errorMessage });
     } finally {
         for (const path of tempFilePaths) {
-            fs.unlink(path, (err) => {
+            fs.unlink(path, (err: NodeJS.ErrnoException | null) => {
                 if (err) console.error(`Failed to delete temporary file: ${path}`, err);
             });
         }

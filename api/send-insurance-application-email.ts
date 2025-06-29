@@ -4,6 +4,8 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { sendTransactionalEmail } from '../src/utils/brevo.js';
 import formidable from 'formidable';
 import fs from 'fs';
+import { z } from 'zod';
+import { JSDOM } from 'jsdom';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 const ALLOWED_MIME_TYPES = [
@@ -75,7 +77,7 @@ interface InsuranceApplicationData {
   aceptaTerminosYPolitica: boolean;
 
   // Allow other fields that might be dynamically added or part of the broader form state
-  [key: string]: any;
+  [key: string]: string | boolean | File[] | undefined;
 }
 
 // Helper function to format form data as HTML for emails
@@ -131,13 +133,11 @@ function formatDataToHtml(
     'activosNoDeclarante', 'pasivosNoDeclarante', 'aceptaTerminosYPolitica'
   ];
 
-  // Add any keys from data that are not in orderedKeys (e.g., dynamic fields)
-  const allKeys = [...orderedKeys, ...Object.keys(data).filter(k => !orderedKeys.includes(k))];
-  const uniqueKeys = Array.from(new Set(allKeys)); // Ensure uniqueness
+  // Process only the ordered keys for email formatting
 
   for (const key of orderedKeys) {
     const label = fieldLabels[key];
-    const value = (data as any)[key];
+    const value = data[key as keyof typeof data];
 
     if (value === undefined || value === null || value === '') {
         // For non-file fields, if they are empty, don't render them.
@@ -169,7 +169,7 @@ const parseForm = (
 ): Promise<{ fields: formidable.Fields; files: formidable.Files }> => {
   return new Promise((resolve, reject) => {
     const form = formidable({});
-    form.parse(req, (err: any, fields: formidable.Fields, files: formidable.Files) => {
+    form.parse(req, (err: Error | null, fields: formidable.Fields, files: formidable.Files) => {
       if (err) {
         reject(err);
         return;
@@ -179,6 +179,43 @@ const parseForm = (
   });
 };
 
+// Backend validation schema with trimming
+const backendSchema = z.object({
+  // Personal Information
+  nombreCompleto: z.string().min(2, 'El nombre debe tener al menos 2 caracteres').max(100).transform(str => str.trim()),
+  telefono: z.string().regex(/^\+?[0-9]{10,15}$/, 'Número de teléfono inválido').transform(str => str.trim()),
+  email: z.string().email('Correo electrónico inválido').transform(str => str.trim().toLowerCase()),
+  
+  // Insurance Information
+  tipoSeguro: z.string().min(1).transform(str => str.trim()),
+  metodoPago: z.string().transform(str => str.trim()),
+  periodicidadPago: z.string().transform(str => str.trim()),
+  
+  // Conditional fields
+  numeroCedula: z.string().transform(str => str.trim()).optional(),
+  beneficiarios: z.string().transform(str => str.trim()).optional(),
+  listaBeneficiarios: z.string().transform(str => str.trim()).optional(),
+  numeroCedulaRepLegal: z.string().transform(str => str.trim()).optional(),
+  nit: z.string().transform(str => str.trim()).optional(),
+  tieneEnfermedadesDiagnosticadas: z.union([z.enum(['si', 'no']), z.literal('')]).optional(),
+  enfermedadesEspecificar: z.string().transform(str => str.trim()).optional(),
+  valorActualDeuda: z.string().transform(str => str.trim()).optional(),
+  conduceMoto: z.union([z.enum(['si', 'no']), z.literal('')]).optional(),
+  
+  // Declaration
+  declaraRenta: z.enum(['si', 'no']),
+  ingresosNoDeclarante: z.string().transform(str => str.trim()).optional(),
+  egresosNoDeclarante: z.string().transform(str => str.trim()).optional(),
+  activosNoDeclarante: z.string().transform(str => str.trim()).optional(),
+  pasivosNoDeclarante: z.string().transform(str => str.trim()).optional(),
+  
+  // Terms
+  aceptaTerminosYPolitica: z.enum(['true', 'false']).transform(val => val === 'true'),
+  
+  // Honeypot field
+  website: z.string().optional(),
+});
+
 export default async function handler(
   req: VercelRequest,
   res: VercelResponse,
@@ -187,9 +224,30 @@ export default async function handler(
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
-  let tempFilePaths: string[] = [];
+  const tempFilePaths: string[] = [];
 
   try {
+    // Dynamic imports for security modules
+    const dompurifyModule = await import('dompurify');
+    const DOMPurify = typeof dompurifyModule.default === 'function' ? dompurifyModule.default : dompurifyModule;
+    const { parse } = await import('cookie');
+    const { default: Tokens } = await import('csrf') as unknown as { default: new() => { verify: (secret: string, token: string) => boolean } };
+    const tokens = new Tokens();
+    
+    // Initialize DOMPurify with JSDOM
+    const window = new JSDOM('').window;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const DOMPurifyInstance = (DOMPurify as any)(window);
+    
+    // Verify CSRF token
+    const cookies = parse(req.headers.cookie || '');
+    const secret = cookies._csrf_secret;
+    const token = req.headers['x-csrf-token'] as string;
+    
+    if (!secret || !token || !tokens.verify(secret, token)) {
+      return res.status(403).json({ message: 'Invalid CSRF token' });
+    }
+    
     const { fields, files } = await parseForm(req);
 
     // Collect all temp file paths for reliable cleanup and validate them
@@ -201,26 +259,69 @@ export default async function handler(
 
           // Validate file size
           if (file.size > MAX_FILE_SIZE) {
-            throw new Error(`El archivo \"${file.originalFilename}\" excede el tamaño máximo de 5MB.`);
+            throw new Error(`El archivo "${file.originalFilename}" excede el tamaño máximo de 5MB.`);
           }
 
           // Validate MIME type
           if (!file.mimetype || !ALLOWED_MIME_TYPES.includes(file.mimetype)) {
-            throw new Error(`El tipo de archivo \"${file.originalFilename}\" no es válido. Solo se aceptan PDF, JPG, PNG, WEBP.`);
+            throw new Error(`El tipo de archivo "${file.originalFilename}" no es válido. Solo se aceptan PDF, JPG, PNG, WEBP.`);
           }
         }
       }
     }
 
     // Type assertion for form fields
-    const formData = Object.entries(fields).reduce((acc, [key, value]) => {
+    const rawFormData = Object.entries(fields).reduce((acc, [key, value]) => {
       if (value !== undefined) {
         // The `formidable` library wraps all field values in an array.
         // We take the first element, as we don't expect multiple values for a single field.
         acc[key] = Array.isArray(value) ? value[0] : value;
       }
       return acc;
-    }, {} as Record<string, any>) as InsuranceApplicationData;
+    }, {} as Record<string, string>);
+    
+    // Check honeypot field first
+    if (rawFormData.website && rawFormData.website.length > 0) {
+      // Silently accept but don't process spam submissions
+      return res.status(200).json({ 
+        message: 'Solicitud enviada con éxito.',
+        data: { messageId: 'spam-filtered' }
+      });
+    }
+    
+    // Validate with backend schema
+    const validationResult = backendSchema.safeParse(rawFormData);
+    
+    if (!validationResult.success) {
+      return res.status(400).json({
+        message: 'Datos inválidos.',
+        errors: validationResult.error.flatten().fieldErrors,
+      });
+    }
+    
+    const formData = validationResult.data as InsuranceApplicationData;
+    
+    // Sanitize all text fields to prevent XSS
+    const sanitizedData = {
+      ...formData,
+      nombreCompleto: DOMPurifyInstance.sanitize(formData.nombreCompleto),
+      telefono: DOMPurifyInstance.sanitize(formData.telefono),
+      email: DOMPurifyInstance.sanitize(formData.email),
+      tipoSeguro: DOMPurifyInstance.sanitize(formData.tipoSeguro),
+      metodoPago: DOMPurifyInstance.sanitize(formData.metodoPago),
+      periodicidadPago: DOMPurifyInstance.sanitize(formData.periodicidadPago),
+      numeroCedula: formData.numeroCedula ? DOMPurifyInstance.sanitize(formData.numeroCedula) : undefined,
+      beneficiarios: formData.beneficiarios ? DOMPurifyInstance.sanitize(formData.beneficiarios) : undefined,
+      listaBeneficiarios: formData.listaBeneficiarios ? DOMPurifyInstance.sanitize(formData.listaBeneficiarios) : undefined,
+      numeroCedulaRepLegal: formData.numeroCedulaRepLegal ? DOMPurifyInstance.sanitize(formData.numeroCedulaRepLegal) : undefined,
+      nit: formData.nit ? DOMPurifyInstance.sanitize(formData.nit) : undefined,
+      enfermedadesEspecificar: formData.enfermedadesEspecificar ? DOMPurifyInstance.sanitize(formData.enfermedadesEspecificar) : undefined,
+      valorActualDeuda: formData.valorActualDeuda ? DOMPurifyInstance.sanitize(formData.valorActualDeuda) : undefined,
+      ingresosNoDeclarante: formData.ingresosNoDeclarante ? DOMPurifyInstance.sanitize(formData.ingresosNoDeclarante) : undefined,
+      egresosNoDeclarante: formData.egresosNoDeclarante ? DOMPurifyInstance.sanitize(formData.egresosNoDeclarante) : undefined,
+      activosNoDeclarante: formData.activosNoDeclarante ? DOMPurifyInstance.sanitize(formData.activosNoDeclarante) : undefined,
+      pasivosNoDeclarante: formData.pasivosNoDeclarante ? DOMPurifyInstance.sanitize(formData.pasivosNoDeclarante) : undefined,
+    } as InsuranceApplicationData;
 
     const attachments: { name: string; content: string }[] = [];
     const attachedFileNames: Record<string, string[]> = {};
@@ -246,13 +347,13 @@ export default async function handler(
     const senderEmail = process.env.BREVO_SENDER_EMAIL || 'no-reply@proense.co';
     const agentEmail = process.env.AGENT_EMAIL || 'comercial@proense.co';
 
-    const formattedDataHtml = formatDataToHtml(formData, attachedFileNames);
+    const formattedDataHtml = formatDataToHtml(sanitizedData, attachedFileNames);
 
     // 1. Email to User
     const userEmailSubject = `Confirmación de tu solicitud de seguro: ${formData.tipoSeguro}`;
     const userEmailHtmlContent = `
-      <h1>¡Gracias por tu solicitud, ${formData.nombreCompleto}!</h1>
-      <p>Hemos recibido tu solicitud para un ${formData.tipoSeguro}. Un asesor se pondrá en contacto contigo pronto.</p>
+      <h1>¡Gracias por tu solicitud, ${sanitizedData.nombreCompleto}!</h1>
+      <p>Hemos recibido tu solicitud para un ${sanitizedData.tipoSeguro}. Un asesor se pondrá en contacto contigo pronto.</p>
       <p>Por favor, revisa los detalles que enviaste:</p>
       ${formattedDataHtml}
       <p>Si necesitas hacer algún cambio o tienes alguna pregunta, por favor responde a este correo o contáctanos al +57 315 586 2884 o comercial@proense.co.</p>
@@ -262,22 +363,22 @@ export default async function handler(
 
     const userBrevoPayload = {
       sender: { name: senderName, email: senderEmail },
-      to: [{ email: formData.email, name: formData.nombreCompleto }],
+      to: [{ email: sanitizedData.email, name: sanitizedData.nombreCompleto }],
       subject: userEmailSubject,
       htmlContent: userEmailHtmlContent,
     };
 
     // 2. Email to Agent
-    const agentEmailSubject = `Nueva Solicitud de Póliza: ${formData.nombreCompleto} - ${formData.tipoSeguro}`;
+    const agentEmailSubject = `Nueva Solicitud de Póliza: ${sanitizedData.nombreCompleto} - ${sanitizedData.tipoSeguro}`;
     const agentEmailHtmlContent = `
       <h1>Nueva Solicitud de Póliza Recibida</h1>
       <p>Se ha recibido una nueva solicitud de seguro a través del formulario de emisión digital.</p>
       ${formattedDataHtml}
       <p><strong>Datos de Contacto del Solicitante:</strong></p>
       <ul>
-        <li><strong>Nombre:</strong> ${formData.nombreCompleto}</li>
-        <li><strong>Email:</strong> ${formData.email}</li>
-        <li><strong>Teléfono:</strong> ${formData.telefono}</li>
+        <li><strong>Nombre:</strong> ${sanitizedData.nombreCompleto}</li>
+        <li><strong>Email:</strong> ${sanitizedData.email}</li>
+        <li><strong>Teléfono:</strong> ${sanitizedData.telefono}</li>
       </ul>
     `;
 
@@ -323,7 +424,7 @@ export default async function handler(
   } finally {
     // Reliably clean up all temporary files
     for (const path of tempFilePaths) {
-      fs.unlink(path, (err) => {
+      fs.unlink(path, (err: NodeJS.ErrnoException | null) => {
         if (err) {
           console.error(`Failed to delete temporary file: ${path}`, err);
         }

@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { PhoneInput } from '@/components/ui/phone-input';
@@ -13,7 +13,9 @@ import es from 'react-phone-number-input/locale/es.json';
 import { isValidPhoneNumber } from 'react-phone-number-input';
 import FileUpload from '@/components/forms/emision/FileUpload';
 import { useToast } from '@/hooks/use-toast';
-import { CheckCircle2 } from 'lucide-react';
+import { useCsrf } from '@/hooks/use-csrf';
+import { AlertTriangle } from 'lucide-react';
+import { FormSuccessScreen } from '@/components/shared/FormSuccessScreen';
 
 const tiposDeSeguro = [
   { value: 'vida', label: 'Seguro de Vida' },
@@ -42,6 +44,7 @@ const cancellationSchema = z.object({
   aceptaTerminosYPolitica: z.boolean().refine(val => val === true, {
     message: 'Debes aceptar la política de privacidad y los términos y condiciones para continuar.',
   }),
+  website: z.string().optional(), // Honeypot field
 }).superRefine((data, ctx) => {
   if (data.tipoSeguro === 'otro' && (!data.otroSeguro || data.otroSeguro.trim() === '')) {
     ctx.addIssue({
@@ -54,27 +57,16 @@ const cancellationSchema = z.object({
 
 type CancellationFormValues = z.infer<typeof cancellationSchema>;
 
-const SuccessScreen = ({ onReset }: { onReset: () => void }) => (
-  <div className="bg-white rounded-lg shadow-lg p-8 max-w-lg mx-auto text-center border border-green-200">
-    <CheckCircle2 className="mx-auto h-16 w-16 text-green-500 mb-4" />
-    <h2 className="text-2xl font-bold text-gray-800 mb-3">¡Solicitud de Cancelación Enviada!</h2>
-    <p className="text-gray-600 mb-4">
-      Hemos recibido tu solicitud y hemos enviado un correo electrónico a tu dirección con los detalles.
-    </p>
-    <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 my-6 text-left">
-      <p className="font-bold text-yellow-900">Importante: Acción Requerida</p>
-      <p className="text-yellow-800 mt-1">
-        Para que tu solicitud de cancelación sea procesada, es <strong>indispensable</strong> que respondas al correo que te hemos enviado confirmando tu decisión. De lo contrario, la cancelación no se hará efectiva.
-      </p>
-    </div>
-    <Button onClick={onReset} size="lg">Realizar otra solicitud</Button>
-  </div>
-);
 
-export function CancellationForm() {
+interface CancellationFormProps {
+  onSuccess?: () => void;
+}
+
+export function CancellationForm({ onSuccess }: CancellationFormProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const { token: csrfToken, loading: csrfLoading, error: csrfError, refetch: refetchCsrf } = useCsrf();
   const form = useForm<CancellationFormValues>({
     resolver: zodResolver(cancellationSchema),
     mode: 'onBlur',
@@ -90,22 +82,38 @@ export function CancellationForm() {
       cancellationReason: '',
       aceptaTerminosYPolitica: false,
       documentosAdicionales: [],
+      website: '', // Honeypot field
     },
   });
 
   const tipoSeguro = form.watch('tipoSeguro');
 
+  // Call onSuccess callback when form is submitted
+  useEffect(() => {
+    if (formSubmitted && onSuccess) {
+      onSuccess();
+    }
+  }, [formSubmitted, onSuccess]);
+
   const onSubmit: SubmitHandler<CancellationFormValues> = async (data) => {
+    // Validate CSRF token is available
+    if (!csrfToken) {
+      toast({
+        title: "Error de Seguridad",
+        description: "Token de seguridad no disponible. Por favor, recarga la página e intenta de nuevo.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     const formData = new FormData();
 
     Object.entries(data).forEach(([key, value]) => {
-      if (key === 'documentosAdicionales') {
-        if (Array.isArray(value)) {
-          value.forEach(file => {
-            formData.append(key, file);
-          });
-        }
+      if (key === 'documentosAdicionales' && Array.isArray(value)) {
+        value.forEach(file => {
+          formData.append(key, file);
+        });
       } else if (value !== null && value !== undefined) {
         formData.append(key, String(value));
       }
@@ -115,20 +123,59 @@ export function CancellationForm() {
       const response = await fetch('/api/send-cancellation-request', {
         method: 'POST',
         body: formData,
+        credentials: 'include', // Include cookies for CSRF validation
+        headers: {
+          'X-CSRF-Token': csrfToken, // Send CSRF token in header
+        },
       });
 
       const result = await response.json();
 
-      if (!response.ok) {
+      if (response.ok) {
+        setFormSubmitted(true);
+      } else {
+        // Handle CSRF-specific errors
+        if (response.status === 403 && result.message?.includes('CSRF')) {
+          toast({
+            title: "Error de Seguridad",
+            description: "Token de seguridad inválido. Recargando página...",
+            variant: "destructive",
+          });
+          // Refetch CSRF token and reload form
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
+          return;
+        }
+        
+        // Handle validation errors
+        if (response.status === 400 && result.errors) {
+          // Set field-specific errors in the form
+          Object.entries(result.errors).forEach(([field, messages]) => {
+            if (Array.isArray(messages) && messages.length > 0) {
+              form.setError(field as keyof FormData, {
+                type: 'server',
+                message: messages[0]
+              });
+            }
+          });
+          
+          toast({
+            title: "Por favor revisa los campos del formulario",
+            description: "Algunos campos tienen errores que necesitan ser corregidos.",
+            variant: "destructive",
+          });
+          return;
+        }
+        
         throw new Error(result.message || 'Error al enviar la solicitud.');
       }
-
-      setFormSubmitted(true);
-    } catch (error: any) {
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Ocurrió un problema al procesar tu solicitud. Por favor, inténtalo de nuevo.';
       toast({
         variant: 'destructive',
         title: 'Error en el envío',
-        description: error.message || 'Ocurrió un problema al procesar tu solicitud. Por favor, inténtalo de nuevo.',
+        description: errorMessage,
       });
     } finally {
       setIsSubmitting(false);
@@ -140,12 +187,48 @@ export function CancellationForm() {
     setFormSubmitted(false);
   };
 
-  if (formSubmitted) {
-    return <SuccessScreen onReset={handleReset} />;
-  }
-
   return (
-    <Form {...form}>
+    <div>
+      {formSubmitted ? (
+        <FormSuccessScreen
+          title="¡Solicitud de Cancelación Enviada!"
+          description="Hemos recibido tu solicitud y hemos enviado un correo electrónico a tu dirección con los detalles."
+          showWarning={true}
+          warningMessage="Para que tu solicitud de cancelación sea procesada, es indispensable que respondas al correo que te hemos enviado confirmando tu decisión. De lo contrario, la cancelación no se hará efectiva."
+          onDismiss={handleReset}
+          secondaryActionLabel="Realizar otra solicitud"
+          onSecondaryAction={handleReset}
+        />
+      ) : csrfLoading ? (
+        <div className="flex items-center justify-center p-8">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Cargando formulario seguro...</p>
+          </div>
+        </div>
+
+      ) : csrfError ? (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-lg mx-auto">
+          <div className="flex items-center mb-4">
+            <AlertTriangle className="h-5 w-5 text-red-600 mr-2" />
+            <h3 className="text-lg font-semibold text-red-800">Error de Seguridad</h3>
+          </div>
+          <p className="text-red-700 mb-4">
+            No se pudo cargar el token de seguridad necesario para el formulario.
+          </p>
+          <p className="text-sm text-red-600 mb-4">
+            Error: {csrfError}
+          </p>
+          <Button 
+            onClick={refetchCsrf}
+            variant="outline"
+            className="border-red-300 text-red-700 hover:bg-red-50"
+          >
+            Reintentar
+          </Button>
+        </div>
+      ) : (
+        <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormField
@@ -155,7 +238,14 @@ export function CancellationForm() {
               <FormItem>
                 <FormLabel>Nombre completo del tomador <span className="text-red-500">*</span></FormLabel>
                 <FormControl>
-                  <Input placeholder="Nombre completo" {...field} />
+                  <Input 
+                    placeholder="Nombre completo" 
+                    {...field} 
+                    autoComplete="name"
+                    required
+                    aria-required="true"
+                    disabled={isSubmitting}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -168,8 +258,18 @@ export function CancellationForm() {
               <FormItem>
                 <FormLabel>Número de cédula del tomador <span className="text-red-500">*</span></FormLabel>
                 <FormControl>
-                  <Input placeholder="Número de cédula" {...field} />
+                  <Input 
+                    placeholder="Número de cédula" 
+                    {...field} 
+                    autoComplete="on"
+                    required
+                    aria-required="true"
+                    disabled={isSubmitting}
+                  />
                 </FormControl>
+                <FormDescription>
+                  Mínimo 6 caracteres
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -181,7 +281,17 @@ export function CancellationForm() {
               <FormItem>
                 <FormLabel>Teléfono de contacto <span className="text-red-500">*</span></FormLabel>
                 <FormControl>
-                  <PhoneInput {...field} labels={es} defaultCountry="CO" searchPlaceholder="Buscar país..." />
+                  <PhoneInput 
+                    {...field} 
+                    labels={es} 
+                    defaultCountry="CO" 
+                    placeholder="300 123 4567"
+                    searchPlaceholder="Buscar país..." 
+                    autoComplete="tel"
+                    required
+                    aria-required="true"
+                    disabled={isSubmitting}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -194,7 +304,15 @@ export function CancellationForm() {
               <FormItem>
                 <FormLabel>Email de contacto <span className="text-red-500">*</span></FormLabel>
                 <FormControl>
-                  <Input type="email" placeholder="tu@email.com" {...field} />
+                  <Input 
+                    type="email" 
+                    placeholder="tu@email.com" 
+                    {...field} 
+                    autoComplete="email"
+                    required
+                    aria-required="true"
+                    disabled={isSubmitting}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -207,7 +325,14 @@ export function CancellationForm() {
               <FormItem>
                 <FormLabel>Nombre de la aseguradora <span className="text-red-500">*</span></FormLabel>
                 <FormControl>
-                  <Input placeholder="Nombre de la aseguradora" {...field} />
+                  <Input 
+                    placeholder="Nombre de la aseguradora" 
+                    {...field} 
+                    autoComplete="organization"
+                    required
+                    aria-required="true"
+                    disabled={isSubmitting}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -220,7 +345,12 @@ export function CancellationForm() {
               <FormItem>
                 <FormLabel>Número de póliza (Opcional)</FormLabel>
                 <FormControl>
-                  <Input placeholder="Número de póliza" {...field} />
+                  <Input 
+                    placeholder="Número de póliza" 
+                    {...field} 
+                    autoComplete="off"
+                    disabled={isSubmitting}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -232,9 +362,9 @@ export function CancellationForm() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>¿Qué seguro quieres cancelar? <span className="text-red-500">*</span></FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isSubmitting} required>
                   <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger aria-required="true">
                       <SelectValue placeholder="Selecciona un tipo de seguro" />
                     </SelectTrigger>
                   </FormControl>
@@ -258,7 +388,14 @@ export function CancellationForm() {
                 <FormItem>
                   <FormLabel>Especifica qué seguro <span className="text-red-500">*</span></FormLabel>
                   <FormControl>
-                    <Input placeholder="Especifica el seguro" {...field} />
+                    <Input 
+                      placeholder="Especifica el seguro" 
+                      {...field} 
+                      autoComplete="off"
+                      required
+                      aria-required="true"
+                      disabled={isSubmitting}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -277,6 +414,8 @@ export function CancellationForm() {
                   placeholder="Describe el motivo de la cancelación"
                   className="resize-none"
                   {...field}
+                  autoComplete="off"
+                  disabled={isSubmitting}
                 />
               </FormControl>
               <FormMessage />
@@ -310,10 +449,27 @@ export function CancellationForm() {
             </FormItem>
           )}
         />
-        <Button type="submit" disabled={isSubmitting} className="w-full md:w-auto">
+
+        {/* Honeypot field - hidden from users */}
+        <FormField
+          control={form.control}
+          name="website"
+          render={({ field }) => (
+            <FormItem style={{ display: 'none' }}>
+              <FormLabel>Website</FormLabel>
+              <FormControl>
+                <Input {...field} tabIndex={-1} autoComplete="off" />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+
+        <Button type="submit" disabled={isSubmitting || !csrfToken} className="w-full md:w-auto">
           {isSubmitting ? 'Enviando Solicitud...' : 'Enviar Solicitud de Cancelación'}
         </Button>
-      </form>
-    </Form>
+        </form>
+      </Form>
+      )}
+    </div>
   );
 }

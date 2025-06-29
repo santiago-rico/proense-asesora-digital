@@ -37,22 +37,22 @@ const InsuranceProductPage: React.FC<InsuranceProductPageProps> = ({ type: propT
   const routeType = params.type;
   const currentInsuranceType = propType || routeType;
 
-  if (!currentInsuranceType || !insuranceProductsData[currentInsuranceType]) {
-    return <Navigate to="/" replace />;
-  }
-
-  const data: InsuranceProductData = insuranceProductsData[currentInsuranceType];
-
-  const blogCategory = insuranceTypeToCategoryMap[currentInsuranceType];
+  const blogCategory = currentInsuranceType ? insuranceTypeToCategoryMap[currentInsuranceType] : undefined;
 
   const { data: relatedArticles, isLoading: isLoadingArticles } = useQuery<
     BlogPost[],
     Error
   >({
     queryKey: ["relatedArticles", blogCategory],
-    queryFn: () => getBlogPostsByCategory(blogCategory),
-    enabled: !!blogCategory, // Only run query if category exists
+    queryFn: () => getBlogPostsByCategory(blogCategory!),
+    enabled: !!blogCategory && !!currentInsuranceType && !!insuranceProductsData[currentInsuranceType], // Only run query if category exists and insurance type is valid
   });
+
+  if (!currentInsuranceType || !insuranceProductsData[currentInsuranceType]) {
+    return <Navigate to="/" replace />;
+  }
+
+  const data: InsuranceProductData = insuranceProductsData[currentInsuranceType];
 
   const handleScrollToForm = () => {
     document.getElementById('lead-form-section')?.scrollIntoView({ behavior: 'smooth' });

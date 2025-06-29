@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -8,12 +8,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { PhoneInput } from "@/components/ui/phone-input";
 import { isValidPhoneNumber } from "react-phone-number-input";
 import es from 'react-phone-number-input/locale/es.json';
-import { CheckCircle } from "lucide-react";
+import { FormSuccessScreen } from "@/components/shared/FormSuccessScreen";
 
 const tiposSeguro = [
   { value: "vida", label: "Seguro de Vida" },
@@ -36,6 +36,7 @@ const formSchema = z.object({
   terminos: z.boolean().refine((val) => val === true, {
     message: "Debes aceptar los términos y condiciones",
   }),
+  website: z.string().optional(), // Honeypot field
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -52,6 +53,26 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick, 
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [csrfToken, setCsrfToken] = useState('');
+
+  useEffect(() => {
+    const fetchCsrfToken = async () => {
+      try {
+        const response = await fetch('/api/csrf-token');
+        const data = await response.json();
+        setCsrfToken(data.token);
+      } catch (error) {
+        console.error('Error fetching CSRF token:', error);
+        toast({
+          title: "Error de Seguridad",
+          description: "No se pudo verificar la seguridad del formulario. Por favor, recarga la página.",
+          variant: "destructive",
+        });
+      }
+    };
+
+    fetchCsrfToken();
+  }, [toast]);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -63,6 +84,7 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick, 
       tipoSeguro: initialInsuranceType || "",
       mensaje: "",
       terminos: false,
+      website: "", // Honeypot field
     },
   });
 
@@ -75,12 +97,14 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick, 
         telefono: data.telefono,
         tipoSeguro: data.tipoSeguro,
         mensaje: data.mensaje,
+        website: data.website, // Honeypot field
       };
 
       const response = await fetch('/api/send-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken,
         },
         body: JSON.stringify(payload),
       });
@@ -88,6 +112,38 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick, 
       const result = await response.json();
 
       if (!response.ok) {
+        // Handle CSRF-specific errors
+        if (response.status === 403 && result.message?.includes('CSRF')) {
+          toast({
+            title: "Error de Seguridad",
+            description: "Token de seguridad inválido. Recargando página...",
+            variant: "destructive",
+          });
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
+          return;
+        }
+        
+        // Handle validation errors
+        if (response.status === 400 && result.errors) {
+          Object.entries(result.errors).forEach(([field, messages]) => {
+            if (Array.isArray(messages) && messages.length > 0) {
+              form.setError(field as keyof FormData, {
+                type: 'server',
+                message: messages[0]
+              });
+            }
+          });
+          
+          toast({
+            title: "Por favor revisa los campos del formulario",
+            description: "Algunos campos tienen errores que necesitan ser corregidos.",
+            variant: "destructive",
+          });
+          return;
+        }
+        
         throw new Error(result.message || 'Error al enviar la solicitud.');
       }
 
@@ -99,6 +155,7 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick, 
         tipoSeguro: initialInsuranceType || "",
         mensaje: "",
         terminos: false,
+        website: "",
       });
 
     } catch (error) {
@@ -121,14 +178,12 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick, 
 
   if (isSubmitted) {
     return (
-      <div className="bg-white p-6 rounded-lg shadow-md text-center flex flex-col items-center justify-center h-full min-h-[720px]">
-        <CheckCircle className="w-16 h-16 text-green-500 mb-4" />
-        <h3 className="text-xl font-bold mb-2">¡Solicitud Enviada!</h3>
-        <p className="text-gray-600 mb-6">Gracias por contactarnos. Un asesor se pondrá en contacto contigo pronto.</p>
-        <Button onClick={onClose} variant="secondary" className="w-full">
-          Cerrar
-        </Button>
-      </div>
+      <FormSuccessScreen
+        title="¡Solicitud Enviada!"
+        description="Gracias por contactarnos. Un asesor se pondrá en contacto contigo pronto."
+        onDismiss={onClose || handleReset}
+        className={onClose ? "" : "min-h-[720px] flex flex-col justify-center"}
+      />
     );
   }
 
@@ -143,10 +198,18 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick, 
             name="nombre"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Nombre</FormLabel>
+                <FormLabel>Nombre Completo</FormLabel>
                 <FormControl>
-                  <Input placeholder="Tu nombre" {...field} />
+                  <Input
+                    placeholder="Nombre completo"
+                    {...field}
+                    autoComplete="name"
+                    required
+                  />
                 </FormControl>
+                <FormDescription>
+                  Ingresa tu nombre completo
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -159,7 +222,12 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick, 
               <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input placeholder="tu@email.com" {...field} />
+                  <Input
+                    placeholder="tu@email.com"
+                    {...field}
+                    autoComplete="email"
+                    required
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -174,12 +242,14 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick, 
                 <FormItem className="w-full">
                   <FormLabel>Teléfono</FormLabel>
                   <FormControl>
-                    <PhoneInput 
+                    <PhoneInput
                       placeholder="Número telefónico"
-                      defaultCountry="CO" 
+                      defaultCountry="CO"
                       labels={es}
                       searchPlaceholder="Buscar país..."
-                      {...field} 
+                      {...field}
+                      autoComplete="tel"
+                      required
                     />
                   </FormControl>
                   <FormMessage />
@@ -195,7 +265,7 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick, 
               <FormItem>
                 <FormLabel>Tipo de Seguro de Interés</FormLabel>
                 <FormControl>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} defaultValue={field.value} required>
                     <SelectTrigger>
                       <SelectValue placeholder="Selecciona un tipo de seguro" />
                     </SelectTrigger>
@@ -236,6 +306,7 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick, 
                   <Checkbox
                     checked={field.value}
                     onCheckedChange={field.onChange}
+                    required
                   />
                 </FormControl>
                 <div className="space-y-1 leading-none">
@@ -257,6 +328,20 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick, 
               </FormItem>
             )}
           />
+          {/* Honeypot field for bot protection */}
+          <FormField
+            control={form.control}
+            name="website"
+            render={({ field }) => (
+              <FormItem className="sr-only">
+                <FormLabel>Website</FormLabel>
+                <FormControl>
+                  <Input {...field} tabIndex={-1} autoComplete="off" />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+
           <Button type="submit" variant="secondary" className="w-full" disabled={isLoading}>
             {isLoading ? 'Enviando...' : 'Obtener Mi Asesoría Gratuita'}
           </Button>

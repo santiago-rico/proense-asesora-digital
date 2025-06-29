@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useCallback } from "react";
 import Layout from "@/components/layout/Layout";
 import HeroBanner from "@/components/shared/HeroBanner";
 import { Button } from "@/components/ui/button";
@@ -55,6 +55,7 @@ const emergencyLines = [
 ];
 
 const ClientServicePage: React.FC<ClientServicePageProps> = ({ type, handleOpenLeadDialog }) => {
+  const formContainerRef = useRef<HTMLDivElement>(null);
 
   interface ServiceDataType {
     title: string;
@@ -125,6 +126,24 @@ const ClientServicePage: React.FC<ClientServicePageProps> = ({ type, handleOpenL
       targetElement.scrollIntoView({ behavior: "smooth" });
     }
   };
+
+  const handleFormSuccess = useCallback(() => {
+    if (formContainerRef.current) {
+      // Adaptive offset based on screen size
+      const isMobile = window.innerWidth < 768;
+      const isTablet = window.innerWidth >= 768 && window.innerWidth < 1024;
+      
+      let yOffset = -120; // Desktop offset
+      if (isMobile) {
+        yOffset = -80; // Smaller offset for mobile
+      } else if (isTablet) {
+        yOffset = -100; // Medium offset for tablets
+      }
+      
+      const y = formContainerRef.current.getBoundingClientRect().top + window.pageYOffset + yOffset;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    }
+  }, []);
 
   return (
     <Layout handleOpenLeadDialog={handleOpenLeadDialog}>
@@ -231,13 +250,13 @@ const ClientServicePage: React.FC<ClientServicePageProps> = ({ type, handleOpenL
           {/* Form Section for other types */}
           <section className="py-16 bg-gray-50" id="service-form">
             <div className="container mx-auto px-4">
-              <div className="max-w-3xl mx-auto">
+              <div className="max-w-3xl mx-auto" ref={formContainerRef}>
                 <Card>
                   <CardContent className="p-6">
                     <h2 className="text-2xl font-bold mb-6">{data.formTitle}</h2>
-                    {type === 'emision' ? <MultiStepForm /> :
-                     type === 'modificacion' ? <ModificationForm /> :
-                     type === 'cancelacion' ? <CancellationForm /> : null}
+                    {type === 'emision' ? <MultiStepForm onSuccess={handleFormSuccess} /> :
+                     type === 'modificacion' ? <ModificationForm onSuccess={handleFormSuccess} /> :
+                     type === 'cancelacion' ? <CancellationForm onSuccess={handleFormSuccess} /> : null}
                   </CardContent>
                 </Card>
               </div>
