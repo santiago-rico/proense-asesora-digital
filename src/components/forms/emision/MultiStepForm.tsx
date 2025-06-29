@@ -19,7 +19,11 @@ const steps = [
   { id: 5, name: 'Resumen y Envío', fields: ['aceptaTerminosYPolitica'] },
 ];
 
-const MultiStepForm = () => {
+interface MultiStepFormProps {
+  onSuccess?: () => void;
+}
+
+const MultiStepForm = ({ onSuccess }: MultiStepFormProps) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
@@ -118,6 +122,13 @@ const MultiStepForm = () => {
       clearErrors(fieldsForCurrentStep as (keyof FormSchemaType)[]);
     }
   }, [currentStep, clearErrors]); // `steps` is stable, not needed in dep array if defined outside component scope
+
+  // Call onSuccess callback when form is submitted
+  useEffect(() => {
+    if (formSubmitted && onSuccess) {
+      onSuccess();
+    }
+  }, [formSubmitted, onSuccess]);
 
   const handleNext = async () => {
     const fields = steps[currentStep].fields;
@@ -254,16 +265,14 @@ const MultiStepForm = () => {
     }
   };
 
-  if (formSubmitted) {
-    return (
-      <div className="bg-white rounded-lg shadow-md p-6 max-w-3xl mx-auto">
-        <SuccessScreen />
-      </div>
-    );
-  }
-
   return (
-    <FormProvider {...methods}>
+    <div>
+      {formSubmitted ? (
+        <div className="bg-white rounded-lg shadow-md p-6 max-w-3xl mx-auto">
+          <SuccessScreen />
+        </div>
+      ) : (
+        <FormProvider {...methods}>
       <div className="mb-8">
         <NumberedProgressBar currentStep={currentStep + 1} steps={steps} />
       </div>
@@ -304,8 +313,10 @@ const MultiStepForm = () => {
             </Button>
           )}
         </div>
-      </form>
-    </FormProvider>
+        </form>
+      </FormProvider>
+      )}
+    </div>
   );
 };
 

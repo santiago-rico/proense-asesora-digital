@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -73,7 +73,11 @@ const SuccessScreen = ({ onReset }: { onReset: () => void }) => (
   </div>
 );
 
-export function CancellationForm() {
+interface CancellationFormProps {
+  onSuccess?: () => void;
+}
+
+export function CancellationForm({ onSuccess }: CancellationFormProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
@@ -98,6 +102,13 @@ export function CancellationForm() {
   });
 
   const tipoSeguro = form.watch('tipoSeguro');
+
+  // Call onSuccess callback when form is submitted
+  useEffect(() => {
+    if (formSubmitted && onSuccess) {
+      onSuccess();
+    }
+  }, [formSubmitted, onSuccess]);
 
   const onSubmit: SubmitHandler<CancellationFormValues> = async (data) => {
     // Validate CSRF token is available
@@ -191,49 +202,40 @@ export function CancellationForm() {
     setFormSubmitted(false);
   };
 
-  if (formSubmitted) {
-    return <SuccessScreen onReset={handleReset} />;
-  }
-
-  // Handle CSRF loading state
-  if (csrfLoading) {
-    return (
-      <div className="flex items-center justify-center p-8">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Cargando formulario seguro...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Handle CSRF error state
-  if (csrfError) {
-    return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-lg mx-auto">
-        <div className="flex items-center mb-4">
-          <AlertTriangle className="h-5 w-5 text-red-600 mr-2" />
-          <h3 className="text-lg font-semibold text-red-800">Error de Seguridad</h3>
-        </div>
-        <p className="text-red-700 mb-4">
-          No se pudo cargar el token de seguridad necesario para el formulario.
-        </p>
-        <p className="text-sm text-red-600 mb-4">
-          Error: {csrfError}
-        </p>
-        <Button 
-          onClick={refetchCsrf}
-          variant="outline"
-          className="border-red-300 text-red-700 hover:bg-red-50"
-        >
-          Reintentar
-        </Button>
-      </div>
-    );
-  }
-
   return (
-    <Form {...form}>
+    <div>
+      {formSubmitted ? (
+        <SuccessScreen onReset={handleReset} />
+      ) : csrfLoading ? (
+        <div className="flex items-center justify-center p-8">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Cargando formulario seguro...</p>
+          </div>
+        </div>
+
+      ) : csrfError ? (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-lg mx-auto">
+          <div className="flex items-center mb-4">
+            <AlertTriangle className="h-5 w-5 text-red-600 mr-2" />
+            <h3 className="text-lg font-semibold text-red-800">Error de Seguridad</h3>
+          </div>
+          <p className="text-red-700 mb-4">
+            No se pudo cargar el token de seguridad necesario para el formulario.
+          </p>
+          <p className="text-sm text-red-600 mb-4">
+            Error: {csrfError}
+          </p>
+          <Button 
+            onClick={refetchCsrf}
+            variant="outline"
+            className="border-red-300 text-red-700 hover:bg-red-50"
+          >
+            Reintentar
+          </Button>
+        </div>
+      ) : (
+        <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormField
@@ -472,7 +474,9 @@ export function CancellationForm() {
         <Button type="submit" disabled={isSubmitting || !csrfToken} className="w-full md:w-auto">
           {isSubmitting ? 'Enviando Solicitud...' : 'Enviar Solicitud de Cancelación'}
         </Button>
-      </form>
-    </Form>
+        </form>
+      </Form>
+      )}
+    </div>
   );
 }
