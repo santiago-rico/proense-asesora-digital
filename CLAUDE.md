@@ -111,7 +111,7 @@ Required environment variables:
 - Tests are written using Vitest
 - Test files follow `*.test.ts` or `*.test.tsx` pattern
 - Run a single test file: `npm test path/to/file.test.ts`
-- Security tests available in `test-*-security.js` files
+- Security tests available in `tests/security/` directory
 
 ### Security Implementation
 
