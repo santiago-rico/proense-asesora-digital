@@ -58,4 +58,77 @@ global.IntersectionObserver = class IntersectionObserver {
   }
 };
 
-// Global test utilities and mocks can be added here
+// Pointer Events API polyfill
+class PointerEvent extends MouseEvent {
+  pointerId: number;
+  
+  constructor(type: string, props: PointerEventInit = {}) {
+    super(type, props);
+    this.pointerId = props.pointerId || 0;
+  }
+}
+
+global.PointerEvent = PointerEvent as typeof global.PointerEvent;
+
+// Add pointer capture methods to Element prototype
+if (!Element.prototype.hasPointerCapture) {
+  Element.prototype.hasPointerCapture = vi.fn(() => false);
+}
+
+if (!Element.prototype.setPointerCapture) {
+  Element.prototype.setPointerCapture = vi.fn();
+}
+
+if (!Element.prototype.releasePointerCapture) {
+  Element.prototype.releasePointerCapture = vi.fn();
+}
+
+// Enhanced scrollIntoView mock with better coverage
+Element.prototype.scrollIntoView = vi.fn(function(options?: boolean | ScrollIntoViewOptions) {
+  if (typeof options === 'object') {
+    // Handle ScrollIntoViewOptions
+    const { behavior = 'auto', block = 'start', inline = 'nearest' } = options;
+    // Mock implementation
+  }
+  // Mock implementation for boolean parameter
+});
+
+// Mock scroll methods for window
+Object.defineProperties(window, {
+  scroll: {
+    value: vi.fn(),
+    writable: true,
+  },
+  scrollTo: {
+    value: vi.fn(),
+    writable: true,
+  },
+});
+
+// Mock HTMLElement offset properties
+Object.defineProperties(HTMLElement.prototype, {
+  offsetHeight: {
+    get() {
+      return parseFloat(window.getComputedStyle(this).height) || 0;
+    },
+    configurable: true,
+  },
+  offsetWidth: {
+    get() {
+      return parseFloat(window.getComputedStyle(this).width) || 0;
+    },
+    configurable: true,
+  },
+  offsetTop: {
+    get() {
+      return 0;
+    },
+    configurable: true,
+  },
+  offsetLeft: {
+    get() {
+      return 0;
+    },
+    configurable: true,
+  },
+});
