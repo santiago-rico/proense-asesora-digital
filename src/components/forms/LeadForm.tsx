@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { PhoneInput } from "@/components/ui/phone-input";
 import { isValidPhoneNumber } from "react-phone-number-input";
@@ -112,6 +112,38 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick, 
       const result = await response.json();
 
       if (!response.ok) {
+        // Handle CSRF-specific errors
+        if (response.status === 403 && result.message?.includes('CSRF')) {
+          toast({
+            title: "Error de Seguridad",
+            description: "Token de seguridad inválido. Recargando página...",
+            variant: "destructive",
+          });
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
+          return;
+        }
+        
+        // Handle validation errors
+        if (response.status === 400 && result.errors) {
+          Object.entries(result.errors).forEach(([field, messages]) => {
+            if (Array.isArray(messages) && messages.length > 0) {
+              form.setError(field as keyof FormData, {
+                type: 'server',
+                message: messages[0]
+              });
+            }
+          });
+          
+          toast({
+            title: "Por favor revisa los campos del formulario",
+            description: "Algunos campos tienen errores que necesitan ser corregidos.",
+            variant: "destructive",
+          });
+          return;
+        }
+        
         throw new Error(result.message || 'Error al enviar la solicitud.');
       }
 
@@ -177,6 +209,9 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick, 
                     required
                   />
                 </FormControl>
+                <FormDescription>
+                  Ingresa tu nombre completo
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}

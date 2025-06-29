@@ -188,6 +188,53 @@ const MultiStepForm = () => {
         // Reset form after successful submission if needed
         // methods.reset();
       } else {
+        // Handle CSRF-specific errors
+        if (response.status === 403 && result.message?.includes('CSRF')) {
+          toast({
+            title: "Error de Seguridad",
+            description: "Token de seguridad inválido. Recargando página...",
+            variant: "destructive",
+          });
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
+          return;
+        }
+        
+        // Handle validation errors
+        if (response.status === 400 && result.errors) {
+          // Find the first step that has an error
+          let stepWithError = -1;
+          
+          Object.entries(result.errors).forEach(([field, messages]) => {
+            if (Array.isArray(messages) && messages.length > 0) {
+              methods.setError(field as keyof FormSchemaType, {
+                type: 'server',
+                message: messages[0]
+              });
+              
+              // Find which step contains this field
+              steps.forEach((step, index) => {
+                if (step.fields.includes(field) && stepWithError === -1) {
+                  stepWithError = index;
+                }
+              });
+            }
+          });
+          
+          // Navigate to the step with the first error
+          if (stepWithError !== -1 && stepWithError !== currentStep) {
+            setCurrentStep(stepWithError);
+          }
+          
+          toast({
+            title: "Por favor revisa los campos del formulario",
+            description: "Algunos campos tienen errores que necesitan ser corregidos.",
+            variant: "destructive",
+          });
+          return;
+        }
+        
         toast({
           variant: "destructive",
           title: "Error al Enviar Solicitud",

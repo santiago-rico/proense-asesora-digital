@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { PhoneInput } from '@/components/ui/phone-input';
@@ -151,6 +151,26 @@ export const ModificationForm = () => {
           }, 2000);
           return;
         }
+        
+        // Handle validation errors
+        if (response.status === 400 && result.errors) {
+          Object.entries(result.errors).forEach(([field, messages]) => {
+            if (Array.isArray(messages) && messages.length > 0) {
+              form.setError(field as keyof ModificationFormValues, {
+                type: 'server',
+                message: messages[0]
+              });
+            }
+          });
+          
+          toast({
+            title: "Por favor revisa los campos del formulario",
+            description: "Algunos campos tienen errores que necesitan ser corregidos.",
+            variant: "destructive",
+          });
+          return;
+        }
+        
         throw new Error(result.message || 'Ocurrió un error al enviar el formulario.');
       }
     } catch (error) {
@@ -249,6 +269,9 @@ export const ModificationForm = () => {
                     disabled={isSubmitting}
                   />
                 </FormControl>
+                <FormDescription>
+                  Ingresa tu número de cédula sin puntos ni espacios
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
