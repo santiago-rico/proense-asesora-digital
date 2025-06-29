@@ -1,7 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { serialize } from 'cookie';
+import { withRateLimit, rateLimitConfigs } from './utils/rate-limiter.js';
 
-export default async function handler(
+async function handler(
   req: VercelRequest,
   res: VercelResponse,
 ) {
@@ -35,3 +36,6 @@ export default async function handler(
     res.status(500).json({ error: 'Internal server error' });
   }
 }
+
+// Export the handler with rate limiting applied (more lenient for CSRF tokens)
+export default withRateLimit(rateLimitConfigs.csrf, handler);

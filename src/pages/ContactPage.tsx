@@ -3,6 +3,7 @@ import React from "react";
 import Layout from "@/components/layout/Layout";
 import LeadForm from "@/components/forms/LeadForm";
 import { Phone, Mail, Facebook, Instagram } from "lucide-react";
+import OptimizedImage from "@/components/shared/OptimizedImage";
 
 interface ContactPageProps {
   handleOpenLeadDialog: () => void;
@@ -12,10 +13,15 @@ const ContactPage: React.FC<ContactPageProps> = ({ handleOpenLeadDialog }) => {
   return (
     <Layout handleOpenLeadDialog={handleOpenLeadDialog}>
       {/* Hero Section */}
-      <div 
-        className="bg-[url('/images/hero-contact.jpg')] bg-cover bg-center text-white py-24 md:py-32 relative"
-        style={{ backgroundPosition: 'center 15%' }}
-      >
+      <div className="relative text-white py-24 md:py-32 overflow-hidden">
+        <OptimizedImage
+          src="/images/hero-contact.jpg"
+          alt="Contacto Proense Seguros"
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{ objectPosition: 'center 15%' }}
+          loading="eager"
+          sizes="100vw"
+        />
         <div className="absolute inset-0 bg-black opacity-50"></div>
         <div className="container mx-auto px-4 relative z-10">
           <h1 className="text-4xl md:text-5xl font-bold mb-6 text-center">

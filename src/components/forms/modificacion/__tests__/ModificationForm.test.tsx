@@ -34,7 +34,6 @@ vi.mock('@/components/forms/emision/FileUpload', () => ({
 }));
 
 describe('ModificationForm', () => {
-  const user = userEvent.setup();
   const mockToast = vi.fn();
 
   beforeEach(() => {
@@ -42,7 +41,7 @@ describe('ModificationForm', () => {
     vi.clearAllMocks();
     
     // Default CSRF mock - successful state
-    vi.mocked(useCsrf).mockReturnValue({
+    (useCsrf as ReturnType<typeof vi.fn>).mockReturnValue({
       token: 'test-csrf-token-123',
       loading: false,
       error: null,
@@ -50,7 +49,7 @@ describe('ModificationForm', () => {
     });
 
     // Mock useToast
-    vi.mocked(useToast).mockReturnValue({ toast: mockToast });
+    (useToast as ReturnType<typeof vi.fn>).mockReturnValue({ toast: mockToast });
 
     // Mock successful fetch response
     (global.fetch as vi.Mock).mockResolvedValue({
@@ -97,7 +96,7 @@ describe('ModificationForm', () => {
 
   describe('CSRF Token Integration', () => {
     it('shows loading state when CSRF token is loading', () => {
-      vi.mocked(useCsrf).mockReturnValue({
+      (useCsrf as ReturnType<typeof vi.fn>).mockReturnValue({
         token: null,
         loading: true,
         error: null,
@@ -112,7 +111,7 @@ describe('ModificationForm', () => {
 
     it('shows error state when CSRF token fails to load', () => {
       const mockRefetch = vi.fn();
-      vi.mocked(useCsrf).mockReturnValue({
+      (useCsrf as ReturnType<typeof vi.fn>).mockReturnValue({
         token: null,
         loading: false,
         error: 'Failed to fetch token',
@@ -129,7 +128,7 @@ describe('ModificationForm', () => {
     });
 
     it('disables submit button when CSRF token is not available', () => {
-      vi.mocked(useCsrf).mockReturnValue({
+      (useCsrf as ReturnType<typeof vi.fn>).mockReturnValue({
         token: null,
         loading: false,
         error: null,
@@ -145,6 +144,7 @@ describe('ModificationForm', () => {
 
   describe('Form Validation', () => {
     it('validates required fields', async () => {
+      const user = userEvent.setup();
       render(<ModificationForm />);
       
       const submitButton = screen.getByRole('button', { name: /enviar solicitud/i });
@@ -159,6 +159,7 @@ describe('ModificationForm', () => {
     });
 
     it('validates email format', async () => {
+      const user = userEvent.setup();
       render(<ModificationForm />);
       
       const emailField = screen.getByLabelText(/correo electrónico/i);
@@ -173,6 +174,7 @@ describe('ModificationForm', () => {
     });
 
     it('validates conditional otroSeguro field', async () => {
+      const user = userEvent.setup();
       render(<ModificationForm />);
       
       // Select "otro" option for tipo de seguro
@@ -197,6 +199,7 @@ describe('ModificationForm', () => {
     });
 
     it('requires terms and conditions acceptance', async () => {
+      const user = userEvent.setup();
       render(<ModificationForm />);
       
       // Fill required fields but don't accept terms
@@ -250,6 +253,7 @@ describe('ModificationForm', () => {
 
   describe('Form Submission', () => {
     it('submits form with valid data and CSRF token', async () => {
+      const user = userEvent.setup();
       render(<ModificationForm />);
       
       // Fill out form
@@ -370,7 +374,7 @@ describe('ModificationForm', () => {
     });
 
     it('prevents submission without CSRF token', async () => {
-      vi.mocked(useCsrf).mockReturnValue({
+      (useCsrf as ReturnType<typeof vi.fn>).mockReturnValue({
         token: null,
         loading: false,
         error: null,
@@ -423,6 +427,7 @@ describe('ModificationForm', () => {
     });
 
     it('disables form fields during submission', async () => {
+      const user = userEvent.setup();
       // Mock slow response
       (global.fetch as vi.Mock).mockImplementation(() => 
         new Promise<Response>(resolve => setTimeout(() => resolve({} as Response), 1000))

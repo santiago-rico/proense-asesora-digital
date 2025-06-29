@@ -16,38 +16,32 @@
     --primary: 222.2 47.4% 11.2%;
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 210 40% 96.1%;
+    --secondary: 210 40% 94%;
     --secondary-foreground: 222.2 47.4% 11.2%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Improved muted contrast for better readability */
+    --muted: 210 40% 93%;
+    --muted-foreground: 215.4 16.3% 35%; /* Darker for better contrast */
 
-    --accent: 210 40% 96.1%;
+    --accent: 210 40% 94%;
     --accent-foreground: 222.2 47.4% 11.2%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
+    --border: 214.3 31.8% 87%; /* Slightly darker for better visibility */
+    --input: 214.3 31.8% 87%;
     --ring: 222.2 84% 4.9%;
 
     --radius: 0.5rem;
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
@@ -97,5 +91,117 @@
 
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* Accessibility Improvements */
+@layer utilities {
+  /* Enhanced focus indicators for better accessibility */
+  .focus-visible-enhanced {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2;
+  }
+  
+  /* High contrast focus for interactive elements */
+  .focus-high-contrast {
+    @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background;
+  }
+  
+  /* Skip link styling for screen readers */
+  .skip-link {
+    @apply sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:no-underline;
+  }
+  
+  /* Ensure minimum tap target size for mobile accessibility */
+  .tap-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+  
+  /* High contrast text for better readability */
+  .text-high-contrast {
+    color: hsl(var(--foreground));
+    text-shadow: 0 0 1px rgba(0, 0, 0, 0.01);
+  }
+  
+  /* Focus ring for form elements */
+  .form-focus {
+    @apply focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:border-primary focus:outline-none;
+  }
+}
+
+/* Global focus improvements for all interactive elements */
+@layer base {
+  /* Ensure all interactive elements have visible focus indicators */
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  [role="button"]:focus-visible,
+  [role="link"]:focus-visible,
+  [tabindex]:focus-visible {
+    @apply outline-none ring-2 ring-primary ring-offset-2 ring-offset-background;
+  }
+  
+  /* Remove default browser outline and use custom focus styles */
+  a:focus,
+  button:focus,
+  input:focus,
+  select:focus,
+  textarea:focus {
+    outline: none;
+  }
+  
+  /* Ensure form controls have proper focus styles */
+  input:not([type="checkbox"]):not([type="radio"]):focus,
+  select:focus,
+  textarea:focus {
+    @apply border-primary ring-2 ring-primary ring-offset-2;
+  }
+  
+  /* Special focus styles for checkboxes and radio buttons */
+  input[type="checkbox"]:focus-visible,
+  input[type="radio"]:focus-visible {
+    @apply ring-2 ring-primary ring-offset-2;
+  }
+  
+  /* Ensure proper heading hierarchy */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold;
+  }
+  
+  /* Improve link underlines for better visibility */
+  a:not(.no-underline) {
+    @apply underline-offset-2;
+  }
+  
+  /* Ensure images have proper aspect ratio */
+  img {
+    @apply max-w-full h-auto;
+  }
+  
+  /* Screen reader only content */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+  
+  /* Make sr-only content visible when focused */
+  .sr-only:focus {
+    position: absolute;
+    width: auto;
+    height: auto;
+    padding: 0.5rem 1rem;
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+    z-index: 9999;
   }
 }

@@ -14,18 +14,7 @@ import { PhoneInput } from "@/components/ui/phone-input";
 import { isValidPhoneNumber } from "react-phone-number-input";
 import es from 'react-phone-number-input/locale/es.json';
 import { FormSuccessScreen } from "@/components/shared/FormSuccessScreen";
-
-const tiposSeguro = [
-  { value: "vida", label: "Seguro de Vida" },
-  { value: "salud", label: "Seguro de Salud" },
-  { value: "hogar", label: "Seguro de Hogar" },
-  { value: "auto", label: "Seguro de Auto" },
-  { value: "viaje", label: "Seguro de Viaje" },
-  { value: "arl", label: "ARL" },
-  { value: "empresarial", label: "Seguro Empresarial" },
-  { value: "mascotas", label: "Seguro para Mascotas" },
-  // Add more as needed
-];
+import { LEAD_FORM_INSURANCE_TYPES } from "@/constants/insuranceTypes";
 
 const formSchema = z.object({
   nombre: z.string().min(2, { message: "El nombre es requerido" }),
@@ -270,7 +259,7 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick, 
                       <SelectValue placeholder="Selecciona un tipo de seguro" />
                     </SelectTrigger>
                     <SelectContent>
-                      {tiposSeguro.map((tipo) => (
+                      {LEAD_FORM_INSURANCE_TYPES.map((tipo) => (
                         <SelectItem key={tipo.value} value={tipo.value}>
                           {tipo.label}
                         </SelectItem>

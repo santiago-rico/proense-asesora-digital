@@ -3,6 +3,7 @@ import Layout from "@/components/layout/Layout";
 import HeroBanner from "@/components/shared/HeroBanner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import OptimizedImage from "@/components/shared/OptimizedImage";
 
 const paymentLinks = [
   {
@@ -69,7 +70,7 @@ const PaymentsPage: React.FC<{ handleOpenLeadDialog: () => void; }> = ({ handleO
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {paymentLinks.map((company) => (
               <Card key={company.name} className="flex flex-col items-center p-6 text-center shadow-lg rounded-lg">
-                <img src={company.logo} alt={company.alt} className="h-20 mb-6 object-contain" />
+                <OptimizedImage src={company.logo} alt={company.alt} className="h-20 mb-6 object-contain" loading="lazy" />
                 <Button asChild className="mt-auto">
                   <a href={company.url} target="_blank" rel="noopener noreferrer">
                     Ir a pagar

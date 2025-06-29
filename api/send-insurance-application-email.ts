@@ -6,6 +6,7 @@ import formidable from 'formidable';
 import fs from 'fs';
 import { z } from 'zod';
 import { JSDOM } from 'jsdom';
+import { withRateLimit, rateLimitConfigs } from './utils/rate-limiter.js';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 const ALLOWED_MIME_TYPES = [
@@ -216,7 +217,7 @@ const backendSchema = z.object({
   website: z.string().optional(),
 });
 
-export default async function handler(
+async function handler(
   req: VercelRequest,
   res: VercelResponse,
 ) {
@@ -432,3 +433,6 @@ export default async function handler(
     }
   }
 }
+
+// Export the handler with rate limiting applied
+export default withRateLimit(rateLimitConfigs.forms, handler);

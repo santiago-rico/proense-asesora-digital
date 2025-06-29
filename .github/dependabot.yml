@@ -1,0 +1,78 @@
+version: 2
+updates:
+  # Enable version updates for npm
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    # Group updates to reduce PR noise
+    groups:
+      dependencies:
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "@types/*"
+          - "eslint*"
+          - "typescript"
+          - "vite"
+          - "vitest"
+      devDependencies:
+        dependency-type: "development"
+        patterns:
+          - "@types/*"
+          - "eslint*"
+          - "typescript"
+          - "vite"
+          - "vitest"
+    # Limit number of open PRs
+    open-pull-requests-limit: 5
+    # Add labels
+    labels:
+      - "dependencies"
+      - "automated"
+    # Commit message preferences
+    commit-message:
+      prefix: "chore"
+      prefix-development: "chore"
+      include: "scope"
+    # Review and merge settings
+    reviewers:
+      - "@santi" # Replace with actual maintainer username
+    assignees:
+      - "@santi" # Replace with actual maintainer username
+    
+  # Enable version updates for Sanity Studio (if it has its own package.json)
+  - package-ecosystem: "npm"
+    directory: "/proense-asesora-digital"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "10:00"
+      timezone: "UTC"
+    labels:
+      - "dependencies"
+      - "sanity-studio"
+      - "automated"
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+      
+  # Enable version updates for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "11:00"
+      timezone: "UTC"
+    labels:
+      - "github-actions"
+      - "automated"
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "ci"
+      include: "scope"

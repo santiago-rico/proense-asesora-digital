@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import MultiStepForm from "@/components/forms/emision/MultiStepForm";
 import { CancellationForm } from '@/components/forms/cancelacion/CancellationForm';
 import { ModificationForm } from '@/components/forms/modificacion/ModificationForm';
+import OptimizedImage from "@/components/shared/OptimizedImage";
 
 interface ClientServicePageProps {
   type: "emision" | "modificacion" | "cancelacion" | "siniestro";
@@ -196,7 +197,7 @@ const ClientServicePage: React.FC<ClientServicePageProps> = ({ type, handleOpenL
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
                 {emergencyLines.map((company) => (
                   <Card key={company.name} className="flex flex-col items-center p-6 text-center shadow-lg rounded-lg">
-                    <img src={company.logo} alt={company.alt} className="h-16 mb-4 object-contain" />
+                    <OptimizedImage src={company.logo} alt={company.alt} className="h-16 mb-4 object-contain" loading="lazy" />
                     <div className="space-y-2">
                       {company.phoneLines.map((line) => {
                         let href = "";

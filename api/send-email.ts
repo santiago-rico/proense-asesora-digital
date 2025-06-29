@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { z } from 'zod';
 import { JSDOM } from 'jsdom';
+import { withRateLimit, rateLimitConfigs } from './utils/rate-limiter.js';
 
 // Define the validation schema with Zod
 const leadFormSchema = z.object({
@@ -12,7 +13,7 @@ const leadFormSchema = z.object({
   website: z.string().optional(), // Honeypot field
 });
 
-export default async function handler(
+async function handler(
   req: VercelRequest,
   res: VercelResponse,
 ) {
@@ -145,3 +146,6 @@ export default async function handler(
     return res.status(500).json({ message: errorMessage });
   }
 }
+
+// Export the handler with rate limiting applied
+export default withRateLimit(rateLimitConfigs.forms, handler);

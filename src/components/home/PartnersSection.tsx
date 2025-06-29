@@ -1,5 +1,6 @@
 
 import React from "react";
+import OptimizedImage from "@/components/shared/OptimizedImage";
 
 const partnerLogos = [
   {
@@ -38,10 +39,11 @@ const PartnersSection: React.FC = () => {
         <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16">
           {partnerLogos.map((partner, index) => (
             <div key={index} className="w-32 md:w-40 lg:w-48 p-2 flex items-center justify-center">
-              <img 
+              <OptimizedImage 
                 src={partner.image} 
                 alt={partner.alt} 
                 className="w-full h-auto object-contain max-h-20"
+                loading="lazy"
               />
             </div>
           ))}

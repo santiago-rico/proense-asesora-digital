@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -16,19 +16,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useCsrf } from '@/hooks/use-csrf';
 import { AlertTriangle } from 'lucide-react';
 import { FormSuccessScreen } from '@/components/shared/FormSuccessScreen';
-
-const tiposDeSeguro = [
-  { value: 'vida', label: 'Seguro de Vida' },
-  { value: 'salud', label: 'Seguro de Salud' },
-  { value: 'auto', label: 'Seguro de Auto' },
-  { value: 'hogar', label: 'Seguro de Hogar' },
-  { value: 'pymes', label: 'Seguro para PYMES' },
-  { value: 'mascotas', label: 'Seguro de Mascotas' },
-  { value: 'motos', label: 'Seguro de Motos' },
-  { value: 'arrendamiento', label: 'Seguro de Arrendamiento' },
-  { value: 'viaje', label: 'Seguro de Viaje' },
-  { value: 'otro', label: 'Otro' },
-];
+import { SERVICE_FORM_INSURANCE_TYPES } from '@/constants/insuranceTypes';
 
 const modificationSchema = z.object({
   documentosAdicionales: z.any().optional(),
@@ -369,7 +357,7 @@ export const ModificationForm = ({ onSuccess }: ModificationFormProps) => {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {tiposDeSeguro.map((tipo) => (
+                    {SERVICE_FORM_INSURANCE_TYPES.map((tipo) => (
                       <SelectItem key={tipo.value} value={tipo.value}>
                         {tipo.label}
                       </SelectItem>

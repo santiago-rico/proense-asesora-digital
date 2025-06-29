@@ -2,16 +2,22 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Phone, Mail, Home, MessageCircle } from "lucide-react";
+import OptimizedImage from "@/components/shared/OptimizedImage";
 
 const Footer: React.FC = () => {
   return (
-    <footer className="bg-gray-900 text-white pt-12 pb-6">
+    <footer id="footer" className="bg-gray-900 text-white pt-12 pb-6" role="contentinfo">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
           {/* Company Info */}
           <div className="mb-6 md:mb-0">
             <Link to="/" className="inline-flex items-center mb-4 space-x-2">
-              <img src="/images/logo.png" alt="Proense Seguros" className="h-8" />
+              <OptimizedImage 
+                src="/images/logo.png" 
+                alt="Proense Seguros" 
+                className="h-8" 
+                loading="lazy"
+              />
               <span className="text-white text-2xl font-bold">Proense Seguros</span>
             </Link>
             <p className="text-gray-300 mb-4">

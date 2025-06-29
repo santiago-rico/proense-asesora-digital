@@ -22,6 +22,7 @@ function Index({ handleOpenLeadDialog }: IndexProps) {
         ctaText="Solicitar asesoría gratuita"
         handleOpenLeadDialog={handleOpenLeadDialog}
         backgroundImage="/images/hero-image.jpg"
+        useOptimizedImage={true}
       />
 
       {/* Insurance Types */}

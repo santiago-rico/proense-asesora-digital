@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { urlFor } from "@/sanity/imageUrl";
 import { SanityImageSource } from "@sanity/image-url/lib/types/types";
+import OptimizedImage from "@/components/shared/OptimizedImage";
 
 interface SanityImageAsset {
   _type: 'image';
@@ -63,10 +64,12 @@ const BlogPostCard: React.FC<BlogPostCardProps> = ({ post }) => {
   return (
     <Card className="overflow-hidden flex flex-col h-full hover:shadow-lg transition-shadow duration-300">
       <div className="aspect-video overflow-hidden">
-        <img
+        <OptimizedImage
           src={urlFor(post.featuredImage).width(800).url()}
           alt={post.title}
           className="object-cover w-full h-full transition-transform duration-300 hover:scale-105"
+          loading="lazy"
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
         />
       </div>
       <CardHeader className="p-4">
