@@ -310,7 +310,7 @@ describe('useCsrf', () => {
     });
 
     // Mock a delayed response for refetch
-    let resolvePromise: (value: any) => void;
+    let resolvePromise: (value: unknown) => void;
     const delayedPromise = new Promise((resolve) => {
       resolvePromise = resolve;
     });
@@ -398,8 +398,7 @@ describe('useCsrf', () => {
     });
 
     // Setup mock for concurrent calls
-    let resolveCount = 0;
-    const resolvers: Array<(value: any) => void> = [];
+    const resolvers: Array<(value: unknown) => void> = [];
     
     (fetch as vi.Mock).mockImplementation(() => {
       return new Promise((resolve) => {

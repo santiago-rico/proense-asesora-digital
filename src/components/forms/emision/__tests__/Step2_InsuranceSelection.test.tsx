@@ -12,8 +12,23 @@ import { formSchema, type FormSchemaType } from '../formSchema';
 import userEvent from '@testing-library/user-event';
 
 // Mock the Select components for consistent testing
+interface MockSelectProps {
+  children?: React.ReactNode;
+  onValueChange?: (value: string) => void;
+  value?: string;
+}
+
+interface MockSelectItemProps {
+  children?: React.ReactNode;
+  value?: string;
+}
+
+interface MockSelectValueProps {
+  placeholder?: string;
+}
+
 vi.mock('@/components/ui/select', () => ({
-  Select: ({ children, onValueChange, value }: any) => (
+  Select: ({ children, onValueChange, value }: MockSelectProps) => (
     <div>
       {children}
       <select 
@@ -25,31 +40,37 @@ vi.mock('@/components/ui/select', () => ({
       </select>
     </div>
   ),
-  SelectContent: ({ children }: any) => <>{children}</>,
-  SelectItem: ({ children, value }: any) => (
+  SelectContent: ({ children }: { children?: React.ReactNode }) => <>{children}</>,
+  SelectItem: ({ children, value }: MockSelectItemProps) => (
     <option value={value}>{children}</option>
   ),
-  SelectTrigger: ({ children }: any) => <>{children}</>,
-  SelectValue: ({ placeholder }: any) => <span data-testid="select-placeholder">{placeholder}</span>,
+  SelectTrigger: ({ children }: { children?: React.ReactNode }) => <>{children}</>,
+  SelectValue: ({ placeholder }: MockSelectValueProps) => <span data-testid="select-placeholder">{placeholder}</span>,
 }));
 
 // Mock the Form components to work better with React Hook Form
+import { Controller } from 'react-hook-form';
+
+interface MockFormFieldProps {
+  control: unknown;
+  name: string;
+  render: (props: unknown) => React.ReactElement;
+}
+
 vi.mock('@/components/ui/form', () => {
   return {
-    FormControl: ({ children }: any) => <>{children}</>,
-    FormField: ({ control, name, render }: any) => {
-      // Import Controller directly in the test file scope to avoid issues
-      const { Controller } = require('react-hook-form');
+    FormControl: ({ children }: { children?: React.ReactNode }) => <>{children}</>,
+    FormField: ({ control, name, render }: MockFormFieldProps) => {
       return Controller({ control, name, render });
     },
-    FormItem: ({ children }: any) => <div data-testid="form-item">{children}</div>,
-    FormLabel: ({ children }: any) => <label>{children}</label>,
+    FormItem: ({ children }: { children?: React.ReactNode }) => <div data-testid="form-item">{children}</div>,
+    FormLabel: ({ children }: { children?: React.ReactNode }) => <label>{children}</label>,
     FormMessage: () => <div data-testid="form-message"></div>,
   };
 });
 
 // Test wrapper component
-const TestWrapper = ({ children, defaultValues = {} }: { children: React.ReactNode, defaultValues?: any }) => {
+const TestWrapper = ({ children, defaultValues = {} }: { children: React.ReactNode, defaultValues?: Partial<FormSchemaType> }) => {
   const methods = useForm<FormSchemaType>({
     resolver: zodResolver(formSchema),
     defaultValues: {

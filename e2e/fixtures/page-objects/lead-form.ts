@@ -211,7 +211,7 @@ export class LeadFormPage extends BasePage {
       
       // Check that no script was executed
       const alertCount = await this.page.evaluate(() => {
-        return (window as any).testAlertCount || 0;
+        return (window as Record<string, unknown>).testAlertCount || 0;
       });
       expect(alertCount).toBe(0);
       

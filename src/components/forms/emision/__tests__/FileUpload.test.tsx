@@ -12,11 +12,17 @@ import { formSchema, type FormSchemaType } from '../formSchema';
 import userEvent from '@testing-library/user-event';
 
 // Mock implementation for react-dropzone
-let mockDropzoneConfig: any = null;
+interface MockDropzoneConfig {
+  accept?: Record<string, string[]>;
+  onDropAccepted?: (files: File[]) => void;
+  onDropRejected?: (fileRejections: { file: File; errors: { code: string; message: string }[] }[]) => void;
+}
+
+let mockDropzoneConfig: MockDropzoneConfig | null = null;
 
 // Mock react-dropzone - must be hoisted before usage
 vi.mock('react-dropzone', () => ({
-  useDropzone: vi.fn((config: any) => {
+  useDropzone: vi.fn((config: MockDropzoneConfig) => {
     mockDropzoneConfig = config;
     return {
       getRootProps: () => ({
@@ -40,7 +46,7 @@ vi.mock('react-dropzone', () => ({
 const getMockUseDropzone = () => vi.mocked(vi.importMock('react-dropzone')).useDropzone;
 
 // Test wrapper component
-const TestWrapper = ({ children, defaultValues = {} }: { children: React.ReactNode, defaultValues?: any }) => {
+const TestWrapper = ({ children, defaultValues = {} }: { children: React.ReactNode, defaultValues?: Partial<FormSchemaType> }) => {
   const methods = useForm<FormSchemaType>({
     resolver: zodResolver(formSchema),
     defaultValues: {

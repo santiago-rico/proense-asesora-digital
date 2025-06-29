@@ -16,7 +16,7 @@ const createTestFile = (name: string, type: string, size: number = 1024) => {
 };
 
 // Base valid data for testing
-const getBaseValidData = (overrides: Partial<FormSchemaType> = {}): any => ({
+const getBaseValidData = (overrides: Partial<FormSchemaType> = {}): Record<string, unknown> => ({
   nombreCompleto: 'Juan Carlos Pérez',
   telefono: '+573001234567', // Valid Colombian mobile number
   email: 'test@example.com',
@@ -883,7 +883,7 @@ describe('FormSchema Validation Tests', () => {
 
     it('validates enum fields with invalid values', () => {
       const data = getBaseValidData({ 
-        declaraRenta: 'maybe' as any, // Invalid enum value
+        declaraRenta: 'maybe' as 'si' | 'no', // Invalid enum value
       });
       
       const result = formSchema.safeParse(data);

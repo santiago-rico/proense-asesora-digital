@@ -1,4 +1,6 @@
-import { chromium, FullConfig } from '@playwright/test';
+import { chromium, FullConfig, Page } from '@playwright/test';
+import * as fs from 'fs';
+import * as path from 'path';
 
 async function globalSetup(config: FullConfig) {
   console.log('Starting global setup...');
@@ -52,7 +54,7 @@ async function globalSetup(config: FullConfig) {
 /**
  * Set up test data and initial state
  */
-async function setupTestData(page: any, baseURL: string) {
+async function setupTestData(page: Page, baseURL: string) {
   console.log('Setting up test data...');
 
   // Clear any existing test data
@@ -64,8 +66,6 @@ async function setupTestData(page: any, baseURL: string) {
   }
 
   // Create test directories
-  const fs = require('fs');
-  const path = require('path');
   
   const testDirs = [
     'test-results',
@@ -91,7 +91,7 @@ async function setupTestData(page: any, baseURL: string) {
 /**
  * Seed test data if needed
  */
-async function seedTestData(page: any, baseURL: string) {
+async function seedTestData(page: Page, baseURL: string) {
   // Example: Create test users, test content, etc.
   // This would depend on your application's needs
   

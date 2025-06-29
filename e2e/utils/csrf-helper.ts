@@ -52,9 +52,9 @@ export class CSRFHelper {
    */
   async makeAuthenticatedRequest(
     url: string, 
-    data: any, 
+    data: Record<string, unknown>, 
     options: { headers?: Record<string, string> } = {}
-  ): Promise<any> {
+  ): Promise<Response> {
     const token = await this.getCSRFToken();
     
     const response = await this.page.request.post(url, {
@@ -99,7 +99,7 @@ export class CSRFHelper {
   /**
    * Tests CSRF protection by sending request without token
    */
-  async testCSRFProtection(url: string, data: any): Promise<boolean> {
+  async testCSRFProtection(url: string, data: Record<string, unknown>): Promise<boolean> {
     try {
       const response = await this.page.request.post(url, {
         data: JSON.stringify(data),
@@ -120,7 +120,7 @@ export class CSRFHelper {
   /**
    * Tests CSRF token validation with invalid token
    */
-  async testInvalidCSRFToken(url: string, data: any): Promise<boolean> {
+  async testInvalidCSRFToken(url: string, data: Record<string, unknown>): Promise<boolean> {
     try {
       const response = await this.page.request.post(url, {
         data: JSON.stringify(data),

@@ -68,7 +68,7 @@ class PointerEvent extends MouseEvent {
   }
 }
 
-global.PointerEvent = PointerEvent as any;
+global.PointerEvent = PointerEvent as typeof global.PointerEvent;
 
 // Add pointer capture methods to Element prototype
 if (!Element.prototype.hasPointerCapture) {

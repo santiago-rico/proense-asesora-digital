@@ -187,7 +187,7 @@ export class BasePage {
   }
 
   // Network helpers
-  async interceptNetworkRequest(url: string, response: any): Promise<void> {
+  async interceptNetworkRequest(url: string, response: Record<string, unknown>): Promise<void> {
     await this.page.route(url, async (route) => {
       await route.fulfill({
         status: 200,

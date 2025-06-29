@@ -7,9 +7,9 @@ import { testData } from '../../fixtures/test-data';
 
 test.describe('Insurance Application Flow', () => {
   let insuranceFormPage: InsuranceFormPage;
-  let csrfHelper: any;
-  let fileUploadHelper: any;
-  let testHelpers: any;
+  let csrfHelper: ReturnType<typeof createCSRFHelper>;
+  let fileUploadHelper: ReturnType<typeof createFileUploadHelper>;
+  let testHelpers: ReturnType<typeof createTestHelpers>;
 
   test.beforeEach(async ({ page }) => {
     insuranceFormPage = new InsuranceFormPage(page);

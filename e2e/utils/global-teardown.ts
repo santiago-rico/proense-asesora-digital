@@ -1,4 +1,6 @@
 import { FullConfig } from '@playwright/test';
+import * as fs from 'fs';
+import * as path from 'path';
 
 async function globalTeardown(config: FullConfig) {
   console.log('Starting global teardown...');
@@ -49,8 +51,6 @@ async function cleanupTestData() {
 async function cleanupTempFiles() {
   console.log('Cleaning up temporary files...');
 
-  const fs = require('fs');
-  const path = require('path');
 
   try {
     const tempDir = path.join(process.cwd(), 'test-results', 'temp-files');
@@ -81,8 +81,6 @@ async function cleanupTempFiles() {
 async function generateTestSummary() {
   console.log('Generating test summary...');
 
-  const fs = require('fs');
-  const path = require('path');
 
   try {
     const resultsDir = path.join(process.cwd(), 'test-results');

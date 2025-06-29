@@ -94,7 +94,7 @@ export class TestHelpers {
   /**
    * Waits for a specific network response
    */
-  async waitForAPIResponse(urlPattern: string, timeout: number = 10000): Promise<any> {
+  async waitForAPIResponse(urlPattern: string, timeout: number = 10000): Promise<object> {
     const response = await this.page.waitForResponse(
       response => response.url().includes(urlPattern) && response.status() === 200,
       { timeout }
@@ -174,7 +174,7 @@ export class TestHelpers {
   /**
    * Checks for accessibility violations using axe-core
    */
-  async checkAccessibility(): Promise<any> {
+  async checkAccessibility(): Promise<{ violations: unknown[] }> {
     // This would typically use @axe-core/playwright
     try {
       const results = await this.page.evaluate(() => {
@@ -275,7 +275,7 @@ export class TestHelpers {
   /**
    * Intercepts and modifies API responses
    */
-  async interceptAPIResponse(urlPattern: string, mockData: any): Promise<void> {
+  async interceptAPIResponse(urlPattern: string, mockData: Record<string, unknown>): Promise<void> {
     await this.page.route(urlPattern, async (route) => {
       await route.fulfill({
         status: 200,

@@ -12,8 +12,15 @@ import { formSchema, type FormSchemaType } from '../formSchema';
 import userEvent from '@testing-library/user-event';
 
 // Mock the PhoneInput component for consistent testing
+interface MockPhoneInputProps {
+  placeholder?: string;
+  value?: string;
+  onChange?: (value: string) => void;
+  [key: string]: unknown;
+}
+
 vi.mock('@/components/ui/phone-input', () => ({
-  PhoneInput: ({ placeholder, value, onChange, ...props }: any) => (
+  PhoneInput: ({ placeholder, value, onChange, ...props }: MockPhoneInputProps) => (
     <input
       data-testid="phone-input"
       placeholder={placeholder}
@@ -25,7 +32,7 @@ vi.mock('@/components/ui/phone-input', () => ({
 }));
 
 // Test wrapper component
-const TestWrapper = ({ children, defaultValues = {} }: { children: React.ReactNode, defaultValues?: any }) => {
+const TestWrapper = ({ children, defaultValues = {} }: { children: React.ReactNode, defaultValues?: Partial<FormSchemaType> }) => {
   const methods = useForm<FormSchemaType>({
     resolver: zodResolver(formSchema),
     defaultValues: {
