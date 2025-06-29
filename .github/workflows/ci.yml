@@ -100,9 +100,10 @@ jobs:
           kill $DEV_PID
         continue-on-error: true # Security tests might fail if server setup is complex
         
-      - name: Check for vulnerable dependencies
-        uses: actions/dependency-review-action@v4
-        if: github.event_name == 'pull_request'
+      # Dependency review requires GitHub Advanced Security (not available for private repos)
+      # - name: Check for vulnerable dependencies
+      #   uses: actions/dependency-review-action@v4
+      #   if: github.event_name == 'pull_request'
 
   # Deployment readiness check
   deployment-check:
