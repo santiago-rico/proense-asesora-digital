@@ -70,10 +70,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ name, label, description, multi
         <input {...getInputProps()} />
         <Upload className="w-8 h-8 sm:w-10 sm:h-10 text-gray-500 mb-2" />
         <p className="text-sm sm:text-base text-gray-600 text-center px-2">
-          {isDragActive ? 'Suelta los archivos aquí...' : 'Toca aquí para seleccionar archivos'}
-        </p>
-        <p className="text-xs sm:text-sm text-gray-500 text-center mt-1 px-2 hidden sm:block">
-          o arrastra y suelta archivos aquí
+          {isDragActive ? 'Suelta los archivos aquí...' : 'Arrastra y suelta archivos aquí, o haz clic para seleccionar'}
         </p>
         {description && <p className="text-xs text-gray-500 mt-2 text-center px-2">{description}</p>}
         <p className="text-xs text-gray-500 mt-2 text-center px-2">PDF, JPG, PNG, WEBP, DOC, DOCX. (Max 5MB)</p>

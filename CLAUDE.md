@@ -3,7 +3,7 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## General Instructions
-- ALWAYS look for opportunities to use subagents to go faster
+- ALWAYS use subagents to speed up the implementation where possible. 
 
 ## Common Development Commands
 
