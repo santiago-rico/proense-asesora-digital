@@ -81,7 +81,7 @@ const App = () => {
             </Routes>
           </Suspense>
           <LeadGenerationDialog open={showLeadDialog} onOpenChange={setShowLeadDialog} />
-          <CookieConsent />
+          {/* <CookieConsent /> */}
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
