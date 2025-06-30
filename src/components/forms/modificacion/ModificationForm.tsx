@@ -454,7 +454,11 @@ export const ModificationForm = ({ onSuccess }: ModificationFormProps) => {
           )}
         />
 
-        <Button type="submit" disabled={isSubmitting || !csrfToken}>
+        <Button 
+          type="submit" 
+          disabled={isSubmitting || !csrfToken}
+          className="w-full md:w-auto min-h-[44px] touch-manipulation"
+        >
           {isSubmitting ? 'Enviando...' : 'Enviar Solicitud'}
         </Button>
         </form>

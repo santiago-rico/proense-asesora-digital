@@ -14,16 +14,16 @@ const RecentBlogSection: React.FC = () => {
   });
 
   return (
-    <section className="py-16 bg-white">
+    <section className="py-8 sm:py-12 md:py-16 lg:py-20 bg-white">
       <div className="container mx-auto px-4">
-        <div className="text-center max-w-3xl mx-auto mb-12">
-          <h2 className="text-3xl font-bold mb-4">Noticias y Consejos</h2>
-          <p className="text-gray-700">
+        <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-10 md:mb-12">
+          <h2 className="text-2xl sm:text-3xl font-bold mb-4">Noticias y Consejos</h2>
+          <p className="text-sm sm:text-base text-gray-700">
             Mantente informado con nuestros artículos sobre seguros, finanzas personales y protección.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
           {isLoading ? (
             Array(3)
               .fill(0)
@@ -49,7 +49,7 @@ const RecentBlogSection: React.FC = () => {
           )}
         </div>
 
-        <div className="text-center mt-10">
+        <div className="text-center mt-8 sm:mt-10">
           <Button asChild variant="outline">
             <Link to="/blog">Ver todos los artículos</Link>
           </Button>

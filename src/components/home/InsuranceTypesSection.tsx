@@ -45,16 +45,16 @@ const insuranceTypes = [
 
 const InsuranceTypesSection: React.FC = () => {
   return (
-    <section className="py-14 bg-gray-50">
+    <section className="py-8 sm:py-12 md:py-16 lg:py-20 bg-gray-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-4xl mx-auto mb-14">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">Nuestros Seguros</h2>
-          <p className="text-lg text-gray-600">
+        <div className="text-center max-w-4xl mx-auto mb-8 sm:mb-10 md:mb-12 lg:mb-14">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">Nuestros Seguros</h2>
+          <p className="text-base sm:text-lg text-gray-600">
             Te acompañamos a encontrar soluciones de seguros para cada aspecto de tu vida, familia y negocio para que vivas con la tranquilidad de estar protegido
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {insuranceTypes.map((insurance, index) => (
             <InsuranceCard
               key={index}

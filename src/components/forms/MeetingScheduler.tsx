@@ -60,12 +60,12 @@ const MeetingScheduler: React.FC = () => {
       {date && (
         <div className="mb-6 animate-fade-in">
           <h4 className="text-md font-medium mb-2">Horarios Disponibles:</h4>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {availableTimes.map((time) => (
               <Button
                 key={time}
                 variant={timeSelected === time ? "default" : "outline"}
-                className="text-sm"
+                className="text-sm min-h-[44px] touch-manipulation"
                 onClick={() => setTimeSelected(time)}
               >
                 {time}
@@ -77,7 +77,7 @@ const MeetingScheduler: React.FC = () => {
       
       <Button 
         onClick={handleSchedule} 
-        className="w-full mt-2" 
+        className="w-full mt-2 min-h-[44px] touch-manipulation" 
         disabled={!date || !timeSelected}
       >
         Agendar Cita

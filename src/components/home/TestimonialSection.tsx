@@ -51,28 +51,28 @@ const testimonialsData: Testimonial[] = [
 
 const TestimonialSection: React.FC = () => {
   return (
-    <section className="py-20 px-4 bg-slate-50">
+    <section className="py-8 sm:py-12 md:py-16 lg:py-20 px-4 bg-slate-50">
       <div className="max-w-7xl mx-auto">
         
         {/* Section Header */}
         <div className="text-center">
-          <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900">
             Lo que dicen nuestros clientes
           </h2>
-          <p className="mt-4 max-w-3xl mx-auto text-lg text-gray-600">
+          <p className="mt-4 max-w-3xl mx-auto text-base sm:text-lg text-gray-600">
             Miles de colombianos confían en nosotros para proteger lo que más valoran.
           </p>
         </div>
 
-        <Carousel className="max-w-6xl mx-auto mt-16">
+        <Carousel className="max-w-6xl mx-auto mt-8 sm:mt-12 md:mt-16">
           <CarouselContent className="-ml-4 p-4">
             {testimonialsData.map((testimonial) => (
-              <CarouselItem key={testimonial.id} className="pl-4 md:basis-1/2 lg:basis-1/3">
+              <CarouselItem key={testimonial.id} className="pl-4 sm:basis-1/2 md:basis-1/2 lg:basis-1/3">
                 <TestimonialCard testimonial={testimonial} />
               </CarouselItem>
             ))}
           </CarouselContent>
-          <div className="flex justify-center mt-8">
+          <div className="flex justify-center mt-6 sm:mt-8">
             <CarouselPrevious className="static transform-none mx-2" />
             <CarouselNext className="static transform-none mx-2" />
           </div>

@@ -27,22 +27,22 @@ const partnerLogos = [
 
 const PartnersSection: React.FC = () => {
   return (
-    <section className="py-16 bg-white">
+    <section className="py-8 sm:py-12 md:py-16 lg:py-20 bg-white">
       <div className="container mx-auto px-4">
-        <div className="text-center max-w-3xl mx-auto mb-12">
-          <h2 className="text-3xl font-bold mb-4">Nuestros Aliados</h2>
-          <p className="text-gray-700">
+        <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-10 md:mb-12">
+          <h2 className="text-2xl sm:text-3xl font-bold mb-4">Nuestros Aliados</h2>
+          <p className="text-sm sm:text-base text-gray-700">
             Trabajamos con las compañías aseguradoras más reconocidas para ofrecerte las mejores coberturas.
           </p>
         </div>
 
-        <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16">
+        <div className="flex flex-wrap justify-center items-center gap-6 sm:gap-8 md:gap-12 lg:gap-16">
           {partnerLogos.map((partner, index) => (
-            <div key={index} className="w-32 md:w-40 lg:w-48 p-2 flex items-center justify-center">
+            <div key={index} className="w-24 sm:w-32 md:w-40 lg:w-48 p-2 flex items-center justify-center">
               <OptimizedImage 
                 src={partner.image} 
                 alt={partner.alt} 
-                className="w-full h-auto object-contain max-h-20"
+                className="w-full h-auto object-contain max-h-16 sm:max-h-20"
                 loading="lazy"
               />
             </div>

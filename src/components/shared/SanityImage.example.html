@@ -1,0 +1,47 @@
+<!-- Example output of SanityImage component with WebP enabled -->
+<picture>
+  <!-- WebP source with responsive srcset -->
+  <source
+    type="image/webp"
+    srcset="
+      https://cdn.sanity.io/images/project/dataset/image-ref-480.webp?q=80 480w,
+      https://cdn.sanity.io/images/project/dataset/image-ref-768.webp?q=80 768w,
+      https://cdn.sanity.io/images/project/dataset/image-ref-1024.webp?q=80 1024w,
+      https://cdn.sanity.io/images/project/dataset/image-ref-1200.webp?q=80 1200w
+    "
+    sizes="(max-width: 480px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+  />
+  
+  <!-- Original format source with responsive srcset -->
+  <source
+    srcset="
+      https://cdn.sanity.io/images/project/dataset/image-ref-480.jpg?q=80 480w,
+      https://cdn.sanity.io/images/project/dataset/image-ref-768.jpg?q=80 768w,
+      https://cdn.sanity.io/images/project/dataset/image-ref-1024.jpg?q=80 1024w,
+      https://cdn.sanity.io/images/project/dataset/image-ref-1200.jpg?q=80 1200w
+    "
+    sizes="(max-width: 480px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+  />
+  
+  <!-- Fallback img element -->
+  <img
+    src="https://cdn.sanity.io/images/project/dataset/image-ref-1200.jpg?q=80"
+    alt="Featured blog post image"
+    class="object-cover w-full h-auto rounded-lg"
+    loading="lazy"
+  />
+</picture>
+
+<!-- Example output with WebP disabled -->
+<img
+  src="https://cdn.sanity.io/images/project/dataset/image-ref-800.jpg?q=80"
+  srcset="
+    https://cdn.sanity.io/images/project/dataset/image-ref-400.jpg?q=80 400w,
+    https://cdn.sanity.io/images/project/dataset/image-ref-600.jpg?q=80 600w,
+    https://cdn.sanity.io/images/project/dataset/image-ref-800.jpg?q=80 800w
+  "
+  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+  alt="Blog post card image"
+  class="object-cover w-full h-full transition-transform duration-300 hover:scale-105"
+  loading="lazy"
+/>

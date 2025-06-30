@@ -13,7 +13,7 @@ const Footer: React.FC = () => {
           <div className="mb-6 md:mb-0">
             <Link to="/" className="inline-flex items-center mb-4 space-x-2">
               <OptimizedImage 
-                src="/images/logo.png" 
+                src="/images/logo.avif" 
                 alt="Proense Seguros" 
                 className="h-8" 
                 loading="lazy"

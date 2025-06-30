@@ -12,18 +12,19 @@ interface OptimizedImageProps extends ImgHTMLAttributes<HTMLImageElement> {
 }
 
 /**
- * OptimizedImage component that automatically handles WebP images with fallbacks
+ * OptimizedImage component that automatically handles modern image formats with fallbacks
  * 
  * Features:
- * - Automatically generates WebP source if available
- * - Falls back to original format if WebP doesn't exist
+ * - Automatically generates AVIF and WebP sources if available
+ * - Prioritizes AVIF (best compression) → WebP (good compression) → Original format
+ * - Falls back to original format if modern formats don't exist
  * - Implements lazy loading by default
  * - Supports all standard img attributes
  * - Uses the <picture> element for format fallbacks
  * 
  * @example
  * <OptimizedImage 
- *   src="/images/hero.jpg" 
+ *   src="/images/hero.avif" 
  *   alt="Hero image"
  *   className="w-full h-auto"
  * />
@@ -38,48 +39,59 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
   srcSet,
   ...rest
 }) => {
+  const [hasAVIF, setHasAVIF] = useState(true);
   const [hasWebP, setHasWebP] = useState(true);
   const [imgError, setImgError] = useState(false);
 
-  // Generate WebP path from original image path
-  const getWebPPath = (originalPath: string): string => {
+  // Generate optimized paths (AVIF and WebP) from original image path
+  const getOptimizedPath = (originalPath: string, format: 'avif' | 'webp'): string => {
     const lastDotIndex = originalPath.lastIndexOf(".");
     if (lastDotIndex === -1) return originalPath;
     
     const pathWithoutExtension = originalPath.substring(0, lastDotIndex);
     const extension = originalPath.substring(lastDotIndex + 1).toLowerCase();
     
-    // Only convert common image formats to WebP
+    // Only convert common image formats to modern formats
     if (["jpg", "jpeg", "png", "gif"].includes(extension)) {
-      return `${pathWithoutExtension}.webp`;
+      return `${pathWithoutExtension}.${format}`;
     }
     
     return originalPath;
   };
 
-  const webpSrc = getWebPPath(src);
+  const avifSrc = getOptimizedPath(src, 'avif');
+  const webpSrc = getOptimizedPath(src, 'webp');
+  const isAVIFCandidate = avifSrc !== src;
   const isWebPCandidate = webpSrc !== src;
 
-  // Check if WebP version exists (browser will handle this automatically with picture element)
+  // Check if AVIF and WebP versions exist (browser will handle this automatically with picture element)
   useEffect(() => {
+    // Check AVIF availability
+    if (!isAVIFCandidate) {
+      setHasAVIF(false);
+    } else if (typeof window !== 'undefined') {
+      const checkAVIF = () => {
+        const avif = new Image();
+        avif.onload = () => setHasAVIF(true);
+        avif.onerror = () => setHasAVIF(false);
+        avif.src = avifSrc;
+      };
+      checkAVIF();
+    }
+
+    // Check WebP availability
     if (!isWebPCandidate) {
       setHasWebP(false);
-      return;
-    }
-
-    // For client-side checking (optional - browsers handle this automatically)
-    const checkWebP = () => {
-      const webp = new Image();
-      webp.onload = () => setHasWebP(true);
-      webp.onerror = () => setHasWebP(false);
-      webp.src = webpSrc;
-    };
-
-    // Only check if we're in the browser
-    if (typeof window !== 'undefined') {
+    } else if (typeof window !== 'undefined') {
+      const checkWebP = () => {
+        const webp = new Image();
+        webp.onload = () => setHasWebP(true);
+        webp.onerror = () => setHasWebP(false);
+        webp.src = webpSrc;
+      };
       checkWebP();
     }
-  }, [webpSrc, isWebPCandidate]);
+  }, [avifSrc, webpSrc, isAVIFCandidate, isWebPCandidate]);
 
   const handleError = () => {
     setImgError(true);
@@ -88,8 +100,8 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
   // If there's an error and we have a fallback, use it
   const finalSrc = imgError && fallbackSrc ? fallbackSrc : src;
 
-  // If browser doesn't support picture element or WebP isn't available, use regular img
-  if (!isWebPCandidate || !hasWebP) {
+  // If browser doesn't support picture element or no modern formats are available, use regular img
+  if ((!isAVIFCandidate && !isWebPCandidate) || (!hasAVIF && !hasWebP)) {
     return (
       <img
         src={finalSrc}
@@ -104,17 +116,28 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
     );
   }
 
-  // Use picture element for WebP with fallback
+  // Use picture element for modern formats with fallback
   return (
     <picture>
-      {/* WebP source */}
-      <source
-        type="image/webp"
-        srcSet={webpSrc}
-        sizes={sizes}
-      />
+      {/* AVIF source (highest priority - best compression) */}
+      {isAVIFCandidate && hasAVIF && (
+        <source
+          type="image/avif"
+          srcSet={avifSrc}
+          sizes={sizes}
+        />
+      )}
       
-      {/* Original format source */}
+      {/* WebP source (second priority - good compression) */}
+      {isWebPCandidate && hasWebP && (
+        <source
+          type="image/webp"
+          srcSet={webpSrc}
+          sizes={sizes}
+        />
+      )}
+      
+      {/* Original format source (fallback) */}
       <source
         type={`image/${src.split('.').pop()?.toLowerCase() || 'jpeg'}`}
         srcSet={src}

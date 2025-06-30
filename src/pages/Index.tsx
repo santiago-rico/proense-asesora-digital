@@ -21,7 +21,7 @@ function Index({ handleOpenLeadDialog }: IndexProps) {
         description="Más de 25 años de experiencia acompañando a familias y empresas colombianas hacia su tranquilidad"
         ctaText="Solicitar asesoría gratuita"
         handleOpenLeadDialog={handleOpenLeadDialog}
-        backgroundImage="/images/hero-image.jpg"
+        backgroundImage="/images/hero-image.avif"
         useOptimizedImage={true}
       />
 
