@@ -32,8 +32,9 @@ const PaymentsPage: React.FC<{ handleOpenLeadDialog: () => void; }> = ({ handleO
       <HeroBanner
         title="Paga tu seguro en un solo clic"
         description="Te hacemos la vida más fácil. Solo selecciona tu aseguradora, haz clic y realiza tu pago de forma segura."
-        backgroundImage="/images/hero-pagos.jpg"
+        backgroundImage="/images/hero-pagos.avif"
         imagePosition="center 40%"
+        useOptimizedImage={true}
       />
 
       {/* Steps Section */}

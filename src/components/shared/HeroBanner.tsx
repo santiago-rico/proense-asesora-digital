@@ -10,6 +10,7 @@ interface HeroBannerProps {
   ctaText?: string;
   handleOpenLeadDialog?: () => void;
   useOptimizedImage?: boolean;
+  customHeightClass?: string;
 }
 
 function HeroBanner({
@@ -20,12 +21,13 @@ function HeroBanner({
   imagePosition,
   handleOpenLeadDialog,
   useOptimizedImage = false,
+  customHeightClass,
 }: HeroBannerProps) {
   // Traditional background image approach for backward compatibility
   if (!useOptimizedImage) {
     return (
       <div 
-        className="relative overflow-hidden h-[40vh] sm:h-[45vh] md:h-[50vh] min-h-[300px] sm:min-h-[350px] md:min-h-[400px]"
+        className={`relative overflow-hidden ${customHeightClass || 'h-[40vh] sm:h-[45vh] md:h-[50vh] min-h-[300px] sm:min-h-[350px] md:min-h-[400px]'}`}
         style={{
           backgroundImage: `url(${backgroundImage})`,
           backgroundSize: 'cover',
@@ -60,7 +62,7 @@ function HeroBanner({
 
   // Optimized image approach using OptimizedImage component
   return (
-    <div className="relative overflow-hidden h-[40vh] sm:h-[45vh] md:h-[50vh] min-h-[300px] sm:min-h-[350px] md:min-h-[400px]">
+    <div className={`relative overflow-hidden ${customHeightClass || 'h-[40vh] sm:h-[45vh] md:h-[50vh] min-h-[300px] sm:min-h-[350px] md:min-h-[400px]'}`}>
       {/* Optimized background image */}
       <OptimizedImage
         src={backgroundImage}

@@ -72,7 +72,7 @@ const ClientServicePage: React.FC<ClientServicePageProps> = ({ type, handleOpenL
     emision: {
       title: "Emisión de Pólizas",
       description: "Solicita la emisión de una nueva póliza con nuestro proceso sencillo y seguro.",
-      heroImage: "/images/hero-emision.jpg",
+      heroImage: "/images/hero-emision.avif",
       imagePosition: "center center",
       formTitle: "Solicitud de Emisión de Póliza",
       steps: [
@@ -86,7 +86,7 @@ const ClientServicePage: React.FC<ClientServicePageProps> = ({ type, handleOpenL
     modificacion: {
       title: "Modificaciones de Pólizas",
       description: "Gestiona cambios en tu póliza existente de manera rápida y efectiva.",
-      heroImage: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&q=80",
+      heroImage: "/images/hero-modificacion.avif",
       imagePosition: "center center",
       formTitle: "Solicitud de Modificación de Póliza",
       steps: [
@@ -100,7 +100,7 @@ const ClientServicePage: React.FC<ClientServicePageProps> = ({ type, handleOpenL
     cancelacion: {
       title: "Cancelación de Pólizas",
       description: "Solicita la cancelación de tu póliza siguiendo nuestro proceso estructurado.",
-      heroImage: "https://images.unsplash.com/photo-1634733988138-bf2c3a2a13fa?auto=format&fit=crop&q=80",
+      heroImage: "/images/hero-cancelacion.avif",
       imagePosition: "center center",
       formTitle: "Solicitud de Cancelación de Póliza",
       steps: [
@@ -114,7 +114,7 @@ const ClientServicePage: React.FC<ClientServicePageProps> = ({ type, handleOpenL
     siniestro: {
       title: "¿Qué hacer en caso de un siniestro?",
       description: "En Proense Seguros, estamos aquí para ayudarte. Sigue estos pasos para reportar tu siniestro de manera efectiva y recibir el soporte que necesitas.",
-      heroImage: "/images/hero-contact.jpg",
+      heroImage: "/images/hero-contact.avif",
       imagePosition: "center center",
     }
   };
@@ -155,6 +155,8 @@ const ClientServicePage: React.FC<ClientServicePageProps> = ({ type, handleOpenL
         backgroundImage={data.heroImage}
         imagePosition={data.imagePosition}
         handleOpenLeadDialog={ctaAction}
+        useOptimizedImage={true}
+        customHeightClass="h-[50vh] sm:h-[55vh] md:h-[60vh] min-h-[350px] sm:min-h-[400px] md:min-h-[450px]"
       />
 
       {type === 'siniestro' ? (

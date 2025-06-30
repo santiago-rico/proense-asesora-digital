@@ -68,6 +68,7 @@ const InsuranceProductPage: React.FC<InsuranceProductPageProps> = ({ type: propT
         backgroundImage={data.heroImage}
         imagePosition={data.heroImagePosition}
         handleOpenLeadDialog={handleOpenLeadDialog}
+        useOptimizedImage={true}
       />
 
       {/* Explanation Section */}

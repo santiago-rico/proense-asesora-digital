@@ -14,7 +14,7 @@ export const Examples = () => {
       <div>
         <h3>Basic Usage</h3>
         <OptimizedImage
-          src="/images/hero.jpg"
+          src="/images/hero.avif"
           alt="Hero image"
           className="w-full h-64 object-cover rounded-lg"
         />
@@ -24,7 +24,7 @@ export const Examples = () => {
       <div>
         <h3>Eager Loading (for above-the-fold images)</h3>
         <OptimizedImage
-          src="/images/logo.png"
+          src="/images/logo.avif"
           alt="Company logo"
           className="h-12 w-auto"
           loading="eager"
@@ -35,7 +35,7 @@ export const Examples = () => {
       <div>
         <h3>Responsive Image</h3>
         <OptimizedImage
-          src="/images/product.jpg"
+          src="/images/product.avif"
           alt="Product image"
           className="w-full h-auto"
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
@@ -46,10 +46,10 @@ export const Examples = () => {
       <div>
         <h3>With Fallback</h3>
         <OptimizedImage
-          src="/images/profile.jpg"
+          src="/images/profile.avif"
           alt="User profile"
           className="w-24 h-24 rounded-full object-cover"
-          fallbackSrc="/images/default-avatar.jpg"
+          fallbackSrc="/images/default-avatar.avif"
         />
       </div>
 
@@ -58,7 +58,7 @@ export const Examples = () => {
         <h3>Hero Banner with OptimizedImage</h3>
         <div className="relative h-64 overflow-hidden rounded-lg">
           <OptimizedImage
-            src="/images/hero-banner.jpg"
+            src="/images/hero-banner.avif"
             alt="Hero banner"
             className="absolute inset-0 w-full h-full object-cover"
             loading="eager"
@@ -77,7 +77,7 @@ export const Examples = () => {
           {[1, 2, 3, 4, 5, 6].map((num) => (
             <OptimizedImage
               key={num}
-              src={`/images/gallery-${num}.jpg`}
+              src={`/images/gallery-${num}.avif`}
               alt={`Gallery image ${num}`}
               className="w-full h-32 object-cover rounded"
               loading="lazy"
@@ -96,10 +96,10 @@ export const Examples = () => {
  * To migrate existing <img> tags to OptimizedImage:
  * 
  * Before:
- * <img src="/images/photo.jpg" alt="Photo" className="w-full" />
+ * <img src="/images/photo.avif" alt="Photo" className="w-full" />
  * 
  * After:
- * <OptimizedImage src="/images/photo.jpg" alt="Photo" className="w-full" />
+ * <OptimizedImage src="/images/photo.avif" alt="Photo" className="w-full" />
  * 
  * The component will automatically:
  * - Check for WebP version availability
@@ -109,5 +109,5 @@ export const Examples = () => {
  * - Support all standard img attributes
  * 
  * For hero/above-the-fold images, use loading="eager":
- * <OptimizedImage src="/images/hero.jpg" alt="Hero" loading="eager" />
+ * <OptimizedImage src="/images/hero.avif" alt="Hero" loading="eager" />
  */

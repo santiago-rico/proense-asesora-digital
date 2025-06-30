@@ -114,7 +114,7 @@ export default defineConfig(({ mode }) => ({
           const info = assetInfo.name?.split('.') || [];
           const ext = info[info.length - 1];
           
-          if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(ext)) {
+          if (/png|jpe?g|svg|gif|tiff|bmp|ico|avif|webp/i.test(ext)) {
             return `assets/images/[name]-[hash][extname]`;
           }
           

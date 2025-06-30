@@ -15,7 +15,7 @@ const ContactPage: React.FC<ContactPageProps> = ({ handleOpenLeadDialog }) => {
       {/* Hero Section */}
       <div className="relative text-white py-16 sm:py-20 md:py-24 lg:py-32 overflow-hidden">
         <OptimizedImage
-          src="/images/hero-contact.jpg"
+          src="/images/hero-contact.avif"
           alt="Contacto Proense Seguros"
           className="absolute inset-0 w-full h-full object-cover"
           style={{ objectPosition: 'center 15%' }}

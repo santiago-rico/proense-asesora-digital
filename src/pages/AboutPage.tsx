@@ -22,7 +22,7 @@ const AboutPage: React.FC<AboutPageProps> = ({ handleOpenLeadDialog }) => {
         {/* Image Hero Section */}
         <section className="relative h-[250px] sm:h-[300px] md:h-[350px] lg:h-[400px] bg-gray-800">
           <OptimizedImage 
-            src="/images/hero-about-us.jpeg" // Placeholder image - replace with your desired image
+            src="/images/hero-about-us.avif" // Placeholder image - replace with your desired image
             alt="Sobre Nosotros Proense Asesores" 
             className="absolute inset-0 w-full h-full object-cover opacity-50" // Added opacity to image for better text readability
             loading="eager"
@@ -64,7 +64,7 @@ const AboutPage: React.FC<AboutPageProps> = ({ handleOpenLeadDialog }) => {
               </div>
               <div className="relative h-64 sm:h-80 md:h-96 rounded-lg overflow-hidden shadow-xl order-1 md:order-2 bg-slate-100 flex items-center justify-center p-6 sm:p-8">
                 <OptimizedImage 
-                  src="/images/logo.png"
+                  src="/images/logo.avif"
                   alt="Proense Asesores Logo" 
                   className="max-w-full max-h-full"
                   loading="lazy"

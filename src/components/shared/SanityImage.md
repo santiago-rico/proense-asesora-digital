@@ -40,7 +40,7 @@ import SanityImage from '@/components/shared/SanityImage';
   height={600}
   loading="eager"
   enableWebP={true}
-  fallbackSrc="/images/placeholder.jpg"
+  fallbackSrc="/images/placeholder.avif"
 />
 ```
 

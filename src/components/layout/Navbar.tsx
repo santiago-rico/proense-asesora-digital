@@ -141,13 +141,13 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
           <div className="flex justify-between items-center">
             <Link to="/" className="flex items-center">
               <OptimizedImage 
-                src="/images/logo.png" 
+                src="/images/logo.avif" 
                 alt="Proense Seguros Logo" 
                 className="h-12 w-auto" 
                 loading="eager"
               />
               <OptimizedImage 
-                src="/images/text-logo.png" 
+                src="/images/text-logo.avif" 
                 alt="Proense Seguros Text" 
                 className="h-8 w-auto ml-2" 
                 loading="eager"
