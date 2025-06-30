@@ -13,6 +13,7 @@ import { PortableText } from "@portabletext/react";
 import { urlFor } from "@/sanity/imageUrl";
 import BlogCtaSection from "@/components/layout/BlogCtaSection";
 import LeadForm from "@/components/forms/LeadForm";
+import SanityImage from "@/components/shared/SanityImage";
 
 interface BlogPostPageProps {
   handleOpenLeadDialog: () => void;
@@ -106,10 +107,13 @@ const BlogPostPage: React.FC<BlogPostPageProps> = ({ handleOpenLeadDialog }) => 
             <div className="lg:col-span-2">
               <article className="prose prose-lg max-w-none">
                 <div className="mb-8">
-                  <img
-                    src={urlFor(post.featuredImage).width(1200).url()}
+                  <SanityImage
+                    source={post.featuredImage}
                     alt={post.title}
                     className="w-full h-auto rounded-lg"
+                    widths={[480, 768, 1024, 1200]}
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 80vw, 800px"
+                    loading="eager"
                   />
                 </div>
                 
@@ -165,10 +169,13 @@ const BlogPostPage: React.FC<BlogPostPageProps> = ({ handleOpenLeadDialog }) => 
                     {relatedPosts?.filter((p: BlogPost) => p.slug !== slug).map((relatedPost: BlogPost) => (
                       <Card key={relatedPost._id} className="overflow-hidden">
                         <div className="h-32 overflow-hidden">
-                          <img
-                            src={urlFor(relatedPost.featuredImage).width(400).url()}
+                          <SanityImage
+                            source={relatedPost.featuredImage}
                             alt={relatedPost.title}
                             className="w-full h-full object-cover"
+                            widths={[300, 400, 500]}
+                            sizes="400px"
+                            baseWidth={400}
                           />
                         </div>
                         <div className="p-4">

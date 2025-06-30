@@ -1,4 +1,4 @@
-import { useState, useEffect, forwardRef, ElementRef, ComponentPropsWithoutRef } from "react";
+import { useState, useEffect, useRef, forwardRef, ElementRef, ComponentPropsWithoutRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Phone } from "lucide-react";
@@ -22,6 +22,8 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const hamburgerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -32,6 +34,63 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Handle outside click to close mobile menu
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        isOpen &&
+        mobileMenuRef.current &&
+        hamburgerRef.current &&
+        !mobileMenuRef.current.contains(event.target as Node) &&
+        !hamburgerRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('touchstart', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [isOpen]);
+
+  // Handle escape key to close mobile menu
+  useEffect(() => {
+    const handleEscapeKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isOpen) {
+        setIsOpen(false);
+        // Return focus to hamburger button when closing with escape
+        hamburgerRef.current?.focus();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscapeKey);
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscapeKey);
+    };
+  }, [isOpen]);
+
+  // Prevent scroll when mobile menu is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
 
   const insuranceProducts = [
     { name: "Vida", href: "/seguros/vida", description: "Protege a tus seres queridos y garantiza su futuro financiero." },
@@ -74,10 +133,9 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
         id="main-navigation"
         role="navigation"
         aria-label="Navegación principal"
-        className={`fixed z-50 ${
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-200 ${
           scrolled ? "bg-white shadow-md py-2" : "bg-white py-2"
         }`}
-        style={{ width: 'calc(100% - var(--removed-body-scroll-bar-size, 0px))' }}
       >
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center">
@@ -194,47 +252,57 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
             {/* Mobile menu button */}
             <div className="md:hidden">
               <button
+                ref={hamburgerRef}
                 onClick={() => setIsOpen(!isOpen)}
-                className="text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-md p-2"
+                className="text-gray-700 hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-md transition-colors duration-200"
+                style={{ minWidth: '44px', minHeight: '44px', padding: '10px' }}
                 aria-label={isOpen ? "Cerrar menú de navegación" : "Abrir menú de navegación"}
                 aria-expanded={isOpen}
                 aria-controls="mobile-navigation-menu"
                 type="button"
               >
-                {isOpen ? (
-                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                ) : (
-                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
-                  </svg>
-                )}
+                <div className="flex items-center justify-center w-6 h-6">
+                  {isOpen ? (
+                    <svg className="h-6 w-6 transform transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  ) : (
+                    <svg className="h-6 w-6 transform transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                  )}
+                </div>
               </button>
             </div>
           </div>
 
           {/* Mobile Navigation */}
-          {isOpen && (
-            <div 
-              id="mobile-navigation-menu"
-              className="md:hidden mt-4 animate-fade-in"
-              role="menu"
-              aria-label="Menú de navegación móvil"
-            >
-              <ul className="flex flex-col space-y-2 pb-4" role="none">
+          <div 
+            ref={mobileMenuRef}
+            id="mobile-navigation-menu"
+            className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out bg-white border-t border-gray-100 shadow-sm ${
+              isOpen 
+                ? 'max-h-screen opacity-100 mt-4' 
+                : 'max-h-0 opacity-0'
+            }`}
+            role="menu"
+            aria-label="Menú de navegación móvil"
+            aria-hidden={!isOpen}
+          >
+              <ul className="flex flex-col space-y-1 pb-4" role="none">
                 {navLinks.map((link) => {
                   if (link.dropdown) {
                     const items = link.href === "/seguros" ? insuranceProducts : clientServices;
                     return (
                       <li key={link.name}>
-                        <div className="px-3 py-2 font-medium text-gray-700">{link.name}</div>
-                        <ul className="pl-6 space-y-2">
+                        <div className="px-4 py-3 font-medium text-gray-800 border-b border-gray-100">{link.name}</div>
+                        <ul className="bg-gray-50 space-y-1">
                           {items.map((item) => (
                             <li key={item.name}>
                               <Link
                                 to={item.href}
-                                className="block px-3 py-1 text-sm text-gray-600 hover:text-primary"
+                                className="block px-6 py-3 text-sm text-gray-600 hover:text-primary hover:bg-gray-100 transition-colors duration-200 active:bg-gray-200"
+                                style={{ minHeight: '44px' }}
                                 onClick={() => setIsOpen(false)}
                               >
                                 {item.name}
@@ -250,9 +318,10 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
                     <li key={link.name}>
                       <Link
                         to={link.href}
-                        className={`block px-3 py-2 rounded-md text-base font-medium transition-colors hover:text-primary ${
-                          isActive(link.href) ? "text-primary" : "text-gray-700"
+                        className={`block px-4 py-3 rounded-md text-base font-medium transition-colors duration-200 hover:text-primary hover:bg-gray-50 active:bg-gray-100 ${
+                          isActive(link.href) ? "text-primary bg-blue-50" : "text-gray-700"
                         }`}
+                        style={{ minHeight: '44px' }}
                         onClick={() => setIsOpen(false)}
                       >
                         {link.name}
@@ -260,18 +329,22 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
                     </li>
                   );
                 })}
-                <li>
-                  <Button className="w-full mt-2" size="sm" onClick={() => {
-                    setIsOpen(false);
-                    handleOpenLeadDialog(); 
-                  }}>
-                    <Phone size={16} className="mr-2" />
+                <li className="pt-2 border-t border-gray-200 mt-2">
+                  <Button 
+                    className="w-full" 
+                    size="default" 
+                    style={{ minHeight: '44px' }}
+                    onClick={() => {
+                      setIsOpen(false);
+                      handleOpenLeadDialog(); 
+                    }}
+                  >
+                    <Phone size={18} className="mr-2" />
                     Solicitar Asesoría Gratuita
                   </Button>
                 </li>
               </ul>
-            </div>
-          )}
+          </div>
         </div>
       </nav>
     </>

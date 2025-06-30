@@ -8,7 +8,7 @@ interface CallToActionSectionProps {
 
 function CallToActionSection({ handleOpenLeadDialog }: CallToActionSectionProps) {
   return (
-    <section className="py-20 bg-primary text-white">
+    <section className="py-8 sm:py-12 md:py-16 lg:py-20 bg-primary text-white">
       <div className="container mx-auto px-4">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-4">¿Listo para proteger lo que más valoras?</h2>

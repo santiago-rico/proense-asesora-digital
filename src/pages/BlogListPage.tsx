@@ -13,6 +13,7 @@ import { urlFor } from "@/sanity/imageUrl";
 import { ArrowRight, ShieldCheck } from 'lucide-react';
 import LeadForm from "@/components/forms/LeadForm";
 import BlogCtaSection from "@/components/layout/BlogCtaSection";
+import SanityImage from "@/components/shared/SanityImage";
 
 interface BlogListPageProps {
   handleOpenLeadDialog: () => void;
@@ -75,10 +76,14 @@ const BlogListPage: React.FC<BlogListPageProps> = ({ handleOpenLeadDialog }) => 
                 <section>
                   <h2 className="text-3xl font-bold mb-6">Artículo Destacado</h2>
                   <Card className="overflow-hidden shadow-lg border border-gray-200 rounded-xl">
-                    <img 
-                      src={urlFor(featuredPost.featuredImage).width(1200).height(600).url()} 
-                      alt={featuredPost.title} 
+                    <SanityImage
+                      source={featuredPost.featuredImage}
+                      alt={featuredPost.title}
                       className="w-full h-auto object-cover"
+                      widths={[480, 768, 1024, 1200]}
+                      height={600}
+                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 80vw, 800px"
+                      loading="eager"
                     />
                     <CardContent className="p-6">
                       <div className="flex items-center gap-4 mb-3 text-sm text-gray-500">

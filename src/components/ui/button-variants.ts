@@ -17,9 +17,9 @@ export const buttonVariants = cva(
       },
       size: {
         default: "h-10 px-4 py-2",
-        sm: "h-9 rounded-md px-3",
+        sm: "h-11 rounded-md px-3", // Increased from h-9 to h-11 (44px) for WCAG compliance
         lg: "h-11 rounded-md px-8",
-        icon: "h-10 w-10",
+        icon: "h-11 w-11", // Increased from h-10 w-10 to h-11 w-11 (44px) for WCAG compliance
       },
     },
     defaultVariants: {

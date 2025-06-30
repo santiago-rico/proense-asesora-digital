@@ -2,6 +2,16 @@
 import type { Config } from "tailwindcss";
 import tailwindcssAnimate from "tailwindcss-animate";
 
+// Import centralized breakpoints
+const BREAKPOINTS = {
+  xs: '0px',
+  sm: '640px',
+  md: '768px',
+  lg: '1024px',
+  xl: '1280px',
+  '2xl': '1536px',
+} as const;
+
 export default {
 	darkMode: ["class"],
 	content: [
@@ -12,6 +22,8 @@ export default {
 	],
 	prefix: "",
 	theme: {
+		// Use centralized breakpoints for consistent responsive design
+		screens: BREAKPOINTS,
 		container: {
 			center: true,
 			padding: '2rem',

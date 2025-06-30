@@ -20,7 +20,7 @@ const AboutPage: React.FC<AboutPageProps> = ({ handleOpenLeadDialog }) => {
     <Layout handleOpenLeadDialog={handleOpenLeadDialog}>
       <div className="pt-16">
         {/* Image Hero Section */}
-        <section className="relative h-[300px] md:h-[400px] bg-gray-800">
+        <section className="relative h-[250px] sm:h-[300px] md:h-[350px] lg:h-[400px] bg-gray-800">
           <OptimizedImage 
             src="/images/hero-about-us.jpeg" // Placeholder image - replace with your desired image
             alt="Sobre Nosotros Proense Asesores" 
@@ -35,11 +35,11 @@ const AboutPage: React.FC<AboutPageProps> = ({ handleOpenLeadDialog }) => {
         </section>
 
         {/* Introductory Text Section */}
-        <section className="py-12 md:py-16 bg-white">
+        <section className="py-8 sm:py-12 md:py-16 lg:py-20 bg-white">
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto text-center">
-              <h2 className="text-3xl md:text-4xl font-bold mb-6 text-primary">Proense Asesores: Tu Aliado Estratégico en Seguros</h2>
-              <p className="text-lg text-gray-700 leading-relaxed">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6 text-primary">Proense Asesores: Tu Aliado Estratégico en Seguros</h2>
+              <p className="text-base sm:text-lg text-gray-700 leading-relaxed">
                 En Proense Asesores, entendemos que la tranquilidad no tiene precio. Por eso, nos dedicamos a ser tu socio de confianza en el mundo de los seguros, ofreciéndote soluciones claras, personalizadas y efectivas para proteger tu futuro, el de tu familia y tu patrimonio.
               </p>
             </div>
@@ -47,11 +47,11 @@ const AboutPage: React.FC<AboutPageProps> = ({ handleOpenLeadDialog }) => {
         </section>
 
         {/* Nuestra Trayectoria (Our History) */}
-        <section className="py-16 md:py-20">
+        <section className="py-8 sm:py-12 md:py-16 lg:py-20">
           <div className="container mx-auto px-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
               <div className="order-2 md:order-1">
-                <h2 className="text-3xl md:text-4xl font-bold mb-6 text-secondary">Nuestra Trayectoria: {yearsOfExperience} Años Protegiendo lo que Más Importa</h2>
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6 text-secondary">Nuestra Trayectoria: {yearsOfExperience} Años Protegiendo lo que Más Importa</h2>
                 <p className="text-gray-700 mb-4">
                   Proense Asesores nació con una misión clara: brindar asesoría personalizada y de calidad en seguros. Lo que comenzó como una visión enfocada en el cliente ha crecido hasta convertirse en una correduría de seguros reconocida por su compromiso y experticia.
                 </p>
@@ -62,7 +62,7 @@ const AboutPage: React.FC<AboutPageProps> = ({ handleOpenLeadDialog }) => {
                   Hoy, mantenemos firme nuestro compromiso de brindar soluciones innovadoras y un acompañamiento integral, adaptándonos a un mundo en constante cambio sin perder la esencia de un servicio cercano y humano.
                 </p>
               </div>
-              <div className="relative h-80 md:h-96 rounded-lg overflow-hidden shadow-xl order-1 md:order-2 bg-slate-100 flex items-center justify-center p-8">
+              <div className="relative h-64 sm:h-80 md:h-96 rounded-lg overflow-hidden shadow-xl order-1 md:order-2 bg-slate-100 flex items-center justify-center p-6 sm:p-8">
                 <OptimizedImage 
                   src="/images/logo.png"
                   alt="Proense Asesores Logo" 
@@ -75,15 +75,15 @@ const AboutPage: React.FC<AboutPageProps> = ({ handleOpenLeadDialog }) => {
         </section>
 
         {/* Por Qué Elegirnos (Why Choose Us) - REORDERED AND REFINED */}
-        <section className="py-16 md:py-20 bg-slate-50">
+        <section className="py-8 sm:py-12 md:py-16 lg:py-20 bg-slate-50">
           <div className="container mx-auto px-4">
-            <div className="text-center max-w-3xl mx-auto mb-12 md:mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">La Diferencia Proense: Valor Agregado para Ti</h2>
-              <p className="text-lg text-gray-700">
+            <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-10 md:mb-12 lg:mb-16">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">La Diferencia Proense: Valor Agregado para Ti</h2>
+              <p className="text-base sm:text-lg text-gray-700">
                 Elegir Proense Asesores significa optar por un servicio que va más allá de una simple póliza. Te ofrecemos:
               </p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
               <div className="flex flex-col items-center text-center p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
                 <div className="rounded-full bg-secondary/10 p-4 mb-4">
                   <UserCheck className="h-10 w-10 text-secondary" />
@@ -117,16 +117,16 @@ const AboutPage: React.FC<AboutPageProps> = ({ handleOpenLeadDialog }) => {
         </section>
 
         {/* Nuestra Filosofía (Our Philosophy & Values) */}
-        <section className="py-16 md:py-20">
+        <section className="py-8 sm:py-12 md:py-16 lg:py-20">
           <div className="container mx-auto px-4">
-            <div className="text-center max-w-3xl mx-auto mb-12 md:mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">Nuestra Filosofía</h2>
-              <p className="text-lg text-gray-700">
+            <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-10 md:mb-12 lg:mb-16">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">Nuestra Filosofía</h2>
+              <p className="text-base sm:text-lg text-gray-700">
                 Creemos firmemente que la base de una asesoría excepcional radica en valores sólidos y un enfoque centrado en el cliente.
               </p>
             </div>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
               <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
                 <CardContent className="pt-6 flex flex-col items-center text-center">
                   <div className="mb-4 flex justify-center">
@@ -187,11 +187,11 @@ const AboutPage: React.FC<AboutPageProps> = ({ handleOpenLeadDialog }) => {
         </section>
 
         {/* Call to Action */}
-        <section className="py-16 md:py-20 bg-primary text-white">
+        <section className="py-8 sm:py-12 md:py-16 lg:py-20 bg-primary text-white">
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto text-center">
-              <h2 className="text-3xl md:text-4xl font-bold mb-6">¿Listo para Proteger lo que Más Quieres?</h2>
-              <p className="mb-8 text-lg text-white/90">Nuestros asesores están listos para ayudarte a encontrar la protección adecuada para ti, tu familia o tu negocio.</p>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6">¿Listo para Proteger lo que Más Quieres?</h2>
+              <p className="mb-6 sm:mb-8 text-base sm:text-lg text-white/90">Nuestros asesores están listos para ayudarte a encontrar la protección adecuada para ti, tu familia o tu negocio.</p>
               <Button
                 onClick={handleOpenLeadDialog}
                 size="lg"

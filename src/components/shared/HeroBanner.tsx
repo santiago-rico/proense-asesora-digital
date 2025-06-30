@@ -25,7 +25,7 @@ function HeroBanner({
   if (!useOptimizedImage) {
     return (
       <div 
-        className="relative overflow-hidden h-[50vh] min-h-[400px]"
+        className="relative overflow-hidden h-[40vh] sm:h-[45vh] md:h-[50vh] min-h-[300px] sm:min-h-[350px] md:min-h-[400px]"
         style={{
           backgroundImage: `url(${backgroundImage})`,
           backgroundSize: 'cover',
@@ -35,10 +35,10 @@ function HeroBanner({
         {/* Overlay */}
         <div className="absolute inset-0 bg-black/30"></div>
         
-        <div className="container relative mx-auto px-4 h-full flex items-center justify-center md:justify-start">
-          <div className="relative z-10 max-w-2xl mx-auto md:mx-0 md:ml-[7rem] text-white text-center md:text-left">
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 animate-slide-in">{title}</h1>
-            <p className="text-base md:text-lg lg:text-xl mb-8 animate-fade-in opacity-90">{description}</p>
+        <div className="container relative mx-auto px-4 sm:px-6 h-full flex items-center justify-center md:justify-start">
+          <div className="relative z-10 max-w-2xl mx-auto md:mx-0 md:ml-[4rem] lg:ml-[7rem] text-white text-center md:text-left">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 animate-slide-in">{title}</h1>
+            <p className="text-sm sm:text-base md:text-lg lg:text-xl mb-6 sm:mb-8 animate-fade-in opacity-90">{description}</p>
             <div className="flex justify-center md:justify-start">
               {ctaText && handleOpenLeadDialog && (
                 <Button 
@@ -60,7 +60,7 @@ function HeroBanner({
 
   // Optimized image approach using OptimizedImage component
   return (
-    <div className="relative overflow-hidden h-[50vh] min-h-[400px]">
+    <div className="relative overflow-hidden h-[40vh] sm:h-[45vh] md:h-[50vh] min-h-[300px] sm:min-h-[350px] md:min-h-[400px]">
       {/* Optimized background image */}
       <OptimizedImage
         src={backgroundImage}
@@ -76,8 +76,8 @@ function HeroBanner({
       
       <div className="container relative mx-auto px-4 h-full flex items-center justify-center md:justify-start">
         <div className="relative z-10 max-w-2xl mx-auto md:mx-0 md:ml-[7rem] text-white text-center md:text-left">
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 animate-slide-in">{title}</h1>
-          <p className="text-base md:text-lg lg:text-xl mb-8 animate-fade-in opacity-90">{description}</p>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 animate-slide-in">{title}</h1>
+          <p className="text-sm sm:text-base md:text-lg lg:text-xl mb-6 sm:mb-8 animate-fade-in opacity-90">{description}</p>
           <div className="flex justify-center md:justify-start">
             {ctaText && handleOpenLeadDialog && (
               <Button 
