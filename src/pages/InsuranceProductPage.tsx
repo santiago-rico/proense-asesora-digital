@@ -71,39 +71,7 @@ const InsuranceProductPage: React.FC<InsuranceProductPageProps> = ({ type: propT
         useOptimizedImage={true}
       />
 
-      {/* Explanation Section */}
-      <section className="py-12 md:py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
-            <div>
-              <h2 className="text-3xl md:text-4xl font-bold mb-4 text-primary">
-                {data.explanationTitle}
-              </h2>
-              <p className="text-lg text-gray-700 mb-6">
-                {data.explanationText}
-              </p>
-            </div>
-            <div className="bg-gray-50 p-6 md:p-8 rounded-lg shadow-md">
-              <h3 className="text-2xl font-bold text-gray-800 mb-4">¿Para Quién es Este Seguro?</h3>
-              <ul className="space-y-4">
-                {data.whoIsItFor.map((item, index) => (
-                  <li key={index} className="flex items-start">
-                    <div className="flex-shrink-0">
-                      <svg className="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                      </svg>
-                    </div>
-                    <div className="ml-3">
-                      <p className="text-lg font-semibold text-gray-800">{item.persona}</p>
-                      <p className="text-gray-600">{item.description}</p>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
+
 
       {/* Coverages Section */}
       <section className="pt-12 md:pt-20 pb-16 md:pb-24 bg-gray-50">

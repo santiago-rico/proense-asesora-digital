@@ -6,9 +6,7 @@ export interface InsuranceProductData {
   heroImagePosition?: string;
   heroDescription: string;
   heroCtaText: string;
-  explanationTitle: string;
-  explanationText: string;
-  whoIsItFor: Array<{ persona: string; description: string; }>;
+
   coveragesTitle: string;
   coverages: Array<{
     icon?: string; // Optional: Lucide icon name or path to custom icon
@@ -35,16 +33,10 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     shortDescription: "Protege a tus seres queridos y garantiza su futuro financiero.",
     heroImage: "/images/hero-vida.avif",
     heroImagePosition: 'center 10%',
-    heroDescription: "Garantiza el futuro financiero de tu familia en Colombia y vive con la tranquilidad de saber que están protegidos. Nuestros asesores certificados te ayudan a hacerlo simple, con productos respaldados por las mejores aseguradoras del país.",
+    heroDescription: "Garantiza el futuro financiero de tu familia en Colombia y vive con la tranquilidad de saber que están protegidos.",
     heroCtaText: "Solicitar Asesoría Gratuita",
-    explanationTitle: "¿Qué es el Seguro de Vida?",
-    explanationText: "El seguro de vida es un contrato mediante el cual la aseguradora se compromete a pagar una suma de dinero (capital asegurado) a los beneficiarios designados en caso de fallecimiento del asegurado. También puede ofrecer coberturas adicionales por invalidez, enfermedades graves o accidentes.",
-    whoIsItFor: [
-      { persona: "Cabezas de familia", description: "Asegura la educación y el bienestar de tus hijos, garantizando que tus metas para ellos se cumplan sin importar lo que pase. Protege tu patrimonio familiar y evita dejar cargas financieras a tus seres queridos." },
-      { persona: "Jóvenes profesionales y emprendedores", description: "Protege tu patrimonio y evita dejar cargas financieras como créditos hipotecarios o estudiantiles. Ideal para socios y dueños de negocios que necesitan garantizar la continuidad empresarial." },
-      { persona: "Personas que planifican su futuro", description: "Crea un legado financiero sólido y planifica tu futuro con una herramienta que te brinda tranquilidad y respaldo para ti y tu familia, construyendo un patrimonio duradero." }
-    ],
-    coveragesTitle: "Principales Coberturas del Seguro de Vida",
+
+    coveragesTitle: "Coberturas Esenciales del Seguro de Vida",
     coverages: [
       {
         icon: "HeartHandshake",
@@ -128,15 +120,9 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     shortDescription: "Accede a la mejor atención médica privada para ti y tu familia.",
     heroImage: "/images/hero-salud.avif",
     heroImagePosition: 'center 70%',
-    heroDescription: "Tu bienestar y el de tu familia es lo primero en Colombia. Accede a la mejor atención médica privada, sin esperas y con el trato personalizado que mereces. Nuestros asesores certificados se encargan de que así sea, conectándote con las mejores aseguradoras del país.",
+    heroDescription: "Tu bienestar y el de tu familia es lo primero en Colombia. Accede a la mejor atención médica privada, sin esperas y con el trato personalizado que mereces.",
     heroCtaText: "Solicitar Asesoría Gratuita",
-    explanationTitle: "¿Qué es una Póliza de Salud?",
-    explanationText: "Una póliza de salud es un seguro médico que te brinda la libertad de elegir cualquier médico o especialista, dentro o fuera de la red médica, con reembolsos de hasta el 100% de los gastos. A diferencia de la medicina prepagada, no estás limitado a un directorio específico y puedes recibir atención médica de calidad en cualquier lugar, complementando tu EPS obligatoria.",
-    whoIsItFor: [
-      { persona: "Familias jóvenes", description: "Que buscan atención médica ágil y de calidad para todos los miembros, sin listas de espera y con la libertad de elegir especialistas para el cuidado integral de la familia." },
-      { persona: "Profesionales independientes", description: "Que no pueden permitirse interrupciones en su actividad laboral y necesitan una respuesta médica inmediata, con acceso a la mejor red de especialistas del país." },
-      { persona: "Empleados con EPS", description: "Que desean complementar su plan obligatorio con cobertura superior, acceso a clínicas privadas y servicios adicionales para un cuidado de salud premium." }
-    ],
+
     coveragesTitle: "Coberturas Destacadas del Seguro de Salud",
     coverages: [
       {
@@ -220,15 +206,9 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     shortDescription: "Cobertura completa para tu vehículo ante cualquier eventualidad.",
     heroImage: "/images/hero-auto.avif",
     heroImagePosition: 'left',
-    heroDescription: "Disfruta del camino en Colombia con total tranquilidad. Te ofrecemos la protección completa que tu vehículo necesita para que conduzcas sin preocupaciones, respaldado por nuestros asesores certificados y las mejores aseguradoras del país ante cualquier imprevisto.",
+    heroDescription: "Disfruta del camino en Colombia con total tranquilidad. Te ofrecemos la protección completa que tu vehículo necesita para que conduzcas sin preocupaciones",
     heroCtaText: "Solicitar Asesoría Gratuita",
-    explanationTitle: "¿Qué es el Seguro de Auto?",
-    explanationText: "Es un contrato que te protege económicamente ante los riesgos asociados a la conducción y tenencia de un vehículo, como accidentes, robos o daños a terceros.",
-    whoIsItFor: [
-      { persona: "Conductores urbanos diarios", description: "Que necesitan su coche para trabajar y desplazarse en la ciudad, requiriendo asistencia rápida y respaldo ante cualquier eventualidad en el tráfico colombiano." },
-      { persona: "Propietarios de vehículos nuevos o de valor", description: "Que quieren proteger su inversión con una cobertura completa que responda ante cualquier eventualidad, desde accidentes hasta robo o vandalismo." },
-      { persona: "Familias que dependen de su vehículo", description: "Que usan el coche para todas sus actividades y necesitan la máxima protección, incluyendo vehículo de reemplazo y asistencia integral." }
-    ],
+
     coveragesTitle: "Principales Coberturas de Auto",
     coverages: [
       {
@@ -300,15 +280,8 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     shortDescription: "Protege tu hogar y tus pertenencias contra daños y robos.",
     heroImage: "/images/hero-hogar.avif",
     heroImagePosition: 'center',
-    heroDescription: "Tu hogar es tu mayor tesoro en Colombia. Asegura la tranquilidad de tu familia y protege tu inversión con una póliza que lo cubre todo, desde la estructura hasta tus bienes más preciados. Nuestros asesores certificados están aquí para que te sientas seguro en casa, con el respaldo de las mejores aseguradoras del país.",
+    heroDescription: "Tu hogar es tu mayor tesoro en Colombia. Asegura la tranquilidad de tu familia y protege tu inversión con una póliza que lo cubre todo, desde la estructura hasta tus bienes más preciados",
     heroCtaText: "Solicitar Asesoría Gratuita",
-    explanationTitle: "¿Por qué necesitas un Seguro de Hogar?",
-    explanationText: "Un seguro de hogar protege tu vivienda y tus bienes ante imprevistos como incendios, robos, daños por agua, roturas o responsabilidad civil si causas daños a terceros.",
-    whoIsItFor: [
-      { persona: "Propietarios de vivienda", description: "Que desean proteger su mayor patrimonio familiar ante eventos como sismos, inundaciones, robos o incendios, garantizando la tranquilidad y seguridad de su hogar." },
-      { persona: "Arrendatarios (inquilinos)", description: "Que quieren proteger sus pertenencias personales (muebles, electrodomésticos, tecnología) dentro de la vivienda que alquilan, asegurando su patrimonio personal." },
-      { persona: "Propietarios de inmuebles en alquiler", description: "Que buscan proteger su inversión inmobiliaria con coberturas específicas para arrendadores, incluyendo daños causados por inquilinos y pérdida de rentas." }
-    ],
     coveragesTitle: "Coberturas Esenciales del Seguro de Hogar",
     coverages: [
       {
@@ -380,15 +353,8 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     shortDescription: "Soluciones personalizadas para proteger tu negocio.",
     heroImage: "/images/hero-pymes.avif",
     heroImagePosition: 'center',
-    heroDescription: "El futuro de tu empresa en Colombia es nuestra prioridad. Te brindamos la seguridad que necesitas con soluciones a la medida de tu negocio, garantizando su continuidad y protegiendo tu esfuerzo para que sigas creciendo sin límites. Nuestros asesores certificados te conectan con las mejores aseguradoras del país.",
+    heroDescription: "El futuro de tu empresa en Colombia es nuestra prioridad. Te brindamos la seguridad que necesitas con soluciones a la medida de tu negocio, garantizando su continuidad y protegiendo tu esfuerzo para que sigas creciendo sin límites",
     heroCtaText: "Solicitar Asesoría Gratuita",
-    explanationTitle: "¿Qué cubre un Seguro para PYMES?",
-    explanationText: "Los seguros para PYMES ofrecen un conjunto de coberturas para proteger el patrimonio de la empresa (instalaciones, maquinaria, existencias) y su responsabilidad ante reclamaciones de terceros.",
-    whoIsItFor: [
-      { persona: "Pequeños comercios y oficinas", description: "Que necesitan proteger su local, mercancías y mobiliario de los riesgos más comunes como robo, incendio o daños por agua, garantizando la continuidad del negocio." },
-      { persona: "Emprendedores y startups", description: "Que buscan una póliza flexible que se adapte a su crecimiento y proteja su inversión inicial desde el primer día, con coberturas modulares que evolucionen con el negocio." },
-      { persona: "Profesionales independientes", description: "Como abogados, consultores o contadores, que necesitan cubrir la responsabilidad civil profesional derivada de su actividad y proteger sus equipos de trabajo." }
-    ],
     coveragesTitle: "Coberturas Clave para tu PYME",
     coverages: [
       {
@@ -460,16 +426,8 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     shortDescription: "Cubre los gastos funerarios y gestiones necesarias.",
     heroImage: "/images/hero-decesos.avif",
     heroImagePosition: 'center',
-    heroDescription: "Un gesto de amor para los tuyos en Colombia. Bríndales la tranquilidad de no tener que preocuparse por nada en los momentos más difíciles. Nuestros asesores certificados se encargan de todo, con el respaldo de las mejores aseguradoras del país, para que tu familia pueda despedirte en paz.",
+    heroDescription: "Un gesto de amor para los tuyos en Colombia. Bríndales la tranquilidad de no tener que preocuparse por nada en los momentos más difíciles",
     heroCtaText: "Solicitar Asesoría Gratuita",
-    explanationTitle: "¿Qué es el Seguro de Decesos?",
-    explanationText: "Es una póliza que cubre los gastos asociados al sepelio del asegurado, además de ofrecer asistencia a la familia en los trámites y gestiones necesarias tras el fallecimiento.",
-    whoIsItFor: [
-      { persona: "Personas previsoras", description: "Que no quieren dejar una carga económica y emocional a sus familiares en los momentos más difíciles." },
-      { persona: "Familias", description: "Que buscan una solución integral para planificar el futuro y asegurar que los deseos de sus seres queridos sean respetados." },
-      { persona: "Personas mayores", description: "Que desean tener todo organizado y pagado, garantizando su tranquilidad y la de sus hijos." },
-      { persona: "Extranjeros residentes", description: "Que necesitan garantizar la repatriación a su país de origen en caso de fallecimiento, un proceso complejo y costoso." }
-    ],
     coveragesTitle: "Servicios Incluidos en el Seguro de Decesos",
     coverages: [
       {
@@ -532,19 +490,12 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
   mascotas: {
     id: "mascotas",
     title: "Seguro de Mascotas",
-    shortDescription: "Protección completa para tu mascota.",
+    shortDescription: "Todo lo que tu mascota necesita",
     heroImage: "/images/hero-mascotas.avif",
     heroImagePosition: 'center',
-    heroDescription: "El amor por tu mascota es incondicional en Colombia, su salud no debería tener precio. Te damos la tranquilidad de saber que estará protegido ante cualquier imprevisto, con el respaldo de nuestros asesores certificados y las mejores aseguradoras del país especializadas en mascotas.",
+    heroDescription: "El amor por tu mascota es incondicional en Colombia, su salud no debería tener precio. Te damos la tranquilidad de saber que estará protegido ante cualquier imprevisto",
     heroCtaText: "Solicitar Asesoría Gratuita",
-    explanationTitle: "¿Qué es el Seguro de Mascotas?",
-    explanationText: "Este seguro está diseñado para ofrecerte la máxima cobertura y tranquilidad para tu mascota, cubriendo gastos veterinarios, responsabilidad civil y más.",
-    whoIsItFor: [
-      { persona: "Familias con mascotas", description: "Que consideran a su perro o gato un miembro más de la familia y quieren darle la mejor atención veterinaria sin preocuparse por los costos médicos inesperados." },
-      { persona: "Propietarios de mascotas jóvenes", description: "Que buscan proteger a sus cachorros y gatitos desde el principio, cubriendo accidentes, enfermedades y estableciendo una base sólida para su cuidado futuro." },
-      { persona: "Dueños conscientes de la responsabilidad", description: "Que entienden la importancia de tener cobertura de responsabilidad civil para protegerse ante posibles daños que su mascota pueda causar a terceros o propiedades." }
-    ],
-    coveragesTitle: "Principales Coberturas",
+    coveragesTitle: "Protección completa para tu mascota",
     coverages: [
       {
         icon: "Stethoscope",
@@ -554,7 +505,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
       {
         icon: "ShieldAlert",
         title: "Responsabilidad Civil",
-        description: "Protección frente a los daños materiales o personales que tu mascota pueda causar a otras personas, animales u objetos."
+        description: "Protección frente a los daños que tu mascota pueda causar a otras personas, animales u objetos."
       },
       {
         icon: "SearchHeart",
@@ -598,16 +549,8 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     shortDescription: "La mejor protección para ti y tu moto.",
     heroImage: "/images/hero-motos.avif",
     heroImagePosition: 'center 90%',
-    heroDescription: "Siente la libertad en cada kilómetro en Colombia. Te ofrecemos la protección que necesitas para que solo te preocupes por disfrutar de la carretera, con el respaldo de nuestros asesores certificados que entienden tu pasión por las dos ruedas y las mejores aseguradoras del país.",
+    heroDescription: "Siente la libertad en cada kilómetro de Colombia. Te ofrecemos la protección que necesitas para que solo te preocupes por disfrutar de la carretera",
     heroCtaText: "Solicitar Asesoría Gratuita",
-    explanationTitle: "¿Qué es el Seguro de Motos?",
-    explanationText: "Un seguro de moto te protege frente a los riesgos asociados a la conducción, cubriendo desde la responsabilidad civil obligatoria hasta daños propios, robo o asistencia en viaje.",
-    whoIsItFor: [
-        { persona: "Motoristas urbanos", description: "Que usan la moto a diario para moverse por la ciudad y necesitan agilidad, asistencia rápida y cobertura de robo." },
-        { persona: "Amantes de las rutas", description: "Que disfrutan de viajes largos y escapadas de fin de semana, buscando una asistencia en viaje completa y cobertura de equipamiento." },
-        { persona: "Propietarios de motos de alta gama", description: "Que desean proteger su inversión con un seguro a todo riesgo que cubra cualquier daño propio." },
-        { persona: "Conductores noveles", description: "Que buscan un seguro que les ofrezca seguridad y respaldo mientras ganan experiencia en la carretera." }
-    ],
     coveragesTitle: "Coberturas Esenciales para tu Moto",
     coverages: [
       {
@@ -664,20 +607,12 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
   },
   arrendamiento: {
     id: "arrendamiento",
-    title: "Seguro de Impago de Alquiler",
+    title: "Seguro de Arrendamiento",
     shortDescription: "Garantiza el cobro de tus rentas y protege tu inversión.",
     heroImage: "/images/hero-arrendamiento.avif",
     heroImagePosition: 'center',
-    heroDescription: "Tu inversión inmobiliaria en Colombia, protegida. Alquila con la certeza de que tus ingresos están garantizados y tu propiedad segura. Nuestros asesores certificados se encargan de los imprevistos para que tú solo te ocupes de la rentabilidad, respaldados por las mejores aseguradoras del país.",
+    heroDescription: "Tu inversión inmobiliaria en Colombia, protegida. Alquila con la certeza de que tus ingresos están garantizados y tu propiedad segura",
     heroCtaText: "Solicitar Asesoría Gratuita",
-    explanationTitle: "¿Qué es el Seguro de Impago de Alquiler?",
-    explanationText: "Es una póliza diseñada para propietarios de inmuebles en alquiler. Garantiza el cobro de las rentas mensuales en caso de impago por parte del inquilino y puede cubrir los gastos de desahucio y daños en la vivienda.",
-    whoIsItFor: [
-        { persona: "Pequeños propietarios", description: "Que tienen una o dos viviendas en alquiler y dependen de esa renta, buscando la máxima seguridad." },
-        { persona: "Inversores inmobiliarios", description: "Que gestionan una cartera de propiedades y necesitan optimizar la rentabilidad minimizando los riesgos de impago y daños." },
-        { persona: "Propietarios que viven lejos", description: "Que no pueden gestionar de cerca su propiedad alquilada y necesitan un respaldo legal y administrativo completo." },
-        { persona: "Propietarios primerizos", description: "Que alquilan por primera vez y quieren hacerlo con la tranquilidad de estar cubiertos por profesionales." }
-    ],
     coveragesTitle: "Principales Ventajas del Seguro de Alquiler",
     coverages: [
       {
@@ -738,15 +673,9 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     shortDescription: "Viaja con total tranquilidad y cobertura mundial.",
     heroImage: "/images/hero-viaje.avif",
     heroImagePosition: 'center',
-    heroDescription: "Tu próxima aventura te espera desde Colombia, viaja sin límites ni preocupaciones. Te protegemos ante cualquier imprevisto en cualquier rincón del mundo, para que tu única misión sea disfrutar y crear recuerdos inolvidables. Nuestros asesores certificados te conectan con las mejores aseguradoras del país especializadas en viajes.",
+    heroDescription: "Tu próxima aventura te espera, viaja desde Colombia sin límites ni preocupaciones. Te protegemos ante cualquier imprevisto en cualquier rincón del mundo, para que tu única misión sea disfrutar y crear recuerdos inolvidables",
     heroCtaText: "Solicitar Asesoría Gratuita",
-    explanationTitle: "¿Por qué necesitas un Seguro de Viaje?",
-    explanationText: "Un seguro de viaje te cubre ante eventualidades como gastos médicos por enfermedad o accidente, cancelación del viaje, pérdida de equipaje, repatriación y responsabilidad civil en el extranjero.",
-    whoIsItFor: [
-        { persona: "Viajeros frecuentes", description: "Turistas, aventureros y viajeros de negocios que exploran nuevos destinos y necesitan estar cubiertos ante cualquier imprevisto médico, de equipaje o cancelación en sus múltiples viajes." },
-        { persona: "Familias que viajan", description: "Que buscan la tranquilidad de tener asistencia médica completa para todos los miembros, especialmente cuando viajan con niños, garantizando cobertura pediátrica especializada." },
-        { persona: "Estudiantes y trabajadores en el exterior", description: "Que van a pasar temporadas prolongadas fuera de Colombia y necesitan una cobertura médica integral, asistencia legal y protección durante toda su estancia." }
-    ],
+
     coveragesTitle: "Coberturas Imprescindibles en tu Viaje",
     coverages: [
       { icon: "PlaneTakeoff", title: "Asistencia Médica y Sanitaria", description: "Cobertura de gastos médicos, hospitalización y medicamentos en el extranjero." },
