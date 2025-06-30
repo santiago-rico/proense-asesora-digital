@@ -287,20 +287,33 @@ const MultiStepForm = ({ onSuccess }: MultiStepFormProps) => {
           aria-hidden="true"
         />
 
-        <div className="flex justify-between">
+        <div className="flex flex-col sm:flex-row gap-4 sm:justify-between items-stretch sm:items-center pt-6 border-t mt-8">
           {currentStep > 0 && (
-            <Button type="button" onClick={handlePrev} variant="outline">
+            <Button 
+              type="button" 
+              onClick={handlePrev} 
+              variant="outline"
+              className="w-full sm:w-auto min-h-[44px] touch-manipulation"
+            >
               Anterior
             </Button>
           )}
-          <div /> 
+          <div className="hidden sm:block" /> 
           {currentStep < steps.length - 1 && (
-            <Button type="button" onClick={handleNext}>
+            <Button 
+              type="button" 
+              onClick={handleNext}
+              className="w-full sm:w-auto min-h-[44px] touch-manipulation order-first sm:order-none"
+            >
               Siguiente
             </Button>
           )}
           {currentStep === steps.length - 1 && (
-            <Button type="submit" disabled={isSubmitting || !csrfToken}>
+            <Button 
+              type="submit" 
+              disabled={isSubmitting || !csrfToken}
+              className="w-full sm:w-auto min-h-[44px] touch-manipulation order-first sm:order-none"
+            >
               {!csrfToken ? 'Cargando...' : isSubmitting ? 'Enviando...' : 'Firmar y Enviar Solicitud'}
             </Button>
           )}

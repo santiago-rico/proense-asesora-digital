@@ -61,17 +61,22 @@ const FileUpload: React.FC<FileUploadProps> = ({ name, label, description, multi
       </label>
       <div
         {...getRootProps()}
-        className={`flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-md cursor-pointer
+        className={`flex flex-col items-center justify-center p-4 sm:p-6 border-2 border-dashed rounded-md cursor-pointer
+        min-h-[120px] sm:min-h-[140px] touch-manipulation
         ${isDragActive ? 'border-primary bg-primary/10' : 'border-gray-300'}
-        ${displayError ? 'border-red-500' : ''}`}
+        ${displayError ? 'border-red-500' : ''}
+        hover:border-primary/50 hover:bg-gray-50 transition-colors duration-200`}
       >
         <input {...getInputProps()} />
-        <Upload className="w-8 h-8 text-gray-500 mb-2" />
-        <p className="text-sm text-gray-600">
-          {isDragActive ? 'Suelta los archivos aquí...' : 'Arrastra y suelta archivos aquí, o haz clic para seleccionar'}
+        <Upload className="w-8 h-8 sm:w-10 sm:h-10 text-gray-500 mb-2" />
+        <p className="text-sm sm:text-base text-gray-600 text-center px-2">
+          {isDragActive ? 'Suelta los archivos aquí...' : 'Toca aquí para seleccionar archivos'}
         </p>
-        {description && <p className="text-xs text-gray-500 mt-1">{description}</p>}
-        <p className="text-xs text-gray-500 mt-2">PDF, JPG, PNG, WEBP, DOC, DOCX. (Max 5MB)</p>
+        <p className="text-xs sm:text-sm text-gray-500 text-center mt-1 px-2 hidden sm:block">
+          o arrastra y suelta archivos aquí
+        </p>
+        {description && <p className="text-xs text-gray-500 mt-2 text-center px-2">{description}</p>}
+        <p className="text-xs text-gray-500 mt-2 text-center px-2">PDF, JPG, PNG, WEBP, DOC, DOCX. (Max 5MB)</p>
       </div>
       {displayError && <p className="text-sm text-red-600 mt-1">{displayError}</p>}
       {myFiles.length > 0 && (
@@ -79,12 +84,17 @@ const FileUpload: React.FC<FileUploadProps> = ({ name, label, description, multi
           <h4 className="text-sm font-medium">Archivos seleccionados:</h4>
           <ul className="space-y-2">
             {myFiles.map((file, i) => (
-              <li key={i} className="flex items-center justify-between p-2 bg-gray-100 rounded-md">
-                <div className="flex items-center space-x-2">
-                  <FileIcon className="w-5 h-5 text-gray-500" />
-                  <span className="text-sm">{file.name}</span>
+              <li key={i} className="flex items-center justify-between p-3 bg-gray-100 rounded-md">
+                <div className="flex items-center space-x-3 min-w-0 flex-1">
+                  <FileIcon className="w-5 h-5 text-gray-500 flex-shrink-0" />
+                  <span className="text-sm truncate" title={file.name}>{file.name}</span>
                 </div>
-                <button type="button" onClick={() => removeFile(file)} className="text-red-500 hover:text-red-700">
+                <button 
+                  type="button" 
+                  onClick={() => removeFile(file)} 
+                  className="text-red-500 hover:text-red-700 p-1 touch-manipulation flex-shrink-0 ml-2"
+                  aria-label={`Eliminar archivo ${file.name}`}
+                >
                   <X className="w-5 h-5" />
                 </button>
               </li>
