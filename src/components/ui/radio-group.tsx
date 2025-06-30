@@ -26,10 +26,12 @@ const RadioGroupItem = React.forwardRef<
     <RadioGroupPrimitive.Item
       ref={ref}
       className={cn(
-        // Base radio styles with visual size of 16px but touch target of 44px
+        // Base radio styles with visual size of 16px
         "aspect-square h-4 w-4 rounded-full border border-primary text-primary ring-offset-background focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-        // Add minimum touch target padding (44px total: 16px content + 28px padding)
-        "p-3.5 min-h-11 min-w-11 flex items-center justify-center",
+        // Responsive touch targets: compact on desktop (24px total), larger on mobile (44px total)
+        "p-1 sm:p-3.5 md:p-1", // 24px mobile->44px tablet->24px desktop
+        "min-h-6 min-w-6 sm:min-h-11 sm:min-w-11 md:min-h-6 md:min-w-6", // 24px->44px->24px
+        "flex items-center justify-center",
         className
       )}
       {...props}
