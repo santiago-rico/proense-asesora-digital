@@ -30,7 +30,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
   vida: {
     id: "vida",
     title: "Seguro de Vida",
-    shortDescription: "Protege a tus seres queridos y garantiza su futuro financiero.",
+    shortDescription: "Protege tu futuro y el de tus seres queridos con cobertura integral que garantiza estabilidad financiera ante fallecimiento o incapacidad.",
     heroImage: "/images/hero-vida.avif",
     heroImagePosition: 'center 10%',
     heroDescription: "Garantiza el futuro financiero de tu familia en Colombia y vive con la tranquilidad de saber que están protegidos.",
@@ -40,18 +40,18 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     coverages: [
       {
         icon: "HeartHandshake",
-        title: "Fallecimiento por cualquier causa",
-        description: "Garantiza el pago del capital asegurado a tus beneficiarios si falleces, sin importar la causa (con excepciones contractuales habituales)."
+        title: "Fallecimiento",
+        description: "Garantiza el pago del capital asegurado a tus beneficiarios si falleces."
       },
       {
         icon: "Accessibility",
-        title: "Invalidez Absoluta y Permanente",
-        description: "Recibe el capital asegurado en vida si sufres una invalidez que te impida desempeñar cualquier actividad laboral."
+        title: "Invalidez Total y Permanente",
+        description: "Recibe el capital asegurado en vida si sufres una invalidez que te impida desempeñar tu actividad laboral."
       },
       {
         icon: "Activity",
         title: "Enfermedades Graves",
-        description: "Opción de recibir un anticipo del capital asegurado en caso de diagnóstico de enfermedades graves especificadas en la póliza."
+        description: "Recibe un capital asegurado en caso de diagnóstico de enfermedades graves especificadas en la póliza."
       },
       {
         icon: "ShieldCheck",
@@ -97,21 +97,99 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
       },
       {
         question: "¿Qué es el 'valor de rescate' de una póliza y cómo funciona?",
-        answer: "El valor de rescate es un componente de ahorro que se acumula en los seguros de vida permanentes. Este dinero está disponible para ti si decides cancelar la póliza, o puedes usarlo para pedir un préstamo a la aseguradora. Es una forma de proteger a tu familia y a la vez construir un capital para tu futuro."
+        answer: "El valor de rescate es un componente de ahorro que se acumula en los seguros de vida permanentes. Este dinero está disponible para ti si decides cancelar la póliza. Es una forma de proteger a tu familia y a la vez construir un capital para tu futuro."
       },
       {
         question: "¿El dinero que reciben mis beneficiarios paga impuestos?",
-        answer: "En Colombia, por norma general, las indemnizaciones recibidas de un seguro de vida no constituyen renta gravable, por lo que tus beneficiarios no tendrían que pagar impuesto de renta sobre el dinero recibido. Es uno de los grandes beneficios de este instrumento de protección."
-      },
-      {
-        question: "¿Puedo usar mi seguro de vida para pedir un préstamo?",
-        answer: "Sí, si tienes un seguro de vida permanente con valor de rescate acumulado, puedes solicitar un préstamo a la aseguradora usando ese valor como garantía. Es una opción flexible para obtener liquidez en caso de necesidad sin tener que cancelar tu protección."
+        answer: "En Colombia, las indemnizaciones por seguros de vida están exentas de impuestos hasta 3.250 UVT($161.846.750  para 2025). Los montos superiores pagan 15% de impuesto por ganancia ocasional, más una retención del 20% que aplica la aseguradora."
       }
     ],
     leadFormTitle: "Comienza tu Asesoría Gratuita Aquí",
     leadFormSubtitle: "Completa el formulario y un asesor especializado te contactará para ofrecerte la mejor solución adaptada a tus necesidades y presupuesto.",
     contactSectionTitle: "¿Listo para Proteger lo que Más Quieres?",
     contactSectionSubtitle: "No dejes tus dudas para después. Un asesor te espera para ofrecerte la mejor solución en seguros de vida.",
+    contactSectionCtaText: "Solicitar Asesoría Gratuita"
+  },
+  "vida-deudores": {
+    id: "vida-deudores",
+    title: "Seguro de Vida Deudores",
+    shortDescription: "Protege a tu familia de las deudas en caso de fallecimiento o incapacidad, asegurando que no hereden obligaciones financieras y mantengan su estabilidad económica.",
+    heroImage: "/images/hero-vida-deudores.avif",
+    heroImagePosition: 'center 20%',
+    heroDescription: "Libera a tu familia de la carga de las deudas en Colombia. Garantiza que en caso de fallecimiento o incapacidad, tus seres queridos no hereden obligaciones financieras y puedan conservar su tranquilidad económica.",
+    heroCtaText: "Solicitar Asesoría Gratuita",
+
+    coveragesTitle: "Coberturas Principales del Seguro de Vida Deudores",
+    coverages: [
+      {
+        icon: "CreditCard",
+        title: "Cancelación de Deudas por Fallecimiento",
+        description: "En caso de fallecimiento, se paga directamente al acreedor el saldo pendiente de la deuda, sin que este supere el valor asegurado."
+      },
+      {
+        icon: "Accessibility",
+        title: "Cobertura por Invalidez",
+        description: "Si quedas inválido permanentemente (50% o más de capacidad laboral), se cancela la deuda pendiente según el porcentaje de invalidez alcanzado."
+      },
+      {
+        icon: "BriefcaseBusiness",
+        title: "Cobertura por Desempleo",
+        description: "Si eres despedido sin justa causa, se pagan un número determinado de cuotas de tu crédito mientras encuentras nuevo empleo."
+      },
+      {
+        icon: "HeartHandshake",
+        title: "Auxilio Funerario",
+        description: "Suma adicional para cubrir gastos funerarios, aliviando la carga económica de la familia en momentos difíciles."
+      },
+      {
+        icon: "CarCrash",
+        title: "Muerte Accidental",
+        description: "Indemnización adicional igual al valor asegurado si el fallecimiento ocurre como consecuencia de un accidente."
+      },
+      {
+        icon: "Baby",
+        title: "Beneficio por Nacimiento",
+        description: "Pago del valor asegurado por el nacimiento y supervivencia de un hijo, como apoyo económico en esta etapa importante."
+      }
+    ],
+    faq: [
+      {
+        question: "¿Cómo funciona el seguro de vida deudores?",
+        answer: "Si falleces, la aseguradora paga directamente al acreedor (banco, financiera) el saldo pendiente de tu deuda. Si queda dinero del valor asegurado después del pago, este se entrega a tus beneficiarios designados."
+      },
+      {
+        question: "¿Qué pasa si mi deuda es menor al valor asegurado?",
+        answer: "La aseguradora paga el saldo de la deuda al acreedor y el dinero restante se entrega a los beneficiarios que hayas designado libremente. No se pierde el dinero sobrante."
+      },
+      {
+        question: "¿Hasta qué edad puedo contratar este seguro?",
+        answer: "Generalmente se puede contratar desde los 18 años hasta los 65 años, dependiendo de las políticas de suscripción de la aseguradora y la evaluación médica correspondiente."
+      },
+      {
+        question: "¿Cuándo inicia la cobertura del seguro?",
+        answer: "La protección comienza cuando la entidad financiera (tomador de la póliza) hace el desembolso de tu crédito. Es decir, está activa desde que recibes el dinero prestado."
+      },
+      {
+        question: "¿Qué requisitos necesito para contratar el seguro?",
+        answer: "Debes cumplir con los rangos de edad establecidos, diligenciar la declaración de asegurabilidad y proporcionar la información médica y financiera requerida por la aseguradora."
+      },
+      {
+        question: "¿El seguro cubre solo el fallecimiento o también otras situaciones?",
+        answer: "Además del fallecimiento, el seguro puede cubrir invalidez permanente, desempleo involuntario, y ofrecer beneficios adicionales como auxilio funerario y beneficio por nacimiento de hijos."
+      },
+      {
+        question: "¿Puedo usar el dinero libremente si quedo inválido?",
+        answer: "Sí, en caso de invalidez, la aseguradora te entrega el dinero directamente a ti para que lo utilices libremente, después de cancelar la deuda correspondiente según el porcentaje de invalidez."
+      },
+      {
+        question: "¿Qué diferencia hay entre este seguro y un seguro de vida tradicional?",
+        answer: "El seguro de vida deudores está diseñado específicamente para proteger a la familia de heredar deudas. Primero cancela la obligación financiera y luego entrega el remanente a los beneficiarios, mientras que el seguro de vida tradicional entrega todo el capital directamente a los beneficiarios."
+      }
+    ],
+    leadFormTitle: "Protege a tu Familia de las Deudas",
+    leadFormSubtitle: "Completa el formulario y un asesor especializado te contactará para ofrecerte la mejor solución que garantice la tranquilidad económica de tu familia.",
+    contactSectionTitle: "¿Listo para Liberar a tu Familia de las Deudas?",
+    contactSectionSubtitle: "No dejes que las deudas sean una carga para tus seres queridos. Un asesor te espera para ofrecerte la mejor solución en seguros de vida deudores.",
     contactSectionCtaText: "Solicitar Asesoría Gratuita"
   },
   salud: {
@@ -142,8 +220,8 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
       },
       {
         icon: "Baby",
-        title: "Cobertura Dental y de Visión (Opcional)",
-        description: "Muchos seguros ofrecen módulos adicionales para cubrir gastos dentales, oftalmológicos y otros servicios de bienestar."
+        title: "Cobertura Dental (Opcional)",
+        description: "Muchos seguros ofrecen módulos adicionales para cubrir gastos dentales."
       },
       {
         icon: "Home",

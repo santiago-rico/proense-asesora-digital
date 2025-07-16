@@ -59,6 +59,7 @@ const App = () => {
               
               {/* Lazy load insurance product pages (saves ~300KB from insurance data) */}
               <Route path="/seguros/vida" element={<InsuranceProductPage type="vida" handleOpenLeadDialog={handleOpenLeadDialog} />} />
+              <Route path="/seguros/vida-deudores" element={<InsuranceProductPage type="vida-deudores" handleOpenLeadDialog={handleOpenLeadDialog} />} />
               <Route path="/seguros/salud" element={<InsuranceProductPage type="salud" handleOpenLeadDialog={handleOpenLeadDialog} />} />
               <Route path="/seguros/auto" element={<InsuranceProductPage type="auto" handleOpenLeadDialog={handleOpenLeadDialog} />} />
               <Route path="/seguros/hogar" element={<InsuranceProductPage type="hogar" handleOpenLeadDialog={handleOpenLeadDialog} />} />

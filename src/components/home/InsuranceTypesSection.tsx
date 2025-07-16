@@ -7,7 +7,7 @@ import { Heart, Landmark, Stethoscope, Car, Home, Briefcase } from 'lucide-react
 const insuranceTypes = [
   {
     title: "Seguro de Vida",
-    description: "Protege a tus seres queridos y garantiza su futuro financiero ante cualquier eventualidad, asegurando su bienestar y tranquilidad.",
+    description: "Protege tu futuro y el de tus seres queridos con cobertura integral que garantiza estabilidad financiera ante fallecimiento o incapacidad.",
     icon: <Heart className="w-10 h-10 text-primary" />,
     link: "/seguros/vida",
   },
