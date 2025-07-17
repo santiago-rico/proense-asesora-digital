@@ -193,7 +193,7 @@ const ClientServicePage: React.FC<ClientServicePageProps> = ({ type, handleOpenL
           <section className="py-16 bg-gray-50" id="emergency-lines">
             <div className="container mx-auto px-4">
               <div className="text-center max-w-3xl mx-auto mb-12">
-                <h2 className="text-3xl font-bold mb-4">Líneas de Emergencia de Aseguradoras</h2>
+                <h2 className="text-3xl font-bold mb-4">Líneas de Asistencia de Aseguradoras</h2>
                 <p className="text-gray-700">Contacta directamente a tu aseguradora utilizando los siguientes números de emergencia.</p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">

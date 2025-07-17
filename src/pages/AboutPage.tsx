@@ -80,7 +80,7 @@ const AboutPage: React.FC<AboutPageProps> = ({ handleOpenLeadDialog }) => {
             <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-10 md:mb-12 lg:mb-16">
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">La Diferencia Proense: Valor Agregado para Ti</h2>
               <p className="text-base sm:text-lg text-gray-700">
-                Elegir Proense Asesores significa optar por un servicio que va más allá de una simple póliza. Te ofrecemos:
+                Elegir Proense Seguros significa optar por un servicio que va más allá de una simple póliza. Te ofrecemos:
               </p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">

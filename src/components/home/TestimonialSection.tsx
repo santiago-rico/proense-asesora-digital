@@ -45,7 +45,7 @@ const testimonialsData: Testimonial[] = [
     name: 'Mónica Patricia Mogollon Sarmiento',
     since: 2023,
     quote: 'La puntualidad con la que entregan la información es impecable. Es un servicio en el que realmente se puede confiar.',
-    insuranceType: 'Seguro de Arrendamiento',
+    insuranceType: 'Seguro de Auto',
   },
 ];
 

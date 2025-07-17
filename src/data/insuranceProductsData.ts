@@ -297,7 +297,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
       {
         icon: "ShieldCheck",
         title: "Daños Propios (Todo Riesgo)",
-        description: "Reparamos los daños de tu propio vehículo, incluso si eres el culpable del siniestro. Incluye colisión, vandalismo y más. Aplica deducible según tu plan contratado."
+        description: "Reparamos los daños de tu propio vehículo, incluso si eres el culpable de la colisión. Incluye colisión, vandalismo y más. Aplica deducible según tu plan contratado."
       },
       {
         icon: "Flame",
@@ -307,7 +307,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
       {
         icon: "Wrench",
         title: "Asistencia en Viaje",
-        description: "Soporte en carretera 24/7 desde el km 0, incluyendo grúa, reparación in-situ y ayuda en caso de pinchazo o falta de batería."
+        description: "Soporte en carretera 24/7 desde el km 0, incluyendo grúa y ayuda en caso de pinchada o falta de batería."
       },
       {
         icon: "Gavel",
@@ -316,8 +316,8 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
       },
       {
         icon: "Car",
-        title: "Vehículo de Sustitución",
-        description: "Dispondrás de un coche de sustitución mientras el tuyo está en el taller por avería o accidente, para que no pierdas tu movilidad."
+        title: "Vehículo de Reemplazo",
+        description: "Dispondrás de un vehículo de reemplazo mientras el tuyo está en el taller por avería o accidente, para que no pierdas tu movilidad."
       }
     ],
     faq: [
@@ -364,23 +364,23 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     coverages: [
       {
         icon: "Home",
-        title: "Daños al Continente y Contenido",
+        title: "Daños a la Vivienda y Contenido",
         description: "Protección completa contra incendios, inundaciones, robos y otros daños que puedan afectar la estructura de tu vivienda y tus pertenencias."
       },
       {
         icon: "ShieldAlert",
         title: "Responsabilidad Civil",
-        description: "Cubre los daños materiales o personales que tú o tu familia podáis causar accidentalmente a terceros, tanto dentro como fuera de casa."
+        description: "Cubre los daños materiales o personales que tú o tu familia puedan causar accidentalmente a terceros, tanto dentro como fuera de casa."
       },
       {
         icon: "KeyRound",
         title: "Robo, Hurto y Vandalismo",
-        description: "Te indemnizamos por los bienes sustraídos en un robo y reparamos los daños ocasionados en la vivienda, incluyendo cerraduras."
+        description: "Te indemnizamos por los bienes sustraídos en un robo y reparamos los daños ocasionados en la vivienda."
       },
       {
         icon: "GlassWater",
         title: "Daños por Agua y Roturas",
-        description: "Cubre la reparación de tuberías, goteras, y la rotura accidental de cristales, espejos, sanitarios o placas vitrocerámicas."
+        description: "Cubre la reparación de tuberías, goteras, y la rotura accidental de cristales, espejos o sanitarios."
       },
       {
         icon: "Wrench",
@@ -403,8 +403,8 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
         answer: "No. Aunque el banco te lo ofrezca, no estás obligado a contratar el seguro con ellos. Tienes la libertad de elegir la aseguradora que prefieras. Comparar opciones te puede ayudar a encontrar una mejor cobertura a un mejor precio."
       },
       {
-        question: "¿Qué significan 'continente' y 'contenido' en la póliza?",
-        answer: "El 'continente' se refiere a la estructura de la vivienda (paredes, techos, pisos, ventanas) y sus instalaciones fijas (tuberías, sistema eléctrico). El 'contenido' son todos tus bienes personales dentro de la casa: muebles, electrodomésticos, ropa, etc."
+        question: "¿Qué significa y 'contenido' en la póliza?",
+        answer: "El 'contenido' son todos tus bienes personales dentro de la casa: muebles, electrodomésticos, ropa, etc."
       },
       {
         question: "Si vivo en un edificio, ¿el seguro de la copropiedad cubre mi apartamento?",
@@ -412,7 +412,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
       },
       {
         question: "Como inquilino, ¿necesito un seguro de hogar?",
-        answer: "Sí, es muy recomendable. El seguro del propietario cubre la estructura (el continente), pero no tus pertenencias (el contenido). Un seguro para inquilinos protege tus muebles, electrodomésticos y otros bienes en caso de robo o un siniestro como un incendio o daño por agua."
+        answer: "Sí, es muy recomendable. El seguro del propietario cubre la estructura, pero no tus pertenencias (el contenido). Un seguro para inquilinos protege tus muebles, electrodomésticos y otros bienes en caso de robo o un siniestro como un incendio o daño por agua."
       },
       {
         question: "¿El seguro de hogar cubre daños por sismos en Colombia?",
@@ -438,11 +438,11 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
       {
         icon: "Building2",
         title: "Daños Materiales al Patrimonio",
-        description: "Protege tus oficinas, naves, maquinaria y existencias contra incendios, robos, inundaciones y otros daños materiales."
+        description: "Protege tus oficinas, maquinaria y existencias contra incendios, robos, inundaciones y otros daños materiales."
       },
       {
         icon: "Users",
-        title: "Responsabilidad Civil de Explotación",
+        title: "Responsabilidad Civil de Extracontractual",
         description: "Cubre las indemnizaciones por daños materiales o personales que tu empresa pueda causar a terceros en el desarrollo de su actividad."
       },
       {
@@ -485,7 +485,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
       },
       {
         question: "¿Qué tipo de responsabilidad civil necesito?",
-        answer: "Necesitas la Responsabilidad Civil de Explotación, que cubre daños a terceros durante tu actividad (ej. un cliente se cae en tu local). También es clave la RC Patronal (accidentes de empleados) y la RC de Productos (daños causados por lo que vendes)."
+        answer: "Necesitas la Responsabilidad Civil Extracontractual, que cubre daños a terceros durante tu actividad (ej. un cliente se cae en tu local). También es clave la RC Patronal (accidentes de empleados) y la RC de Productos (daños causados por lo que vendes)."
       },
       {
         question: "¿Puedo adaptar el seguro a las necesidades específicas de mi empresa?",
@@ -639,7 +639,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
       {
         icon: "Bike",
         title: "Daños Propios (Todo Riesgo)",
-        description: "Reparamos los daños que sufra tu propia moto en un accidente, seas o no el culpable. Aplica deducible según tu plan contratado. Ideal para motos nuevas o de gran valor."
+        description: "Reparamos los daños que sufra tu propia moto en un accidente, seas o no el culpable de la colisión. Aplica deducible según tu plan contratado. Ideal para motos nuevas o de gran valor."
       },
       {
         icon: "Flame",
