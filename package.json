@@ -41,7 +41,7 @@
     "@sanity/client": "^7.6.0",
     "@sanity/image-url": "^1.1.0",
     "@tanstack/react-query": "^5.81.5",
-    "@types/react-dropzone": "^4.2.2",
+    "@types/react-dropzone": "^5.1.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",
