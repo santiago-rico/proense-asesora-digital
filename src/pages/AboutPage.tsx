@@ -1,8 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 import Layout from "@/components/layout/Layout";
-import LeadGenerationDialog from "@/components/forms/LeadGenerationDialog";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Shield, Users, Heart, Zap, BarChart2, UserCheck, Handshake, LifeBuoy } from "lucide-react";
 import OptimizedImage from "@/components/shared/OptimizedImage";

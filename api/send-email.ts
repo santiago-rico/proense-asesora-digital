@@ -2,6 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { z } from 'zod';
 import { JSDOM } from 'jsdom';
 import { withRateLimit, rateLimitConfigs } from './utils/rate-limiter.js';
+import { LeadTemplate } from '../src/utils/email-templates/LeadTemplate.js';
 
 // Define the validation schema with Zod
 const leadFormSchema = z.object({
@@ -84,15 +85,15 @@ async function handler(
     const sanitizedMensaje = DOMPurifyInstance.sanitize(mensaje || '');
 
     const subject = `Nuevo Lead de Asesoría Gratuita: ${sanitizedNombre}`;
-    const htmlContent = `
-      <h1>Nueva Solicitud de Asesoría Gratuita</h1>
-      <p><strong>Nombre:</strong> ${sanitizedNombre}</p>
-      <p><strong>Email:</strong> ${email}</p>
-      <p><strong>Teléfono:</strong> ${telefono || 'No proporcionado'}</p>
-      <p><strong>Tipo de Seguro de Interés:</strong> ${tipoSeguro}</p>
-      <p><strong>Mensaje:</strong></p>
-      <p>${sanitizedMensaje || 'No proporcionado'}</p>
-    `;
+    
+    // Use the new email template
+    const htmlContent = LeadTemplate({
+      nombre: sanitizedNombre,
+      email,
+      telefono,
+      tipoSeguro,
+      mensaje: sanitizedMensaje
+    });
 
     const brevoPayload = {
       sender: {
