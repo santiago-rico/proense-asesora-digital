@@ -25,13 +25,13 @@ export const EmailColors = {
   
   // Dark mode colors
   dark: {
-    background: '#1a1a1a',
-    cardBackground: '#2d2d2d',
-    text: '#e0e0e0',
-    textMuted: '#a0a0a0',
+    background: '#121212',
+    cardBackground: '#1e1e1e',
+    text: '#f0f0f0',
+    textMuted: '#b0b0b0',
     border: '#404040',
-    tableBg: '#2d2d2d',
-    tableAltBg: '#363636',
+    tableBg: '#1e1e1e',
+    tableAltBg: '#2a2a2a',
   },
 };
 

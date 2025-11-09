@@ -9,9 +9,9 @@ interface BaseTemplateProps {
 }
 
 export function BaseTemplate({ preheader, content, isDarkMode = false, baseUrl }: BaseTemplateProps): string {
-  const bgColor = isDarkMode ? '#1a1a1a' : '#f8f9fa';
-  const cardBgColor = isDarkMode ? '#2d2d2d' : '#ffffff';
-  const mutedColor = isDarkMode ? '#a0a0a0' : '#6c757d';
+  const bgColor = isDarkMode ? '#121212' : '#f8f9fa';
+  const cardBgColor = isDarkMode ? '#1e1e1e' : '#ffffff';
+  const mutedColor = isDarkMode ? '#b0b0b0' : '#6c757d';
   const borderColor = isDarkMode ? '#404040' : '#e9ecef';
 
   // Debug logging
@@ -52,7 +52,7 @@ export function BaseTemplate({ preheader, content, isDarkMode = false, baseUrl }
     </xml>
   </noscript>
   <![endif]-->
-  <style>
+  <style type="text/css">
     :root {
       color-scheme: light dark;
       supported-color-schemes: light dark;
@@ -70,18 +70,50 @@ export function BaseTemplate({ preheader, content, isDarkMode = false, baseUrl }
     
     /* Dark mode styles */
     @media (prefers-color-scheme: dark) {
-      .darkmode-bg { background-color: #1a1a1a !important; }
-      .darkmode-card { background-color: #2d2d2d !important; }
-      .darkmode-text { color: #e0e0e0 !important; }
-      .darkmode-muted { color: #a0a0a0 !important; }
+      .darkmode-bg { background-color: #121212 !important; }
+      .darkmode-card { background-color: #1e1e1e !important; }
+      .darkmode-text { color: #f0f0f0 !important; }
+      .darkmode-muted { color: #b0b0b0 !important; }
       .darkmode-border { border-color: #404040 !important; }
-      .darkmode-header-bg { background-color: #2d2d2d !important; }
-      .darkmode-tagline-bg { background-color: #1a1a1a !important; }
+      .darkmode-header-bg { background-color: #1e1e1e !important; }
+      .darkmode-tagline-bg { background-color: #121212 !important; }
       .darkmode-tagline-border { border-color: #404040 !important; }
       .darkmode-company-name { color: #40A5FD !important; }
       .darkmode-company-subtitle { color: #5FCB83 !important; }
       .darkmode-tagline-text { color: #40A5FD !important; }
+      
+      /* Social icon filters for dark mode */
+      .social-icon { filter: brightness(0.9) !important; }
+      
+      /* Button adjustments */
+      .darkmode-button-primary { background-color: #0073D1 !important; color: #ffffff !important; }
+      .darkmode-button-secondary { background-color: #404040 !important; color: #f0f0f0 !important; }
+      
+      /* Link color */
+      a { color: #40A5FD !important; }
+      
+      /* Alert dark mode styles */
+      .darkmode-alert { background-color: #1e1e1e !important; border-color: #404040 !important; }
+      
+      /* Badge dark mode styles */
+      .darkmode-badge-success { background-color: #1b4f1b !important; color: #5fcb83 !important; border-color: #2d6a2d !important; }
+      .darkmode-badge-warning { background-color: #4a3a0f !important; color: #ffc947 !important; border-color: #6b5516 !important; }
+      .darkmode-badge-danger { background-color: #4f1b1b !important; color: #ff6b6b !important; border-color: #6a2d2d !important; }
+      .darkmode-badge-info { background-color: #1b3a4f !important; color: #5fcbff !important; border-color: #2d556a !important; }
+      .darkmode-badge-neutral { background-color: #404040 !important; color: #f0f0f0 !important; border-color: #404040 !important; }
     }
+    
+    /* Outlook dark mode support */
+    [data-ogsc] .darkmode-bg { background-color: #121212 !important; }
+    [data-ogsc] .darkmode-card { background-color: #1e1e1e !important; }
+    [data-ogsc] .darkmode-text { color: #f0f0f0 !important; }
+    [data-ogsc] .darkmode-muted { color: #b0b0b0 !important; }
+    [data-ogsc] .darkmode-border { border-color: #404040 !important; }
+    [data-ogsc] .darkmode-header-bg { background-color: #1e1e1e !important; }
+    [data-ogsc] .darkmode-button-primary { background-color: #0073D1 !important; color: #ffffff !important; }
+    [data-ogsc] .darkmode-button-secondary { background-color: #404040 !important; color: #f0f0f0 !important; }
+    [data-ogsc] .social-icon { filter: brightness(0.9) !important; }
+    [data-ogsc] a { color: #40A5FD !important; }
     
     /* Enhanced logo styles - no blue box background */
     .logo-container {
@@ -317,17 +349,17 @@ export function BaseTemplate({ preheader, content, isDarkMode = false, baseUrl }
                         <tr>
                           <td style="padding: 0 10px;">
                             <a href="https://www.facebook.com/proense" style="text-decoration: none;">
-                              <img src="https://img.icons8.com/color/48/facebook-new.png" width="32" height="32" alt="Facebook" style="display: block; border: 0;">
+                              <img src="https://img.icons8.com/color/48/facebook-new.png" width="32" height="32" alt="Facebook" style="display: block; border: 0;" class="social-icon">
                             </a>
                           </td>
                           <td style="padding: 0 10px;">
                             <a href="https://www.instagram.com/proense_seguros/" style="text-decoration: none;">
-                              <img src="https://img.icons8.com/fluency/48/instagram-new.png" width="32" height="32" alt="Instagram" style="display: block; border: 0;">
+                              <img src="https://img.icons8.com/fluency/48/instagram-new.png" width="32" height="32" alt="Instagram" style="display: block; border: 0;" class="social-icon">
                             </a>
                           </td>
                           <td style="padding: 0 10px;">
                             <a href="https://api.whatsapp.com/send?phone=573155862884&text=Hola%2C%20me%20gustar%C3%ADa%20agendar%20una%20cita%20para%20recibir%20asesor%C3%ADa%20de%20Proense%20Seguros%20%F0%9F%98%83" style="text-decoration: none;">
-                              <img src="https://img.icons8.com/color/48/whatsapp--v1.png" width="32" height="32" alt="WhatsApp" style="display: block; border: 0;">
+                              <img src="https://img.icons8.com/color/48/whatsapp--v1.png" width="32" height="32" alt="WhatsApp" style="display: block; border: 0;" class="social-icon">
                             </a>
                           </td>
                         </tr>

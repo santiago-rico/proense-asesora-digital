@@ -17,7 +17,7 @@ export function Button({ href, text, variant = 'primary', isDarkMode = false, fu
     <table role="presentation" cellspacing="0" cellpadding="0" border="0" ${fullWidth ? 'width="100%"' : ''} style="margin: ${EmailSpacing.margin.sm} 0;">
       <tr>
         <td align="${fullWidth ? 'center' : 'left'}">
-          <a href="${href}" target="_blank" style="${styles.button} ${variantStyles} ${widthStyle}" class="mobile-button ${variant === 'secondary' ? 'darkmode-button-secondary' : ''}">
+          <a href="${href}" target="_blank" style="${styles.button} ${variantStyles} ${widthStyle}" class="mobile-button ${variant === 'primary' ? 'darkmode-button-primary' : 'darkmode-button-secondary'}">
             ${text}
           </a>
         </td>
@@ -81,10 +81,10 @@ interface AlertProps {
 export function Alert({ type, title, message, isDarkMode = false }: AlertProps): string {
   const styles = getThemeStyles(isDarkMode);
   const alertStyles = {
-    success: styles.alertSuccess,
-    warning: styles.alertWarning,
-    danger: styles.alertDanger,
-    info: styles.alertInfo,
+    success: isDarkMode ? 'background-color: #1b4f1b; border: 1px solid #2d6a2d; color: #5fcb83;' : styles.alertSuccess,
+    warning: isDarkMode ? 'background-color: #4a3a0f; border: 1px solid #6b5516; color: #ffc947;' : styles.alertWarning,
+    danger: isDarkMode ? 'background-color: #4f1b1b; border: 1px solid #6a2d2d; color: #ff6b6b;' : styles.alertDanger,
+    info: isDarkMode ? 'background-color: #1b3a4f; border: 1px solid #2d556a; color: #5fcbff;' : styles.alertInfo,
   };
   
   const icons = {
@@ -94,8 +94,10 @@ export function Alert({ type, title, message, isDarkMode = false }: AlertProps):
     info: 'ℹ',
   };
   
+  const darkModeClass = isDarkMode ? 'darkmode-alert' : '';
+  
   return `
-    <div style="${styles.alert} ${alertStyles[type]}">
+    <div style="${styles.alert} ${alertStyles[type]}" class="${darkModeClass}">
       <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
         <tr>
           <td width="40" valign="top" style="font-size: 24px; line-height: 1; padding-right: 10px;">
@@ -266,17 +268,18 @@ interface StatusBadgeProps {
 
 export function StatusBadge({ text, type, isDarkMode = false }: StatusBadgeProps): string {
   const colors = {
-    success: { bg: '#d4edda', text: '#155724', border: '#c3e6cb' },
-    warning: { bg: '#fff3cd', text: '#856404', border: '#ffeaa7' },
-    danger: { bg: '#f8d7da', text: '#721c24', border: '#f5c6cb' },
-    info: { bg: '#d1ecf1', text: '#0c5460', border: '#bee5eb' },
+    success: isDarkMode ? { bg: '#1b4f1b', text: '#5fcb83', border: '#2d6a2d' } : { bg: '#d4edda', text: '#155724', border: '#c3e6cb' },
+    warning: isDarkMode ? { bg: '#4a3a0f', text: '#ffc947', border: '#6b5516' } : { bg: '#fff3cd', text: '#856404', border: '#ffeaa7' },
+    danger: isDarkMode ? { bg: '#4f1b1b', text: '#ff6b6b', border: '#6a2d2d' } : { bg: '#f8d7da', text: '#721c24', border: '#f5c6cb' },
+    info: isDarkMode ? { bg: '#1b3a4f', text: '#5fcbff', border: '#2d556a' } : { bg: '#d1ecf1', text: '#0c5460', border: '#bee5eb' },
     neutral: { bg: isDarkMode ? EmailColors.dark.border : EmailColors.light.border, text: isDarkMode ? EmailColors.dark.text : EmailColors.light.text, border: isDarkMode ? EmailColors.dark.border : EmailColors.light.border },
   };
   
   const color = colors[type];
+  const darkModeClass = `darkmode-badge-${type}`;
   
   return `
-    <span style="display: inline-block; padding: 4px 12px; background-color: ${color.bg}; color: ${color.text}; border: 1px solid ${color.border}; border-radius: 20px; font-size: 14px; font-weight: 600; line-height: 1.2;">
+    <span style="display: inline-block; padding: 4px 12px; background-color: ${color.bg}; color: ${color.text}; border: 1px solid ${color.border}; border-radius: 20px; font-size: 14px; font-weight: 600; line-height: 1.2;" class="${darkModeClass}">
       ${text}
     </span>
   `;
