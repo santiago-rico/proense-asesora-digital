@@ -22,6 +22,7 @@ interface InsuranceProductPageProps {
 
 const insuranceTypeToCategoryMap: { [key: string]: string } = {
   vida: 'Seguro de Vida',
+  'vida-deudores': 'Seguro de Vida',
   salud: 'Seguro de Salud',
   auto: 'Seguro de Auto',
   hogar: 'Seguro de Hogar',

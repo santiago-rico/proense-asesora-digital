@@ -5,6 +5,7 @@ import fs from 'fs';
 import { z } from 'zod';
 import { JSDOM } from 'jsdom';
 import { withRateLimit, rateLimitConfigs } from './utils/rate-limiter.js';
+import { ModificationRequestTemplate } from '../src/utils/email-templates/ModificationRequestTemplate.js';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 const ALLOWED_MIME_TYPES = [
@@ -61,40 +62,6 @@ interface ModificationData {
   [key: string]: string | boolean | undefined;
 }
 
-function formatDataToHtml(data: Omit<ModificationData, 'documentosAdicionales'>, attachedFiles: Record<string, string[]>): string {
-  let html = '<h2>Detalles de la Solicitud de Modificación:</h2>';
-  const fieldLabels: Record<string, string> = {
-    nombreCompleto: 'Nombre Completo',
-    numeroCedula: 'Número de Cédula',
-    telefono: 'Teléfono',
-    email: 'Email',
-    nombreAseguradora: 'Nombre de la Aseguradora',
-    numeroPoliza: 'Número de Póliza',
-    tipoSeguro: 'Tipo de Seguro',
-    otroSeguro: 'Otro Seguro (Especificado)',
-    modificaciones: 'Modificaciones Solicitadas',
-    documentosAdicionales: 'Documentos adicionales',
-  };
-
-  html += '<table style="width: 100%; border-collapse: collapse;">';
-  for (const [key, value] of Object.entries(data)) {
-    if (key === 'aceptaTerminosYPolitica' || !value) continue;
-    const label = fieldLabels[key] || key;
-    html += `<tr><td style="padding: 8px; border: 1px solid #ddd; background-color: #f2f2f2;"><strong>${label}:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${value}</td></tr>`;
-  }
-
-  if (Object.keys(attachedFiles).length > 0) {
-    for (const [key, files] of Object.entries(attachedFiles)) {
-        if (files.length > 0) {
-            const label = fieldLabels[key] || key;
-            html += `<tr><td style="padding: 8px; border: 1px solid #ddd; background-color: #f2f2f2;"><strong>${label}:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${files.join(', ')}</td></tr>`;
-        }
-    }
-  }
-
-  html += '</table>';
-  return html;
-}
 
 async function parseForm(req: VercelRequest): Promise<{ fields: formidable.Fields; files: formidable.Files }> {
     const form = formidable({
@@ -217,38 +184,26 @@ async function handler(req: VercelRequest, res: VercelResponse) {
         const senderEmail = process.env.BREVO_SENDER_EMAIL || 'no-reply@proense.co';
         const agentEmail = process.env.AGENT_EMAIL || 'comercial@proense.co';
 
-        const formattedDataHtml = formatDataToHtml(formData, attachedFileNames);
+        // Get the base URL from the request
+        const baseUrl = req.headers.host ? `https://${req.headers.host}` : undefined;
 
         // Email to Client
-        const clientEmailHtmlContent = `
-            <div style="font-family: Arial, sans-serif; line-height: 1.6;">
-                <h1 style="color: #003366;">Confirmación de tu solicitud de modificación</h1>
-                <p>Hola ${formData.nombreCompleto},</p>
-                <p>Hemos recibido tu solicitud para modificar tu póliza. A continuación, encontrarás un resumen de la información que nos proporcionaste:</p>
-                ${formattedDataHtml}
-                <p><strong>Para hacer efectiva esta modificación, por favor, responde a este correo electrónico escribiendo únicamente:</strong></p>
-                <p style="font-size: 1.2em; font-weight: bold; color: #D9534F;">Confirmo la solicitud de modificación</p>
-                <p>Una vez recibamos tu confirmación, uno de nuestros asesores procesará tu solicitud y se pondrá en contacto contigo si se requiere información adicional.</p>
-                <p>Si no deseas proceder o si no realizaste esta solicitud, por favor ignora este mensaje.</p>
-                <p>Atentamente,<br/>El equipo de Proense Asesora Digital</p>
-            </div>
-        `;
+        const clientEmailHtmlContent = ModificationRequestTemplate({
+            data: formData,
+            attachedFiles: attachedFileNames,
+            isUserEmail: true,
+            isDarkMode: false,
+            baseUrl
+        });
 
         // Email to Agent
-        const agentEmailHtmlContent = `
-            <div style="font-family: Arial, sans-serif; line-height: 1.6;">
-                <h1 style="color: #003366;">Nueva Solicitud de Modificación de Póliza</h1>
-                <p>Se ha recibido una nueva solicitud de modificación de póliza a través del formulario de servicio al cliente.</p>
-                ${formattedDataHtml}
-                <p><strong>Datos de Contacto del Cliente:</strong></p>
-                <ul style="list-style-type: none; padding: 0;">
-                    <li><strong>Nombre:</strong> ${formData.nombreCompleto}</li>
-                    <li><strong>Email:</strong> ${formData.email}</li>
-                    <li><strong>Teléfono:</strong> ${formData.telefono}</li>
-                </ul>
-                <p><strong>Nota:</strong> Se ha enviado un correo al cliente solicitando su confirmación explícita para proceder. Por favor, espera la confirmación antes de procesar el cambio.</p>
-            </div>
-        `;
+        const agentEmailHtmlContent = ModificationRequestTemplate({
+            data: formData,
+            attachedFiles: attachedFileNames,
+            isUserEmail: false,
+            isDarkMode: false,
+            baseUrl
+        });
 
         await sendTransactionalEmail({
             sender: { name: senderName, email: senderEmail },

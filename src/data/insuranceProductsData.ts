@@ -30,7 +30,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
   vida: {
     id: "vida",
     title: "Seguro de Vida",
-    shortDescription: "Protege a tus seres queridos y garantiza su futuro financiero.",
+    shortDescription: "Protege tu futuro y el de tus seres queridos con cobertura integral que garantiza estabilidad financiera ante fallecimiento o incapacidad.",
     heroImage: "/images/hero-vida.avif",
     heroImagePosition: 'center 10%',
     heroDescription: "Garantiza el futuro financiero de tu familia en Colombia y vive con la tranquilidad de saber que están protegidos.",
@@ -40,18 +40,18 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     coverages: [
       {
         icon: "HeartHandshake",
-        title: "Fallecimiento por cualquier causa",
-        description: "Garantiza el pago del capital asegurado a tus beneficiarios si falleces, sin importar la causa (con excepciones contractuales habituales)."
+        title: "Fallecimiento",
+        description: "Garantiza el pago del capital asegurado en caso de fallecimiento."
       },
       {
         icon: "Accessibility",
-        title: "Invalidez Absoluta y Permanente",
-        description: "Recibe el capital asegurado en vida si sufres una invalidez que te impida desempeñar cualquier actividad laboral."
+        title: "Invalidez Total y Permanente",
+        description: "Recibe el capital asegurado en vida si sufres una invalidez que te impida desempeñar tu actividad laboral."
       },
       {
         icon: "Activity",
         title: "Enfermedades Graves",
-        description: "Opción de recibir un anticipo del capital asegurado en caso de diagnóstico de enfermedades graves especificadas en la póliza."
+        description: "Recibe un capital asegurado en caso de diagnóstico de enfermedades graves especificadas en la póliza."
       },
       {
         icon: "ShieldCheck",
@@ -97,21 +97,99 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
       },
       {
         question: "¿Qué es el 'valor de rescate' de una póliza y cómo funciona?",
-        answer: "El valor de rescate es un componente de ahorro que se acumula en los seguros de vida permanentes. Este dinero está disponible para ti si decides cancelar la póliza, o puedes usarlo para pedir un préstamo a la aseguradora. Es una forma de proteger a tu familia y a la vez construir un capital para tu futuro."
+        answer: "El valor de rescate es un componente de ahorro que se acumula en los seguros de vida permanentes. Este dinero está disponible para ti si decides cancelar la póliza. Es una forma de proteger a tu familia y a la vez construir un capital para tu futuro."
       },
       {
         question: "¿El dinero que reciben mis beneficiarios paga impuestos?",
-        answer: "En Colombia, por norma general, las indemnizaciones recibidas de un seguro de vida no constituyen renta gravable, por lo que tus beneficiarios no tendrían que pagar impuesto de renta sobre el dinero recibido. Es uno de los grandes beneficios de este instrumento de protección."
-      },
-      {
-        question: "¿Puedo usar mi seguro de vida para pedir un préstamo?",
-        answer: "Sí, si tienes un seguro de vida permanente con valor de rescate acumulado, puedes solicitar un préstamo a la aseguradora usando ese valor como garantía. Es una opción flexible para obtener liquidez en caso de necesidad sin tener que cancelar tu protección."
+        answer: "En Colombia, las indemnizaciones por seguros de vida están exentas de impuestos hasta 3.250 UVT($161.846.750  para 2025). Los montos superiores pagan 15% de impuesto por ganancia ocasional, más una retención del 20% que aplica la aseguradora."
       }
     ],
     leadFormTitle: "Comienza tu Asesoría Gratuita Aquí",
     leadFormSubtitle: "Completa el formulario y un asesor especializado te contactará para ofrecerte la mejor solución adaptada a tus necesidades y presupuesto.",
     contactSectionTitle: "¿Listo para Proteger lo que Más Quieres?",
     contactSectionSubtitle: "No dejes tus dudas para después. Un asesor te espera para ofrecerte la mejor solución en seguros de vida.",
+    contactSectionCtaText: "Solicitar Asesoría Gratuita"
+  },
+  "vida-deudores": {
+    id: "vida-deudores",
+    title: "Seguro de Vida Deudores",
+    shortDescription: "Protege a tu familia de las deudas en caso de fallecimiento o incapacidad, asegurando que no hereden obligaciones financieras y mantengan su estabilidad económica.",
+    heroImage: "/images/hero-vida-deudores.avif",
+    heroImagePosition: 'center 20%',
+    heroDescription: "Libera a tu familia de la carga de las deudas en Colombia. Garantiza que en caso de fallecimiento o incapacidad, tus seres queridos no hereden obligaciones financieras y puedan conservar su tranquilidad económica.",
+    heroCtaText: "Solicitar Asesoría Gratuita",
+
+    coveragesTitle: "Coberturas Principales del Seguro de Vida Deudores",
+    coverages: [
+      {
+        icon: "CreditCard",
+        title: "Cancelación de Deudas por Fallecimiento",
+        description: "En caso de fallecimiento, se paga directamente al acreedor el saldo pendiente de la deuda, sin que este supere el valor asegurado."
+      },
+      {
+        icon: "Accessibility",
+        title: "Cobertura por Invalidez",
+        description: "Si quedas inválido permanentemente (50% o más de capacidad laboral), se cancela la deuda pendiente según el porcentaje de invalidez alcanzado."
+      },
+      {
+        icon: "BriefcaseBusiness",
+        title: "Cobertura por Desempleo",
+        description: "Si eres despedido sin justa causa, se pagan un número determinado de cuotas de tu crédito mientras encuentras nuevo empleo."
+      },
+      {
+        icon: "HeartHandshake",
+        title: "Auxilio Funerario",
+        description: "Suma adicional para cubrir gastos funerarios, aliviando la carga económica de la familia en momentos difíciles."
+      },
+      {
+        icon: "CarCrash",
+        title: "Muerte Accidental",
+        description: "Indemnización adicional igual al valor asegurado si el fallecimiento ocurre como consecuencia de un accidente."
+      },
+      {
+        icon: "Baby",
+        title: "Beneficio por Nacimiento",
+        description: "Pago del valor asegurado por el nacimiento y supervivencia de un hijo, como apoyo económico en esta etapa importante."
+      }
+    ],
+    faq: [
+      {
+        question: "¿Cómo funciona el seguro de vida deudores?",
+        answer: "Si falleces, la aseguradora paga directamente al acreedor (banco, financiera) el saldo pendiente de tu deuda. Si queda dinero del valor asegurado después del pago, este se entrega a tus beneficiarios designados."
+      },
+      {
+        question: "¿Qué pasa si mi deuda es menor al valor asegurado?",
+        answer: "La aseguradora paga el saldo de la deuda al acreedor y el dinero restante se entrega a los beneficiarios que hayas designado libremente. No se pierde el dinero sobrante."
+      },
+      {
+        question: "¿Hasta qué edad puedo contratar este seguro?",
+        answer: "Generalmente se puede contratar desde los 18 años hasta los 65 años, dependiendo de las políticas de suscripción de la aseguradora y la evaluación médica correspondiente."
+      },
+      {
+        question: "¿Cuándo inicia la cobertura del seguro?",
+        answer: "La protección comienza cuando la entidad financiera (tomador de la póliza) hace el desembolso de tu crédito. Es decir, está activa desde que recibes el dinero prestado."
+      },
+      {
+        question: "¿Qué requisitos necesito para contratar el seguro?",
+        answer: "Debes cumplir con los rangos de edad establecidos, diligenciar la declaración de asegurabilidad y proporcionar la información médica y financiera requerida por la aseguradora."
+      },
+      {
+        question: "¿El seguro cubre solo el fallecimiento o también otras situaciones?",
+        answer: "Además del fallecimiento, el seguro puede cubrir invalidez permanente, desempleo involuntario, y ofrecer beneficios adicionales como auxilio funerario y beneficio por nacimiento de hijos."
+      },
+      {
+        question: "¿Puedo usar el dinero libremente si quedo inválido?",
+        answer: "Sí, en caso de invalidez, la aseguradora te entrega el dinero directamente a ti para que lo utilices libremente, después de cancelar la deuda correspondiente según el porcentaje de invalidez."
+      },
+      {
+        question: "¿Qué diferencia hay entre este seguro y un seguro de vida tradicional?",
+        answer: "El seguro de vida deudores está diseñado específicamente para proteger a la familia de heredar deudas. Primero cancela la obligación financiera y luego entrega el remanente a los beneficiarios, mientras que el seguro de vida tradicional entrega todo el capital directamente a los beneficiarios."
+      }
+    ],
+    leadFormTitle: "Protege a tu Familia de las Deudas",
+    leadFormSubtitle: "Completa el formulario y un asesor especializado te contactará para ofrecerte la mejor solución que garantice la tranquilidad económica de tu familia.",
+    contactSectionTitle: "¿Listo para Liberar a tu Familia de las Deudas?",
+    contactSectionSubtitle: "No dejes que las deudas sean una carga para tus seres queridos. Un asesor te espera para ofrecerte la mejor solución en seguros de vida deudores.",
     contactSectionCtaText: "Solicitar Asesoría Gratuita"
   },
   salud: {
@@ -142,8 +220,8 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
       },
       {
         icon: "Baby",
-        title: "Cobertura Dental y de Visión (Opcional)",
-        description: "Muchos seguros ofrecen módulos adicionales para cubrir gastos dentales, oftalmológicos y otros servicios de bienestar."
+        title: "Anexo odontológico(Opcional)",
+        description: "Muchos seguros ofrecen módulos adicionales para cubrir gastos dentales."
       },
       {
         icon: "Home",
@@ -159,7 +237,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     faq: [
       {
         question: "¿Qué diferencia hay entre un copago y un deducible?",
-        answer: "El copago es un valor fijo que pagas al usar un servicio específico, como una consulta. El deducible es el monto total que debes cubrir de tu bolsillo en un período antes de que el seguro empiece a pagar. Un plan puede tener uno, ambos o ninguno. Te ayudamos a entender qué opción te conviene más."
+        answer: "El copago es un valor fijo que pagas al usar un servicio específico, como una consulta. El deducible es el monto que debes cubrir de tu bolsillo. El seguro cubre a partir del monton del deducible de acuerdo a la cobertura contratada. Un plan puede tener un copago, un deducible, ambos o ninguno. Te ayudamos a entender qué opción te conviene más."
       },
       {
         question: "¿Qué es una preexistencia y cómo afecta mi seguro?",
@@ -219,7 +297,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
       {
         icon: "ShieldCheck",
         title: "Daños Propios (Todo Riesgo)",
-        description: "Reparamos los daños de tu propio vehículo, incluso si eres el culpable del siniestro. Incluye colisión, vandalismo y más. Aplica deducible según tu plan contratado."
+        description: "Reparamos los daños de tu propio vehículo, incluso si eres el culpable de la colisión. Incluye colisión, vandalismo y más. Aplica deducible según tu plan contratado."
       },
       {
         icon: "Flame",
@@ -229,7 +307,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
       {
         icon: "Wrench",
         title: "Asistencia en Viaje",
-        description: "Soporte en carretera 24/7 desde el km 0, incluyendo grúa, reparación in-situ y ayuda en caso de pinchazo o falta de batería."
+        description: "Soporte en carretera 24/7 desde el km 0, incluyendo grúa y ayuda en caso de pinchada o falta de batería."
       },
       {
         icon: "Gavel",
@@ -238,8 +316,8 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
       },
       {
         icon: "Car",
-        title: "Vehículo de Sustitución",
-        description: "Dispondrás de un coche de sustitución mientras el tuyo está en el taller por avería o accidente, para que no pierdas tu movilidad."
+        title: "Vehículo de Reemplazo",
+        description: "Dispondrás de un vehículo de reemplazo mientras el tuyo está en el taller por avería o accidente, para que no pierdas tu movilidad."
       }
     ],
     faq: [
@@ -286,23 +364,23 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     coverages: [
       {
         icon: "Home",
-        title: "Daños al Continente y Contenido",
+        title: "Daños a la Vivienda y Contenido",
         description: "Protección completa contra incendios, inundaciones, robos y otros daños que puedan afectar la estructura de tu vivienda y tus pertenencias."
       },
       {
         icon: "ShieldAlert",
         title: "Responsabilidad Civil",
-        description: "Cubre los daños materiales o personales que tú o tu familia podáis causar accidentalmente a terceros, tanto dentro como fuera de casa."
+        description: "Cubre los daños materiales o personales que tú o tu familia puedan causar accidentalmente a terceros, tanto dentro como fuera de casa."
       },
       {
         icon: "KeyRound",
         title: "Robo, Hurto y Vandalismo",
-        description: "Te indemnizamos por los bienes sustraídos en un robo y reparamos los daños ocasionados en la vivienda, incluyendo cerraduras."
+        description: "Te indemnizamos por los bienes sustraídos en un robo y reparamos los daños ocasionados en la vivienda."
       },
       {
         icon: "GlassWater",
         title: "Daños por Agua y Roturas",
-        description: "Cubre la reparación de tuberías, goteras, y la rotura accidental de cristales, espejos, sanitarios o placas vitrocerámicas."
+        description: "Cubre la reparación de tuberías, goteras, y la rotura accidental de cristales, espejos o sanitarios."
       },
       {
         icon: "Wrench",
@@ -325,8 +403,8 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
         answer: "No. Aunque el banco te lo ofrezca, no estás obligado a contratar el seguro con ellos. Tienes la libertad de elegir la aseguradora que prefieras. Comparar opciones te puede ayudar a encontrar una mejor cobertura a un mejor precio."
       },
       {
-        question: "¿Qué significan 'continente' y 'contenido' en la póliza?",
-        answer: "El 'continente' se refiere a la estructura de la vivienda (paredes, techos, pisos, ventanas) y sus instalaciones fijas (tuberías, sistema eléctrico). El 'contenido' son todos tus bienes personales dentro de la casa: muebles, electrodomésticos, ropa, etc."
+        question: "¿Qué significa 'contenido' en la póliza?",
+        answer: "El 'contenido' son todos tus bienes personales dentro de la casa: muebles, electrodomésticos, ropa, etc."
       },
       {
         question: "Si vivo en un edificio, ¿el seguro de la copropiedad cubre mi apartamento?",
@@ -334,7 +412,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
       },
       {
         question: "Como inquilino, ¿necesito un seguro de hogar?",
-        answer: "Sí, es muy recomendable. El seguro del propietario cubre la estructura (el continente), pero no tus pertenencias (el contenido). Un seguro para inquilinos protege tus muebles, electrodomésticos y otros bienes en caso de robo o un siniestro como un incendio o daño por agua."
+        answer: "Sí, es muy recomendable. El seguro del propietario cubre la estructura, pero no tus pertenencias (el contenido). Un seguro para inquilinos protege tus muebles, electrodomésticos y otros bienes en caso de robo o un siniestro como un incendio o daño por agua."
       },
       {
         question: "¿El seguro de hogar cubre daños por sismos en Colombia?",
@@ -360,11 +438,11 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
       {
         icon: "Building2",
         title: "Daños Materiales al Patrimonio",
-        description: "Protege tus oficinas, naves, maquinaria y existencias contra incendios, robos, inundaciones y otros daños materiales."
+        description: "Protege tus oficinas, maquinaria y existencias contra incendios, robos, inundaciones y otros daños materiales."
       },
       {
         icon: "Users",
-        title: "Responsabilidad Civil de Explotación",
+        title: "Responsabilidad Civil de Extracontractual",
         description: "Cubre las indemnizaciones por daños materiales o personales que tu empresa pueda causar a terceros en el desarrollo de su actividad."
       },
       {
@@ -407,7 +485,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
       },
       {
         question: "¿Qué tipo de responsabilidad civil necesito?",
-        answer: "Necesitas la Responsabilidad Civil de Explotación, que cubre daños a terceros durante tu actividad (ej. un cliente se cae en tu local). También es clave la RC Patronal (accidentes de empleados) y la RC de Productos (daños causados por lo que vendes)."
+        answer: "Necesitas la Responsabilidad Civil Extracontractual, que cubre daños a terceros durante tu actividad (ej. un cliente se cae en tu local). También es clave la RC Patronal (accidentes de empleados) y la RC de Productos (daños causados por lo que vendes)."
       },
       {
         question: "¿Puedo adaptar el seguro a las necesidades específicas de mi empresa?",
@@ -561,7 +639,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
       {
         icon: "Bike",
         title: "Daños Propios (Todo Riesgo)",
-        description: "Reparamos los daños que sufra tu propia moto en un accidente, seas o no el culpable. Aplica deducible según tu plan contratado. Ideal para motos nuevas o de gran valor."
+        description: "Reparamos los daños que sufra tu propia moto en un accidente, seas o no el culpable de la colisión. Aplica deducible según tu plan contratado. Ideal para motos nuevas o de gran valor."
       },
       {
         icon: "Flame",

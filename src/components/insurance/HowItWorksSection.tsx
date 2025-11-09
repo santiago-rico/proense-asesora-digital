@@ -24,17 +24,17 @@ const HowItWorksSection: React.FC = () => {
     {
       icon: <FileText size={32} />,
       title: 'Comparte tus necesidades',
-      description: 'Cuéntanos qué necesitas proteger. En menos de 2 minutos, tendremos la información clave para empezar a buscar tu seguro ideal.',
+      description: 'Cuéntanos qué necesitas proteger y bríndanos información básica para empezar a buscar tu seguro ideal.',
     },
     {
       icon: <Lightbulb size={32} />,
       title: 'Recibe asesoría experta y gratuita',
-      description: 'Un asesor de Proense, experto en seguros, analizará tu caso y te presentará opciones claras y sin jerga, comparando por ti.',
+      description: 'Un asesor experto de Proense analizará tu caso y te presentará opciones que se adapten a tus necesidades.',
     },
     {
       icon: <ShieldCheck size={32} />,
       title: 'Elige el plan perfecto para ti',
-      description: 'Elige con confianza la opción que mejor se adapta a tu vida y presupuesto. Nos encargamos del resto para que tu protección se active de inmediato.',
+      description: 'Elige con confianza la opción que mejor se adapta a tu vida y presupuesto. Te acompañamos en el proceso para activar tu plan de protección.',
     },
   ];
 
@@ -46,7 +46,7 @@ const HowItWorksSection: React.FC = () => {
             Tu Tranquilidad en 3 Pasos Sencillos
           </h2>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            En Proense, simplificamos la complejidad de los seguros para que proteger lo que más quieres sea un proceso claro, rápido y totalmente personalizado.
+            En Proense, simplificamos el proceso para que proteger lo que más quieres sea claro, rápido y personalizado.
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">

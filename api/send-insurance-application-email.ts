@@ -7,6 +7,7 @@ import fs from 'fs';
 import { z } from 'zod';
 import { JSDOM } from 'jsdom';
 import { withRateLimit, rateLimitConfigs } from './utils/rate-limiter.js';
+import { InsuranceApplicationTemplate } from '../src/utils/email-templates/InsuranceApplicationTemplate.js';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 const ALLOWED_MIME_TYPES = [
@@ -81,89 +82,6 @@ interface InsuranceApplicationData {
   [key: string]: string | boolean | File[] | undefined;
 }
 
-// Helper function to format form data as HTML for emails
-function formatDataToHtml(
-  data: Omit<InsuranceApplicationData, 'fotoCedula' | 'documentosBeneficiarios' | 'certificadoLibertad' | 'tarjetaPropiedad' | 'fotoCedulaRepLegal' | 'rut' | 'camaraComercio' | 'contratoArrendamiento' | 'archivoDeclaracionRenta'>,
-  attachedFiles: Record<string, string[]>
-): string {
-  let html = '<h2>Detalles de la Solicitud de Seguro:</h2>';
-  
-  const fieldLabels: Record<string, string> = {
-    nombreCompleto: 'Nombre Completo',
-    telefono: 'Teléfono',
-    email: 'Email',
-    tipoSeguro: 'Tipo de Seguro',
-    metodoPago: 'Método de Pago',
-    periodicidadPago: 'Periodicidad de Pago',
-    numeroCedula: 'Número de Cédula (Tomador)',
-    fotoCedula: 'Foto Cédula (Tomador)',
-    beneficiarios: 'Nombres de Beneficiarios y Porcentajes (Seguro de Vida)',
-    documentosBeneficiarios: 'Documentos de Identidad Beneficiarios (Seguro de Vida)',
-    listaBeneficiarios: 'Lista de Beneficiarios (Seguro de Salud)',
-    certificadoLibertad: 'Certificado de Libertad y Tradición (Seguro de Hogar)',
-    tarjetaPropiedad: 'Tarjeta de Propiedad (Seguro de Auto)',
-    numeroCedulaRepLegal: 'Número de Cédula (Representante Legal - Empresarial)',
-    fotoCedulaRepLegal: 'Foto Cédula (Representante Legal - Empresarial)',
-    nit: 'NIT (Empresarial)',
-    rut: 'RUT (Empresarial)',
-    camaraComercio: 'Cámara de Comercio (Empresarial)',
-    contratoArrendamiento: 'Contrato de Arrendamiento (Seguro de Rentas)',
-    tieneEnfermedadesDiagnosticadas: '¿Tiene enfermedades preexistentes diagnosticadas? (Vida Crédito Protegido)',
-    enfermedadesEspecificar: 'Especificar enfermedades (Vida Crédito Protegido)',
-    valorActualDeuda: 'Valor Actual de la Deuda (Vida Crédito Protegido)',
-    conduceMoto: '¿Conduce motocicleta? (Vida Crédito Protegido)',
-    declaraRenta: '¿Declara Renta?',
-    archivoDeclaracionRenta: 'Archivo Declaración de Renta',
-    ingresosNoDeclarante: 'Ingresos Anuales (No Declarante)',
-    egresosNoDeclarante: 'Egresos Anuales (No Declarante)',
-    activosNoDeclarante: 'Activos (No Declarante)',
-    pasivosNoDeclarante: 'Pasivos (No Declarante)',
-    aceptaTerminosYPolitica: 'Acepta Términos, Condiciones y Política de Privacidad',
-  };
-
-  html += '<table style="width: 100%; border-collapse: collapse;">';
-
-  // Define an order for fields to appear in the email, if desired
-  const orderedKeys = [
-    'nombreCompleto', 'telefono', 'email', 'tipoSeguro', 'metodoPago', 'periodicidadPago',
-    'numeroCedula', 'fotoCedula', 'beneficiarios', 'documentosBeneficiarios', 'listaBeneficiarios',
-    'certificadoLibertad', 'tarjetaPropiedad', 'numeroCedulaRepLegal', 'fotoCedulaRepLegal',
-    'nit', 'rut', 'camaraComercio', 'contratoArrendamiento', 'tieneEnfermedadesDiagnosticadas',
-    'enfermedadesEspecificar', 'valorActualDeuda', 'conduceMoto', 'declaraRenta',
-    'archivoDeclaracionRenta', 'ingresosNoDeclarante', 'egresosNoDeclarante',
-    'activosNoDeclarante', 'pasivosNoDeclarante', 'aceptaTerminosYPolitica'
-  ];
-
-  // Process only the ordered keys for email formatting
-
-  for (const key of orderedKeys) {
-    const label = fieldLabels[key];
-    const value = data[key as keyof typeof data];
-
-    if (value === undefined || value === null || value === '') {
-        // For non-file fields, if they are empty, don't render them.
-        // We check for attachedFiles separately.
-        if (!Object.keys(attachedFiles).includes(key)) {
-            continue;
-        }
-    }
-
-    html += `<tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>${label}</strong></td>`;
-
-    if (attachedFiles[key] && attachedFiles[key].length > 0) {
-      html += `<td style="padding: 8px; border: 1px solid #ddd;">${attachedFiles[key].join(', ')} (Adjunto)</td>`;
-    } else if (typeof value === 'boolean') {
-      html += `<td style="padding: 8px; border: 1px solid #ddd;">${value ? 'Sí' : 'No'}</td>`;
-    } else if (value !== undefined && value !== null && value !== '') { // More robust check for actual value
-      html += `<td style="padding: 8px; border: 1px solid #ddd;">${String(value).replace(/\n/g, '<br>')}</td>`;
-    } else { // Handles undefined, null, or empty string for non-file, non-boolean fields
-      html += `<td style="padding: 8px; border: 1px solid #ddd;">No proporcionado</td>`;
-    }
-    html += '</tr>';
-  }
-  html += '</table>';
-  return html;
-}
 
 const parseForm = (
   req: VercelRequest
@@ -348,19 +266,18 @@ async function handler(
     const senderEmail = process.env.BREVO_SENDER_EMAIL || 'no-reply@proense.co';
     const agentEmail = process.env.AGENT_EMAIL || 'comercial@proense.co';
 
-    const formattedDataHtml = formatDataToHtml(sanitizedData, attachedFileNames);
+    // Get the base URL from the request
+    const baseUrl = req.headers.host ? `https://${req.headers.host}` : undefined;
 
     // 1. Email to User
     const userEmailSubject = `Confirmación de tu solicitud de seguro: ${formData.tipoSeguro}`;
-    const userEmailHtmlContent = `
-      <h1>¡Gracias por tu solicitud, ${sanitizedData.nombreCompleto}!</h1>
-      <p>Hemos recibido tu solicitud para un ${sanitizedData.tipoSeguro}. Un asesor se pondrá en contacto contigo pronto.</p>
-      <p>Por favor, revisa los detalles que enviaste:</p>
-      ${formattedDataHtml}
-      <p>Si necesitas hacer algún cambio o tienes alguna pregunta, por favor responde a este correo o contáctanos al +57 315 586 2884 o comercial@proense.co.</p>
-      <p><strong>Importante:</strong> Esta es una confirmación de recepción de tu solicitud. Un asesor revisará tu información y se pondrá en contacto contigo pronto para informarte sobre los siguientes pasos para la emisión de tu póliza. Es posible que se requieran documentos adicionales o una verificación.</p>
-      <p>Atentamente,<br/>El equipo de Proense Asesora Digital</p>
-    `;
+    const userEmailHtmlContent = InsuranceApplicationTemplate({
+      data: sanitizedData,
+      attachedFiles: attachedFileNames,
+      isUserEmail: true,
+      isDarkMode: false,
+      baseUrl
+    });
 
     const userBrevoPayload = {
       sender: { name: senderName, email: senderEmail },
@@ -371,17 +288,13 @@ async function handler(
 
     // 2. Email to Agent
     const agentEmailSubject = `Nueva Solicitud de Póliza: ${sanitizedData.nombreCompleto} - ${sanitizedData.tipoSeguro}`;
-    const agentEmailHtmlContent = `
-      <h1>Nueva Solicitud de Póliza Recibida</h1>
-      <p>Se ha recibido una nueva solicitud de seguro a través del formulario de emisión digital.</p>
-      ${formattedDataHtml}
-      <p><strong>Datos de Contacto del Solicitante:</strong></p>
-      <ul>
-        <li><strong>Nombre:</strong> ${sanitizedData.nombreCompleto}</li>
-        <li><strong>Email:</strong> ${sanitizedData.email}</li>
-        <li><strong>Teléfono:</strong> ${sanitizedData.telefono}</li>
-      </ul>
-    `;
+    const agentEmailHtmlContent = InsuranceApplicationTemplate({
+      data: sanitizedData,
+      attachedFiles: attachedFileNames,
+      isUserEmail: false,
+      isDarkMode: false,
+      baseUrl
+    });
 
     const agentBrevoPayload = {
       sender: { name: senderName, email: senderEmail },

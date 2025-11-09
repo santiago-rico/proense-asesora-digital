@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef, forwardRef, ElementRef, ComponentPropsWithoutRef } from "react";
+import { useState, useEffect, useRef, forwardRef, ComponentPropsWithoutRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Phone } from "lucide-react";
-import { 
+import {
   NavigationMenu,
   NavigationMenuContent,
   NavigationMenuItem,
@@ -37,7 +37,7 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
 
   // Handle outside click to close mobile menu
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (event: Event) => {
       if (
         isOpen &&
         mobileMenuRef.current &&
@@ -94,6 +94,7 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
 
   const insuranceProducts = [
     { name: "Vida", href: "/seguros/vida", description: "Protege a tus seres queridos y garantiza su futuro financiero." },
+    { name: "Vida Deudores", href: "/seguros/vida-deudores", description: "Protección que cubre tus deudas en caso de fallecimiento o incapacidad." },
     { name: "Salud", href: "/seguros/salud", description: "Accede a la mejor atención médica privada para ti y tu familia." },
     { name: "Auto", href: "/seguros/auto", description: "Cobertura completa para tu vehículo ante cualquier eventualidad." },
     { name: "Hogar", href: "/seguros/hogar", description: "Protege tu hogar y tus pertenencias contra daños y robos." },
@@ -133,23 +134,22 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
         id="main-navigation"
         role="navigation"
         aria-label="Navegación principal"
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-200 ${
-          scrolled ? "bg-white shadow-md py-2" : "bg-white py-2"
-        }`}
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-200 ${scrolled ? "bg-white shadow-md py-2" : "bg-white py-2"
+          }`}
       >
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center">
             <Link to="/" className="flex items-center">
-              <OptimizedImage 
-                src="/images/logo.avif" 
-                alt="Proense Seguros Logo" 
-                className="h-12 w-auto" 
+              <OptimizedImage
+                src="/images/logo.avif"
+                alt="Proense Seguros Logo"
+                className="h-12 w-auto"
                 loading="eager"
               />
-              <OptimizedImage 
-                src="/images/text-logo.avif" 
-                alt="Proense Seguros Text" 
-                className="h-8 w-auto ml-2" 
+              <OptimizedImage
+                src="/images/text-logo.avif"
+                alt="Proense Seguros Text"
+                className="h-8 w-auto ml-2"
                 loading="eager"
               />
             </Link>
@@ -230,7 +230,7 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
                       <Link to="/blog">Blog</Link>
                     </NavigationMenuLink>
                   </NavigationMenuItem>
-                  
+
                   <NavigationMenuItem key="contacto">
                     <NavigationMenuLink asChild className={cn(
                       navigationMenuTriggerStyle(),
@@ -242,7 +242,7 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
                   </NavigationMenuItem>
                 </NavigationMenuList>
               </NavigationMenu>
-              
+
               <Button className="ml-4" size="default" variant="secondary" onClick={handleOpenLeadDialog}>
                 <Phone size={16} className="mr-2" />
                 Solicitar Asesoría Gratuita
@@ -277,73 +277,71 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
           </div>
 
           {/* Mobile Navigation */}
-          <div 
+          <div
             ref={mobileMenuRef}
             id="mobile-navigation-menu"
-            className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out bg-white border-t border-gray-100 shadow-sm ${
-              isOpen 
-                ? 'max-h-screen opacity-100 mt-4' 
-                : 'max-h-0 opacity-0'
-            }`}
+            className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out bg-white border-t border-gray-100 shadow-sm ${isOpen
+              ? 'max-h-screen opacity-100 mt-4'
+              : 'max-h-0 opacity-0'
+              }`}
             role="menu"
             aria-label="Menú de navegación móvil"
             aria-hidden={!isOpen}
           >
-              <ul className="flex flex-col space-y-1 pb-4" role="none">
-                {navLinks.map((link) => {
-                  if (link.dropdown) {
-                    const items = link.href === "/seguros" ? insuranceProducts : clientServices;
-                    return (
-                      <li key={link.name}>
-                        <div className="px-4 py-3 font-medium text-gray-800 border-b border-gray-100">{link.name}</div>
-                        <ul className="bg-gray-50 space-y-1">
-                          {items.map((item) => (
-                            <li key={item.name}>
-                              <Link
-                                to={item.href}
-                                className="block px-6 py-3 text-sm text-gray-600 hover:text-primary hover:bg-gray-100 transition-colors duration-200 active:bg-gray-200"
-                                style={{ minHeight: '44px' }}
-                                onClick={() => setIsOpen(false)}
-                              >
-                                {item.name}
-                              </Link>
-                            </li>
-                          ))}
-                        </ul>
-                      </li>
-                    );
-                  }
-                  
+            <ul className="flex flex-col space-y-1 pb-4" role="none">
+              {navLinks.map((link) => {
+                if (link.dropdown) {
+                  const items = link.href === "/seguros" ? insuranceProducts : clientServices;
                   return (
                     <li key={link.name}>
-                      <Link
-                        to={link.href}
-                        className={`block px-4 py-3 rounded-md text-base font-medium transition-colors duration-200 hover:text-primary hover:bg-gray-50 active:bg-gray-100 ${
-                          isActive(link.href) ? "text-primary bg-blue-50" : "text-gray-700"
-                        }`}
-                        style={{ minHeight: '44px' }}
-                        onClick={() => setIsOpen(false)}
-                      >
-                        {link.name}
-                      </Link>
+                      <div className="px-4 py-3 font-medium text-gray-800 border-b border-gray-100">{link.name}</div>
+                      <ul className="bg-gray-50 space-y-1">
+                        {items.map((item) => (
+                          <li key={item.name}>
+                            <Link
+                              to={item.href}
+                              className="block px-6 py-3 text-sm text-gray-600 hover:text-primary hover:bg-gray-100 transition-colors duration-200 active:bg-gray-200"
+                              style={{ minHeight: '44px' }}
+                              onClick={() => setIsOpen(false)}
+                            >
+                              {item.name}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
                     </li>
                   );
-                })}
-                <li className="pt-2 border-t border-gray-200 mt-2">
-                  <Button 
-                    className="w-full" 
-                    size="default" 
-                    style={{ minHeight: '44px' }}
-                    onClick={() => {
-                      setIsOpen(false);
-                      handleOpenLeadDialog(); 
-                    }}
-                  >
-                    <Phone size={18} className="mr-2" />
-                    Solicitar Asesoría Gratuita
-                  </Button>
-                </li>
-              </ul>
+                }
+
+                return (
+                  <li key={link.name}>
+                    <Link
+                      to={link.href}
+                      className={`block px-4 py-3 rounded-md text-base font-medium transition-colors duration-200 hover:text-primary hover:bg-gray-50 active:bg-gray-100 ${isActive(link.href) ? "text-primary bg-blue-50" : "text-gray-700"
+                        }`}
+                      style={{ minHeight: '44px' }}
+                      onClick={() => setIsOpen(false)}
+                    >
+                      {link.name}
+                    </Link>
+                  </li>
+                );
+              })}
+              <li className="pt-2 border-t border-gray-200 mt-2">
+                <Button
+                  className="w-full"
+                  size="default"
+                  style={{ minHeight: '44px' }}
+                  onClick={() => {
+                    setIsOpen(false);
+                    handleOpenLeadDialog();
+                  }}
+                >
+                  <Phone size={18} className="mr-2" />
+                  Solicitar Asesoría Gratuita
+                </Button>
+              </li>
+            </ul>
           </div>
         </div>
       </nav>
@@ -352,7 +350,7 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
 }
 
 const ListItem = forwardRef<
-  ElementRef<"a">,
+  React.ElementRef<"a">,
   ComponentPropsWithoutRef<"a"> & { title?: string }
 >(({ className, title, children, ...props }, ref) => {
   return (
@@ -361,7 +359,7 @@ const ListItem = forwardRef<
         <a
           ref={ref}
           className={cn(
-            "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground group", 
+            "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground group",
             className
           )}
           {...props}

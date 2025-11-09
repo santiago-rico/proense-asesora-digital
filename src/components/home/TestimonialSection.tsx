@@ -45,7 +45,7 @@ const testimonialsData: Testimonial[] = [
     name: 'Mónica Patricia Mogollon Sarmiento',
     since: 2023,
     quote: 'La puntualidad con la que entregan la información es impecable. Es un servicio en el que realmente se puede confiar.',
-    insuranceType: 'Seguro de Arrendamiento',
+    insuranceType: 'Seguro de Auto',
   },
 ];
 
@@ -60,7 +60,7 @@ const TestimonialSection: React.FC = () => {
             Lo que dicen nuestros clientes
           </h2>
           <p className="mt-4 max-w-3xl mx-auto text-base sm:text-lg text-gray-600">
-            Miles de colombianos confían en nosotros para proteger lo que más valoran.
+            Cientos de colombianos confían en nosotros para proteger lo que más valoran.
           </p>
         </div>
 

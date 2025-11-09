@@ -11,7 +11,7 @@ const valueItems = [
   {
     icon: UserCheck,
     title: 'Asesoría Experta y Personalizada',
-    description: 'Te ayudamos a entender tus opciones y a elegir la cobertura que realmente necesitas, sin enredos.',
+    description: 'Te ayudamos a entender tus opciones y a elegir la cobertura que realmente necesitas.',
   },
   {
     icon: ShieldCheck,
