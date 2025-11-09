@@ -23,10 +23,10 @@ export function BaseTemplate({ preheader, content, isDarkMode = false, baseUrl }
   const fallbackLogoUrl80 = logoUrls.fallback.logo80;
   const externalLogoUrl80 = logoUrls.external.logo80;
   
-  // Get text logo URLs for high-quality rendering
-  const textLogoUrl = logoUrls.textLogo.fallback;
-  const textLogoAvifUrl = logoUrls.textLogo.avif;
-  const textLogoWebpUrl = logoUrls.textLogo.webp;
+  // Get icon logo URLs for high-quality rendering (not text logo)
+  const iconLogoUrl = logoUrls.iconLogo.fallback;
+  const iconLogoAvifUrl = logoUrls.iconLogo.avif;
+  const iconLogoWebpUrl = logoUrls.iconLogo.webp;
 
   return `
 <!DOCTYPE html>
@@ -93,8 +93,8 @@ export function BaseTemplate({ preheader, content, isDarkMode = false, baseUrl }
       display: block !important;
       width: auto;
       height: auto;
-      max-width: 180px;
-      max-height: 52px;
+      max-width: 120px;
+      max-height: 120px;
     }
     
     .logo-fallback {
@@ -155,11 +155,11 @@ export function BaseTemplate({ preheader, content, isDarkMode = false, baseUrl }
       .mobile-company-subtitle { font-size: 10px !important; }
       .mobile-tagline { font-size: 12px !important; padding: 6px 16px !important; }
       .mobile-header-padding { padding: 20px !important; }
-      .mobile-logo { width: 140px !important; height: auto !important; max-width: 140px !important; }
+      .mobile-logo { width: 80px !important; height: 80px !important; max-width: 80px !important; }
       
       /* Mobile logo container adjustments */
-      .logo-container { width: 140px !important; height: auto !important; }
-      .logo-fallback { width: 140px !important; height: auto !important; }
+      .logo-container { width: 80px !important; height: 80px !important; }
+      .logo-fallback { width: 80px !important; height: 80px !important; }
       .logo-fallback span { font-size: 20px !important; }
     }
   </style>
@@ -206,17 +206,17 @@ export function BaseTemplate({ preheader, content, isDarkMode = false, baseUrl }
                                     <!--[if !mso]><!-->
                                     <picture>
                                       <!-- AVIF for modern browsers (best quality & smallest size) -->
-                                      <source srcset="${textLogoAvifUrl}" type="image/avif">
+                                      <source srcset="${iconLogoAvifUrl}" type="image/avif">
                                       <!-- WebP for good browser support -->
-                                      <source srcset="${textLogoWebpUrl}" type="image/webp">
+                                      <source srcset="${iconLogoWebpUrl}" type="image/webp">
                                       <!-- PNG fallback with retina support -->
-                                      <img src="${textLogoUrl}" 
-                                           srcset="${textLogoUrl} 2x"
-                                           width="180" 
-                                           height="52" 
+                                      <img src="${iconLogoUrl}" 
+                                           srcset="${iconLogoUrl} 2x"
+                                           width="120" 
+                                           height="120" 
                                            alt="Proense Seguros" 
                                            title="Proense Seguros" 
-                                           style="display: block; border: 0; max-width: 180px; height: auto; width: 180px; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;" 
+                                           style="display: block; border: 0; max-width: 120px; height: auto; width: 120px; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;" 
                                            class="logo-img mobile-logo" 
                                            loading="eager">
                                     </picture>
@@ -230,11 +230,11 @@ export function BaseTemplate({ preheader, content, isDarkMode = false, baseUrl }
                                     <table role="presentation" cellspacing="0" cellpadding="0" border="0">
                                       <tr>
                                         <td align="center" valign="middle">
-                                          <img src="${textLogoUrl}" 
-                                               width="180" 
-                                               height="52" 
+                                          <img src="${iconLogoUrl}" 
+                                               width="120" 
+                                               height="120" 
                                                alt="Proense Seguros" 
-                                               style="display: block; border: 0; max-width: 180px; height: auto;" />
+                                               style="display: block; border: 0; max-width: 120px; height: auto;" />
                                         </td>
                                       </tr>
                                     </table>

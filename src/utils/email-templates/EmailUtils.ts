@@ -81,6 +81,14 @@ export function getEmailLogoUrls(baseUrl?: string) {
       webp: `${secureBaseUrl}/images/text-logo.webp`,
       // Always use production URL as fallback
       fallback: 'https://proense-asesora-digital.vercel.app/images/text-logo.png'
+    },
+    // Icon logo (without text) for email headers
+    iconLogo: {
+      png: `${secureBaseUrl}/images/logo.png`,
+      avif: `${secureBaseUrl}/images/logo.avif`,
+      webp: `${secureBaseUrl}/images/logo.webp`,
+      // Always use production URL as fallback
+      fallback: 'https://proense-asesora-digital.vercel.app/images/logo.png'
     }
   };
 }
