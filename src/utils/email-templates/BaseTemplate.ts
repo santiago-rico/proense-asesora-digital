@@ -22,6 +22,11 @@ export function BaseTemplate({ preheader, content, isDarkMode = false, baseUrl }
   const logoUrl80 = logoUrls.primary.logo80;
   const fallbackLogoUrl80 = logoUrls.fallback.logo80;
   const externalLogoUrl80 = logoUrls.external.logo80;
+  
+  // Get text logo URLs for high-quality rendering
+  const textLogoUrl = logoUrls.textLogo.fallback;
+  const textLogoAvifUrl = logoUrls.textLogo.avif;
+  const textLogoWebpUrl = logoUrls.textLogo.webp;
 
   return `
 <!DOCTYPE html>
@@ -201,12 +206,12 @@ export function BaseTemplate({ preheader, content, isDarkMode = false, baseUrl }
                                     <!--[if !mso]><!-->
                                     <picture>
                                       <!-- AVIF for modern browsers (best quality & smallest size) -->
-                                      <source srcset="https://proense.com.co/images/text-logo.avif" type="image/avif">
+                                      <source srcset="${textLogoAvifUrl}" type="image/avif">
                                       <!-- WebP for good browser support -->
-                                      <source srcset="https://proense.com.co/images/text-logo.webp" type="image/webp">
+                                      <source srcset="${textLogoWebpUrl}" type="image/webp">
                                       <!-- PNG fallback with retina support -->
-                                      <img src="https://proense.com.co/images/text-logo.png" 
-                                           srcset="https://proense.com.co/images/text-logo.png 2x"
+                                      <img src="${textLogoUrl}" 
+                                           srcset="${textLogoUrl} 2x"
                                            width="180" 
                                            height="52" 
                                            alt="Proense Seguros" 
@@ -225,7 +230,7 @@ export function BaseTemplate({ preheader, content, isDarkMode = false, baseUrl }
                                     <table role="presentation" cellspacing="0" cellpadding="0" border="0">
                                       <tr>
                                         <td align="center" valign="middle">
-                                          <img src="https://proense.com.co/images/text-logo.png" 
+                                          <img src="${textLogoUrl}" 
                                                width="180" 
                                                height="52" 
                                                alt="Proense Seguros" 

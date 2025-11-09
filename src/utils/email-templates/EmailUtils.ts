@@ -73,6 +73,14 @@ export function getEmailLogoUrls(baseUrl?: string) {
       logo80: 'https://proense-asesora-digital.vercel.app/images/email/logo-80.png',
       logo60: 'https://proense-asesora-digital.vercel.app/images/email/logo-60.png',
       logo40: 'https://proense-asesora-digital.vercel.app/images/email/logo-40.png',
+    },
+    // Text logo for high quality rendering
+    textLogo: {
+      png: `${secureBaseUrl}/images/text-logo.png`,
+      avif: `${secureBaseUrl}/images/text-logo.avif`,
+      webp: `${secureBaseUrl}/images/text-logo.webp`,
+      // Always use production URL as fallback
+      fallback: 'https://proense-asesora-digital.vercel.app/images/text-logo.png'
     }
   };
 }
