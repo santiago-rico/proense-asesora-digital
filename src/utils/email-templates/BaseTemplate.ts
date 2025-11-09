@@ -1,4 +1,5 @@
 import { getEmailLogoUrls, logEmailDebugInfo } from './EmailUtils.js';
+import { LogoUtils } from './LogoUtils.js';
 
 interface BaseTemplateProps {
   preheader?: string;
@@ -77,7 +78,35 @@ export function BaseTemplate({ preheader, content, isDarkMode = false, baseUrl }
       .darkmode-tagline-text { color: #40A5FD !important; }
     }
     
-    /* Logo fallback styles */
+    /* Enhanced logo styles - no blue box background */
+    .logo-container {
+      display: inline-block;
+      vertical-align: middle;
+    }
+    
+    .logo-img {
+      display: block !important;
+      width: auto;
+      height: auto;
+      max-width: 180px;
+      max-height: 52px;
+    }
+    
+    .logo-fallback {
+      display: none;
+      padding: 10px;
+      align-items: center;
+      justify-content: center;
+      color: #0073D1;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      text-align: center;
+      font-size: 20px;
+      font-weight: bold;
+      line-height: 1.2;
+      letter-spacing: 0.5px;
+    }
+    
+    /* Show fallback when image fails */
     .logo-img:not([src]), .logo-img[src=""], .logo-img[src*="data:image/svg+xml"] {
       display: none !important;
     }
@@ -86,6 +115,23 @@ export function BaseTemplate({ preheader, content, isDarkMode = false, baseUrl }
     .logo-img[src=""] + .logo-fallback,
     .logo-img[src*="data:image/svg+xml"] + .logo-fallback {
       display: flex !important;
+    }
+    
+    /* Dark mode logo adjustments */
+    @media (prefers-color-scheme: dark) {
+      .logo-img {
+        filter: brightness(1.2) contrast(0.95);
+      }
+      .logo-fallback {
+        color: #4A9EFF;
+      }
+    }
+    
+    [data-ogsc] .logo-img {
+      filter: brightness(1.2) contrast(0.95);
+    }
+    [data-ogsc] .logo-fallback {
+      color: #4A9EFF;
     }
     
     /* Mobile styles */
@@ -104,12 +150,12 @@ export function BaseTemplate({ preheader, content, isDarkMode = false, baseUrl }
       .mobile-company-subtitle { font-size: 10px !important; }
       .mobile-tagline { font-size: 12px !important; padding: 6px 16px !important; }
       .mobile-header-padding { padding: 20px !important; }
-      .mobile-logo { width: 60px !important; height: 60px !important; max-width: 60px !important; }
+      .mobile-logo { width: 140px !important; height: auto !important; max-width: 140px !important; }
       
       /* Mobile logo container adjustments */
-      .logo-container { width: 60px !important; height: 60px !important; }
-      .logo-fallback { width: 60px !important; height: 60px !important; }
-      .logo-fallback span { font-size: 24px !important; }
+      .logo-container { width: 140px !important; height: auto !important; }
+      .logo-fallback { width: 140px !important; height: auto !important; }
+      .logo-fallback span { font-size: 20px !important; }
     }
   </style>
 </head>
@@ -148,24 +194,50 @@ export function BaseTemplate({ preheader, content, isDarkMode = false, baseUrl }
                           <td valign="middle" style="position: relative; z-index: 1;">
                             <table role="presentation" cellspacing="0" cellpadding="0" border="0">
                               <tr>
-                                <!-- Logo with multiple fallbacks -->
+                                <!-- High-quality logo without blue box background -->
                                 <td valign="middle" style="padding-right: 16px;">
-                                  <!-- Logo using direct production URL for maximum compatibility -->
-                                  <!--[if !mso]><!-->
-                                  <img src="${externalLogoUrl80}" width="80" height="80" alt="Proense Seguros" title="Proense Seguros" style="display: block; border: 0; max-width: 80px; height: 80px; width: 80px; border-radius: 8px; background-color: #0073D1;" class="mobile-logo" loading="eager">
-                                  <!--<![endif]-->
-                                  <!--[if mso]>
-                                  <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="width: 80px; height: 80px;">
-                                    <tr>
-                                      <td align="center" valign="middle" style="width: 80px; height: 80px;">
-                                        <img src="${externalLogoUrl80}" width="80" height="80" alt="Proense Seguros" style="display: block; border: 0; max-width: 80px; height: 80px; border-radius: 8px; background-color: #0073D1;" />
-                                      </td>
-                                    </tr>
-                                  </table>
-                                  <![endif]-->
+                                  <div class="logo-container">
+                                    <!-- High-resolution text logo with multiple formats -->
+                                    <!--[if !mso]><!-->
+                                    <picture>
+                                      <!-- AVIF for modern browsers (best quality & smallest size) -->
+                                      <source srcset="https://proense.com.co/images/text-logo.avif" type="image/avif">
+                                      <!-- WebP for good browser support -->
+                                      <source srcset="https://proense.com.co/images/text-logo.webp" type="image/webp">
+                                      <!-- PNG fallback with retina support -->
+                                      <img src="https://proense.com.co/images/text-logo.png" 
+                                           srcset="https://proense.com.co/images/text-logo.png 2x"
+                                           width="180" 
+                                           height="52" 
+                                           alt="Proense Seguros" 
+                                           title="Proense Seguros" 
+                                           style="display: block; border: 0; max-width: 180px; height: auto; width: 180px; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;" 
+                                           class="logo-img mobile-logo" 
+                                           loading="eager">
+                                    </picture>
+                                    <!-- Text fallback for when images don't load -->
+                                    <div class="logo-fallback" style="display: none;">
+                                      PROENSE SEGUROS
+                                    </div>
+                                    <!--<![endif]-->
+                                    
+                                    <!--[if mso]>
+                                    <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                                      <tr>
+                                        <td align="center" valign="middle">
+                                          <img src="https://proense.com.co/images/text-logo.png" 
+                                               width="180" 
+                                               height="52" 
+                                               alt="Proense Seguros" 
+                                               style="display: block; border: 0; max-width: 180px; height: auto;" />
+                                        </td>
+                                      </tr>
+                                    </table>
+                                    <![endif]-->
+                                  </div>
                                 </td>
-                                <!-- Company name and subtitle -->
-                                <td valign="middle">
+                                <!-- Tagline next to logo -->
+                                <td valign="middle" style="padding-left: 8px;">
                                   <table role="presentation" cellspacing="0" cellpadding="0" border="0">
                                     <tr>
                                       <td>
