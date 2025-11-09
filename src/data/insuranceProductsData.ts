@@ -41,7 +41,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
       {
         icon: "HeartHandshake",
         title: "Fallecimiento",
-        description: "Garantiza el pago del capital asegurado a tus beneficiarios si falleces."
+        description: "Garantiza el pago del capital asegurado en caso de fallecimiento."
       },
       {
         icon: "Accessibility",
@@ -220,7 +220,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
       },
       {
         icon: "Baby",
-        title: "Cobertura Dental (Opcional)",
+        title: "Anexo odontológico(Opcional)",
         description: "Muchos seguros ofrecen módulos adicionales para cubrir gastos dentales."
       },
       {
@@ -237,7 +237,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     faq: [
       {
         question: "¿Qué diferencia hay entre un copago y un deducible?",
-        answer: "El copago es un valor fijo que pagas al usar un servicio específico, como una consulta. El deducible es el monto total que debes cubrir de tu bolsillo en un período antes de que el seguro empiece a pagar. Un plan puede tener uno, ambos o ninguno. Te ayudamos a entender qué opción te conviene más."
+        answer: "El copago es un valor fijo que pagas al usar un servicio específico, como una consulta. El deducible es el monto que debes cubrir de tu bolsillo. El seguro cubre a partir del monton del deducible de acuerdo a la cobertura contratada. Un plan puede tener un copago, un deducible, ambos o ninguno. Te ayudamos a entender qué opción te conviene más."
       },
       {
         question: "¿Qué es una preexistencia y cómo afecta mi seguro?",
@@ -403,7 +403,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
         answer: "No. Aunque el banco te lo ofrezca, no estás obligado a contratar el seguro con ellos. Tienes la libertad de elegir la aseguradora que prefieras. Comparar opciones te puede ayudar a encontrar una mejor cobertura a un mejor precio."
       },
       {
-        question: "¿Qué significa y 'contenido' en la póliza?",
+        question: "¿Qué significa 'contenido' en la póliza?",
         answer: "El 'contenido' son todos tus bienes personales dentro de la casa: muebles, electrodomésticos, ropa, etc."
       },
       {

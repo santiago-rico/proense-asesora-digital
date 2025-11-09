@@ -266,13 +266,17 @@ async function handler(
     const senderEmail = process.env.BREVO_SENDER_EMAIL || 'no-reply@proense.co';
     const agentEmail = process.env.AGENT_EMAIL || 'comercial@proense.co';
 
+    // Get the base URL from the request
+    const baseUrl = req.headers.host ? `https://${req.headers.host}` : undefined;
+
     // 1. Email to User
     const userEmailSubject = `Confirmación de tu solicitud de seguro: ${formData.tipoSeguro}`;
     const userEmailHtmlContent = InsuranceApplicationTemplate({
       data: sanitizedData,
       attachedFiles: attachedFileNames,
       isUserEmail: true,
-      isDarkMode: false
+      isDarkMode: false,
+      baseUrl
     });
 
     const userBrevoPayload = {
@@ -288,7 +292,8 @@ async function handler(
       data: sanitizedData,
       attachedFiles: attachedFileNames,
       isUserEmail: false,
-      isDarkMode: false
+      isDarkMode: false,
+      baseUrl
     });
 
     const agentBrevoPayload = {

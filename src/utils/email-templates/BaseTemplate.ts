@@ -1,3 +1,5 @@
+import { getEmailLogoUrls, logEmailDebugInfo } from './EmailUtils.js';
+
 interface BaseTemplateProps {
   preheader?: string;
   content: string;
@@ -11,14 +13,14 @@ export function BaseTemplate({ preheader, content, isDarkMode = false, baseUrl }
   const mutedColor = isDarkMode ? '#a0a0a0' : '#6c757d';
   const borderColor = isDarkMode ? '#404040' : '#e9ecef';
 
-  // Determine the base URL for assets
-  // Use hardcoded production URL for email reliability, PNG for email client compatibility
-  const assetBaseUrl = baseUrl || 'https://proense-asesora-digital.vercel.app';
+  // Debug logging
+  logEmailDebugInfo('BaseTemplate', baseUrl);
 
-  // Use optimized email-specific PNG logos for maximum compatibility and fast loading
-  const logoBaseUrl = `${assetBaseUrl}/images/email`;
-  const logoUrl80 = `${logoBaseUrl}/logo-80.png`;
-  const logoUrl60 = `${logoBaseUrl}/logo-60.png`;
+  // Get logo URLs with fallbacks
+  const logoUrls = getEmailLogoUrls(baseUrl);
+  const logoUrl80 = logoUrls.primary.logo80;
+  const fallbackLogoUrl80 = logoUrls.fallback.logo80;
+  const externalLogoUrl80 = logoUrls.external.logo80;
 
   return `
 <!DOCTYPE html>
@@ -33,6 +35,7 @@ export function BaseTemplate({ preheader, content, isDarkMode = false, baseUrl }
   <meta name="supported-color-schemes" content="light dark">
   <title>Proense Asesora Digital</title>
   <link rel="preload" href="${logoUrl80}" as="image" type="image/png">
+  <link rel="preload" href="${fallbackLogoUrl80}" as="image" type="image/png">
   <!--[if mso]>
   <noscript>
     <xml>
@@ -74,6 +77,17 @@ export function BaseTemplate({ preheader, content, isDarkMode = false, baseUrl }
       .darkmode-tagline-text { color: #40A5FD !important; }
     }
     
+    /* Logo fallback styles */
+    .logo-img:not([src]), .logo-img[src=""], .logo-img[src*="data:image/svg+xml"] {
+      display: none !important;
+    }
+    
+    .logo-img:not([src]) + .logo-fallback,
+    .logo-img[src=""] + .logo-fallback,
+    .logo-img[src*="data:image/svg+xml"] + .logo-fallback {
+      display: flex !important;
+    }
+    
     /* Mobile styles */
     @media screen and (max-width: 600px) {
       .mobile-padding { padding: 20px !important; }
@@ -91,6 +105,11 @@ export function BaseTemplate({ preheader, content, isDarkMode = false, baseUrl }
       .mobile-tagline { font-size: 12px !important; padding: 6px 16px !important; }
       .mobile-header-padding { padding: 20px !important; }
       .mobile-logo { width: 60px !important; height: 60px !important; max-width: 60px !important; }
+      
+      /* Mobile logo container adjustments */
+      .logo-container { width: 60px !important; height: 60px !important; }
+      .logo-fallback { width: 60px !important; height: 60px !important; }
+      .logo-fallback span { font-size: 24px !important; }
     }
   </style>
 </head>
@@ -129,17 +148,20 @@ export function BaseTemplate({ preheader, content, isDarkMode = false, baseUrl }
                           <td valign="middle" style="position: relative; z-index: 1;">
                             <table role="presentation" cellspacing="0" cellpadding="0" border="0">
                               <tr>
-                                <!-- Logo -->
+                                <!-- Logo with multiple fallbacks -->
                                 <td valign="middle" style="padding-right: 16px;">
+                                  <!-- Logo using direct production URL for maximum compatibility -->
                                   <!--[if !mso]><!-->
-                                  <picture>
-                                    <source srcset="${logoUrl80}" media="(min-width: 480px)">
-                                    <source srcset="${logoUrl60}" media="(max-width: 479px)">
-                                    <img src="${logoUrl80}" width="80" height="80" alt="Proense Seguros" title="Proense Seguros" style="display: block; border: 0; max-width: 80px; height: auto;" class="mobile-logo" loading="eager">
-                                  </picture>
+                                  <img src="${externalLogoUrl80}" width="80" height="80" alt="Proense Seguros" title="Proense Seguros" style="display: block; border: 0; max-width: 80px; height: 80px; width: 80px; border-radius: 8px; background-color: #0073D1;" class="mobile-logo" loading="eager">
                                   <!--<![endif]-->
                                   <!--[if mso]>
-                                  <img src="${logoUrl80}" width="80" height="80" alt="Proense Seguros" title="Proense Seguros" style="display: block; border: 0; max-width: 80px; height: auto;" class="mobile-logo">
+                                  <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="width: 80px; height: 80px;">
+                                    <tr>
+                                      <td align="center" valign="middle" style="width: 80px; height: 80px;">
+                                        <img src="${externalLogoUrl80}" width="80" height="80" alt="Proense Seguros" style="display: block; border: 0; max-width: 80px; height: 80px; border-radius: 8px; background-color: #0073D1;" />
+                                      </td>
+                                    </tr>
+                                  </table>
                                   <![endif]-->
                                 </td>
                                 <!-- Company name and subtitle -->

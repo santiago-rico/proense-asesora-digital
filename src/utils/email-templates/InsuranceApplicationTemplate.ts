@@ -55,13 +55,15 @@ interface EmailTemplateProps {
   attachedFiles: AttachedFiles;
   isUserEmail: boolean;
   isDarkMode?: boolean;
+  baseUrl?: string;
 }
 
 export function InsuranceApplicationTemplate({ 
   data, 
   attachedFiles, 
   isUserEmail, 
-  isDarkMode = false 
+  isDarkMode = false,
+  baseUrl
 }: EmailTemplateProps): string {
   const preheader = isUserEmail 
     ? `Confirmación de tu solicitud de ${data.tipoSeguro}`
@@ -291,5 +293,5 @@ export function InsuranceApplicationTemplate({
   
   const content = isUserEmail ? userContent : agentContent;
   
-  return BaseTemplate({ preheader, content, isDarkMode });
+  return BaseTemplate({ preheader, content, isDarkMode, baseUrl });
 }

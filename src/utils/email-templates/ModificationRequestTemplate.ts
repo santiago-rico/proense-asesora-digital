@@ -35,13 +35,15 @@ interface EmailTemplateProps {
   attachedFiles: AttachedFiles;
   isUserEmail: boolean;
   isDarkMode?: boolean;
+  baseUrl?: string;
 }
 
 export function ModificationRequestTemplate({ 
   data, 
   attachedFiles, 
   isUserEmail, 
-  isDarkMode = false 
+  isDarkMode = false,
+  baseUrl
 }: EmailTemplateProps): string {
   const preheader = isUserEmail 
     ? `Confirmación de tu solicitud de modificación - ${data.nombreAseguradora}`
@@ -306,5 +308,5 @@ export function ModificationRequestTemplate({
   
   const content = isUserEmail ? userContent : agentContent;
   
-  return BaseTemplate({ preheader, content, isDarkMode });
+  return BaseTemplate({ preheader, content, isDarkMode, baseUrl });
 }

@@ -35,13 +35,15 @@ interface EmailTemplateProps {
   attachedFiles: AttachedFiles;
   isUserEmail: boolean;
   isDarkMode?: boolean;
+  baseUrl?: string;
 }
 
 export function CancellationRequestTemplate({ 
   data, 
   attachedFiles, 
   isUserEmail, 
-  isDarkMode = false 
+  isDarkMode = false,
+  baseUrl
 }: EmailTemplateProps): string {
   const preheader = isUserEmail 
     ? `Confirmación de tu solicitud de cancelación - ${data.nombreAseguradora}`
@@ -283,5 +285,5 @@ export function CancellationRequestTemplate({
   
   const content = isUserEmail ? userContent : agentContent;
   
-  return BaseTemplate({ preheader, content, isDarkMode });
+  return BaseTemplate({ preheader, content, isDarkMode, baseUrl });
 }

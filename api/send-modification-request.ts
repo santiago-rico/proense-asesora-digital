@@ -184,12 +184,16 @@ async function handler(req: VercelRequest, res: VercelResponse) {
         const senderEmail = process.env.BREVO_SENDER_EMAIL || 'no-reply@proense.co';
         const agentEmail = process.env.AGENT_EMAIL || 'comercial@proense.co';
 
+        // Get the base URL from the request
+        const baseUrl = req.headers.host ? `https://${req.headers.host}` : undefined;
+
         // Email to Client
         const clientEmailHtmlContent = ModificationRequestTemplate({
             data: formData,
             attachedFiles: attachedFileNames,
             isUserEmail: true,
-            isDarkMode: false
+            isDarkMode: false,
+            baseUrl
         });
 
         // Email to Agent
@@ -197,7 +201,8 @@ async function handler(req: VercelRequest, res: VercelResponse) {
             data: formData,
             attachedFiles: attachedFileNames,
             isUserEmail: false,
-            isDarkMode: false
+            isDarkMode: false,
+            baseUrl
         });
 
         await sendTransactionalEmail({

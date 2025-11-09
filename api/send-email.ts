@@ -86,6 +86,9 @@ async function handler(
 
     const subject = `Nuevo Lead de Asesoría Gratuita: ${sanitizedNombre}`;
     
+    // Get the base URL from the request
+    const baseUrl = req.headers.host ? `https://${req.headers.host}` : undefined;
+    
     // Use the new email template
     const htmlContent = LeadTemplate({
       nombre: sanitizedNombre,
@@ -93,7 +96,7 @@ async function handler(
       telefono,
       tipoSeguro,
       mensaje: sanitizedMensaje
-    });
+    }, false, baseUrl);
 
     const brevoPayload = {
       sender: {

@@ -18,7 +18,7 @@ interface LeadTemplateData {
   mensaje?: string;
 }
 
-export function LeadTemplate(data: LeadTemplateData, isDarkMode: boolean = false): string {
+export function LeadTemplate(data: LeadTemplateData, isDarkMode: boolean = false, baseUrl?: string): string {
   const preheader = `Nueva solicitud de asesoría de ${data.nombre} - ${data.tipoSeguro}`;
   
   // Format insurance type for display
@@ -95,5 +95,5 @@ export function LeadTemplate(data: LeadTemplateData, isDarkMode: boolean = false
     
   `;
   
-  return BaseTemplate({ preheader, content, isDarkMode });
+  return BaseTemplate({ preheader, content, isDarkMode, baseUrl });
 }

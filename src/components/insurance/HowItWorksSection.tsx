@@ -24,12 +24,12 @@ const HowItWorksSection: React.FC = () => {
     {
       icon: <FileText size={32} />,
       title: 'Comparte tus necesidades',
-      description: 'Cuéntanos qué necesitas proteger y bríndanos información básica para empezar a buscar tu seguro ideal',
+      description: 'Cuéntanos qué necesitas proteger y bríndanos información básica para empezar a buscar tu seguro ideal.',
     },
     {
       icon: <Lightbulb size={32} />,
       title: 'Recibe asesoría experta y gratuita',
-      description: 'Un asesor experto de Proense analizará tu caso y te presentará opciones que se adapten a tu necesidadF',
+      description: 'Un asesor experto de Proense analizará tu caso y te presentará opciones que se adapten a tus necesidades.',
     },
     {
       icon: <ShieldCheck size={32} />,

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Logo Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ccc; }
+        img { border: 1px solid #ddd; margin: 10px; }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <h1>Proense Logo Loading Test</h1>
+    
+    <div class="test-section">
+        <h2>Email Logo Files (80px)</h2>
+        <img src="/images/email/logo-80.png" width="80" height="80" alt="Logo 80px" 
+             onload="this.nextElementSibling.innerHTML='✅ Loaded successfully'" 
+             onerror="this.nextElementSibling.innerHTML='❌ Failed to load'">
+        <span class="status"></span>
+    </div>
+    
+    <div class="test-section">
+        <h2>Email Logo Files (60px)</h2>
+        <img src="/images/email/logo-60.png" width="60" height="60" alt="Logo 60px"
+             onload="this.nextElementSibling.innerHTML='✅ Loaded successfully'" 
+             onerror="this.nextElementSibling.innerHTML='❌ Failed to load'">
+        <span class="status"></span>
+    </div>
+    
+    <div class="test-section">
+        <h2>Email Logo Files (40px)</h2>
+        <img src="/images/email/logo-40.png" width="40" height="40" alt="Logo 40px"
+             onload="this.nextElementSibling.innerHTML='✅ Loaded successfully'" 
+             onerror="this.nextElementSibling.innerHTML='❌ Failed to load'">
+        <span class="status"></span>
+    </div>
+    
+    <div class="test-section">
+        <h2>Fallback Logo (main logo.png)</h2>
+        <img src="/images/logo.png" width="80" height="80" alt="Main Logo"
+             onload="this.nextElementSibling.innerHTML='✅ Loaded successfully'" 
+             onerror="this.nextElementSibling.innerHTML='❌ Failed to load'">
+        <span class="status"></span>
+    </div>
+    
+    <div class="test-section">
+        <h2>Full URL Test (production)</h2>
+        <img src="https://proense-asesora-digital.vercel.app/images/email/logo-80.png" width="80" height="80" alt="Production Logo"
+             onload="this.nextElementSibling.innerHTML='✅ Loaded successfully'" 
+             onerror="this.nextElementSibling.innerHTML='❌ Failed to load'">
+        <span class="status"></span>
+    </div>
+    
+    <script>
+        // Test if we can fetch the images programmatically
+        async function testImageUrls() {
+            const urls = [
+                '/images/email/logo-80.png',
+                '/images/email/logo-60.png', 
+                '/images/email/logo-40.png',
+                '/images/logo.png',
+                'https://proense-asesora-digital.vercel.app/images/email/logo-80.png'
+            ];
+            
+            console.log('Testing image URLs...');
+            for (const url of urls) {
+                try {
+                    const response = await fetch(url, { method: 'HEAD' });
+                    console.log(`${url}: ${response.ok ? '✅ OK' : '❌ Failed'} (${response.status})`);
+                } catch (error) {
+                    console.log(`${url}: ❌ Error - ${error.message}`);
+                }
+            }
+        }
+        
+        // Run test after page loads
+        window.addEventListener('load', testImageUrls);
+    </script>
+</body>
+</html>

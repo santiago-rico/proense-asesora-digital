@@ -60,7 +60,7 @@ const TestimonialSection: React.FC = () => {
             Lo que dicen nuestros clientes
           </h2>
           <p className="mt-4 max-w-3xl mx-auto text-base sm:text-lg text-gray-600">
-            Miles de colombianos confían en nosotros para proteger lo que más valoran.
+            Cientos de colombianos confían en nosotros para proteger lo que más valoran.
           </p>
         </div>
 
