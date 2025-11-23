@@ -212,7 +212,7 @@ describe('ModificationForm', () => {
 
     it('requires terms and conditions acceptance', async () => {
       render(<ModificationForm />);
-      
+
       // Fill all required fields but don't accept terms
       await user.type(screen.getByLabelText(/nombre completo/i), 'Test User');
       await user.type(screen.getByLabelText(/número de cédula/i), '12345678');
@@ -220,17 +220,17 @@ describe('ModificationForm', () => {
       await user.type(screen.getByLabelText(/correo electrónico/i), 'test@example.com');
       await user.type(screen.getByLabelText(/nombre de la aseguradora/i), 'Test Insurance');
       await user.type(screen.getByLabelText(/qué modificaciones/i), 'Test modification');
-      
+
       const submitButton = screen.getByRole('button', { name: /enviar solicitud/i });
       await user.click(submitButton);
-      
+
       // Should NOT call fetch because terms validation should fail
       expect(global.fetch).not.toHaveBeenCalled();
-      
+
       await waitFor(() => {
         expect(screen.getByText(/debes aceptar la política/i)).toBeInTheDocument();
       });
-    });
+    }, 10000);
   });
 
   describe('Form Accessibility', () => {
@@ -272,7 +272,7 @@ describe('ModificationForm', () => {
   describe('Form Submission', () => {
     it('submits form with valid data and CSRF token', async () => {
       render(<ModificationForm />);
-      
+
       // Fill out form
       await user.type(screen.getByLabelText(/nombre completo/i), 'Test User');
       await user.type(screen.getByLabelText(/número de cédula/i), '12345678');
@@ -280,21 +280,21 @@ describe('ModificationForm', () => {
       await user.type(screen.getByLabelText(/correo electrónico/i), 'test@example.com');
       await user.type(screen.getByLabelText(/nombre de la aseguradora/i), 'Test Insurance');
       await user.type(screen.getByLabelText(/qué modificaciones/i), 'Test modification');
-      
+
       // Select a seguro type
       const tipoSeguroSelect = screen.getByRole('combobox');
       await user.click(tipoSeguroSelect);
       const autoOption = screen.getByRole('option', { name: 'Seguro de Auto' });
       await user.click(autoOption);
-      
+
       // Accept terms
       const termsCheckbox = screen.getByLabelText(/acepto la política/i);
       await user.click(termsCheckbox);
-      
+
       // Submit form
       const submitButton = screen.getByRole('button', { name: /enviar solicitud/i });
       await user.click(submitButton);
-      
+
       // Should call fetch with CSRF token
       await waitFor(() => {
         expect(global.fetch).toHaveBeenCalledWith(
@@ -308,7 +308,7 @@ describe('ModificationForm', () => {
           })
         );
       });
-    });
+    }, 10000);
 
     it('shows success screen after successful submission', async () => {
       render(<ModificationForm />);

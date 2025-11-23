@@ -89,9 +89,9 @@ describe('sendTransactionalEmail', () => {
   });
 
   it('should return error if API key is missing', async () => {
+    delete process.env.BREVO_API_KEY;
     process.env.BREVO_SENDER_EMAIL = 'default-sender@example.com';
     process.env.BREVO_SENDER_NAME = 'Default Sender';
-    // BREVO_API_KEY is not set
 
     const result = await sendTransactionalEmail(mockEmailParams);
 
@@ -101,8 +101,8 @@ describe('sendTransactionalEmail', () => {
 
   it('should return error if default sender email is missing', async () => {
     process.env.BREVO_API_KEY = 'test-api-key';
+    delete process.env.BREVO_SENDER_EMAIL;
     process.env.BREVO_SENDER_NAME = 'Default Sender';
-    // BREVO_SENDER_EMAIL is not set
 
     const result = await sendTransactionalEmail(mockEmailParams);
 
@@ -113,7 +113,7 @@ describe('sendTransactionalEmail', () => {
   it('should return error if default sender name is missing', async () => {
     process.env.BREVO_API_KEY = 'test-api-key';
     process.env.BREVO_SENDER_EMAIL = 'default-sender@example.com';
-    // BREVO_SENDER_NAME is not set
+    delete process.env.BREVO_SENDER_NAME;
 
     const result = await sendTransactionalEmail(mockEmailParams);
 
