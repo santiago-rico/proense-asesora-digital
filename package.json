@@ -61,7 +61,7 @@
     "react-hook-form": "^7.59.0",
     "react-phone-number-input": "^3.4.12",
     "react-router-dom": "^7.6.3",
-    "resend": "^4.6.0",
+    "resend": "^6.5.2",
     "sonner": "^2.0.5",
     "tailwind-merge": "^3.3.1",
     "tailwindcss-animate": "^1.0.7",
@@ -82,7 +82,7 @@
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "@vercel/node": "^5.3.0",
-    "@vitejs/plugin-react-swc": "^3.10.2",
+    "@vitejs/plugin-react-swc": "^4.2.2",
     "@vitest/coverage-v8": "^3.2.4",
     "autoprefixer": "^10.4.20",
     "axe-playwright": "^2.1.0",
@@ -103,6 +103,7 @@
   },
   "overrides": {
     "esbuild": "^0.25.5",
-    "path-to-regexp": "^8.2.0"
+    "path-to-regexp": "^8.2.0",
+    "undici": "^5.29.0"
   }
 }

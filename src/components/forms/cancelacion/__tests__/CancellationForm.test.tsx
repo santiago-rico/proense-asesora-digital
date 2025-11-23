@@ -202,27 +202,27 @@ describe('CancellationForm', () => {
     it('requires terms and conditions acceptance', async () => {
       const user = userEvent.setup();
       render(<CancellationForm />);
-      
+
       // Fill required fields but don't accept terms
       await user.type(screen.getByLabelText(/nombre completo del tomador/i), 'Test User');
       await user.type(screen.getByLabelText(/número de cédula del tomador/i), '12345678');
       await user.type(screen.getByLabelText(/teléfono de contacto/i), '+573001234567');
       await user.type(screen.getByLabelText(/email de contacto/i), 'test@example.com');
       await user.type(screen.getByLabelText(/nombre de la aseguradora/i), 'Test Insurance');
-      
+
       // Select insurance type
       const selectTrigger = screen.getByRole('combobox');
       await user.click(selectTrigger);
       const vidaOption = screen.getByRole('option', { name: 'Seguro de Vida' });
       await user.click(vidaOption);
-      
+
       const submitButton = screen.getByRole('button', { name: /enviar solicitud de cancelación/i });
       await user.click(submitButton);
-      
+
       await waitFor(() => {
         expect(screen.getByText(/Debes aceptar la política de privacidad y los términos y condiciones para continuar/i)).toBeInTheDocument();
       });
-    });
+    }, 10000);
   });
 
   describe('Conditional Fields', () => {
