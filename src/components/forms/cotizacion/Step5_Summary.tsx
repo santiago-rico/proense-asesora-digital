@@ -9,7 +9,6 @@ import {
 } from '@/components/ui/form';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Link } from 'react-router-dom';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const fieldLabels: Record<string, string> = {
   // Personal Information
@@ -22,6 +21,7 @@ const fieldLabels: Record<string, string> = {
   city: 'Ciudad',
   address: 'Dirección',
   employmentStatus: 'Estado Laboral',
+  occupationSector: 'Actividad Laboral o Sector Económico',
 
   // Insurance Type
   insuranceType: 'Tipo de Seguro',
@@ -30,15 +30,33 @@ const fieldLabels: Record<string, string> = {
   monthlyIncome: 'Ingreso Mensual',
   maritalStatus: 'Estado Civil',
   hasChildren: '¿Tiene Hijos?',
+  height: 'Estatura',
+  weight: 'Peso',
+  epsName: 'EPS',
+  practicesSports: '¿Practica Deportes?',
+  sportsDetails: 'Deportes que Practica',
+  hasHealthConditions: '¿Tiene Enfermedades?',
+  healthConditionsDetails: 'Enfermedades',
 
   // Auto Insurance Fields
-  vehicleMake: 'Marca del Vehículo',
-  vehicleModel: 'Modelo del Vehículo',
-  vehicleYear: 'Año del Vehículo',
+  vehiclePlate: 'Placa del Vehículo',
+  vehicleCity: 'Ciudad de Circulación',
+  vehicleType: 'Tipo de Vehículo',
+  vehicleUse: 'Uso Principal del Vehículo',
+  hasAccessories: '¿Tiene Accesorios o Modificaciones?',
+  accessoriesValue: 'Valor Estimado de Accesorios',
+  accessoriesType: 'Tipo de Accesorios',
 
   // Hogar Insurance Fields
-  propertyType: 'Tipo de Propiedad',
-  propertyValue: 'Valor de la Propiedad',
+  estrato: 'Estrato',
+  propertyType: 'Tipo de Vivienda',
+  propertyUse: 'Uso de la Vivienda',
+  residesInProperty: '¿Habitas la Vivienda?',
+  propertyArea: 'Área de la Vivienda (M2)',
+  hasEconomicActivity: '¿Se Desarrolla Actividad Económica?',
+  propertyValue: 'Valor de la Vivienda',
+  contentsValue: 'Valor de los Contenidos',
+  insuranceMethod: 'Método de Aseguramiento',
 
   // Salud Insurance Fields
   preExistingConditions: 'Condiciones Preexistentes',
@@ -46,22 +64,29 @@ const fieldLabels: Record<string, string> = {
   // Mascotas Insurance Fields
   petType: 'Tipo de Mascota',
   petName: 'Nombre de la Mascota',
+  petGender: 'Sexo de la Mascota',
   petAge: 'Edad de la Mascota',
+  petBreed: 'Raza de la Mascota',
+  petVaccinated: '¿Tiene Esquema de Vacunas al Día?',
+  civilLiability: 'Responsabilidad Civil',
+  veterinaryExpenses: 'Gastos Veterinarios',
+  funeralExpenses: 'Gastos Exequiales',
+  theftOrLoss: 'Robo o Pérdida',
 
-  // Additional Information
-  previousInsurance: '¿Ha Tenido Seguro Anteriormente?',
-  previousInsurer: 'Aseguradora Anterior',
-  claimsHistory: 'Historial de Reclamaciones',
+  // Additional Comments
   additionalComments: 'Comentarios Adicionales',
 };
 
 // Value mappings for display
 const employmentStatusLabels: Record<string, string> = {
-  empleado: 'Empleado',
-  independiente: 'Independiente',
-  desempleado: 'Desempleado',
-  pensionado: 'Pensionado',
+  empleado_completo: 'Empleado(a) a tiempo completo',
+  empleado_parcial: 'Empleado(a) a tiempo parcial',
+  autonomo: 'Trabajador(a) autónomo(a) / Freelance',
+  desempleado: 'Desempleado(a)',
   estudiante: 'Estudiante',
+  jubilado: 'Jubilado(a)',
+  ama_casa: 'Ama de casa',
+  incapacidad: 'Incapacidad laboral',
 };
 
 const insuranceTypeLabels: Record<string, string> = {
@@ -80,14 +105,59 @@ const maritalStatusLabels: Record<string, string> = {
   viudo: 'Viudo/a',
 };
 
+const estratoLabels: Record<string, string> = {
+  estrato_1: 'Estrato 1',
+  estrato_2: 'Estrato 2',
+  estrato_3: 'Estrato 3',
+  estrato_4: 'Estrato 4',
+  estrato_5: 'Estrato 5',
+  estrato_6: 'Estrato 6',
+};
+
 const propertyTypeLabels: Record<string, string> = {
-  casa: 'Casa',
   apartamento: 'Apartamento',
+  casa: 'Casa',
+  casa_campestre: 'Casa Campestre',
+  finca: 'Finca',
+};
+
+const propertyUseLabels: Record<string, string> = {
+  arrendamiento: 'Arrendamiento',
+  propio: 'Propio',
+};
+
+const insuranceMethodLabels: Record<string, string> = {
+  valor_comercial: 'Valor Comercial',
+  valor_reconstruccion: 'Valor de Reconstrucción',
 };
 
 const petTypeLabels: Record<string, string> = {
   perro: 'Perro',
   gato: 'Gato',
+  otro: 'Otro',
+};
+
+const petGenderLabels: Record<string, string> = {
+  hembra: 'Hembra',
+  macho: 'Macho',
+};
+
+const vehicleTypeLabels: Record<string, string> = {
+  nuevo: 'Nuevo (0 Km)',
+  usado: 'Usado',
+};
+
+const vehicleUseLabels: Record<string, string> = {
+  familiar: 'Familiar',
+  trabajo: 'Trabajo',
+  empresa: 'Al servicio de una empresa',
+};
+
+const accessoriesTypeLabels: Record<string, string> = {
+  planta_sonido: 'Planta de sonido',
+  ductos_escape: 'Ductos de escape',
+  rines_lujo: 'Rines de lujo',
+  pintura_personalizada: 'Pintura personalizada',
   otro: 'Otro',
 };
 
@@ -121,16 +191,53 @@ const personalInfoFields = [
 
 const insuranceTypeField = ['insuranceType'];
 
-const vidaFields = ['monthlyIncome', 'maritalStatus', 'hasChildren'];
-const autoFields = ['vehicleMake', 'vehicleModel', 'vehicleYear'];
-const hogarFields = ['propertyType', 'propertyValue'];
-const saludFields = ['preExistingConditions'];
-const mascotasFields = ['petType', 'petName', 'petAge'];
-
-const additionalInfoFields = [
-  'previousInsurance',
-  'previousInsurer',
-  'claimsHistory',
+const vidaFields = [
+  'monthlyIncome',
+  'maritalStatus',
+  'hasChildren',
+  'height',
+  'weight',
+  'epsName',
+  'practicesSports',
+  'sportsDetails',
+  'hasHealthConditions',
+  'healthConditionsDetails',
+  'additionalComments',
+];
+const autoFields = [
+  'vehiclePlate',
+  'vehicleCity',
+  'vehicleType',
+  'vehicleUse',
+  'hasAccessories',
+  'accessoriesValue',
+  'accessoriesType',
+  'additionalComments',
+];
+const hogarFields = [
+  'estrato',
+  'propertyType',
+  'propertyUse',
+  'residesInProperty',
+  'propertyArea',
+  'hasEconomicActivity',
+  'propertyValue',
+  'contentsValue',
+  'insuranceMethod',
+  'additionalComments',
+];
+const saludFields = ['preExistingConditions', 'additionalComments'];
+const mascotasFields = [
+  'petType',
+  'petName',
+  'petGender',
+  'petAge',
+  'petBreed',
+  'petVaccinated',
+  'civilLiability',
+  'veterinaryExpenses',
+  'funeralExpenses',
+  'theftOrLoss',
   'additionalComments',
 ];
 
@@ -171,8 +278,25 @@ const Step5_Summary: React.FC = () => {
     }
 
     // Handle specific value mappings
-    if (fieldName === 'hasChildren') {
+    if (
+      fieldName === 'hasChildren' ||
+      fieldName === 'practicesSports' ||
+      fieldName === 'hasHealthConditions' ||
+      fieldName === 'residesInProperty' ||
+      fieldName === 'hasEconomicActivity' ||
+      fieldName === 'hasAccessories' ||
+      fieldName === 'petVaccinated'
+    ) {
       return value === 'si' ? 'Sí' : value === 'no' ? 'No' : null;
+    }
+
+    // Format height and weight
+    if (fieldName === 'height' && typeof value === 'string') {
+      return `${value} cm`;
+    }
+
+    if (fieldName === 'weight' && typeof value === 'string') {
+      return `${value} kg`;
     }
 
     if (fieldName === 'employmentStatus' && typeof value === 'string') {
@@ -187,64 +311,66 @@ const Step5_Summary: React.FC = () => {
       return maritalStatusLabels[value] || value;
     }
 
+    if (fieldName === 'estrato' && typeof value === 'string') {
+      return estratoLabels[value] || value;
+    }
+
     if (fieldName === 'propertyType' && typeof value === 'string') {
       return propertyTypeLabels[value] || value;
+    }
+
+    if (fieldName === 'propertyUse' && typeof value === 'string') {
+      return propertyUseLabels[value] || value;
+    }
+
+    if (fieldName === 'insuranceMethod' && typeof value === 'string') {
+      return insuranceMethodLabels[value] || value;
     }
 
     if (fieldName === 'petType' && typeof value === 'string') {
       return petTypeLabels[value] || value;
     }
 
+    if (fieldName === 'petGender' && typeof value === 'string') {
+      return petGenderLabels[value] || value;
+    }
+
+    if (fieldName === 'vehicleType' && typeof value === 'string') {
+      return vehicleTypeLabels[value] || value;
+    }
+
+    if (fieldName === 'vehicleUse' && typeof value === 'string') {
+      return vehicleUseLabels[value] || value;
+    }
+
+    if (fieldName === 'accessoriesType' && typeof value === 'string') {
+      return accessoriesTypeLabels[value] || value;
+    }
+
     // Format currency for monetary fields
     if (
-      (fieldName === 'monthlyIncome' || fieldName === 'propertyValue') &&
+      (fieldName === 'monthlyIncome' ||
+        fieldName === 'propertyValue' ||
+        fieldName === 'contentsValue' ||
+        fieldName === 'accessoriesValue' ||
+        fieldName === 'civilLiability' ||
+        fieldName === 'veterinaryExpenses' ||
+        fieldName === 'funeralExpenses' ||
+        fieldName === 'theftOrLoss') &&
       typeof value === 'string'
     ) {
       const numValue = parseFloat(value);
       if (!isNaN(numValue)) {
-        return `$${numValue.toLocaleString('es-CO')}`;
+        return `$${numValue.toLocaleString('es-CO')} COP`;
       }
     }
 
+    // Format area field
+    if (fieldName === 'propertyArea' && typeof value === 'string') {
+      return `${value} M2`;
+    }
+
     return String(value);
-  };
-
-  const renderSection = (title: string, fields: string[]) => {
-    const hasVisibleFields = fields.some((fieldName) => {
-      const value = formData[fieldName];
-      return renderValue(value, fieldName) !== null;
-    });
-
-    if (!hasVisibleFields) return null;
-
-    return (
-      <div className="space-y-3">
-        <h4 className="font-semibold text-sm text-gray-700 dark:text-gray-300 uppercase tracking-wide">
-          {title}
-        </h4>
-        <div className="space-y-2">
-          {fields.map((fieldName) => {
-            const value = formData[fieldName];
-            const displayValue = renderValue(value, fieldName);
-            if (displayValue === null) return null;
-
-            return (
-              <div
-                key={fieldName}
-                className="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-gray-100 dark:border-gray-700 last:border-b-0"
-              >
-                <p className="font-medium text-sm text-gray-600 dark:text-gray-400">
-                  {fieldLabels[fieldName] || fieldName}:
-                </p>
-                <div className="text-sm text-gray-900 dark:text-gray-100 sm:text-right font-medium">
-                  {displayValue}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    );
   };
 
   const getInsuranceDetailsFields = () => {
@@ -264,36 +390,51 @@ const Step5_Summary: React.FC = () => {
     }
   };
 
+  // Get all fields to display in a flat list
+  const getAllFieldsToDisplay = () => {
+    const allFields = [
+      ...personalInfoFields,
+      ...insuranceTypeField,
+      ...getInsuranceDetailsFields(),
+    ];
+    return allFields;
+  };
+
   return (
     <div className="space-y-6">
-      <div>
-        <h3 className="text-lg font-semibold mb-1">Revisa y Confirma tu Información</h3>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-          Asegúrate de que todos los datos sean correctos antes de enviar tu solicitud de
-          cotización.
-        </p>
-      </div>
+      <h3 className="text-lg font-semibold mb-1">Revisa y Confirma tu Información</h3>
+      <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+        Asegúrate de que todos los datos sean correctos antes de enviar tu solicitud de cotización.
+      </p>
 
-      <div className="space-y-6 rounded-md border p-4 bg-gray-50/50 dark:bg-gray-800/50">
-        {renderSection('Información Personal', personalInfoFields)}
-        {renderSection('Tipo de Seguro', insuranceTypeField)}
-        {renderSection('Detalles del Seguro', getInsuranceDetailsFields())}
-        {renderSection('Información Adicional', additionalInfoFields)}
-      </div>
+      <div className="space-y-3 rounded-md border p-4">
+        {getAllFieldsToDisplay().map((fieldName) => {
+          const value = formData[fieldName];
+          const displayValue = renderValue(value, fieldName);
+          if (displayValue === null) return null;
 
-      <Alert className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
-        <AlertDescription className="text-sm text-blue-800 dark:text-blue-200">
-          Una vez enviada tu solicitud, recibirás un correo electrónico de confirmación con los
-          detalles de tu cotización. Nuestro equipo se pondrá en contacto contigo a la brevedad.
-        </AlertDescription>
-      </Alert>
+          return (
+            <div
+              key={fieldName}
+              className="flex flex-col sm:flex-row sm:justify-between py-1 border-b border-gray-100 dark:border-gray-700 last:border-b-0"
+            >
+              <p className="font-medium text-sm text-gray-700 dark:text-gray-300">
+                {fieldLabels[fieldName] || fieldName}:
+              </p>
+              <div className="text-sm text-gray-600 dark:text-gray-400 sm:text-right">
+                {displayValue}
+              </div>
+            </div>
+          );
+        })}
+      </div>
 
       <div className="space-y-4 pt-6 border-t border-gray-200 dark:border-gray-700">
         <FormField
           control={control}
           name="acceptTerms"
           render={({ field }) => (
-            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow-sm">
+            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow">
               <FormControl>
                 <Checkbox
                   checked={field.value}
@@ -301,38 +442,6 @@ const Step5_Summary: React.FC = () => {
                     handleCheckboxChange(checked as boolean, field.onChange, 'acceptTerms')
                   }
                   className={errors.acceptTerms ? 'border-red-500' : ''}
-                />
-              </FormControl>
-              <div className="space-y-1 leading-none">
-                <FormLabel>
-                  He leído y acepto los{' '}
-                  <Link
-                    to="/terminos-y-condiciones"
-                    target="_blank"
-                    className="text-blue-600 hover:underline dark:text-blue-400"
-                  >
-                    Términos y Condiciones
-                  </Link>{' '}
-                  <span className="text-red-500">*</span>
-                </FormLabel>
-                <FormMessage />
-              </div>
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={control}
-          name="acceptPrivacy"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow-sm">
-              <FormControl>
-                <Checkbox
-                  checked={field.value}
-                  onCheckedChange={(checked) =>
-                    handleCheckboxChange(checked as boolean, field.onChange, 'acceptPrivacy')
-                  }
-                  className={errors.acceptPrivacy ? 'border-red-500' : ''}
                 />
               </FormControl>
               <div className="space-y-1 leading-none">
@@ -345,32 +454,17 @@ const Step5_Summary: React.FC = () => {
                   >
                     Política de Privacidad
                   </Link>{' '}
-                  <span className="text-red-500">*</span>
+                  y los{' '}
+                  <Link
+                    to="/terminos-y-condiciones"
+                    target="_blank"
+                    className="text-blue-600 hover:underline dark:text-blue-400"
+                  >
+                    Términos y Condiciones
+                  </Link>{' '}
+                  <span className="text-red-500">*</span>.
                 </FormLabel>
                 <FormMessage />
-              </div>
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={control}
-          name="acceptMarketing"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow-sm">
-              <FormControl>
-                <Checkbox
-                  checked={field.value}
-                  onCheckedChange={(checked) =>
-                    handleCheckboxChange(checked as boolean, field.onChange, 'acceptMarketing')
-                  }
-                />
-              </FormControl>
-              <div className="space-y-1 leading-none">
-                <FormLabel>
-                  Acepto recibir información sobre productos, promociones y noticias de Proense
-                  Asesora Digital (opcional)
-                </FormLabel>
               </div>
             </FormItem>
           )}

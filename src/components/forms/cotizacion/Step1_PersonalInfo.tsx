@@ -22,15 +22,21 @@ const MONTHS = [
 ];
 
 const EMPLOYMENT_STATUS_OPTIONS = [
-  { value: 'empleado', label: 'Empleado' },
-  { value: 'independiente', label: 'Independiente' },
-  { value: 'desempleado', label: 'Desempleado' },
-  { value: 'pensionado', label: 'Pensionado' },
+  { value: 'empleado_completo', label: 'Empleado(a) a tiempo completo' },
+  { value: 'empleado_parcial', label: 'Empleado(a) a tiempo parcial' },
+  { value: 'autonomo', label: 'Trabajador(a) autónomo(a) / Freelance' },
+  { value: 'desempleado', label: 'Desempleado(a)' },
   { value: 'estudiante', label: 'Estudiante' },
+  { value: 'jubilado', label: 'Jubilado(a)' },
+  { value: 'ama_casa', label: 'Ama de casa' },
+  { value: 'incapacidad', label: 'Incapacidad laboral' },
 ];
 
 const Step1_PersonalInfo = () => {
-  const { control } = useFormContext();
+  const { control, watch } = useFormContext();
+
+  // Watch employment status to conditionally show occupation sector field
+  const employmentStatus = watch('employmentStatus');
 
   return (
     <div className="space-y-6">
@@ -205,7 +211,6 @@ const Step1_PersonalInfo = () => {
             <FormLabel>Número de cédula <span className="text-red-500">*</span></FormLabel>
             <FormControl>
               <Input
-                type="number"
                 placeholder="Tu número de cédula"
                 autoComplete="off"
                 required
@@ -285,6 +290,35 @@ const Step1_PersonalInfo = () => {
           </FormItem>
         )}
       />
+
+      {/* Conditional: Occupation Sector - Show for specific employment statuses */}
+      {employmentStatus && [
+        'empleado_completo',
+        'empleado_parcial',
+        'autonomo',
+        'jubilado',
+        'incapacidad'
+      ].includes(employmentStatus) && (
+        <FormField
+          control={control}
+          name="occupationSector"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Actividad laboral o sector económico <span className="text-red-500">*</span></FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="Ej: Tecnología, Salud, Educación, etc."
+                  autoComplete="organization-title"
+                  required
+                  aria-required="true"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      )}
     </div>
   );
 };

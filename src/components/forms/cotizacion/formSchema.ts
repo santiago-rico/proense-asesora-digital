@@ -42,15 +42,20 @@ export const quoteFormSchema = z.object({
     .transform(str => str.trim()),
 
   employmentStatus: z.enum([
-    'empleado',
-    'independiente',
+    'empleado_completo',
+    'empleado_parcial',
+    'autonomo',
     'desempleado',
-    'pensionado',
-    'estudiante'
+    'estudiante',
+    'jubilado',
+    'ama_casa',
+    'incapacidad'
   ], {
     required_error: 'Selecciona tu situación laboral',
     invalid_type_error: 'Selecciona una opción válida'
   }),
+
+  occupationSector: z.string().optional(),
 
   // Step 2: Insurance Type Selection
   insuranceType: z.enum(['vida', 'auto', 'hogar', 'salud', 'mascotas'], {
@@ -62,15 +67,33 @@ export const quoteFormSchema = z.object({
   monthlyIncome: z.string().optional(),
   maritalStatus: z.string().optional(),
   hasChildren: z.union([z.enum(['si', 'no']), z.literal('')]).optional(),
+  height: z.string().optional(),
+  weight: z.string().optional(),
+  epsName: z.string().optional(),
+  practicesSports: z.union([z.enum(['si', 'no']), z.literal('')]).optional(),
+  sportsDetails: z.string().optional(),
+  hasHealthConditions: z.union([z.enum(['si', 'no']), z.literal('')]).optional(),
+  healthConditionsDetails: z.string().optional(),
 
   // Step 3: Conditional Fields for Seguro de Auto
-  vehicleMake: z.string().optional(),
-  vehicleModel: z.string().optional(),
-  vehicleYear: z.string().optional(),
+  vehiclePlate: z.string().optional(),
+  vehicleCity: z.string().optional(),
+  vehicleType: z.string().optional(),
+  vehicleUse: z.string().optional(),
+  hasAccessories: z.union([z.enum(['si', 'no']), z.literal('')]).optional(),
+  accessoriesValue: z.string().optional(),
+  accessoriesType: z.string().optional(),
 
   // Step 3: Conditional Fields for Seguro de Hogar
+  estrato: z.string().optional(),
   propertyType: z.string().optional(),
+  propertyUse: z.string().optional(),
+  residesInProperty: z.union([z.enum(['si', 'no']), z.literal('')]).optional(),
+  propertyArea: z.string().optional(),
+  hasEconomicActivity: z.union([z.enum(['si', 'no']), z.literal('')]).optional(),
   propertyValue: z.string().optional(),
+  contentsValue: z.string().optional(),
+  insuranceMethod: z.string().optional(),
 
   // Step 3: Conditional Fields for Seguro de Salud
   preExistingConditions: z.string().optional(),
@@ -78,31 +101,45 @@ export const quoteFormSchema = z.object({
   // Step 3: Conditional Fields for Seguro de Mascotas
   petType: z.string().optional(),
   petName: z.string().optional(),
+  petGender: z.string().optional(),
   petAge: z.string().optional(),
+  petBreed: z.string().optional(),
+  petVaccinated: z.union([z.enum(['si', 'no']), z.literal('')]).optional(),
+  civilLiability: z.string().optional(),
+  veterinaryExpenses: z.string().optional(),
+  funeralExpenses: z.string().optional(),
+  theftOrLoss: z.string().optional(),
 
-  // Step 4: Additional Information
-  previousInsurance: z.boolean({
-    required_error: 'Indica si has tenido seguro anteriormente',
-    invalid_type_error: 'Selecciona una opción válida'
-  }),
-  previousInsurer: z.string().optional(),
-  claimsHistory: z.string().optional(),
+  // Step 3: Additional Comments
   additionalComments: z.string().optional(),
 
-  // Step 5: Consent and Terms
+  // Step 4: Consent and Terms
   acceptTerms: z.boolean().refine(val => val === true, {
-    message: 'Debes aceptar los términos y condiciones para continuar'
+    message: 'Debes aceptar la política de privacidad y los términos y condiciones para continuar'
   }),
-
-  acceptPrivacy: z.boolean().refine(val => val === true, {
-    message: 'Debes aceptar la política de privacidad para continuar'
-  }),
-
-  acceptMarketing: z.boolean().optional(),
 
   // Honeypot field for bot protection
   website: z.string().optional(),
 }).superRefine((data, ctx) => {
+  // Conditional validation for occupation sector based on employment status
+  const employmentStatusesRequiringOccupation = [
+    'empleado_completo',
+    'empleado_parcial',
+    'autonomo',
+    'jubilado',
+    'incapacidad'
+  ];
+
+  if (employmentStatusesRequiringOccupation.includes(data.employmentStatus)) {
+    if (!data.occupationSector || data.occupationSector.trim() === '') {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'La actividad laboral o sector económico es requerida',
+        path: ['occupationSector']
+      });
+    }
+  }
+
   // Conditional validation based on insurance type
 
   if (data.insuranceType === 'vida') {
@@ -130,67 +167,250 @@ export const quoteFormSchema = z.object({
         path: ['hasChildren']
       });
     }
-  } else if (data.insuranceType === 'auto') {
-    // Validate required fields for Seguro de Auto
-    if (!data.vehicleMake || data.vehicleMake.trim() === '') {
+
+    if (!data.height || data.height.trim() === '') {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'La marca del vehículo es requerida',
-        path: ['vehicleMake']
+        message: 'La estatura es requerida para seguro de vida',
+        path: ['height']
       });
     }
 
-    if (!data.vehicleModel || data.vehicleModel.trim() === '') {
+    if (!data.weight || data.weight.trim() === '') {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'El modelo del vehículo es requerido',
-        path: ['vehicleModel']
+        message: 'El peso es requerido para seguro de vida',
+        path: ['weight']
       });
     }
 
-    if (!data.vehicleYear || data.vehicleYear.trim() === '') {
+    if (!data.epsName || data.epsName.trim() === '') {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'El año del vehículo es requerido',
-        path: ['vehicleYear']
+        message: 'El nombre de la EPS es requerido para seguro de vida',
+        path: ['epsName']
       });
-    } else {
-      // Validate year format and range
-      const yearNum = parseInt(data.vehicleYear, 10);
-      const currentYear = new Date().getFullYear();
-      if (isNaN(yearNum) || yearNum < 1900 || yearNum > currentYear + 1) {
+    }
+
+    if (!data.practicesSports || data.practicesSports === '') {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Indica si practicas algún deporte',
+        path: ['practicesSports']
+      });
+    }
+
+    // Conditional validation for sports details
+    if (data.practicesSports === 'si') {
+      if (!data.sportsDetails || data.sportsDetails.trim() === '') {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: `El año debe estar entre 1900 y ${currentYear + 1}`,
-          path: ['vehicleYear']
+          message: 'Debes especificar qué deportes practicas',
+          path: ['sportsDetails']
+        });
+      }
+    }
+
+    if (!data.hasHealthConditions || data.hasHealthConditions === '') {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Indica si tienes o padeces alguna enfermedad',
+        path: ['hasHealthConditions']
+      });
+    }
+
+    // Conditional validation for health conditions details
+    if (data.hasHealthConditions === 'si') {
+      if (!data.healthConditionsDetails || data.healthConditionsDetails.trim() === '') {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Debes describir las enfermedades que padeces',
+          path: ['healthConditionsDetails']
+        });
+      }
+    }
+  } else if (data.insuranceType === 'auto') {
+    // Validate required fields for Seguro de Auto
+    if (!data.vehiclePlate || data.vehiclePlate.trim() === '') {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'La placa del vehículo es requerida',
+        path: ['vehiclePlate']
+      });
+    }
+
+    if (!data.vehicleCity || data.vehicleCity.trim() === '') {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'La ciudad de circulación es requerida',
+        path: ['vehicleCity']
+      });
+    }
+
+    if (!data.vehicleType || data.vehicleType.trim() === '') {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'El tipo de vehículo es requerido',
+        path: ['vehicleType']
+      });
+    }
+
+    if (!data.vehicleUse || data.vehicleUse.trim() === '') {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'El uso principal del vehículo es requerido',
+        path: ['vehicleUse']
+      });
+    }
+
+    // Conditional validation for accessories
+    if (data.hasAccessories === 'si') {
+      if (!data.accessoriesValue || data.accessoriesValue.trim() === '') {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'El valor estimado de accesorios es requerido',
+          path: ['accessoriesValue']
+        });
+      }
+
+      if (!data.accessoriesType || data.accessoriesType.trim() === '') {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'El tipo de accesorios es requerido',
+          path: ['accessoriesType']
         });
       }
     }
   } else if (data.insuranceType === 'hogar') {
     // Validate required fields for Seguro de Hogar
+    if (!data.estrato || data.estrato.trim() === '') {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'El estrato es requerido',
+        path: ['estrato']
+      });
+    }
+
     if (!data.propertyType || data.propertyType.trim() === '') {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'El tipo de propiedad es requerido',
+        message: 'El tipo de vivienda es requerido',
         path: ['propertyType']
       });
     }
 
-    if (!data.propertyValue || data.propertyValue.trim() === '') {
+    if (!data.propertyUse || data.propertyUse.trim() === '') {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'El valor de la propiedad es requerido',
-        path: ['propertyValue']
+        message: 'El uso de la vivienda es requerido',
+        path: ['propertyUse']
+      });
+    }
+
+    if (!data.residesInProperty || data.residesInProperty === '') {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Indica si habitas la vivienda',
+        path: ['residesInProperty']
+      });
+    }
+
+    if (!data.propertyArea || data.propertyArea.trim() === '') {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'El área de la vivienda es requerida',
+        path: ['propertyArea']
+      });
+    }
+
+    if (!data.hasEconomicActivity || data.hasEconomicActivity === '') {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Indica si se desarrolla alguna actividad económica',
+        path: ['hasEconomicActivity']
+      });
+    }
+
+    // Only validate propertyValue if propertyUse is 'propio'
+    if (data.propertyUse === 'propio') {
+      if (!data.propertyValue || data.propertyValue.trim() === '') {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'El valor de la vivienda es requerido',
+          path: ['propertyValue']
+        });
+      }
+    }
+
+    if (!data.insuranceMethod || data.insuranceMethod.trim() === '') {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Selecciona cómo deseas asegurar el predio',
+        path: ['insuranceMethod']
       });
     }
   } else if (data.insuranceType === 'salud') {
     // Validate required fields for Seguro de Salud
-    if (!data.preExistingConditions || data.preExistingConditions.trim() === '') {
+    if (!data.height || data.height.trim() === '') {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Debes indicar si tienes condiciones preexistentes (escribe "Ninguna" si no aplica)',
-        path: ['preExistingConditions']
+        message: 'La estatura es requerida para seguro de salud',
+        path: ['height']
       });
+    }
+
+    if (!data.weight || data.weight.trim() === '') {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'El peso es requerido para seguro de salud',
+        path: ['weight']
+      });
+    }
+
+    if (!data.epsName || data.epsName.trim() === '') {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'El nombre de la EPS es requerido para seguro de salud',
+        path: ['epsName']
+      });
+    }
+
+    if (!data.practicesSports || data.practicesSports === '') {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Indica si practicas algún deporte',
+        path: ['practicesSports']
+      });
+    }
+
+    // Conditional validation for sports details
+    if (data.practicesSports === 'si') {
+      if (!data.sportsDetails || data.sportsDetails.trim() === '') {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Debes especificar qué deportes practicas',
+          path: ['sportsDetails']
+        });
+      }
+    }
+
+    if (!data.hasHealthConditions || data.hasHealthConditions === '') {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Indica si tienes o padeces alguna enfermedad',
+        path: ['hasHealthConditions']
+      });
+    }
+
+    // Conditional validation for health conditions details
+    if (data.hasHealthConditions === 'si') {
+      if (!data.healthConditionsDetails || data.healthConditionsDetails.trim() === '') {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Debes describir las enfermedades que padeces',
+          path: ['healthConditionsDetails']
+        });
+      }
     }
   } else if (data.insuranceType === 'mascotas') {
     // Validate required fields for Seguro de Mascotas
@@ -210,22 +430,60 @@ export const quoteFormSchema = z.object({
       });
     }
 
+    if (!data.petGender || data.petGender.trim() === '') {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'El sexo de la mascota es requerido',
+        path: ['petGender']
+      });
+    }
+
     if (!data.petAge || data.petAge.trim() === '') {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: 'La edad de la mascota es requerida',
         path: ['petAge']
       });
-    } else {
-      // Validate age is a positive number
-      const ageNum = parseInt(data.petAge, 10);
-      if (isNaN(ageNum) || ageNum < 0 || ageNum > 50) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'La edad debe ser un número válido entre 0 y 50',
-          path: ['petAge']
-        });
-      }
+    }
+
+    if (!data.petBreed || data.petBreed.trim() === '') {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'La raza de la mascota es requerida',
+        path: ['petBreed']
+      });
+    }
+
+    if (!data.civilLiability || data.civilLiability.trim() === '') {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'El valor de responsabilidad civil es requerido',
+        path: ['civilLiability']
+      });
+    }
+
+    if (!data.veterinaryExpenses || data.veterinaryExpenses.trim() === '') {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'El valor de gastos veterinarios es requerido',
+        path: ['veterinaryExpenses']
+      });
+    }
+
+    if (!data.funeralExpenses || data.funeralExpenses.trim() === '') {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'El valor de gastos exequiales es requerido',
+        path: ['funeralExpenses']
+      });
+    }
+
+    if (!data.theftOrLoss || data.theftOrLoss.trim() === '') {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'El valor de robo o pérdida es requerido',
+        path: ['theftOrLoss']
+      });
     }
   }
 });

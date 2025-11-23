@@ -1,10 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Step1_PersonalInfo from './Step1_PersonalInfo';
 import Step2_InsuranceSelection from './Step2_InsuranceSelection';
 import Step3_ConditionalFields from './Step3_ConditionalFields';
-import Step4_AdditionalInfo from './Step4_AdditionalInfo';
 import Step5_Summary from './Step5_Summary';
 import { Button } from '@/components/ui/button';
 import NumberedProgressBar from './NumberedProgressBar';
@@ -25,7 +24,8 @@ const steps = [
       'cedula',
       'city',
       'address',
-      'employmentStatus'
+      'employmentStatus',
+      'occupationSector'
     ]
   },
   {
@@ -48,23 +48,14 @@ const steps = [
       'preExistingConditions',
       'petType',
       'petName',
-      'petAge'
-    ]
-  },
-  {
-    id: 4,
-    name: 'Información Adicional',
-    fields: [
-      'previousInsurance',
-      'previousInsurer',
-      'claimsHistory',
+      'petAge',
       'additionalComments'
     ]
   },
   {
-    id: 5,
+    id: 4,
     name: 'Resumen y Envío',
-    fields: ['acceptTerms', 'acceptPrivacy', 'acceptMarketing']
+    fields: ['acceptTerms']
   }
 ];
 
@@ -78,6 +69,7 @@ const MultiStepQuoteForm = ({ onSuccess }: MultiStepQuoteFormProps) => {
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [csrfToken, setCsrfToken] = useState('');
   const { toast } = useToast();
+  const formRef = useRef<HTMLDivElement>(null);
 
   const methods = useForm<QuoteFormSchemaType>({
     mode: 'onBlur',
@@ -97,6 +89,7 @@ const MultiStepQuoteForm = ({ onSuccess }: MultiStepQuoteFormProps) => {
       city: '',
       address: '',
       employmentStatus: undefined,
+      occupationSector: '',
       insuranceType: undefined,
       monthlyIncome: '',
       maritalStatus: '',
@@ -110,13 +103,8 @@ const MultiStepQuoteForm = ({ onSuccess }: MultiStepQuoteFormProps) => {
       petType: '',
       petName: '',
       petAge: '',
-      previousInsurance: false,
-      previousInsurer: '',
-      claimsHistory: '',
       additionalComments: '',
       acceptTerms: false,
-      acceptPrivacy: false,
-      acceptMarketing: false,
       website: '', // Honeypot field
     }
   });
@@ -150,6 +138,17 @@ const MultiStepQuoteForm = ({ onSuccess }: MultiStepQuoteFormProps) => {
     const fieldsForCurrentStep = steps[currentStep]?.fields;
     if (fieldsForCurrentStep) {
       clearErrors(fieldsForCurrentStep as (keyof QuoteFormSchemaType)[]);
+    }
+
+    // Scroll to top of form when step changes with extra offset above
+    if (formRef.current) {
+      const elementPosition = formRef.current.getBoundingClientRect().top + window.pageYOffset;
+      const offsetPosition = elementPosition - 100; // 100px above the form
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
     }
   }, [currentStep, clearErrors]);
 
@@ -291,7 +290,7 @@ const MultiStepQuoteForm = ({ onSuccess }: MultiStepQuoteFormProps) => {
   };
 
   return (
-    <div>
+    <div ref={formRef}>
       {formSubmitted ? (
         <div className="bg-white rounded-lg shadow-md p-6 max-w-3xl mx-auto">
           <FormSuccessScreen
@@ -318,8 +317,7 @@ const MultiStepQuoteForm = ({ onSuccess }: MultiStepQuoteFormProps) => {
             {currentStep === 0 && <Step1_PersonalInfo />}
             {currentStep === 1 && <Step2_InsuranceSelection />}
             {currentStep === 2 && <Step3_ConditionalFields />}
-            {currentStep === 3 && <Step4_AdditionalInfo />}
-            {currentStep === 4 && <Step5_Summary />}
+            {currentStep === 3 && <Step5_Summary />}
 
             {/* Honeypot field - hidden from users but visible to bots */}
             <input
