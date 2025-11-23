@@ -106,6 +106,7 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
   ];
 
   const clientServices = [
+    { name: "Cotización de Seguros", href: "/clientes/cotizacion" },
     { name: "Emisión de Pólizas", href: "/clientes/emision-polizas" },
     { name: "Modificaciones", href: "/clientes/modificaciones" },
     { name: "Cancelaciones", href: "/clientes/cancelaciones" },

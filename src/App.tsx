@@ -17,6 +17,7 @@ const BlogListPage = lazy(() => import("./pages/BlogListPage"));
 const BlogPostPage = lazy(() => import("./pages/BlogPostPage"));
 const InsuranceProductPage = lazy(() => import("./pages/InsuranceProductPage"));
 const ClientServicePage = lazy(() => import("./pages/ClientServicePage"));
+const QuotePage = lazy(() => import("./pages/QuotePage"));
 const PaymentsPage = lazy(() => import("./pages/PaymentsPage"));
 const PoliticaPrivacidadPage = lazy(() => import("./pages/PoliticaPrivacidadPage"));
 const TerminosCondicionesPage = lazy(() => import("./pages/TerminosCondicionesPage"));
@@ -70,6 +71,7 @@ const App = () => {
               <Route path="/seguros/viaje" element={<InsuranceProductPage type="viaje" handleOpenLeadDialog={handleOpenLeadDialog} />} />
               
               {/* Lazy load client service pages (saves ~400KB from form components) */}
+              <Route path="/clientes/cotizacion" element={<QuotePage handleOpenLeadDialog={handleOpenLeadDialog} />} />
               <Route path="/clientes/emision-polizas" element={<ClientServicePage type="emision" handleOpenLeadDialog={handleOpenLeadDialog} />} />
               <Route path="/clientes/modificaciones" element={<ClientServicePage type="modificacion" handleOpenLeadDialog={handleOpenLeadDialog} />} />
               <Route path="/clientes/cancelaciones" element={<ClientServicePage type="cancelacion" handleOpenLeadDialog={handleOpenLeadDialog} />} />
