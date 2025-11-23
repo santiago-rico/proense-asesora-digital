@@ -246,7 +246,7 @@ async function QuoteRequestTemplate(
       ${BulletList({
         items: [
           'Un asesor especializado revisará tu solicitud',
-          'Te contactaremos dentro de las próximas 24 horas hábiles',
+          'Te contactaremos tan pronto hayamos procesado tu solicitud',
           'Recibirás cotizaciones comparativas de múltiples aseguradoras',
           'Te ayudaremos a elegir la mejor opción para tus necesidades',
         ],
@@ -473,7 +473,7 @@ async function QuoteRequestTemplate(
 
       ${BulletList({
         items: [
-          'Contactar al cliente dentro de las próximas 24 horas hábiles',
+          'Contactar al cliente tan pronto como se haya procesado la solicitud',
           'Solicitar información adicional específica según el tipo de seguro',
           'Preparar cotizaciones comparativas de múltiples aseguradoras',
           'Presentar las opciones al cliente y hacer seguimiento hasta el cierre',
@@ -497,7 +497,9 @@ async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     // Dynamic imports for security modules
     const dompurifyModule = await import('dompurify');
-    const DOMPurify = typeof dompurifyModule.default === 'function' ? dompurifyModule.default : dompurifyModule;
+    // Handle both ES module and CommonJS default export
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const DOMPurify = (dompurifyModule as any).default || dompurifyModule;
     const { parse } = await import('cookie');
     const { default: Tokens } = (await import('csrf')) as unknown as {
       default: new () => { verify: (secret: string, token: string) => boolean };
@@ -507,7 +509,7 @@ async function handler(req: VercelRequest, res: VercelResponse) {
     // Initialize DOMPurify with JSDOM
     const window = new JSDOM('').window;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const DOMPurifyInstance = (DOMPurify as any)(window);
+    const DOMPurifyInstance = DOMPurify(window);
 
     // Verify CSRF token
     const cookies = parse(req.headers.cookie || '');

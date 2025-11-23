@@ -21,10 +21,11 @@ const insuranceData = {
 
 // Test data for Lead
 const leadData = {
-  nombreCompleto: 'Ana García',
+  nombre: 'Ana García',
   telefono: '3009876543',
   email: 'ana.garcia@example.com',
-  comentario: 'Estoy interesada en conocer más sobre seguros de hogar'
+  tipoSeguro: 'hogar',
+  mensaje: 'Estoy interesada en conocer más sobre seguros de hogar'
 };
 
 // Test data for Cancellation
@@ -65,11 +66,7 @@ const insuranceLightAgent = InsuranceApplicationTemplate({
   baseUrl
 });
 
-const leadLight = LeadTemplate({
-  data: leadData,
-  isDarkMode: false,
-  baseUrl
-});
+const leadLight = LeadTemplate(leadData, false, baseUrl);
 
 const cancellationLight = CancellationRequestTemplate({
   data: cancellationData,
@@ -96,11 +93,7 @@ const insuranceDarkAgent = InsuranceApplicationTemplate({
   baseUrl
 });
 
-const leadDark = LeadTemplate({
-  data: leadData,
-  isDarkMode: true,
-  baseUrl
-});
+const leadDark = LeadTemplate(leadData, true, baseUrl);
 
 const cancellationDark = CancellationRequestTemplate({
   data: cancellationData,

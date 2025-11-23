@@ -82,7 +82,7 @@ export function LeadTemplate(data: LeadTemplateData, isDarkMode: boolean = false
     
     ${BulletList({
       items: [
-        'Contactar al cliente dentro de las próximas 24 horas hábiles',
+        'Contactar al cliente tan pronto como se haya procesado la solicitud',
         'Agendar una reunión para entender sus necesidades específicas',
         'Preparar una cotización personalizada según el tipo de seguro solicitado',
         'Hacer seguimiento hasta el cierre de la venta'
