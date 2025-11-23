@@ -18,11 +18,6 @@ const valueItems = [
     title: 'Apoyo Total en Caso de Siniestro',
     description: 'No estás solo en los momentos difíciles. Te acompañamos y representamos para agilizar tus reclamaciones.',
   },
-  {
-    stat: '+1000',
-    title: 'Clientes Satisfechos',
-    description: 'La confianza de más de mil clientes es nuestro mayor orgullo y tu mejor garantía.',
-  },
 ];
 
 interface ValuePropositionSectionProps {
@@ -39,7 +34,7 @@ const ValuePropositionSection: React.FC<ValuePropositionSectionProps> = ({ title
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 text-primary">{title}</h2>
           {subtitle && <p className="text-base sm:text-lg text-gray-700">{subtitle}</p>}
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
           {valueItems.map((item, index) => (
             <div key={index} className="flex flex-col items-center text-center p-4 h-full">
               <div className="flex items-center justify-center h-16 w-16 sm:h-20 sm:w-20 mb-4">
