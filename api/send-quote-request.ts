@@ -270,18 +270,18 @@ async function QuoteRequestTemplate(
 
     const basicInfoRows = [
       { label: 'Nombre Completo', value: fullName, isHighlighted: true },
-      { label: 'Correo Electrónico', value: data.email },
-      { label: 'Teléfono', value: data.phoneNumber },
-      { label: 'Cédula', value: data.cedula },
-      { label: 'Fecha de Nacimiento', value: birthDateFormatted },
-      { label: 'Ciudad', value: data.city },
-      { label: 'Dirección', value: data.address },
-      { label: 'Situación Laboral', value: employmentStatusMap[data.employmentStatus] || data.employmentStatus },
+      { label: 'Correo Electrónico', value: data.email, isHighlighted: false },
+      { label: 'Teléfono', value: data.phoneNumber, isHighlighted: false },
+      { label: 'Cédula', value: data.cedula, isHighlighted: false },
+      { label: 'Fecha de Nacimiento', value: birthDateFormatted, isHighlighted: false },
+      { label: 'Ciudad', value: data.city, isHighlighted: false },
+      { label: 'Dirección', value: data.address, isHighlighted: false },
+      { label: 'Situación Laboral', value: employmentStatusMap[data.employmentStatus] || data.employmentStatus, isHighlighted: false },
     ];
 
     // Add occupation sector if provided
     if (data.occupationSector) {
-      basicInfoRows.push({ label: 'Actividad Laboral o Sector Económico', value: data.occupationSector });
+      basicInfoRows.push({ label: 'Actividad Laboral o Sector Económico', value: data.occupationSector, isHighlighted: false });
     }
 
     const insuranceInfoRows = [
@@ -290,22 +290,22 @@ async function QuoteRequestTemplate(
 
     // Add conditional fields based on insurance type
     if (data.insuranceType === 'vida') {
-      if (data.monthlyIncome) insuranceInfoRows.push({ label: 'Ingresos Mensuales', value: data.monthlyIncome });
-      if (data.maritalStatus) insuranceInfoRows.push({ label: 'Estado Civil', value: data.maritalStatus });
-      if (data.hasChildren) insuranceInfoRows.push({ label: 'Tiene Hijos', value: data.hasChildren === 'si' ? 'Sí' : 'No' });
-      if (data.height) insuranceInfoRows.push({ label: 'Estatura', value: `${data.height} cm` });
-      if (data.weight) insuranceInfoRows.push({ label: 'Peso', value: `${data.weight} kg` });
-      if (data.epsName) insuranceInfoRows.push({ label: 'EPS', value: data.epsName });
+      if (data.monthlyIncome) insuranceInfoRows.push({ label: 'Ingresos Mensuales', value: data.monthlyIncome, isHighlighted: false });
+      if (data.maritalStatus) insuranceInfoRows.push({ label: 'Estado Civil', value: data.maritalStatus, isHighlighted: false });
+      if (data.hasChildren) insuranceInfoRows.push({ label: 'Tiene Hijos', value: data.hasChildren === 'si' ? 'Sí' : 'No', isHighlighted: false });
+      if (data.height) insuranceInfoRows.push({ label: 'Estatura', value: `${data.height} cm`, isHighlighted: false });
+      if (data.weight) insuranceInfoRows.push({ label: 'Peso', value: `${data.weight} kg`, isHighlighted: false });
+      if (data.epsName) insuranceInfoRows.push({ label: 'EPS', value: data.epsName, isHighlighted: false });
       if (data.practicesSports) {
-        insuranceInfoRows.push({ label: 'Practica Deportes', value: data.practicesSports === 'si' ? 'Sí' : 'No' });
+        insuranceInfoRows.push({ label: 'Practica Deportes', value: data.practicesSports === 'si' ? 'Sí' : 'No', isHighlighted: false });
         if (data.practicesSports === 'si' && data.sportsDetails) {
-          insuranceInfoRows.push({ label: 'Deportes que Practica', value: data.sportsDetails });
+          insuranceInfoRows.push({ label: 'Deportes que Practica', value: data.sportsDetails, isHighlighted: false });
         }
       }
       if (data.hasHealthConditions) {
-        insuranceInfoRows.push({ label: 'Tiene Enfermedades', value: data.hasHealthConditions === 'si' ? 'Sí' : 'No' });
+        insuranceInfoRows.push({ label: 'Tiene Enfermedades', value: data.hasHealthConditions === 'si' ? 'Sí' : 'No', isHighlighted: false });
         if (data.hasHealthConditions === 'si' && data.healthConditionsDetails) {
-          insuranceInfoRows.push({ label: 'Detalles de Enfermedades', value: data.healthConditionsDetails });
+          insuranceInfoRows.push({ label: 'Detalles de Enfermedades', value: data.healthConditionsDetails, isHighlighted: false });
         }
       }
     } else if (data.insuranceType === 'auto') {
@@ -326,15 +326,15 @@ async function QuoteRequestTemplate(
         otro: 'Otro',
       };
 
-      if (data.vehiclePlate) insuranceInfoRows.push({ label: 'Placa del Vehículo', value: data.vehiclePlate });
-      if (data.vehicleCity) insuranceInfoRows.push({ label: 'Ciudad de Circulación', value: data.vehicleCity });
-      if (data.vehicleType) insuranceInfoRows.push({ label: 'Tipo de Vehículo', value: vehicleTypeMap[data.vehicleType] || data.vehicleType });
-      if (data.vehicleUse) insuranceInfoRows.push({ label: 'Uso Principal del Vehículo', value: vehicleUseMap[data.vehicleUse] || data.vehicleUse });
+      if (data.vehiclePlate) insuranceInfoRows.push({ label: 'Placa del Vehículo', value: data.vehiclePlate, isHighlighted: false });
+      if (data.vehicleCity) insuranceInfoRows.push({ label: 'Ciudad de Circulación', value: data.vehicleCity, isHighlighted: false });
+      if (data.vehicleType) insuranceInfoRows.push({ label: 'Tipo de Vehículo', value: vehicleTypeMap[data.vehicleType] || data.vehicleType, isHighlighted: false });
+      if (data.vehicleUse) insuranceInfoRows.push({ label: 'Uso Principal del Vehículo', value: vehicleUseMap[data.vehicleUse] || data.vehicleUse, isHighlighted: false });
       if (data.hasAccessories) {
-        insuranceInfoRows.push({ label: '¿Tiene Accesorios o Modificaciones?', value: data.hasAccessories === 'si' ? 'Sí' : 'No' });
+        insuranceInfoRows.push({ label: '¿Tiene Accesorios o Modificaciones?', value: data.hasAccessories === 'si' ? 'Sí' : 'No', isHighlighted: false });
         if (data.hasAccessories === 'si') {
-          if (data.accessoriesValue) insuranceInfoRows.push({ label: 'Valor Estimado de Accesorios', value: data.accessoriesValue });
-          if (data.accessoriesType) insuranceInfoRows.push({ label: 'Tipo de Accesorios', value: accessoriesTypeMap[data.accessoriesType] || data.accessoriesType });
+          if (data.accessoriesValue) insuranceInfoRows.push({ label: 'Valor Estimado de Accesorios', value: data.accessoriesValue, isHighlighted: false });
+          if (data.accessoriesType) insuranceInfoRows.push({ label: 'Tipo de Accesorios', value: accessoriesTypeMap[data.accessoriesType] || data.accessoriesType, isHighlighted: false });
         }
       }
     } else if (data.insuranceType === 'hogar') {
@@ -361,32 +361,33 @@ async function QuoteRequestTemplate(
         valor_reconstruccion: 'Valor de Reconstrucción',
       };
 
-      if (data.estrato) insuranceInfoRows.push({ label: 'Estrato', value: estratoMap[data.estrato] || data.estrato });
-      if (data.propertyType) insuranceInfoRows.push({ label: 'Tipo de Vivienda', value: propertyTypeMap[data.propertyType] || data.propertyType });
-      if (data.propertyUse) insuranceInfoRows.push({ label: 'Uso de la Vivienda', value: propertyUseMap[data.propertyUse] || data.propertyUse });
-      if (data.residesInProperty) insuranceInfoRows.push({ label: '¿Habitas la Vivienda?', value: data.residesInProperty === 'si' ? 'Sí' : 'No' });
-      if (data.propertyArea) insuranceInfoRows.push({ label: 'Área de la Vivienda', value: `${data.propertyArea} M2` });
-      if (data.hasEconomicActivity) insuranceInfoRows.push({ label: '¿Se Desarrolla Actividad Económica?', value: data.hasEconomicActivity === 'si' ? 'Sí' : 'No' });
-      if (data.propertyValue) insuranceInfoRows.push({ label: 'Valor de la Vivienda', value: data.propertyValue });
-      if (data.contentsValue) insuranceInfoRows.push({ label: 'Valor de los Contenidos', value: data.contentsValue });
-      if (data.insuranceMethod) insuranceInfoRows.push({ label: 'Método de Aseguramiento', value: insuranceMethodMap[data.insuranceMethod] || data.insuranceMethod });
+      if (data.estrato) insuranceInfoRows.push({ label: 'Estrato', value: estratoMap[data.estrato] || data.estrato, isHighlighted: false });
+      if (data.propertyType) insuranceInfoRows.push({ label: 'Tipo de Vivienda', value: propertyTypeMap[data.propertyType] || data.propertyType, isHighlighted: false });
+      if (data.propertyUse) insuranceInfoRows.push({ label: 'Uso de la Vivienda', value: propertyUseMap[data.propertyUse] || data.propertyUse, isHighlighted: false });
+      if (data.residesInProperty) insuranceInfoRows.push({ label: '¿Habitas la Vivienda?', value: data.residesInProperty === 'si' ? 'Sí' : 'No', isHighlighted: false });
+      if (data.propertyArea) insuranceInfoRows.push({ label: 'Área de la Vivienda', value: `${data.propertyArea} M2`, isHighlighted: false });
+      if (data.hasEconomicActivity) insuranceInfoRows.push({ label: '¿Se Desarrolla Actividad Económica?', value: data.hasEconomicActivity === 'si' ? 'Sí' : 'No', isHighlighted: false });
+      if (data.propertyValue) insuranceInfoRows.push({ label: 'Valor de la Vivienda', value: data.propertyValue, isHighlighted: false });
+      if (data.contentsValue) insuranceInfoRows.push({ label: 'Valor de los Contenidos', value: data.contentsValue, isHighlighted: false });
+      if (data.insuranceMethod) insuranceInfoRows.push({ label: 'Método de Aseguramiento', value: insuranceMethodMap[data.insuranceMethod] || data.insuranceMethod, isHighlighted: false });
     } else if (data.insuranceType === 'salud') {
-      if (data.preExistingConditions) insuranceInfoRows.push({ label: 'Condiciones Preexistentes', value: data.preExistingConditions });
+      if (data.preExistingConditions) insuranceInfoRows.push({ label: 'Condiciones Preexistentes', value: data.preExistingConditions, isHighlighted: false });
     } else if (data.insuranceType === 'mascotas') {
       const petGenderMap: Record<string, string> = {
         hembra: 'Hembra',
         macho: 'Macho',
       };
 
-      if (data.petType) insuranceInfoRows.push({ label: 'Tipo de Mascota', value: data.petType === 'perro' ? 'Perro' : 'Gato' });
-      if (data.petName) insuranceInfoRows.push({ label: 'Nombre de la Mascota', value: data.petName });
-      if (data.petGender) insuranceInfoRows.push({ label: 'Sexo de la Mascota', value: petGenderMap[data.petGender] || data.petGender });
-      if (data.petAge) insuranceInfoRows.push({ label: 'Edad de la Mascota', value: data.petAge });
-      if (data.petBreed) insuranceInfoRows.push({ label: 'Raza de la Mascota', value: data.petBreed });
+      if (data.petType) insuranceInfoRows.push({ label: 'Tipo de Mascota', value: data.petType === 'perro' ? 'Perro' : 'Gato', isHighlighted: false });
+      if (data.petName) insuranceInfoRows.push({ label: 'Nombre de la Mascota', value: data.petName, isHighlighted: false });
+      if (data.petGender) insuranceInfoRows.push({ label: 'Sexo de la Mascota', value: petGenderMap[data.petGender] || data.petGender, isHighlighted: false });
+      if (data.petAge) insuranceInfoRows.push({ label: 'Edad de la Mascota', value: data.petAge, isHighlighted: false });
+      if (data.petBreed) insuranceInfoRows.push({ label: 'Raza de la Mascota', value: data.petBreed, isHighlighted: false });
       if (data.petVaccinated) {
         insuranceInfoRows.push({
           label: '¿Tiene Esquema de Vacunas al Día?',
           value: data.petVaccinated === 'si' ? 'Sí' : 'No',
+          isHighlighted: false,
         });
       }
       if (data.civilLiability) {
@@ -394,6 +395,7 @@ async function QuoteRequestTemplate(
         insuranceInfoRows.push({
           label: 'Responsabilidad Civil',
           value: !isNaN(numValue) ? `$${numValue.toLocaleString('es-CO')} COP` : data.civilLiability,
+          isHighlighted: false,
         });
       }
       if (data.veterinaryExpenses) {
@@ -401,6 +403,7 @@ async function QuoteRequestTemplate(
         insuranceInfoRows.push({
           label: 'Gastos Veterinarios',
           value: !isNaN(numValue) ? `$${numValue.toLocaleString('es-CO')} COP` : data.veterinaryExpenses,
+          isHighlighted: false,
         });
       }
       if (data.funeralExpenses) {
@@ -408,6 +411,7 @@ async function QuoteRequestTemplate(
         insuranceInfoRows.push({
           label: 'Gastos Exequiales',
           value: !isNaN(numValue) ? `$${numValue.toLocaleString('es-CO')} COP` : data.funeralExpenses,
+          isHighlighted: false,
         });
       }
       if (data.theftOrLoss) {
@@ -415,6 +419,7 @@ async function QuoteRequestTemplate(
         insuranceInfoRows.push({
           label: 'Robo o Pérdida',
           value: !isNaN(numValue) ? `$${numValue.toLocaleString('es-CO')} COP` : data.theftOrLoss,
+          isHighlighted: false,
         });
       }
     }
@@ -515,8 +520,8 @@ async function handler(req: VercelRequest, res: VercelResponse) {
 
     const rawFormData = req.body as Record<string, string>;
 
-    // Check honeypot field first
-    if (rawFormData.website && rawFormData.website.length > 0) {
+    // Check honeypot field first - with safe property access
+    if (rawFormData?.website && typeof rawFormData.website === 'string' && rawFormData.website.length > 0) {
       // Silently accept but don't process spam submissions
       return res.status(200).json({
         message: 'Solicitud enviada con éxito.',

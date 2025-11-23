@@ -1,5 +1,4 @@
 import { getEmailLogoUrls, logEmailDebugInfo } from './EmailUtils.js';
-import { LogoUtils } from './LogoUtils.js';
 
 interface BaseTemplateProps {
   preheader?: string;
@@ -21,7 +20,6 @@ export function BaseTemplate({ preheader, content, isDarkMode = false, baseUrl }
   const logoUrls = getEmailLogoUrls(baseUrl);
   const logoUrl80 = logoUrls.primary.logo80;
   const fallbackLogoUrl80 = logoUrls.fallback.logo80;
-  const externalLogoUrl80 = logoUrls.external.logo80;
   
   // Get icon logo URLs for high-quality rendering (not text logo)
   const iconLogoUrl = logoUrls.iconLogo.fallback;

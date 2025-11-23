@@ -70,6 +70,7 @@ const MultiStepQuoteForm = ({ onSuccess }: MultiStepQuoteFormProps) => {
   const [csrfToken, setCsrfToken] = useState('');
   const { toast } = useToast();
   const formRef = useRef<HTMLDivElement>(null);
+  const isInitialMount = useRef(true);
 
   const methods = useForm<QuoteFormSchemaType>({
     mode: 'onBlur',
@@ -91,18 +92,49 @@ const MultiStepQuoteForm = ({ onSuccess }: MultiStepQuoteFormProps) => {
       employmentStatus: undefined,
       occupationSector: '',
       insuranceType: undefined,
+      // Vida fields
       monthlyIncome: '',
       maritalStatus: '',
       hasChildren: '',
-      vehicleMake: '',
-      vehicleModel: '',
-      vehicleYear: '',
+      height: '',
+      weight: '',
+      epsName: '',
+      practicesSports: '',
+      sportsDetails: '',
+      hasHealthConditions: '',
+      healthConditionsDetails: '',
+      // Auto fields
+      vehiclePlate: '',
+      vehicleCity: '',
+      vehicleType: '',
+      vehicleUse: '',
+      hasAccessories: '',
+      accessoriesValue: '',
+      accessoriesType: '',
+      // Hogar fields
+      estrato: '',
       propertyType: '',
+      propertyUse: '',
+      residesInProperty: '',
+      propertyArea: '',
+      hasEconomicActivity: '',
       propertyValue: '',
+      contentsValue: '',
+      insuranceMethod: '',
+      // Salud fields
       preExistingConditions: '',
+      // Mascotas fields
       petType: '',
       petName: '',
+      petGender: '',
       petAge: '',
+      petBreed: '',
+      petVaccinated: '',
+      civilLiability: '',
+      veterinaryExpenses: '',
+      funeralExpenses: '',
+      theftOrLoss: '',
+      // Additional fields
       additionalComments: '',
       acceptTerms: false,
       website: '', // Honeypot field
@@ -140,7 +172,17 @@ const MultiStepQuoteForm = ({ onSuccess }: MultiStepQuoteFormProps) => {
       clearErrors(fieldsForCurrentStep as (keyof QuoteFormSchemaType)[]);
     }
 
-    // Scroll to top of form when step changes with extra offset above
+    // On initial mount, scroll to top of page
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+      return;
+    }
+
+    // On step changes (not initial mount), scroll to top of form with extra offset above
     if (formRef.current) {
       const elementPosition = formRef.current.getBoundingClientRect().top + window.pageYOffset;
       const offsetPosition = elementPosition - 100; // 100px above the form
@@ -190,19 +232,29 @@ const MultiStepQuoteForm = ({ onSuccess }: MultiStepQuoteFormProps) => {
     setIsSubmitting(true);
     console.log('Quote form data submitted:', data);
 
-    const formData = new FormData();
+    // Flatten birthDate for server-side validation
+    const payload: Record<string, string> = {};
 
     Object.entries(data).forEach(([key, value]) => {
       if (value === null || value === undefined) {
-        return; // No adjuntar valores nulos o indefinidos
+        return; // Skip null or undefined values
       }
 
-      if (typeof value === 'object' && !Array.isArray(value)) {
-        // Handle nested objects like birthDate
-        formData.append(key, JSON.stringify(value));
+      // Special handling for birthDate object - flatten it to match server schema
+      if (key === 'birthDate' && typeof value === 'object' && !Array.isArray(value)) {
+        const birthDate = value as { day: string; month: string; year: string };
+        payload['birthDate_day'] = birthDate.day;
+        payload['birthDate_month'] = birthDate.month;
+        payload['birthDate_year'] = birthDate.year;
+      } else if (typeof value === 'boolean') {
+        // Convert boolean to string for backend validation
+        payload[key] = value ? 'true' : 'false';
+      } else if (typeof value === 'object' && !Array.isArray(value)) {
+        // This shouldn't happen with the current schema, but handle it just in case
+        payload[key] = JSON.stringify(value);
       } else {
-        // Es un string, booleano, etc.
-        formData.append(key, String(value));
+        // String, etc.
+        payload[key] = String(value);
       }
     });
 
@@ -210,9 +262,10 @@ const MultiStepQuoteForm = ({ onSuccess }: MultiStepQuoteFormProps) => {
       const response = await fetch('/api/send-quote-request', {
         method: 'POST',
         headers: {
+          'Content-Type': 'application/json',
           'X-CSRF-Token': csrfToken,
         },
-        body: formData,
+        body: JSON.stringify(payload),
         credentials: 'include',
       });
 
