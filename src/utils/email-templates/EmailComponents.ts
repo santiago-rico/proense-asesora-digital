@@ -154,10 +154,10 @@ export function DataTable({ rows, isDarkMode = false }: DataTableProps): string 
     
     return `
       <tr>
-        <td style="${styles.tableHeader} width: 40%;" class="darkmode-text darkmode-border">
+        <td style="${styles.tableHeader} width: 40%;" class="darkmode-text darkmode-border darkmode-table-bg">
           ${row.label}
         </td>
-        <td style="${cellStyle} ${highlightStyle}" class="darkmode-text darkmode-border ${index % 2 === 1 ? 'darkmode-table-alt' : ''}">
+        <td style="${cellStyle} ${highlightStyle}" class="darkmode-text darkmode-border ${index % 2 === 1 ? 'darkmode-table-alt' : 'darkmode-table-bg'}">
           ${row.value}
         </td>
       </tr>

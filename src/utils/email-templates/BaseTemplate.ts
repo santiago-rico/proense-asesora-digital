@@ -1,5 +1,4 @@
 import { getEmailLogoUrls, logEmailDebugInfo } from './EmailUtils.js';
-import { LogoUtils } from './LogoUtils.js';
 
 interface BaseTemplateProps {
   preheader?: string;
@@ -21,7 +20,6 @@ export function BaseTemplate({ preheader, content, isDarkMode = false, baseUrl }
   const logoUrls = getEmailLogoUrls(baseUrl);
   const logoUrl80 = logoUrls.primary.logo80;
   const fallbackLogoUrl80 = logoUrls.fallback.logo80;
-  const externalLogoUrl80 = logoUrls.external.logo80;
   
   // Get icon logo URLs for high-quality rendering (not text logo)
   const iconLogoUrl = logoUrls.iconLogo.fallback;
@@ -101,6 +99,10 @@ export function BaseTemplate({ preheader, content, isDarkMode = false, baseUrl }
       .darkmode-badge-danger { background-color: #4f1b1b !important; color: #ff6b6b !important; border-color: #6a2d2d !important; }
       .darkmode-badge-info { background-color: #1b3a4f !important; color: #5fcbff !important; border-color: #2d556a !important; }
       .darkmode-badge-neutral { background-color: #404040 !important; color: #f0f0f0 !important; border-color: #404040 !important; }
+
+      /* Table dark mode styles */
+      .darkmode-table-bg { background-color: #1e1e1e !important; }
+      .darkmode-table-alt { background-color: #2a2a2a !important; }
     }
     
     /* Outlook dark mode support */
@@ -114,6 +116,8 @@ export function BaseTemplate({ preheader, content, isDarkMode = false, baseUrl }
     [data-ogsc] .darkmode-button-secondary { background-color: #404040 !important; color: #f0f0f0 !important; }
     [data-ogsc] .social-icon { filter: brightness(0.9) !important; }
     [data-ogsc] a { color: #40A5FD !important; }
+    [data-ogsc] .darkmode-table-bg { background-color: #1e1e1e !important; }
+    [data-ogsc] .darkmode-table-alt { background-color: #2a2a2a !important; }
     
     /* Enhanced logo styles - no blue box background */
     .logo-container {

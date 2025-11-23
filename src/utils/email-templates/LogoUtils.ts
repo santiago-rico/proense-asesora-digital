@@ -14,12 +14,6 @@ interface LogoOptions {
 
 export class LogoUtils {
   /**
-   * Base64 encoded high-quality Proense logo
-   * This is a placeholder - should be replaced with actual base64 encoded logo
-   */
-  private static readonly BASE64_LOGO = '';
-
-  /**
    * Generate responsive logo HTML for email templates
    */
   static getResponsiveLogo(options: LogoOptions = {}): string {
@@ -27,8 +21,6 @@ export class LogoUtils {
       width = 200,
       height,
       alt = 'Proense Seguros',
-      fallbackText = 'PROENSE SEGUROS',
-      removeBackground = true
     } = options;
 
     // Calculate height maintaining aspect ratio (logo is approximately 1.22:1)
@@ -91,7 +83,6 @@ export class LogoUtils {
       height,
       alt = 'Proense Seguros',
       darkModeUrl = 'https://proense.com.co/images/text-logo-dark.png',
-      fallbackText = 'PROENSE SEGUROS'
     } = options;
 
     const calculatedHeight = height || Math.round(width * 0.82);
@@ -180,7 +171,6 @@ export class LogoUtils {
     const {
       width = 200,
       height,
-      alt = 'Proense Seguros'
     } = options;
 
     const calculatedHeight = height || Math.round(width * 0.82);

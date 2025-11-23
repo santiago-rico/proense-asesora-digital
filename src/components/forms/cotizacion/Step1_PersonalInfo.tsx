@@ -211,8 +211,13 @@ const Step1_PersonalInfo = () => {
             <FormLabel>Número de cédula <span className="text-red-500">*</span></FormLabel>
             <FormControl>
               <Input
+                type="text"
                 placeholder="Tu número de cédula"
-                autoComplete="off"
+                autoComplete="on"
+                inputMode="numeric"
+                data-form-type="other"
+                data-lpignore="true"
+                data-1p-ignore="true"
                 required
                 aria-required="true"
                 {...field}
