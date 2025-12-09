@@ -173,7 +173,7 @@ describe('Step1_BasicInfo Component', () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        const errors = result.error.errors.map(err => err.message);
+        const errors = result.error.issues.map(err => err.message);
         expect(errors).toContain('El nombre es requerido');
       }
     });
@@ -200,7 +200,7 @@ describe('Step1_BasicInfo Component', () => {
 
         expect(result.success).toBe(false, `Phone number "${invalidPhone}" should be invalid`);
         if (!result.success) {
-          const errors = result.error.errors.map(err => err.message);
+          const errors = result.error.issues.map(err => err.message);
           expect(errors).toContain('Número de teléfono inválido');
         }
       }
@@ -230,7 +230,7 @@ describe('Step1_BasicInfo Component', () => {
 
         expect(result.success).toBe(false, `Email "${invalidEmail}" should be invalid`);
         if (!result.success) {
-          const errors = result.error.errors.map(err => err.message);
+          const errors = result.error.issues.map(err => err.message);
           expect(errors).toContain('Email inválido');
         }
       }
@@ -255,7 +255,7 @@ describe('Step1_BasicInfo Component', () => {
 
       const result = formSchema.safeParse(validData);
       if (!result.success) {
-        console.log('Validation errors:', result.error.errors);
+        console.log('Validation errors:', result.error.issues);
       }
       expect(result.success).toBe(true);
     });

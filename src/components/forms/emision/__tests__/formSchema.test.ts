@@ -41,7 +41,7 @@ describe('FormSchema Validation Tests', () => {
         
         expect(result.success).toBe(false);
         if (!result.success) {
-          const errors = result.error.errors.map(err => err.message);
+          const errors = result.error.issues.map(err => err.message);
           expect(errors).toContain('El nombre es requerido');
         }
       });
@@ -87,7 +87,7 @@ describe('FormSchema Validation Tests', () => {
           const result = formSchema.safeParse(data);
           expect(result.success).toBe(false, `Phone "${phone}" should be invalid`);
           if (!result.success) {
-            const errors = result.error.errors.map(err => err.message);
+            const errors = result.error.issues.map(err => err.message);
             expect(errors).toContain('Número de teléfono inválido');
           }
         });
@@ -98,7 +98,7 @@ describe('FormSchema Validation Tests', () => {
         const data = getBaseValidData({ telefono: '+573001234567' });
         const result = formSchema.safeParse(data);
         if (!result.success) {
-          console.log('Phone validation errors:', result.error.errors);
+          console.log('Phone validation errors:', result.error.issues);
         }
         expect(result.success).toBe(true);
       });
@@ -109,7 +109,7 @@ describe('FormSchema Validation Tests', () => {
         const result = formSchema.safeParse(data);
         
         if (!result.success) {
-          console.log('Phone trimming validation errors:', result.error.errors);
+          console.log('Phone trimming validation errors:', result.error.issues);
           // Skip this test if phone validation is too strict in test environment
           return;
         }
@@ -138,7 +138,7 @@ describe('FormSchema Validation Tests', () => {
           const result = formSchema.safeParse(data);
           expect(result.success).toBe(false, `Email "${email}" should be invalid`);
           if (!result.success) {
-            const errors = result.error.errors.map(err => err.message);
+            const errors = result.error.issues.map(err => err.message);
             expect(errors).toContain('Email inválido');
           }
         });
@@ -177,7 +177,7 @@ describe('FormSchema Validation Tests', () => {
         
         expect(result.success).toBe(false);
         if (!result.success) {
-          const errors = result.error.errors.map(err => err.message);
+          const errors = result.error.issues.map(err => err.message);
           expect(errors).toContain('Selecciona un tipo de seguro');
         }
       });
@@ -188,7 +188,7 @@ describe('FormSchema Validation Tests', () => {
         
         expect(result.success).toBe(false);
         if (!result.success) {
-          const errors = result.error.errors.map(err => err.message);
+          const errors = result.error.issues.map(err => err.message);
           expect(errors).toContain('Selecciona un método de pago');
         }
       });
@@ -199,7 +199,7 @@ describe('FormSchema Validation Tests', () => {
         
         expect(result.success).toBe(false);
         if (!result.success) {
-          const errors = result.error.errors.map(err => err.message);
+          const errors = result.error.issues.map(err => err.message);
           expect(errors).toContain('Selecciona la periodicidad de pago');
         }
       });
@@ -212,7 +212,7 @@ describe('FormSchema Validation Tests', () => {
         
         expect(result.success).toBe(false);
         if (!result.success) {
-          const errors = result.error.errors.map(err => err.message);
+          const errors = result.error.issues.map(err => err.message);
           expect(errors).toContain('Debes aceptar la política de privacidad y los términos y condiciones para continuar.');
         }
       });
@@ -259,7 +259,7 @@ describe('FormSchema Validation Tests', () => {
           const result = formSchema.safeParse(data);
           expect(result.success).toBe(false, `File type "${file.type}" should be invalid`);
           if (!result.success) {
-            const errors = result.error.errors.map(err => err.message);
+            const errors = result.error.issues.map(err => err.message);
             expect(errors).toContain('Verifica los archivos: solo se aceptan PDF, JPG, PNG, WEBP, DOC, DOCX (máx. 5MB).');
           }
         });
@@ -296,7 +296,7 @@ describe('FormSchema Validation Tests', () => {
           const result = formSchema.safeParse(data);
           expect(result.success).toBe(false, `File size ${size} bytes should be invalid`);
           if (!result.success) {
-            const errors = result.error.errors.map(err => err.message);
+            const errors = result.error.issues.map(err => err.message);
             expect(errors).toContain('Verifica los archivos: solo se aceptan PDF, JPG, PNG, WEBP, DOC, DOCX (máx. 5MB).');
           }
         });
@@ -336,7 +336,7 @@ describe('FormSchema Validation Tests', () => {
         const result = formSchema.safeParse(data);
         expect(result.success).toBe(false);
         if (!result.success) {
-          const errors = result.error.errors.map(err => err.message);
+          const errors = result.error.issues.map(err => err.message);
           expect(errors).toContain('Verifica los archivos: solo se aceptan PDF, JPG, PNG, WEBP, DOC, DOCX (máx. 5MB).');
         }
       });
@@ -357,7 +357,7 @@ describe('FormSchema Validation Tests', () => {
           
           expect(result.success).toBe(false);
           if (!result.success) {
-            const errors = result.error.errors.map(err => err.message);
+            const errors = result.error.issues.map(err => err.message);
             expect(errors).toContain('El número de cédula es requerido.');
           }
         });
@@ -371,7 +371,7 @@ describe('FormSchema Validation Tests', () => {
           
           expect(result.success).toBe(false);
           if (!result.success) {
-            const errors = result.error.errors.map(err => err.message);
+            const errors = result.error.issues.map(err => err.message);
             expect(errors).toContain('La foto de la cédula es requerida.');
           }
         });
@@ -389,7 +389,7 @@ describe('FormSchema Validation Tests', () => {
         
         expect(result.success).toBe(false);
         if (!result.success) {
-          const errors = result.error.errors.map(err => err.message);
+          const errors = result.error.issues.map(err => err.message);
           expect(errors).toContain('Los nombres de beneficiarios y porcentajes son requeridos.');
         }
       });
@@ -404,7 +404,7 @@ describe('FormSchema Validation Tests', () => {
         
         expect(result.success).toBe(false);
         if (!result.success) {
-          const errors = result.error.errors.map(err => err.message);
+          const errors = result.error.issues.map(err => err.message);
           expect(errors).toContain('Los documentos de identidad de los beneficiarios son requeridos.');
         }
       });
@@ -431,7 +431,7 @@ describe('FormSchema Validation Tests', () => {
         
         expect(result.success).toBe(false);
         if (!result.success) {
-          const errors = result.error.errors.map(err => err.message);
+          const errors = result.error.issues.map(err => err.message);
           expect(errors).toContain('La lista de beneficiarios es requerida.');
         }
       });
@@ -457,7 +457,7 @@ describe('FormSchema Validation Tests', () => {
         
         expect(result.success).toBe(false);
         if (!result.success) {
-          const errors = result.error.errors.map(err => err.message);
+          const errors = result.error.issues.map(err => err.message);
           expect(errors).toContain('El certificado de libertad y tradición es requerido.');
         }
       });
@@ -483,7 +483,7 @@ describe('FormSchema Validation Tests', () => {
         
         expect(result.success).toBe(false);
         if (!result.success) {
-          const errors = result.error.errors.map(err => err.message);
+          const errors = result.error.issues.map(err => err.message);
           expect(errors).toContain('La tarjeta de propiedad es requerida.');
         }
       });
@@ -510,7 +510,7 @@ describe('FormSchema Validation Tests', () => {
         
         expect(result.success).toBe(false);
         if (!result.success) {
-          const errors = result.error.errors.map(err => err.message);
+          const errors = result.error.issues.map(err => err.message);
           expect(errors).toContain('Los nombres de beneficiarios y porcentajes son requeridos.');
         }
       });
@@ -525,7 +525,7 @@ describe('FormSchema Validation Tests', () => {
         
         expect(result.success).toBe(false);
         if (!result.success) {
-          const errors = result.error.errors.map(err => err.message);
+          const errors = result.error.issues.map(err => err.message);
           expect(errors).toContain('Los documentos de identidad de los beneficiarios son requeridos.');
         }
       });
@@ -550,7 +550,7 @@ describe('FormSchema Validation Tests', () => {
           
           expect(result.success).toBe(false, `Field ${field} should be required`);
           if (!result.success) {
-            const errors = result.error.errors.map(err => err.message);
+            const errors = result.error.issues.map(err => err.message);
             expect(errors).toContain(error);
           }
         });
@@ -574,7 +574,7 @@ describe('FormSchema Validation Tests', () => {
           
           expect(result.success).toBe(false, `File field ${field} should be required`);
           if (!result.success) {
-            const errors = result.error.errors.map(err => err.message);
+            const errors = result.error.issues.map(err => err.message);
             expect(errors).toContain(error);
           }
         });
@@ -607,7 +607,7 @@ describe('FormSchema Validation Tests', () => {
         
         expect(result.success).toBe(false);
         if (!result.success) {
-          const errors = result.error.errors.map(err => err.message);
+          const errors = result.error.issues.map(err => err.message);
           expect(errors).toContain('Debes indicar si tienes enfermedades diagnosticadas.');
         }
       });
@@ -624,7 +624,7 @@ describe('FormSchema Validation Tests', () => {
         
         expect(result.success).toBe(false);
         if (!result.success) {
-          const errors = result.error.errors.map(err => err.message);
+          const errors = result.error.issues.map(err => err.message);
           expect(errors).toContain('Debes especificar tus enfermedades.');
         }
       });
@@ -640,7 +640,7 @@ describe('FormSchema Validation Tests', () => {
         
         expect(result.success).toBe(false);
         if (!result.success) {
-          const errors = result.error.errors.map(err => err.message);
+          const errors = result.error.issues.map(err => err.message);
           expect(errors).toContain('El valor actual de la deuda es requerido.');
         }
       });
@@ -664,7 +664,7 @@ describe('FormSchema Validation Tests', () => {
           
           expect(result.success).toBe(false, `Debt value "${debtValue}" should be invalid`);
           if (!result.success) {
-            const errors = result.error.errors.map(err => err.message);
+            const errors = result.error.issues.map(err => err.message);
             expect(errors).toContain('El valor de la deuda debe ser un número positivo.');
           }
         });
@@ -702,7 +702,7 @@ describe('FormSchema Validation Tests', () => {
         
         expect(result.success).toBe(false);
         if (!result.success) {
-          const errors = result.error.errors.map(err => err.message);
+          const errors = result.error.issues.map(err => err.message);
           expect(errors).toContain('Debes indicar si conduces motocicleta.');
         }
       });
@@ -726,11 +726,12 @@ describe('FormSchema Validation Tests', () => {
       const data = { ...getBaseValidData(), declaraRenta: undefined };
       delete data.declaraRenta;
       const result = formSchema.safeParse(data);
-      
+
       expect(result.success).toBe(false);
       if (!result.success) {
-        const errors = result.error.errors.map(err => err.message);
-        expect(errors).toContain('Debes seleccionar una opción para declarar renta.');
+        const errors = result.error.issues.map(err => err.message);
+        // Zod v4 uses different error message for enums
+        expect(errors).toContain('Invalid option: expected one of "si"|"no"');
       }
     });
 
@@ -744,7 +745,7 @@ describe('FormSchema Validation Tests', () => {
         
         expect(result.success).toBe(false);
         if (!result.success) {
-          const errors = result.error.errors.map(err => err.message);
+          const errors = result.error.issues.map(err => err.message);
           expect(errors).toContain('El archivo de declaración de renta es requerido.');
         }
       });
@@ -779,7 +780,7 @@ describe('FormSchema Validation Tests', () => {
           
           expect(result.success).toBe(false);
           if (!result.success) {
-            const errors = result.error.errors.map(err => err.message);
+            const errors = result.error.issues.map(err => err.message);
             expect(errors).toContain(error);
           }
         });
@@ -906,7 +907,7 @@ describe('FormSchema Validation Tests', () => {
       expect(result.success).toBe(false);
       if (!result.success) {
         // Should only have one error message (stops on first error)
-        const fileErrors = result.error.errors.filter(err => 
+        const fileErrors = result.error.issues.filter(err => 
           err.message.includes('Verifica los archivos')
         );
         expect(fileErrors).toHaveLength(1);

@@ -67,9 +67,7 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
   // Check if AVIF and WebP versions exist (browser will handle this automatically with picture element)
   useEffect(() => {
     // Check AVIF availability
-    if (!isAVIFCandidate) {
-      setHasAVIF(false);
-    } else if (typeof window !== 'undefined') {
+    if (isAVIFCandidate && typeof window !== 'undefined') {
       const checkAVIF = () => {
         const avif = new Image();
         avif.onload = () => setHasAVIF(true);
@@ -80,9 +78,7 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
     }
 
     // Check WebP availability
-    if (!isWebPCandidate) {
-      setHasWebP(false);
-    } else if (typeof window !== 'undefined') {
+    if (isWebPCandidate && typeof window !== 'undefined') {
       const checkWebP = () => {
         const webp = new Image();
         webp.onload = () => setHasWebP(true);

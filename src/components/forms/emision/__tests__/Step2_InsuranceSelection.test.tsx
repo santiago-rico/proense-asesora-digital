@@ -259,7 +259,7 @@ describe('Step2_InsuranceSelection Component', () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        const errors = result.error.errors.map(err => err.message);
+        const errors = result.error.issues.map(err => err.message);
         expect(errors).toContain('Selecciona un tipo de seguro');
       }
     });
@@ -278,7 +278,7 @@ describe('Step2_InsuranceSelection Component', () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        const errors = result.error.errors.map(err => err.message);
+        const errors = result.error.issues.map(err => err.message);
         expect(errors).toContain('Selecciona un método de pago');
       }
     });
@@ -297,7 +297,7 @@ describe('Step2_InsuranceSelection Component', () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        const errors = result.error.errors.map(err => err.message);
+        const errors = result.error.issues.map(err => err.message);
         expect(errors).toContain('Selecciona la periodicidad de pago');
       }
     });
@@ -321,7 +321,7 @@ describe('Step2_InsuranceSelection Component', () => {
 
       const result = formSchema.safeParse(validData);
       if (!result.success) {
-        console.log('Validation errors:', result.error.errors);
+        console.log('Validation errors:', result.error.issues);
       }
       expect(result.success).toBe(true);
     });
@@ -559,7 +559,7 @@ describe('Step2_InsuranceSelection Component', () => {
       const vidaResult = formSchema.safeParse(vidaData);
       expect(vidaResult.success).toBe(false);
       if (!vidaResult.success) {
-        const errors = vidaResult.error.errors.map(err => err.message);
+        const errors = vidaResult.error.issues.map(err => err.message);
         expect(errors).toContain('Los nombres de beneficiarios y porcentajes son requeridos.');
       }
 

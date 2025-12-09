@@ -215,7 +215,7 @@ describe('FileUpload Component', () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        const errorMessages = result.error.errors.map(err => err.message);
+        const errorMessages = result.error.issues.map(err => err.message);
         expect(errorMessages).toContain('Verifica los archivos: solo se aceptan PDF, JPG, PNG, WEBP, DOC, DOCX (máx. 5MB).');
       }
     });
@@ -387,7 +387,7 @@ describe('FileUpload Component', () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        const errorMessages = result.error.errors.map(err => err.message);
+        const errorMessages = result.error.issues.map(err => err.message);
         expect(errorMessages).toContain('Verifica los archivos: solo se aceptan PDF, JPG, PNG, WEBP, DOC, DOCX (máx. 5MB).');
       }
     });
