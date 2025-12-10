@@ -24,7 +24,7 @@ export const quoteFormSchema = z.object({
 
   email: z.string()
     .transform(str => str.trim().toLowerCase())
-    .refine(val => z.string().email().safeParse(val).success, {
+    .refine(val => z.email().safeParse(val).success, {
       message: 'Email inválido'
     }),
 

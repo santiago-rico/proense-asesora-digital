@@ -33,7 +33,7 @@ const detailedFileArraySchema = z.array(z.instanceof(File))
 export const formSchema = z.object({
   nombreCompleto: z.string().min(1, 'El nombre es requerido').transform(str => str.trim()),
   telefono: z.string().refine(isValidPhoneNumber, { message: 'Número de teléfono inválido' }).transform(str => str.trim()),
-  email: z.string().transform(str => str.trim().toLowerCase()).refine(val => z.string().email().safeParse(val).success, { message: 'Email inválido' }),
+  email: z.string().transform(str => str.trim().toLowerCase()).refine(val => z.email().safeParse(val).success, { message: 'Email inválido' }),
   tipoSeguro: z.string().min(1, 'Selecciona un tipo de seguro'),
   metodoPago: z.string().min(1, 'Selecciona un método de pago'),
   periodicidadPago: z.string().min(1, 'Selecciona la periodicidad de pago'),

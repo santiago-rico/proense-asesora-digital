@@ -123,7 +123,7 @@ describe('formSchema', () => {
     expect(result.success).toBe(false);
     
     if (!result.success) {
-      const errorMessages = result.error.errors.map(err => err.message);
+      const errorMessages = result.error.issues.map(err => err.message);
       expect(errorMessages).toContain('El nombre es requerido');
       expect(errorMessages).toContain('Selecciona un tipo de seguro');
       expect(errorMessages).toContain('Selecciona un método de pago');
@@ -146,7 +146,7 @@ describe('formSchema', () => {
     expect(result.success).toBe(false);
     
     if (!result.success) {
-      const errorMessages = result.error.errors.map(err => err.message);
+      const errorMessages = result.error.issues.map(err => err.message);
       expect(errorMessages).toContain('Email inválido');
     }
   });
@@ -166,7 +166,7 @@ describe('formSchema', () => {
     expect(result.success).toBe(false);
     
     if (!result.success) {
-      const errorMessages = result.error.errors.map(err => err.message);
+      const errorMessages = result.error.issues.map(err => err.message);
       expect(errorMessages).toContain('Debes aceptar la política de privacidad y los términos y condiciones para continuar.');
     }
   });
@@ -209,7 +209,7 @@ describe('formSchema', () => {
     
     const result = formSchema.safeParse(validData);
     if (!result.success) {
-      console.log('Validation errors:', result.error.errors);
+      console.log('Validation errors:', result.error.issues);
     }
     expect(result.success).toBe(true);
   });

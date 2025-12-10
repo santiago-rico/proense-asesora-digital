@@ -1,6 +1,165 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@plugin 'tailwindcss-animate';
+
+@custom-variant dark (&:is(.dark *));
+
+@utility container {
+  margin-inline: auto;
+  padding-inline: 2rem;
+  @media (width >= --theme(--breakpoint-xs)) {
+    max-width: none;
+  }
+  @media (width >= 1400px) {
+    max-width: 1400px;
+  }
+}
+
+@theme {
+  --breakpoint-*: initial;
+  --breakpoint-xs: 0px;
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+
+  --color-primary: #0073d1;
+  --color-primary-foreground: #ffffff;
+  --color-primary-hover: #005fa8;
+  --color-primary-light: #008cfc;
+
+  --color-secondary: #3b8c59;
+  --color-secondary-foreground: #ffffff;
+  --color-secondary-hover: #2e6d45;
+  --color-secondary-light: #5fcb83;
+
+  --color-accent: #346797;
+  --color-accent-foreground: #ffffff;
+
+  --color-neutral: #d5d6d8;
+  --color-neutral-foreground: #000000;
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+
+  --color-sidebar: hsl(var(--sidebar-background));
+  --color-sidebar-foreground: hsl(var(--sidebar-foreground));
+  --color-sidebar-primary: hsl(var(--sidebar-primary));
+  --color-sidebar-primary-foreground: hsl(var(--sidebar-primary-foreground));
+  --color-sidebar-accent: hsl(var(--sidebar-accent));
+  --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
+  --color-sidebar-border: hsl(var(--sidebar-border));
+  --color-sidebar-ring: hsl(var(--sidebar-ring));
+
+  --font-montserrat: Montserrat, sans-serif;
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+  --animate-fade-in: fade-in 0.5s ease-out;
+  --animate-slide-in: slide-in 0.5s ease-out;
+
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
+  }
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: 0;
+    }
+  }
+  @keyframes fade-in {
+    0% {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes slide-in {
+    0% {
+      opacity: 0;
+      transform: translateX(-10px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
+
+/* Accessibility Improvements */
+@utility focus-visible-enhanced {
+  /* Enhanced focus indicators for better accessibility */
+  @apply focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2;
+}
+@utility focus-high-contrast {
+  /* High contrast focus for interactive elements */
+  @apply focus:outline-hidden focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background;
+}
+@utility skip-link {
+  /* Skip link styling for screen readers */
+  @apply sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:no-underline;
+}
+@utility tap-target {
+  /* Ensure minimum tap target size for mobile accessibility */
+  @apply min-h-[44px] min-w-[44px];
+}
+@utility text-high-contrast {
+  /* High contrast text for better readability */
+  color: hsl(var(--foreground));
+  text-shadow: 0 0 1px rgba(0, 0, 0, 0.01);
+}
+@utility form-focus {
+  /* Focus ring for form elements */
+  @apply focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:border-primary focus:outline-hidden;
+}
 
 @layer base {
   :root {
@@ -94,40 +253,6 @@
   }
 }
 
-/* Accessibility Improvements */
-@layer utilities {
-  /* Enhanced focus indicators for better accessibility */
-  .focus-visible-enhanced {
-    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2;
-  }
-  
-  /* High contrast focus for interactive elements */
-  .focus-high-contrast {
-    @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background;
-  }
-  
-  /* Skip link styling for screen readers */
-  .skip-link {
-    @apply sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:no-underline;
-  }
-  
-  /* Ensure minimum tap target size for mobile accessibility */
-  .tap-target {
-    @apply min-h-[44px] min-w-[44px];
-  }
-  
-  /* High contrast text for better readability */
-  .text-high-contrast {
-    color: hsl(var(--foreground));
-    text-shadow: 0 0 1px rgba(0, 0, 0, 0.01);
-  }
-  
-  /* Focus ring for form elements */
-  .form-focus {
-    @apply focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:border-primary focus:outline-none;
-  }
-}
-
 /* Global focus improvements for all interactive elements */
 @layer base {
   /* Ensure all interactive elements have visible focus indicators */
@@ -139,7 +264,7 @@
   [role="button"]:focus-visible,
   [role="link"]:focus-visible,
   [tabindex]:focus-visible {
-    @apply outline-none ring-2 ring-primary ring-offset-2 ring-offset-background;
+    @apply outline-hidden ring-2 ring-primary ring-offset-2 ring-offset-background;
   }
   
   /* Remove default browser outline and use custom focus styles */

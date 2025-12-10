@@ -23,7 +23,7 @@ const cancellationSchema = z.object({
   nombreCompleto: z.string().min(1, 'El nombre completo es requerido'),
   numeroCedula: z.string().min(1, 'El número de cédula es requerido'),
   telefono: z.string().refine(isValidPhoneNumber, { message: 'Número de teléfono inválido' }),
-  email: z.string().email('Correo electrónico inválido'),
+  email: z.email({ error: 'Correo electrónico inválido' }),
   nombreAseguradora: z.string().min(1, 'El nombre de la aseguradora es requerido'),
   numeroPoliza: z.string().optional(),
   tipoSeguro: z.string().min(1, 'Debe seleccionar un tipo de seguro'),

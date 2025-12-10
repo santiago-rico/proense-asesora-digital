@@ -18,7 +18,7 @@ import { LEAD_FORM_INSURANCE_TYPES } from "@/constants/insuranceTypes";
 
 const formSchema = z.object({
   nombre: z.string().min(2, { message: "El nombre es requerido" }),
-  email: z.string().email({ message: "Email inválido" }),
+  email: z.email({ error: "Email inválido" }),
   telefono: z.string().refine(isValidPhoneNumber, { message: "Número de teléfono inválido" }),
   tipoSeguro: z.string().min(1, { message: "Por favor seleccione un tipo de seguro" }),
   mensaje: z.string().optional(),
