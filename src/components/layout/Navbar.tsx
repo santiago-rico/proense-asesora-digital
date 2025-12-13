@@ -34,6 +34,11 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
     );
   };
 
+  const closeMenu = () => {
+    setIsOpen(false);
+    setExpandedSections([]);
+  };
+
   useEffect(() => {
     const handleScroll = () => {
       const offset = window.scrollY;
@@ -54,7 +59,7 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
         !mobileMenuRef.current.contains(event.target as Node) &&
         !hamburgerRef.current.contains(event.target as Node)
       ) {
-        setIsOpen(false);
+        closeMenu();
       }
     };
 
@@ -73,7 +78,7 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
   useEffect(() => {
     const handleEscapeKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && isOpen) {
-        setIsOpen(false);
+        closeMenu();
         // Return focus to hamburger button when closing with escape
         hamburgerRef.current?.focus();
       }
@@ -88,13 +93,12 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
     };
   }, [isOpen]);
 
-  // Prevent scroll when mobile menu is open and reset expanded sections when closed
+  // Prevent scroll when mobile menu is open
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
-      setExpandedSections([]);
     }
 
     return () => {
@@ -328,7 +332,7 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
                               to={item.href}
                               className="block px-6 py-3 text-sm text-gray-600 hover:text-primary hover:bg-gray-100 transition-colors duration-200 active:bg-gray-200"
                               style={{ minHeight: '44px' }}
-                              onClick={() => setIsOpen(false)}
+                              onClick={() => closeMenu()}
                             >
                               {item.name}
                             </Link>
@@ -346,7 +350,7 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
                       className={`block px-4 py-3 rounded-md text-base font-medium transition-colors duration-200 hover:text-primary hover:bg-gray-50 active:bg-gray-100 ${isActive(link.href) ? "text-primary bg-blue-50" : "text-gray-700"
                         }`}
                       style={{ minHeight: '44px' }}
-                      onClick={() => setIsOpen(false)}
+                      onClick={() => closeMenu()}
                     >
                       {link.name}
                     </Link>
@@ -359,7 +363,7 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
                   size="default"
                   style={{ minHeight: '44px' }}
                   onClick={() => {
-                    setIsOpen(false);
+                    closeMenu();
                     handleOpenLeadDialog();
                   }}
                 >
