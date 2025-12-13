@@ -273,7 +273,7 @@ export function InsuranceApplicationTemplate({
         <ol style="margin: 16px 0; padding-left: 20px;">
           <li style="margin-bottom: 8px;">Verificar la documentación adjunta</li>
           <li style="margin-bottom: 8px;">Validar la información proporcionada</li>
-          <li style="margin-bottom: 8px;">Contactar al cliente dentro de 24 horas</li>
+          <li style="margin-bottom: 8px;">Contactar al cliente tan pronto como se haya procesado la solicitud</li>
           <li style="margin-bottom: 8px;">Preparar cotización según el tipo de seguro</li>
         </ol>
       `,
