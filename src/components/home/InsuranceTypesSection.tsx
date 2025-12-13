@@ -13,7 +13,7 @@ const insuranceTypes = [
   },
   {
     title: "Seguro de Vida Deudores",
-    description: "Protege a tu familia de las deudas en caso de fallecimiento o incapacidad, asegurando que no hereden obligaciones financieras y mantengan su estabilidad económica.",
+    description: "Protege a tu familia de heredar deudas en caso de fallecimiento o incapacidad, garantizando su estabilidad financiera.",
     icon: <Landmark className="w-10 h-10 text-primary" />,
     link: "/seguros/vida-deudores",
   },

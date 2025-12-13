@@ -42,7 +42,7 @@ const InsuranceCard = ({
       <div className="absolute inset-0 bg-primary/90 opacity-0 invisible transition-all duration-300 group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible flex flex-col justify-center items-center p-6 text-white">
         <h4 className="text-xl font-bold mb-3">{title}</h4>
         <p className="text-sm mb-4">{description}</p>
-        <Button asChild size="sm" className="bg-secondary hover:bg-secondary/90 text-white hover:text-white">
+        <Button asChild size="sm" className="shrink-0 bg-secondary hover:bg-secondary/90 text-white hover:text-white">
           <Link to={link} className="whitespace-nowrap">
             Ver más información
           </Link>

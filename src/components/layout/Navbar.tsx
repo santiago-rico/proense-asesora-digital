@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, forwardRef, ComponentPropsWithoutRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Phone } from "lucide-react";
+import { Phone, ChevronDown } from "lucide-react";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -21,9 +21,23 @@ interface NavbarProps {
 function Navbar({ handleOpenLeadDialog }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [expandedSections, setExpandedSections] = useState<string[]>([]);
   const location = useLocation();
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const hamburgerRef = useRef<HTMLButtonElement>(null);
+
+  const toggleSection = (sectionName: string) => {
+    setExpandedSections(prev =>
+      prev.includes(sectionName)
+        ? prev.filter(s => s !== sectionName)
+        : [...prev, sectionName]
+    );
+  };
+
+  const closeMenu = () => {
+    setIsOpen(false);
+    setExpandedSections([]);
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -45,7 +59,7 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
         !mobileMenuRef.current.contains(event.target as Node) &&
         !hamburgerRef.current.contains(event.target as Node)
       ) {
-        setIsOpen(false);
+        closeMenu();
       }
     };
 
@@ -64,7 +78,7 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
   useEffect(() => {
     const handleEscapeKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && isOpen) {
-        setIsOpen(false);
+        closeMenu();
         // Return focus to hamburger button when closing with escape
         hamburgerRef.current?.focus();
       }
@@ -281,9 +295,9 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
           <div
             ref={mobileMenuRef}
             id="mobile-navigation-menu"
-            className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out bg-white border-t border-gray-100 shadow-sm ${isOpen
-              ? 'max-h-screen opacity-100 mt-4'
-              : 'max-h-0 opacity-0'
+            className={`md:hidden transition-all duration-300 ease-in-out bg-white border-t border-gray-100 shadow-sm ${isOpen
+              ? 'max-h-[calc(100vh-80px)] overflow-y-auto opacity-100 mt-4'
+              : 'max-h-0 overflow-hidden opacity-0'
               }`}
             role="menu"
             aria-label="Menú de navegación móvil"
@@ -293,17 +307,32 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
               {navLinks.map((link) => {
                 if (link.dropdown) {
                   const items = link.href === "/seguros" ? insuranceProducts : clientServices;
+                  const isExpanded = expandedSections.includes(link.name);
                   return (
                     <li key={link.name}>
-                      <div className="px-4 py-3 font-medium text-gray-800 border-b border-gray-100">{link.name}</div>
-                      <ul className="bg-gray-50 space-y-1">
+                      <button
+                        onClick={() => toggleSection(link.name)}
+                        className="w-full flex items-center justify-between px-4 py-3 font-medium text-gray-800 border-b border-gray-100 hover:bg-gray-50 transition-colors duration-200"
+                        style={{ minHeight: '44px' }}
+                        aria-expanded={isExpanded}
+                        aria-controls={`mobile-submenu-${link.name}`}
+                      >
+                        {link.name}
+                        <ChevronDown
+                          className={`h-5 w-5 text-gray-500 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
+                        />
+                      </button>
+                      <ul
+                        id={`mobile-submenu-${link.name}`}
+                        className={`bg-gray-50 overflow-hidden transition-all duration-200 ${isExpanded ? 'max-h-[500px]' : 'max-h-0'}`}
+                      >
                         {items.map((item) => (
                           <li key={item.name}>
                             <Link
                               to={item.href}
                               className="block px-6 py-3 text-sm text-gray-600 hover:text-primary hover:bg-gray-100 transition-colors duration-200 active:bg-gray-200"
                               style={{ minHeight: '44px' }}
-                              onClick={() => setIsOpen(false)}
+                              onClick={() => closeMenu()}
                             >
                               {item.name}
                             </Link>
@@ -321,7 +350,7 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
                       className={`block px-4 py-3 rounded-md text-base font-medium transition-colors duration-200 hover:text-primary hover:bg-gray-50 active:bg-gray-100 ${isActive(link.href) ? "text-primary bg-blue-50" : "text-gray-700"
                         }`}
                       style={{ minHeight: '44px' }}
-                      onClick={() => setIsOpen(false)}
+                      onClick={() => closeMenu()}
                     >
                       {link.name}
                     </Link>
@@ -334,7 +363,7 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
                   size="default"
                   style={{ minHeight: '44px' }}
                   onClick={() => {
-                    setIsOpen(false);
+                    closeMenu();
                     handleOpenLeadDialog();
                   }}
                 >

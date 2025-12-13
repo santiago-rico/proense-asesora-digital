@@ -40,6 +40,7 @@
     "@radix-ui/react-tooltip": "^1.1.4",
     "@sanity/client": "^7.6.0",
     "@sanity/image-url": "^1.1.0",
+    "@tailwindcss/vite": "^4.1.17",
     "@tanstack/react-query": "^5.81.5",
     "@types/react-dropzone": "^4.2.2",
     "class-variance-authority": "^0.7.1",
