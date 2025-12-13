@@ -34,7 +34,7 @@ const MeetingScheduler: React.FC = () => {
     
     toast({
       title: "Cita agendada",
-      description: `Tu asesoría gratuita ha sido programada para el ${formattedDate} a las ${timeSelected}. Te enviaremos un correo de confirmación.`,
+      description: `Tu asesoría ha sido programada para el ${formattedDate} a las ${timeSelected}. Te enviaremos un correo de confirmación.`,
     });
     
     setDate(undefined);
@@ -46,7 +46,7 @@ const MeetingScheduler: React.FC = () => {
 
   return (
     <Card className="p-5 max-w-md mx-auto">
-      <h3 className="text-lg font-bold mb-4 text-center">Agenda una Asesoría Gratuita</h3>
+      <h3 className="text-lg font-bold mb-4 text-center">Agenda una Asesoría</h3>
       <div className="mb-6">
         <Calendar
           mode="single"

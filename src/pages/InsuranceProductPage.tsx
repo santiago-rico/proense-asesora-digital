@@ -75,11 +75,11 @@ const InsuranceProductPage: React.FC<InsuranceProductPageProps> = ({ type: propT
 
 
       {/* Coverages Section */}
-      <section className="pt-12 md:pt-20 pb-16 md:pb-24 bg-gray-50">
+      <section className="pt-8 sm:pt-12 md:pt-20 pb-8 sm:pb-12 md:pb-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <div>
-            <div className="mb-10 max-w-3xl mx-auto text-center">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4 text-primary">{data.coveragesTitle}</h2>
+            <div className="mb-6 sm:mb-8 md:mb-10 max-w-3xl mx-auto text-center">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 text-primary">{data.coveragesTitle}</h2>
               {data.shortDescription && (
                 <p className="text-lg text-gray-700 mb-8">{data.shortDescription}</p>
               )}
@@ -101,7 +101,7 @@ const InsuranceProductPage: React.FC<InsuranceProductPageProps> = ({ type: propT
               })}
             </div>
             {data.coveragesCtaText && (
-              <div className="mt-16 text-center">
+              <div className="mt-8 sm:mt-12 md:mt-16 text-center">
                 <Button
                   onClick={handleScrollToForm}
                   className="bg-secondary text-secondary-foreground font-bold py-4 px-8 rounded-lg text-xl hover:bg-secondary/80 transition-colors"
@@ -122,10 +122,10 @@ const InsuranceProductPage: React.FC<InsuranceProductPageProps> = ({ type: propT
 
       {/* FAQ Section */}
       {data.faq && data.faq.length > 0 && (
-        <section className="py-12 md:py-20 bg-gray-100">
+        <section className="py-8 sm:py-12 md:py-16 bg-gray-100">
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto">
-              <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-primary">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-6 sm:mb-8 md:mb-12 text-primary">
                 Preguntas Frecuentes
               </h2>
               <Accordion type="single" collapsible className="w-full">
@@ -151,10 +151,10 @@ const InsuranceProductPage: React.FC<InsuranceProductPageProps> = ({ type: propT
       )}
 
       {/* Lead Form Section */}
-      <section id="lead-form-section" className="py-12 md:py-20 bg-white">
+      <section id="lead-form-section" className="py-8 sm:py-12 md:py-16 bg-white">
         <div className="container mx-auto px-4">
-          <div className="max-w-2xl mx-auto bg-gray-50 p-6 md:p-8 rounded-lg shadow-xl">
-            <div className="text-center mb-8">
+          <div className="max-w-2xl mx-auto bg-gray-50 p-4 sm:p-6 md:p-8 rounded-lg shadow-xl">
+            <div className="text-center mb-6 sm:mb-8">
               <h3 className="text-2xl md:text-3xl font-bold mb-3 text-primary">{data.leadFormTitle}</h3>
               <p className="text-md text-gray-700">
                 {data.leadFormSubtitle}
@@ -167,7 +167,7 @@ const InsuranceProductPage: React.FC<InsuranceProductPageProps> = ({ type: propT
 
       {/* Final CTA Section */}
       {data.contactSectionTitle && (
-        <section className="py-12 md:py-16 bg-primary text-white">
+        <section className="py-8 sm:py-12 md:py-16 bg-primary text-white">
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto text-center">
               <h2 className="text-2xl md:text-3xl font-bold mb-4">{data.contactSectionTitle}</h2>

@@ -19,7 +19,7 @@ function Index({ handleOpenLeadDialog }: IndexProps) {
       <HeroBanner
         title="Protege lo que más valoras con expertos a tu lado"
         description="Más de 25 años de experiencia acompañando a familias y empresas colombianas hacia su tranquilidad"
-        ctaText="Solicitar asesoría gratuita"
+        ctaText="Solicitar Asesoría"
         handleOpenLeadDialog={handleOpenLeadDialog}
         backgroundImage="/images/hero-image.avif"
         useOptimizedImage={true}

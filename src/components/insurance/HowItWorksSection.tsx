@@ -28,7 +28,7 @@ const HowItWorksSection: React.FC = () => {
     },
     {
       icon: <Lightbulb size={32} />,
-      title: 'Recibe asesoría experta y gratuita',
+      title: 'Recibe asesoría experta',
       description: 'Un asesor experto de Proense analizará tu caso y te presentará opciones que se adapten a tus necesidades.',
     },
     {
@@ -39,10 +39,10 @@ const HowItWorksSection: React.FC = () => {
   ];
 
   return (
-    <section className="py-12 md:py-20 bg-gray-100">
+    <section className="py-8 sm:py-12 md:py-16 lg:py-20 bg-gray-100">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-10 md:mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+        <div className="text-center mb-6 sm:mb-10 md:mb-12">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-4">
             Tu Tranquilidad en 3 Pasos Sencillos
           </h2>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">

@@ -196,7 +196,7 @@ const AboutPage: React.FC<AboutPageProps> = ({ handleOpenLeadDialog }) => {
                 variant="secondary"
                 className="px-10 py-6 text-lg"
               >
-                Solicitar Asesoría Gratuita
+                Solicitar Asesoría
               </Button>
             </div>
           </div>
