@@ -161,7 +161,7 @@ const BlogPostPage: React.FC<BlogPostPageProps> = ({ handleOpenLeadDialog }) => 
               <div className="sticky top-24 space-y-8">
                 <LeadForm 
                   title="¡Hablemos de tu Protección!"
-                  subtitle="Déjanos tus datos y te contactaremos para brindarte asesoría personalizada y gratuita."
+                  subtitle="Déjanos tus datos y te contactaremos para brindarte asesoría personalizada."
                 />
                 <div>
                   <h3 className="text-xl font-bold mb-4">Artículos Relacionados</h3>

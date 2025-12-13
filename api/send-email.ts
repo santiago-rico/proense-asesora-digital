@@ -84,7 +84,7 @@ async function handler(
     const sanitizedNombre = DOMPurifyInstance.sanitize(nombre);
     const sanitizedMensaje = DOMPurifyInstance.sanitize(mensaje || '');
 
-    const subject = `Nuevo Lead de Asesoría Gratuita: ${sanitizedNombre}`;
+    const subject = `Nuevo Lead de Asesoría: ${sanitizedNombre}`;
     
     // Get the base URL from the request
     const baseUrl = req.headers.host ? `https://${req.headers.host}` : undefined;

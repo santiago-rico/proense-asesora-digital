@@ -132,7 +132,7 @@ const BlogListPage: React.FC<BlogListPageProps> = ({ handleOpenLeadDialog }) => 
                     {/* Get Your Free Quote */}
                     <LeadForm 
                         title="¡Hablemos de tu Protección!"
-                        subtitle="Déjanos tus datos y te contactaremos para brindarte asesoría personalizada y gratuita."
+                        subtitle="Déjanos tus datos y te contactaremos para brindarte asesoría personalizada."
                     />
 
                     {/* Popular Articles */}

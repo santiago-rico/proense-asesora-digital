@@ -22,7 +22,7 @@ const BlogCtaSection: React.FC<BlogCtaSectionProps> = ({ handleOpenLeadDialog })
             size="lg"
             className="bg-secondary text-secondary-foreground hover:bg-secondary/80"
           >
-            Solicitar Asesoría Gratuita
+            Solicitar Asesoría
           </Button>
         </div>
       </div>

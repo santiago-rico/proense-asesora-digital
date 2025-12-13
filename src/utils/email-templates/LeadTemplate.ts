@@ -47,7 +47,7 @@ export function LeadTemplate(data: LeadTemplateData, isDarkMode: boolean = false
     ${Alert({
       type: 'info',
       title: 'Nueva Solicitud de Asesoría',
-      message: 'Se ha recibido una nueva solicitud de asesoría gratuita a través del formulario web.',
+      message: 'Se ha recibido una nueva solicitud de asesoría a través del formulario web.',
       isDarkMode
     })}
     

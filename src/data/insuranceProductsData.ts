@@ -34,7 +34,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     heroImage: "/images/hero-vida.avif",
     heroImagePosition: 'center 10%',
     heroDescription: "Garantiza el futuro financiero de tu familia en Colombia y vive con la tranquilidad de saber que están protegidos.",
-    heroCtaText: "Solicitar Asesoría Gratuita",
+    heroCtaText: "Solicitar Asesoría",
 
     coveragesTitle: "Coberturas Esenciales del Seguro de Vida",
     coverages: [
@@ -104,11 +104,11 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
         answer: "En Colombia, las indemnizaciones por seguros de vida están exentas de impuestos hasta 3.250 UVT($161.846.750  para 2025). Los montos superiores pagan 15% de impuesto por ganancia ocasional, más una retención del 20% que aplica la aseguradora."
       }
     ],
-    leadFormTitle: "Comienza tu Asesoría Gratuita Aquí",
+    leadFormTitle: "Comienza tu Asesoría Aquí",
     leadFormSubtitle: "Completa el formulario y un asesor especializado te contactará para ofrecerte la mejor solución adaptada a tus necesidades y presupuesto.",
     contactSectionTitle: "¿Listo para Proteger lo que Más Quieres?",
     contactSectionSubtitle: "No dejes tus dudas para después. Un asesor te espera para ofrecerte la mejor solución en seguros de vida.",
-    contactSectionCtaText: "Solicitar Asesoría Gratuita"
+    contactSectionCtaText: "Solicitar Asesoría"
   },
   "vida-deudores": {
     id: "vida-deudores",
@@ -117,7 +117,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     heroImage: "/images/hero-vida-deudores.avif",
     heroImagePosition: 'center 20%',
     heroDescription: "Libera a tu familia de la carga de las deudas en Colombia. Garantiza que en caso de fallecimiento o incapacidad, tus seres queridos no hereden obligaciones financieras y puedan conservar su tranquilidad económica.",
-    heroCtaText: "Solicitar Asesoría Gratuita",
+    heroCtaText: "Solicitar Asesoría",
 
     coveragesTitle: "Coberturas Principales del Seguro de Vida Deudores",
     coverages: [
@@ -190,7 +190,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     leadFormSubtitle: "Completa el formulario y un asesor especializado te contactará para ofrecerte la mejor solución que garantice la tranquilidad económica de tu familia.",
     contactSectionTitle: "¿Listo para Liberar a tu Familia de las Deudas?",
     contactSectionSubtitle: "No dejes que las deudas sean una carga para tus seres queridos. Un asesor te espera para ofrecerte la mejor solución en seguros de vida deudores.",
-    contactSectionCtaText: "Solicitar Asesoría Gratuita"
+    contactSectionCtaText: "Solicitar Asesoría"
   },
   salud: {
     id: "salud",
@@ -199,7 +199,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     heroImage: "/images/hero-salud.avif",
     heroImagePosition: 'center 70%',
     heroDescription: "Tu bienestar y el de tu familia es lo primero en Colombia. Accede a la mejor atención médica privada, sin esperas y con el trato personalizado que mereces.",
-    heroCtaText: "Solicitar Asesoría Gratuita",
+    heroCtaText: "Solicitar Asesoría",
 
     coveragesTitle: "Coberturas Destacadas del Seguro de Salud",
     coverages: [
@@ -276,7 +276,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     leadFormSubtitle: "Déjanos tus datos y te ayudaremos a comparar opciones para que elijas el seguro de salud que mejor se adapte a ti y a tu familia.",
     contactSectionTitle: "¿Listo para Proteger lo que Más Quieres?",
     contactSectionSubtitle: "No dejes tus dudas para después. Un asesor te espera para ofrecerte la mejor solución en seguros de salud.",
-    contactSectionCtaText: "Solicitar Asesoría Gratuita"
+    contactSectionCtaText: "Solicitar Asesoría"
   },
   auto: {
     id: "auto",
@@ -285,7 +285,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     heroImage: "/images/hero-auto.avif",
     heroImagePosition: 'left',
     heroDescription: "Disfruta del camino en Colombia con total tranquilidad. Te ofrecemos la protección completa que tu vehículo necesita para que conduzcas sin preocupaciones",
-    heroCtaText: "Solicitar Asesoría Gratuita",
+    heroCtaText: "Solicitar Asesoría",
 
     coveragesTitle: "Principales Coberturas de Auto",
     coverages: [
@@ -350,7 +350,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     leadFormSubtitle: "Rápido y fácil: completa tus datos y recibe una comparativa personalizada para proteger tu vehículo al mejor precio.",
     contactSectionTitle: "¿Listo para Proteger lo que Más Quieres?",
     contactSectionSubtitle: "No dejes tus dudas para después. Un asesor te espera para ofrecerte la mejor solución en seguros de auto.",
-    contactSectionCtaText: "Solicitar Asesoría Gratuita"
+    contactSectionCtaText: "Solicitar Asesoría"
   },
   hogar: {
     id: "hogar",
@@ -359,7 +359,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     heroImage: "/images/hero-hogar.avif",
     heroImagePosition: 'center',
     heroDescription: "Tu hogar es tu mayor tesoro en Colombia. Asegura la tranquilidad de tu familia y protege tu inversión con una póliza que lo cubre todo, desde la estructura hasta tus bienes más preciados",
-    heroCtaText: "Solicitar Asesoría Gratuita",
+    heroCtaText: "Solicitar Asesoría",
     coveragesTitle: "Coberturas Esenciales del Seguro de Hogar",
     coverages: [
       {
@@ -423,7 +423,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     leadFormSubtitle: "Descubre cómo podemos ayudarte a proteger tu hogar. Solicita tu presupuesto personalizado sin compromiso.",
     contactSectionTitle: "¿Listo para Proteger lo que Más Quieres?",
     contactSectionSubtitle: "No dejes tus dudas para después. Un asesor te espera para ofrecerte la mejor solución en seguros de hogar.",
-    contactSectionCtaText: "Solicitar Asesoría Gratuita"
+    contactSectionCtaText: "Solicitar Asesoría"
   },
   pymes: {
     id: "pymes",
@@ -432,7 +432,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     heroImage: "/images/hero-pymes.avif",
     heroImagePosition: 'center',
     heroDescription: "El futuro de tu empresa en Colombia es nuestra prioridad. Te brindamos la seguridad que necesitas con soluciones a la medida de tu negocio, garantizando su continuidad y protegiendo tu esfuerzo para que sigas creciendo sin límites",
-    heroCtaText: "Solicitar Asesoría Gratuita",
+    heroCtaText: "Solicitar Asesoría",
     coveragesTitle: "Coberturas Clave para tu PYME",
     coverages: [
       {
@@ -496,7 +496,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     leadFormSubtitle: "Analizamos a fondo los riesgos de tu negocio para ofrecerte una solución aseguradora completa y a medida. ¡Solicita tu estudio!",
     contactSectionTitle: "¿Listo para Proteger lo que Más Quieres?",
     contactSectionSubtitle: "No dejes tus dudas para después. Un asesor te espera para ofrecerte la mejor solución en seguros de PYMES.",
-    contactSectionCtaText: "Solicitar Asesoría Gratuita"
+    contactSectionCtaText: "Solicitar Asesoría"
   },
   decesos: {
     id: "decesos",
@@ -505,7 +505,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     heroImage: "/images/hero-decesos.avif",
     heroImagePosition: 'center',
     heroDescription: "Un gesto de amor para los tuyos en Colombia. Bríndales la tranquilidad de no tener que preocuparse por nada en los momentos más difíciles",
-    heroCtaText: "Solicitar Asesoría Gratuita",
+    heroCtaText: "Solicitar Asesoría",
     coveragesTitle: "Servicios Incluidos en el Seguro de Decesos",
     coverages: [
       {
@@ -563,7 +563,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     leadFormSubtitle: "Evita cargas innecesarias a tus seres queridos. Solicita información y te ayudaremos a encontrar el plan de decesos que mejor se ajuste a tus deseos y presupuesto.",
     contactSectionTitle: "¿Listo para Proteger lo que Más Quieres?",
     contactSectionSubtitle: "No dejes tus dudas para después. Un asesor te espera para ofrecerte la mejor solución en seguros de decesos.",
-    contactSectionCtaText: "Solicitar Asesoría Gratuita"
+    contactSectionCtaText: "Solicitar Asesoría"
   },
   mascotas: {
     id: "mascotas",
@@ -572,7 +572,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     heroImage: "/images/hero-mascotas.avif",
     heroImagePosition: 'center',
     heroDescription: "El amor por tu mascota es incondicional en Colombia, su salud no debería tener precio. Te damos la tranquilidad de saber que estará protegido ante cualquier imprevisto",
-    heroCtaText: "Solicitar Asesoría Gratuita",
+    heroCtaText: "Solicitar Asesoría",
     coveragesTitle: "Protección completa para tu mascota",
     coverages: [
       {
@@ -619,7 +619,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     leadFormSubtitle: "Uno de nuestros asesores te contactará para ofrecerte la mejor solución para tu fiel amigo.",
     contactSectionTitle: "¿Listo para Proteger lo que Más Quieres?",
     contactSectionSubtitle: "No dejes tus dudas para después. Un asesor te espera para ofrecerte la mejor solución en seguros de mascotas.",
-    contactSectionCtaText: "Solicitar Asesoría Gratuita"
+    contactSectionCtaText: "Solicitar Asesoría"
   },
   motos: {
     id: "motos",
@@ -628,7 +628,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     heroImage: "/images/hero-motos.avif",
     heroImagePosition: 'center 90%',
     heroDescription: "Siente la libertad en cada kilómetro de Colombia. Te ofrecemos la protección que necesitas para que solo te preocupes por disfrutar de la carretera",
-    heroCtaText: "Solicitar Asesoría Gratuita",
+    heroCtaText: "Solicitar Asesoría",
     coveragesTitle: "Coberturas Esenciales para tu Moto",
     coverages: [
       {
@@ -681,7 +681,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
 
     contactSectionTitle: "¿Listo para Proteger lo que Más Quieres?",
     contactSectionSubtitle: "No dejes tus dudas para después. Un asesor te espera para ofrecerte la mejor solución en seguros de motos.",
-    contactSectionCtaText: "Solicitar Asesoría Gratuita"
+    contactSectionCtaText: "Solicitar Asesoría"
   },
   arrendamiento: {
     id: "arrendamiento",
@@ -690,7 +690,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     heroImage: "/images/hero-arrendamiento.avif",
     heroImagePosition: 'center',
     heroDescription: "Tu inversión inmobiliaria en Colombia, protegida. Alquila con la certeza de que tus ingresos están garantizados y tu propiedad segura",
-    heroCtaText: "Solicitar Asesoría Gratuita",
+    heroCtaText: "Solicitar Asesoría",
     coveragesTitle: "Principales Ventajas del Seguro de Alquiler",
     coverages: [
       {
@@ -743,7 +743,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
 
     contactSectionTitle: "¿Listo para Proteger lo que Más Quieres?",
     contactSectionSubtitle: "No dejes tus dudas para después. Un asesor te espera para ofrecerte la mejor solución en seguros de impago de alquiler.",
-    contactSectionCtaText: "Solicitar Asesoría Gratuita"
+    contactSectionCtaText: "Solicitar Asesoría"
   },
   viaje: {
     id: "viaje",
@@ -752,7 +752,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     heroImage: "/images/hero-viaje.avif",
     heroImagePosition: 'center',
     heroDescription: "Tu próxima aventura te espera, viaja desde Colombia sin límites ni preocupaciones. Te protegemos ante cualquier imprevisto en cualquier rincón del mundo, para que tu única misión sea disfrutar y crear recuerdos inolvidables",
-    heroCtaText: "Solicitar Asesoría Gratuita",
+    heroCtaText: "Solicitar Asesoría",
 
     coveragesTitle: "Coberturas Imprescindibles en tu Viaje",
     coverages: [
@@ -782,6 +782,6 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
 
     contactSectionTitle: "¿Listo para Proteger lo que Más Quieres?",
     contactSectionSubtitle: "No dejes tus dudas para después. Un asesor te espera para ofrecerte la mejor solución en seguros de viaje.",
-    contactSectionCtaText: "Solicitar Asesoría Gratuita"
+    contactSectionCtaText: "Solicitar Asesoría"
   }
 };
