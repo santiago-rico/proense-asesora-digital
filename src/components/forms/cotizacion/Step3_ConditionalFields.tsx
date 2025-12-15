@@ -560,7 +560,7 @@ const HogarFields = () => {
         name="contentsValue"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Valor de los contenido (Opcional)</FormLabel>
+            <FormLabel>Valor de reposición de los contenidos (Opcional)</FormLabel>
             <FormControl>
               <Input
                 type="number"
