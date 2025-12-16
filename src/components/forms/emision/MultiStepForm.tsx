@@ -254,8 +254,6 @@ const MultiStepForm = ({ onSuccess }: MultiStepFormProps) => {
             description="Hemos recibido tu solicitud correctamente."
             showEmailConfirmation={true}
             email={methods.watch('email')}
-            showWarning={true}
-            warningMessage='Por favor revisa tu correo electrónico y responde "Acepto" para que tu solicitud sea procesada. Si no encuentras nuestro correo, por favor revisa tu carpeta de spam.'
             onDismiss={() => {
               setFormSubmitted(false);
               setCurrentStep(0);

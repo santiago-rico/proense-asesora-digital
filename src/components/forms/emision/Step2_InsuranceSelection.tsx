@@ -39,7 +39,7 @@ const Step2_InsuranceSelection = () => {
             name="tipoSeguro"
             render={({ field }) => (
                 <FormItem>
-                    <FormLabel>Tipo de seguro que deseas cotizar <span className="text-red-500">*</span></FormLabel>
+                    <FormLabel>Tipo de seguro que deseas contratar <span className="text-red-500">*</span></FormLabel>
                     <Select onValueChange={field.onChange} value={field.value || ''}>
                         <FormControl>
                             <SelectTrigger>
