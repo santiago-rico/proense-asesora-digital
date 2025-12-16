@@ -50,7 +50,7 @@ const Step4_Declaration: React.FC = () => {
       />
 
       {declaraRenta === 'si' && (
-        <FileUpload name="archivoDeclaracionRenta" label="Archivo declaración renta *" />
+        <FileUpload name="archivoDeclaracionRenta" label="Archivo declaración renta *" multiple />
       )}
 
       {declaraRenta === 'no' && (
