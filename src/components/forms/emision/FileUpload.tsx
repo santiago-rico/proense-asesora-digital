@@ -34,6 +34,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ name, label, description, multi
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDropAccepted,
     onDropRejected,
+    multiple,
     accept: {
       'image/jpeg': ['.jpg', '.jpeg'],
       'image/png': ['.png'],

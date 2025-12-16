@@ -31,7 +31,7 @@ const Step3_ConditionalFields = () => {
           </FormItem>
         )}
       />
-      <FileUpload name="fotoCedula" label="Foto cédula (ambos lados) *" description="Sube una foto de ambos lados de tu cédula." />
+      <FileUpload name="fotoCedula" label="Foto cédula (ambos lados) *" description="Sube una foto de ambos lados de tu cédula." multiple />
     </>
   );
 
@@ -99,7 +99,7 @@ const Step3_ConditionalFields = () => {
         return (
           <>
             {renderCommonFields()}
-            <FileUpload name="certificadoLibertad" label="Certificado de libertad y tradición o Impuesto Predial *" />
+            <FileUpload name="certificadoLibertad" label="Certificado de libertad y tradición o Impuesto Predial *" multiple />
           </>
         );
       case 'rentas': // Updated: Now requires common and beneficiary fields
@@ -113,7 +113,7 @@ const Step3_ConditionalFields = () => {
         return (
           <>
             {renderCommonFields()}
-            <FileUpload name="tarjetaPropiedad" label="Tarjeta de propiedad (ambos lados) *" />
+            <FileUpload name="tarjetaPropiedad" label="Tarjeta de propiedad (ambos lados) *" multiple />
           </>
         );
       case 'empresarial':
@@ -138,7 +138,7 @@ const Step3_ConditionalFields = () => {
                 </FormItem>
                 )}
             />
-            <FileUpload name="fotoCedulaRepLegal" label="Imagen o documento de tu cédula por ambos lados (Representante Legal) *" description="Sube una foto de ambos lados de la cédula del representante legal." />
+            <FileUpload name="fotoCedulaRepLegal" label="Imagen o documento de tu cédula por ambos lados (Representante Legal) *" description="Sube una foto de ambos lados de la cédula del representante legal." multiple />
             <FormField
                 control={control}
                 name="nit"
@@ -158,8 +158,8 @@ const Step3_ConditionalFields = () => {
                 </FormItem>
                 )}
             />
-            <FileUpload name="rut" label="RUT (Obligatorio) *" description="El documento debe estar actualizado a máximo 30 días." />
-            <FileUpload name="camaraComercio" label="Cámara de comercio (Obligatorio) *" description="El documento debe estar actualizado a máximo 30 días." />
+            <FileUpload name="rut" label="RUT (Obligatorio) *" description="El documento debe estar actualizado a máximo 30 días." multiple />
+            <FileUpload name="camaraComercio" label="Cámara de comercio (Obligatorio) *" description="El documento debe estar actualizado a máximo 30 días." multiple />
           </>
         );
       case 'mascotas':
