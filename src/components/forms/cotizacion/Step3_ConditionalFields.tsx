@@ -404,6 +404,63 @@ const HogarFields = () => {
     <>
       <FormField
         control={control}
+        name="insuredPropertyAddress"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Dirección del inmueble a asegurar <span className="text-red-500">*</span></FormLabel>
+            <FormControl>
+              <Input
+                placeholder="Escribe la dirección del inmueble"
+                autoComplete="street-address"
+                required
+                aria-required="true"
+                {...field}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={control}
+        name="insuredPropertyCity"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Ciudad del inmueble a asegurar <span className="text-red-500">*</span></FormLabel>
+            <FormControl>
+              <Input
+                placeholder="Escribe la ciudad del inmueble"
+                autoComplete="address-level2"
+                required
+                aria-required="true"
+                {...field}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={control}
+        name="buildingFloors"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Número de pisos del edificio (Opcional)</FormLabel>
+            <FormControl>
+              <Input
+                type="number"
+                placeholder="Ej: 5"
+                autoComplete="off"
+                min="1"
+                {...field}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={control}
         name="estrato"
         render={({ field }) => (
           <FormItem>
@@ -755,7 +812,8 @@ const SaludFields = () => {
 
 // Sub-component for Mascotas (Pet Insurance) Fields
 const MascotasFields = () => {
-  const { control } = useFormContext();
+  const { control, watch } = useFormContext();
+  const petHasSeriousIllness = watch('petHasSeriousIllness');
 
   return (
     <>
@@ -879,112 +937,48 @@ const MascotasFields = () => {
           </FormItem>
         )}
       />
-
-      <div className="mt-6 mb-4">
-        <h3 className="text-lg font-semibold">Valores asegurados</h3>
-        <p className="text-sm text-muted-foreground">Elige cuál es el valor asegurado para cada cobertura</p>
-      </div>
-
       <FormField
         control={control}
-        name="civilLiability"
+        name="petHasSeriousIllness"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Responsabilidad civil <span className="text-red-500">*</span></FormLabel>
+            <FormLabel>¿Tu mascota ha tenido enfermedades o accidentes graves en el último año? <span className="text-red-500">*</span></FormLabel>
             <Select onValueChange={field.onChange} value={field.value || ''}>
               <FormControl>
                 <SelectTrigger>
-                  <SelectValue placeholder="Elige el valor" />
+                  <SelectValue placeholder="Elige una opción" />
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
-                <SelectItem value="5000000">$5 Millones COP</SelectItem>
-                <SelectItem value="10000000">$10 Millones COP</SelectItem>
-                <SelectItem value="15000000">$15 Millones COP</SelectItem>
-                <SelectItem value="20000000">$20 Millones COP</SelectItem>
-                <SelectItem value="25000000">$25 Millones COP</SelectItem>
-                <SelectItem value="30000000">$30 Millones COP</SelectItem>
-                <SelectItem value="35000000">$35 Millones COP</SelectItem>
+                <SelectItem value="si">Sí</SelectItem>
+                <SelectItem value="no">No</SelectItem>
               </SelectContent>
             </Select>
             <FormMessage />
           </FormItem>
         )}
       />
-      <FormField
-        control={control}
-        name="veterinaryExpenses"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Gastos veterinarios <span className="text-red-500">*</span></FormLabel>
-            <Select onValueChange={field.onChange} value={field.value || ''}>
+      {petHasSeriousIllness === 'si' && (
+        <FormField
+          control={control}
+          name="petSeriousIllnessDetails"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>¿Qué enfermedades o accidentes tuvo tu mascota? <span className="text-red-500">*</span></FormLabel>
               <FormControl>
-                <SelectTrigger>
-                  <SelectValue placeholder="Elige el valor" />
-                </SelectTrigger>
+                <Textarea
+                  placeholder="Describe las enfermedades o accidentes que ha tenido tu mascota"
+                  autoComplete="off"
+                  required
+                  aria-required="true"
+                  {...field}
+                />
               </FormControl>
-              <SelectContent>
-                <SelectItem value="600000">$600.000 COP</SelectItem>
-                <SelectItem value="700000">$700.000 COP</SelectItem>
-                <SelectItem value="800000">$800.000 COP</SelectItem>
-                <SelectItem value="900000">$900.000 COP</SelectItem>
-                <SelectItem value="1000000">$1.000.000 COP</SelectItem>
-                <SelectItem value="1100000">$1.100.000 COP</SelectItem>
-                <SelectItem value="1200000">$1.200.000 COP</SelectItem>
-                <SelectItem value="1300000">$1.300.000 COP</SelectItem>
-                <SelectItem value="1400000">$1.400.000 COP</SelectItem>
-                <SelectItem value="1500000">$1.500.000 COP</SelectItem>
-              </SelectContent>
-            </Select>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={control}
-        name="funeralExpenses"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Gastos exequiales <span className="text-red-500">*</span></FormLabel>
-            <Select onValueChange={field.onChange} value={field.value || ''}>
-              <FormControl>
-                <SelectTrigger>
-                  <SelectValue placeholder="Elige el valor" />
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                <SelectItem value="100000">$100.000 COP</SelectItem>
-                <SelectItem value="200000">$200.000 COP</SelectItem>
-                <SelectItem value="300000">$300.000 COP</SelectItem>
-                <SelectItem value="400000">$400.000 COP</SelectItem>
-                <SelectItem value="500000">$500.000 COP</SelectItem>
-              </SelectContent>
-            </Select>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={control}
-        name="theftOrLoss"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Robo o pérdida de tu mascota <span className="text-red-500">*</span></FormLabel>
-            <Select onValueChange={field.onChange} value={field.value || ''}>
-              <FormControl>
-                <SelectTrigger>
-                  <SelectValue placeholder="Elige el valor" />
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                <SelectItem value="100000">$100.000 COP</SelectItem>
-                <SelectItem value="200000">$200.000 COP</SelectItem>
-              </SelectContent>
-            </Select>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      )}
     </>
   );
 };

@@ -85,6 +85,9 @@ export const quoteFormSchema = z.object({
   accessoriesType: z.string().optional(),
 
   // Step 3: Conditional Fields for Seguro de Hogar
+  insuredPropertyAddress: z.string().optional(),
+  insuredPropertyCity: z.string().optional(),
+  buildingFloors: z.string().optional(),
   estrato: z.string().optional(),
   propertyType: z.string().optional(),
   propertyUse: z.string().optional(),
@@ -105,10 +108,8 @@ export const quoteFormSchema = z.object({
   petAge: z.string().optional(),
   petBreed: z.string().optional(),
   petVaccinated: z.union([z.enum(['si', 'no']), z.literal('')]).optional(),
-  civilLiability: z.string().optional(),
-  veterinaryExpenses: z.string().optional(),
-  funeralExpenses: z.string().optional(),
-  theftOrLoss: z.string().optional(),
+  petHasSeriousIllness: z.union([z.enum(['si', 'no']), z.literal('')]).optional(),
+  petSeriousIllnessDetails: z.string().optional(),
 
   // Step 3: Additional Comments
   additionalComments: z.string().optional(),
@@ -283,6 +284,24 @@ export const quoteFormSchema = z.object({
     }
   } else if (data.insuranceType === 'hogar') {
     // Validate required fields for Seguro de Hogar
+    if (!data.insuredPropertyAddress || data.insuredPropertyAddress.trim() === '') {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'La dirección del inmueble a asegurar es requerida',
+        path: ['insuredPropertyAddress']
+      });
+    }
+
+    if (!data.insuredPropertyCity || data.insuredPropertyCity.trim() === '') {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'La ciudad del inmueble a asegurar es requerida',
+        path: ['insuredPropertyCity']
+      });
+    }
+
+    // buildingFloors is optional - no validation needed
+
     if (!data.estrato || data.estrato.trim() === '') {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -454,36 +473,23 @@ export const quoteFormSchema = z.object({
       });
     }
 
-    if (!data.civilLiability || data.civilLiability.trim() === '') {
+    if (!data.petHasSeriousIllness || data.petHasSeriousIllness === '') {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'El valor de responsabilidad civil es requerido',
-        path: ['civilLiability']
+        message: 'Indica si tu mascota ha tenido enfermedades o accidentes graves',
+        path: ['petHasSeriousIllness']
       });
     }
 
-    if (!data.veterinaryExpenses || data.veterinaryExpenses.trim() === '') {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'El valor de gastos veterinarios es requerido',
-        path: ['veterinaryExpenses']
-      });
-    }
-
-    if (!data.funeralExpenses || data.funeralExpenses.trim() === '') {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'El valor de gastos exequiales es requerido',
-        path: ['funeralExpenses']
-      });
-    }
-
-    if (!data.theftOrLoss || data.theftOrLoss.trim() === '') {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'El valor de robo o pérdida es requerido',
-        path: ['theftOrLoss']
-      });
+    // Conditional validation for serious illness details
+    if (data.petHasSeriousIllness === 'si') {
+      if (!data.petSeriousIllnessDetails || data.petSeriousIllnessDetails.trim() === '') {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Debes describir las enfermedades o accidentes de tu mascota',
+          path: ['petSeriousIllnessDetails']
+        });
+      }
     }
   }
 });

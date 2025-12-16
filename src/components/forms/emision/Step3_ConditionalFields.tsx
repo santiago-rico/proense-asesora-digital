@@ -43,7 +43,7 @@ const Step3_ConditionalFields = () => {
             name="beneficiarios"
             render={({ field }) => (
             <FormItem>
-                <FormLabel>Nombres de beneficiarios y porcentajes <span className="text-red-500">*</span></FormLabel>
+                <FormLabel>Nombre completo de beneficiarios, parentesco y porcentajes <span className="text-red-500">*</span></FormLabel>
                 <FormControl>
                 <Input 
                   placeholder="Ej: Maria Perez 50%, Juan Perez 50%" 
