@@ -106,8 +106,9 @@ Required environment variables:
 - `VITE_SANITY_DATASET` - Sanity dataset name
 - `SANITY_API_TOKEN` - Sanity API token
 - `BREVO_API_KEY` - Brevo email service API key
-- `RESEND_API_KEY` - Resend email service API key
-- `NOTIFICATION_EMAIL` - Email for notifications
+- `BREVO_SENDER_EMAIL` - Sender email address for transactional emails
+- `BREVO_SENDER_NAME` - Sender name for transactional emails
+- `NOTIFICATION_EMAILS` - Comma-separated list of emails to receive form submissions (e.g., `agent1@company.com,agent2@company.com`)
 - `CSRF_SECRET` - Secret for CSRF token generation
 
 ### Testing Approach

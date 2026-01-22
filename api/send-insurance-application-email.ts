@@ -8,6 +8,7 @@ import { z } from 'zod';
 import { JSDOM } from 'jsdom';
 import { withRateLimit, rateLimitConfigs } from './utils/rate-limiter.js';
 import { InsuranceApplicationTemplate } from '../src/utils/email-templates/InsuranceApplicationTemplate.js';
+import { getNotificationEmails } from './utils/notification-emails.js';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 const ALLOWED_MIME_TYPES = [
@@ -264,7 +265,7 @@ async function handler(
 
     const senderName = process.env.BREVO_SENDER_NAME || 'Proense Asesora Digital';
     const senderEmail = process.env.BREVO_SENDER_EMAIL || 'no-reply@proense.co';
-    const agentEmail = process.env.AGENT_EMAIL || 'comercial@proense.co';
+    const notificationRecipients = getNotificationEmails();
 
     // Get the base URL from the request
     const baseUrl = req.headers.host ? `https://${req.headers.host}` : undefined;
@@ -298,7 +299,7 @@ async function handler(
 
     const agentBrevoPayload = {
       sender: { name: senderName, email: senderEmail },
-      to: [{ email: agentEmail, name: 'Agente Proense' }],
+      to: notificationRecipients,
       subject: agentEmailSubject,
       htmlContent: agentEmailHtmlContent,
       attachment: attachments.length > 0 ? attachments : undefined,

@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { JSDOM } from 'jsdom';
 import { withRateLimit, rateLimitConfigs } from './utils/rate-limiter.js';
 import { LeadTemplate } from '../src/utils/email-templates/LeadTemplate.js';
+import { getNotificationEmails } from './utils/notification-emails.js';
 
 // Define the validation schema with Zod
 const leadFormSchema = z.object({
@@ -71,11 +72,11 @@ async function handler(
     } = validationResult.data;
 
     const apiKey = process.env.BREVO_API_KEY;
-    const leadNotificationEmail = process.env.LEAD_NOTIFICATION_EMAIL;
     const senderEmail = process.env.BREVO_SENDER_EMAIL;
     const senderName = process.env.BREVO_SENDER_NAME;
+    const notificationRecipients = getNotificationEmails();
 
-    if (!apiKey || !leadNotificationEmail || !senderEmail || !senderName) {
+    if (!apiKey || !senderEmail || !senderName) {
       console.error('Missing environment variables for email sending');
       return res.status(500).json({ message: 'Server configuration error for sending email.' });
     }
@@ -103,12 +104,7 @@ async function handler(
         name: senderName,
         email: senderEmail,
       },
-      to: [
-        {
-          email: leadNotificationEmail,
-          name: 'Proense Asesor Digital',
-        },
-      ],
+      to: notificationRecipients,
       subject,
       htmlContent,
     };
