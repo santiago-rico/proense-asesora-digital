@@ -6,6 +6,10 @@ on:
     - cron: '0 2 * * *'
   workflow_dispatch: # Allow manual triggers
 
+permissions:
+  contents: read
+  issues: write
+
 jobs:
   security-scan:
     name: Daily Security Scan
@@ -18,12 +22,12 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '18.x'
+          node-version: '22.x'
           cache: 'npm'
-          
+
       - name: Install dependencies
         run: npm ci
-        
+
       - name: Run comprehensive security audit
         run: |
           echo "Running npm audit..."
@@ -105,9 +109,9 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '18.x'
+          node-version: '22.x'
           cache: 'npm'
-          
+
       - name: Install license checker
         run: npm install -g license-checker
         
