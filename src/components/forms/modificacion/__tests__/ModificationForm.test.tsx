@@ -58,6 +58,8 @@ describe('ModificationForm', () => {
     // Mock successful fetch response
     (global.fetch as vi.Mock).mockResolvedValue({
       ok: true,
+      status: 200,
+      headers: new Headers({ 'content-type': 'application/json' }),
       json: () => Promise.resolve({ message: 'Success' }),
     });
   });
@@ -345,6 +347,7 @@ describe('ModificationForm', () => {
       (global.fetch as vi.Mock).mockResolvedValue({
         ok: false,
         status: 400,
+        headers: new Headers({ 'content-type': 'application/json' }),
         json: () => Promise.resolve({ message: 'Validation error' }),
       });
 
@@ -387,6 +390,7 @@ describe('ModificationForm', () => {
       (global.fetch as vi.Mock).mockResolvedValue({
         ok: false,
         status: 403,
+        headers: new Headers({ 'content-type': 'application/json' }),
         json: () => Promise.resolve({ message: 'Invalid CSRF token' }),
       });
 
@@ -519,8 +523,10 @@ describe('ModificationForm', () => {
       // Clean up by resolving the promise
       resolveResponse!({
         ok: true,
+        status: 200,
+        headers: new Headers({ 'content-type': 'application/json' }),
         json: () => Promise.resolve({ message: 'Success' }),
-      } as Response);
+      } as unknown as Response);
     });
   });
 });

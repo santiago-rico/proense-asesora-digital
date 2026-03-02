@@ -17,6 +17,7 @@ import { useCsrf } from '@/hooks/use-csrf';
 import { AlertTriangle } from 'lucide-react';
 import { FormSuccessScreen } from '@/components/shared/FormSuccessScreen';
 import { SERVICE_FORM_INSURANCE_TYPES } from '@/constants/insuranceTypes';
+import { safeParseResponse } from '@/utils/safe-response';
 
 const cancellationSchema = z.object({
   documentosAdicionales: z.any().optional(),
@@ -107,6 +108,24 @@ export function CancellationForm({ onSuccess }: CancellationFormProps) {
       }
     });
 
+    // Check total file size before submitting
+    let totalFileSize = 0;
+    for (const pair of formData.entries()) {
+      if (pair[1] instanceof File) {
+        totalFileSize += pair[1].size;
+      }
+    }
+    const MAX_TOTAL_SIZE = 4 * 1024 * 1024; // 4MB
+    if (totalFileSize > MAX_TOTAL_SIZE) {
+      toast({
+        variant: "destructive",
+        title: "Archivos demasiado grandes",
+        description: `El tamaño total de los archivos (${(totalFileSize / (1024 * 1024)).toFixed(1)}MB) excede el límite de 4MB. Por favor, reduce el tamaño o la cantidad de archivos.`,
+      });
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
       const response = await fetch('/api/send-cancellation-request', {
         method: 'POST',
@@ -117,13 +136,13 @@ export function CancellationForm({ onSuccess }: CancellationFormProps) {
         },
       });
 
-      const result = await response.json();
+      const { ok, status, data: result, errorMessage } = await safeParseResponse(response);
 
-      if (response.ok) {
+      if (ok) {
         setFormSubmitted(true);
       } else {
         // Handle CSRF-specific errors
-        if (response.status === 403 && result.message?.includes('CSRF')) {
+        if (status === 403 && (result as Record<string, unknown>)?.message?.toString().includes('CSRF')) {
           toast({
             title: "Error de Seguridad",
             description: "Token de seguridad inválido. Recargando página...",
@@ -135,11 +154,11 @@ export function CancellationForm({ onSuccess }: CancellationFormProps) {
           }, 2000);
           return;
         }
-        
+
         // Handle validation errors
-        if (response.status === 400 && result.errors) {
+        if (status === 400 && result?.errors) {
           // Set field-specific errors in the form
-          Object.entries(result.errors).forEach(([field, messages]) => {
+          Object.entries(result.errors as Record<string, unknown>).forEach(([field, messages]) => {
             if (Array.isArray(messages) && messages.length > 0) {
               form.setError(field as keyof FormData, {
                 type: 'server',
@@ -147,7 +166,7 @@ export function CancellationForm({ onSuccess }: CancellationFormProps) {
               });
             }
           });
-          
+
           toast({
             title: "Por favor revisa los campos del formulario",
             description: "Algunos campos tienen errores que necesitan ser corregidos.",
@@ -155,15 +174,15 @@ export function CancellationForm({ onSuccess }: CancellationFormProps) {
           });
           return;
         }
-        
-        throw new Error(result.message || 'Error al enviar la solicitud.');
+
+        throw new Error(errorMessage || (result?.message as string) || 'Error al enviar la solicitud.');
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Ocurrió un problema al procesar tu solicitud. Por favor, inténtalo de nuevo.';
+      const errMsg = error instanceof Error ? error.message : 'No se pudo conectar con el servidor. Verifica tu conexión a internet e intenta de nuevo.';
       toast({
         variant: 'destructive',
         title: 'Error en el envío',
-        description: errorMessage,
+        description: errMsg,
       });
     } finally {
       setIsSubmitting(false);

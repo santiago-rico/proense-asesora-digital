@@ -11,6 +11,7 @@ import NumberedProgressBar from './NumberedProgressBar';
 import { useToast } from '@/hooks/use-toast';
 import { formSchema, FormSchemaType } from './formSchema';
 import { FormSuccessScreen } from '@/components/shared/FormSuccessScreen';
+import { safeParseResponse } from '@/utils/safe-response';
 
 const steps = [
   { id: 1, name: 'Información Básica', fields: ['nombreCompleto', 'telefono', 'email'] },
@@ -162,6 +163,24 @@ const MultiStepForm = ({ onSuccess }: MultiStepFormProps) => {
       }
     });
 
+    // Check total file size before submitting
+    let totalFileSize = 0;
+    for (const pair of formData.entries()) {
+      if (pair[1] instanceof File) {
+        totalFileSize += pair[1].size;
+      }
+    }
+    const MAX_TOTAL_SIZE = 4 * 1024 * 1024; // 4MB to leave room for form data overhead
+    if (totalFileSize > MAX_TOTAL_SIZE) {
+      toast({
+        variant: "destructive",
+        title: "Archivos demasiado grandes",
+        description: `El tamaño total de los archivos (${(totalFileSize / (1024 * 1024)).toFixed(1)}MB) excede el límite de 4MB. Por favor, reduce el tamaño o la cantidad de archivos.`,
+      });
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
       const response = await fetch('/api/send-insurance-application-email', {
         method: 'POST',
@@ -172,15 +191,13 @@ const MultiStepForm = ({ onSuccess }: MultiStepFormProps) => {
         credentials: 'include',
       });
 
-      const result = await response.json();
+      const { ok, status, data: result, errorMessage } = await safeParseResponse(response);
 
-      if (response.ok) {
+      if (ok) {
         setFormSubmitted(true);
-        // Reset form after successful submission if needed
-        // methods.reset();
       } else {
         // Handle CSRF-specific errors
-        if (response.status === 403 && result.message?.includes('CSRF')) {
+        if (status === 403 && (result as Record<string, unknown>)?.message?.toString().includes('CSRF')) {
           toast({
             title: "Error de Seguridad",
             description: "Token de seguridad inválido. Recargando página...",
@@ -191,20 +208,16 @@ const MultiStepForm = ({ onSuccess }: MultiStepFormProps) => {
           }, 2000);
           return;
         }
-        
+
         // Handle validation errors
-        if (response.status === 400 && result.errors) {
-          // Find the first step that has an error
+        if (status === 400 && result?.errors) {
           let stepWithError = -1;
-          
-          Object.entries(result.errors).forEach(([field, messages]) => {
+          Object.entries(result.errors as Record<string, string[]>).forEach(([field, messages]) => {
             if (Array.isArray(messages) && messages.length > 0) {
               methods.setError(field as keyof FormSchemaType, {
                 type: 'server',
                 message: messages[0]
               });
-              
-              // Find which step contains this field
               steps.forEach((step, index) => {
                 if (step.fields.includes(field) && stepWithError === -1) {
                   stepWithError = index;
@@ -212,12 +225,9 @@ const MultiStepForm = ({ onSuccess }: MultiStepFormProps) => {
               });
             }
           });
-          
-          // Navigate to the step with the first error
           if (stepWithError !== -1 && stepWithError !== currentStep) {
             setCurrentStep(stepWithError);
           }
-          
           toast({
             title: "Por favor revisa los campos del formulario",
             description: "Algunos campos tienen errores que necesitan ser corregidos.",
@@ -225,11 +235,11 @@ const MultiStepForm = ({ onSuccess }: MultiStepFormProps) => {
           });
           return;
         }
-        
+
         toast({
           variant: "destructive",
           title: "Error al Enviar Solicitud",
-          description: result.message || "Ocurrió un error inesperado. Por favor, intenta de nuevo.",
+          description: errorMessage || (result?.message as string) || "Ocurrió un error inesperado. Por favor, intenta de nuevo.",
         });
         console.error('API Error:', result);
       }
@@ -238,7 +248,7 @@ const MultiStepForm = ({ onSuccess }: MultiStepFormProps) => {
       toast({
         variant: "destructive",
         title: "Error de Conexión",
-        description: "No se pudo enviar la solicitud. Verifica tu conexión a internet e intenta de nuevo.",
+        description: "No se pudo conectar con el servidor. Verifica tu conexión a internet e intenta de nuevo.",
       });
     } finally {
       setIsSubmitting(false);

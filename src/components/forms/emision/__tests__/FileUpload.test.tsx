@@ -104,8 +104,8 @@ describe('FileUpload Component', () => {
         </TestWrapper>
       );
 
-      expect(screen.getByText('Arrastra y suelta archivos aquí, o haz clic para seleccionar')).toBeInTheDocument();
-      expect(screen.getByText('PDF, JPG, PNG, WEBP, DOC, DOCX. (Max 5MB)')).toBeInTheDocument();
+      expect(screen.getByText('Toca para seleccionar archivos')).toBeInTheDocument();
+      expect(screen.getByText('PDF, JPG, PNG, WEBP, DOC, DOCX (máx. 5MB por archivo)')).toBeInTheDocument();
     });
 
     it('renders file input with correct attributes', () => {
@@ -463,7 +463,7 @@ describe('FileUpload Component', () => {
         </TestWrapper>
       );
 
-      expect(screen.getByText('PDF, JPG, PNG, WEBP, DOC, DOCX. (Max 5MB)')).toBeInTheDocument();
+      expect(screen.getByText('PDF, JPG, PNG, WEBP, DOC, DOCX (máx. 5MB por archivo)')).toBeInTheDocument();
     });
 
     it('provides remove buttons with clear action', async () => {

@@ -15,6 +15,7 @@ import { isValidPhoneNumber } from "react-phone-number-input";
 import es from 'react-phone-number-input/locale/es.json';
 import { FormSuccessScreen } from "@/components/shared/FormSuccessScreen";
 import { LEAD_FORM_INSURANCE_TYPES } from "@/constants/insuranceTypes";
+import { safeParseResponse } from '@/utils/safe-response';
 
 const formSchema = z.object({
   nombre: z.string().min(2, { message: "El nombre es requerido" }),
@@ -96,13 +97,14 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick, 
           'X-CSRF-Token': csrfToken,
         },
         body: JSON.stringify(payload),
+        credentials: 'include',
       });
 
-      const result = await response.json();
+      const { ok, status, data: result, errorMessage } = await safeParseResponse(response);
 
-      if (!response.ok) {
+      if (!ok) {
         // Handle CSRF-specific errors
-        if (response.status === 403 && result.message?.includes('CSRF')) {
+        if (status === 403 && (result as Record<string, unknown>)?.message?.toString().includes('CSRF')) {
           toast({
             title: "Error de Seguridad",
             description: "Token de seguridad inválido. Recargando página...",
@@ -113,10 +115,10 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick, 
           }, 2000);
           return;
         }
-        
+
         // Handle validation errors
-        if (response.status === 400 && result.errors) {
-          Object.entries(result.errors).forEach(([field, messages]) => {
+        if (status === 400 && result?.errors) {
+          Object.entries(result.errors as Record<string, string[]>).forEach(([field, messages]) => {
             if (Array.isArray(messages) && messages.length > 0) {
               form.setError(field as keyof FormData, {
                 type: 'server',
@@ -124,7 +126,7 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick, 
               });
             }
           });
-          
+
           toast({
             title: "Por favor revisa los campos del formulario",
             description: "Algunos campos tienen errores que necesitan ser corregidos.",
@@ -132,8 +134,8 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick, 
           });
           return;
         }
-        
-        throw new Error(result.message || 'Error al enviar la solicitud.');
+
+        throw new Error(errorMessage || (result?.message as string) || 'Error al enviar la solicitud.');
       }
 
       setIsSubmitted(true);
