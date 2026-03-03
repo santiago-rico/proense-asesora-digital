@@ -16,6 +16,8 @@ const ALLOWED_MIME_TYPES = [
   'image/jpeg',
   'image/png',
   'image/webp',
+  'image/heic',
+  'image/heif',
   'application/msword',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 ];
@@ -261,6 +263,15 @@ async function handler(
           // Note: Temp files are not unlinked here; they are handled in the `finally` block.
         }
       }
+    }
+
+    // Check total attachment size (Brevo has ~10MB limit, base64 adds ~33%)
+    const totalAttachmentSize = attachments.reduce((sum, att) => sum + att.content.length, 0);
+    const BREVO_ATTACHMENT_LIMIT = 8 * 1024 * 1024; // 8MB in base64 (conservative limit)
+    if (totalAttachmentSize > BREVO_ATTACHMENT_LIMIT) {
+      // Attachments too large for Brevo - send email without attachments and note it
+      attachments.length = 0; // Clear attachments
+      console.warn(`Attachments too large (${(totalAttachmentSize / (1024 * 1024)).toFixed(1)}MB base64), sending without attachments`);
     }
 
     const senderName = process.env.BREVO_SENDER_NAME || 'Proense Asesora Digital';

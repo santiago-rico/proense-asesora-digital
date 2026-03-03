@@ -46,6 +46,8 @@ describe('CancellationForm', () => {
     // Mock successful fetch response
     (global.fetch as vi.Mock).mockResolvedValue({
       ok: true,
+      status: 200,
+      headers: new Headers({ 'content-type': 'application/json' }),
       json: () => Promise.resolve({ message: 'Success' }),
     });
   });
@@ -346,6 +348,7 @@ describe('CancellationForm', () => {
       (global.fetch as vi.Mock).mockResolvedValue({
         ok: false,
         status: 400,
+        headers: new Headers({ 'content-type': 'application/json' }),
         json: () => Promise.resolve({ message: 'Validation error' }),
       });
 
@@ -423,9 +426,11 @@ describe('CancellationForm', () => {
     it('disables submit button during submission', async () => {
       const user = userEvent.setup();
       // Mock slow response
-      (global.fetch as vi.Mock).mockImplementation(() => 
+      (global.fetch as vi.Mock).mockImplementation(() =>
         new Promise<Response>(resolve => setTimeout(() => resolve({
           ok: true,
+          status: 200,
+          headers: new Headers({ 'content-type': 'application/json' }),
           json: () => Promise.resolve({ message: 'Success' }),
         } as Response), 1000))
       );

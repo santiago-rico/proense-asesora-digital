@@ -17,6 +17,7 @@ import { useCsrf } from '@/hooks/use-csrf';
 import { AlertTriangle } from 'lucide-react';
 import { FormSuccessScreen } from '@/components/shared/FormSuccessScreen';
 import { SERVICE_FORM_INSURANCE_TYPES } from '@/constants/insuranceTypes';
+import { safeParseResponse } from '@/utils/safe-response';
 
 const modificationSchema = z.object({
   documentosAdicionales: z.any().optional(),
@@ -107,6 +108,24 @@ export const ModificationForm = ({ onSuccess }: ModificationFormProps) => {
       }
     });
 
+    // Check total file size before submitting
+    let totalFileSize = 0;
+    for (const pair of formData.entries()) {
+      if (pair[1] instanceof File) {
+        totalFileSize += pair[1].size;
+      }
+    }
+    const MAX_TOTAL_SIZE = 4 * 1024 * 1024; // 4MB
+    if (totalFileSize > MAX_TOTAL_SIZE) {
+      toast({
+        variant: "destructive",
+        title: "Archivos demasiado grandes",
+        description: `El tamaño total de los archivos (${(totalFileSize / (1024 * 1024)).toFixed(1)}MB) excede el límite de 4MB. Por favor, reduce el tamaño o la cantidad de archivos.`,
+      });
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
       const response = await fetch('/api/send-modification-request', {
         method: 'POST',
@@ -117,13 +136,13 @@ export const ModificationForm = ({ onSuccess }: ModificationFormProps) => {
         },
       });
 
-      const result = await response.json();
+      const { ok, status, data: result, errorMessage } = await safeParseResponse(response);
 
-      if (response.ok) {
+      if (ok) {
         setFormSubmitted(true);
       } else {
         // Handle CSRF-specific errors
-        if (response.status === 403 && result.message?.includes('CSRF')) {
+        if (status === 403 && (result as Record<string, unknown>)?.message?.toString().includes('CSRF')) {
           toast({
             title: "Error de Seguridad",
             description: "Token de seguridad inválido. Recargando página...",
@@ -135,10 +154,10 @@ export const ModificationForm = ({ onSuccess }: ModificationFormProps) => {
           }, 2000);
           return;
         }
-        
+
         // Handle validation errors
-        if (response.status === 400 && result.errors) {
-          Object.entries(result.errors).forEach(([field, messages]) => {
+        if (status === 400 && result?.errors) {
+          Object.entries(result.errors as Record<string, unknown>).forEach(([field, messages]) => {
             if (Array.isArray(messages) && messages.length > 0) {
               form.setError(field as keyof ModificationFormValues, {
                 type: 'server',
@@ -146,7 +165,7 @@ export const ModificationForm = ({ onSuccess }: ModificationFormProps) => {
               });
             }
           });
-          
+
           toast({
             title: "Por favor revisa los campos del formulario",
             description: "Algunos campos tienen errores que necesitan ser corregidos.",
@@ -154,14 +173,14 @@ export const ModificationForm = ({ onSuccess }: ModificationFormProps) => {
           });
           return;
         }
-        
-        throw new Error(result.message || 'Ocurrió un error al enviar el formulario.');
+
+        throw new Error(errorMessage || (result?.message as string) || 'Ocurrió un error al enviar el formulario.');
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Ocurrió un error desconocido.';
+      const errMsg = error instanceof Error ? error.message : 'No se pudo conectar con el servidor. Verifica tu conexión a internet e intenta de nuevo.';
       toast({
         title: "Error",
-        description: errorMessage,
+        description: errMsg,
         variant: "destructive",
       });
     } finally {

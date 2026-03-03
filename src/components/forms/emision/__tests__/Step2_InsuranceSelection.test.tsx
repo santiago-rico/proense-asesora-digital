@@ -103,7 +103,7 @@ describe('Step2_InsuranceSelection Component', () => {
       );
 
       // Check for all form fields
-      expect(screen.getByText('Tipo de seguro que deseas cotizar')).toBeInTheDocument();
+      expect(screen.getByText('Tipo de seguro que deseas contratar')).toBeInTheDocument();
       expect(screen.getByText('Método de pago preferido')).toBeInTheDocument();
       expect(screen.getByText('Periodicidad de pago')).toBeInTheDocument();
     });
@@ -131,7 +131,7 @@ describe('Step2_InsuranceSelection Component', () => {
         </TestWrapper>
       );
 
-      const container = screen.getByText('Tipo de seguro que deseas cotizar').closest('.space-y-6');
+      const container = screen.getByText('Tipo de seguro que deseas contratar').closest('.space-y-6');
       expect(container).toBeInTheDocument();
     });
   });
@@ -579,7 +579,7 @@ describe('Step2_InsuranceSelection Component', () => {
       );
 
       const labels = [
-        'Tipo de seguro que deseas cotizar',
+        'Tipo de seguro que deseas contratar',
         'Método de pago preferido',
         'Periodicidad de pago',
       ];
