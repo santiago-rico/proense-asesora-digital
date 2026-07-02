@@ -138,10 +138,10 @@ export function InsuranceApplicationTemplate({
     
     if (data.declaraRenta === 'no') {
       if (data.ingresosNoDeclarante) {
-        rows.push({ label: 'Ingresos Anuales', value: data.ingresosNoDeclarante });
+        rows.push({ label: 'Ingresos Mensuales', value: data.ingresosNoDeclarante });
       }
       if (data.egresosNoDeclarante) {
-        rows.push({ label: 'Egresos Anuales', value: data.egresosNoDeclarante });
+        rows.push({ label: 'Egresos Mensuales', value: data.egresosNoDeclarante });
       }
       if (data.activosNoDeclarante) {
         rows.push({ label: 'Activos', value: data.activosNoDeclarante });
