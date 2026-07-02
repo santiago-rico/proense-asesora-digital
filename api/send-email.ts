@@ -74,7 +74,7 @@ async function handler(
     const apiKey = process.env.BREVO_API_KEY;
     const senderEmail = process.env.BREVO_SENDER_EMAIL;
     const senderName = process.env.BREVO_SENDER_NAME;
-    const notificationRecipients = getNotificationEmails();
+    const notificationRecipients = getNotificationEmails('asesoria');
 
     if (!apiKey || !senderEmail || !senderName) {
       console.error('Missing environment variables for email sending');

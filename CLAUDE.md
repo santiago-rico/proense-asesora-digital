@@ -108,8 +108,19 @@ Required environment variables:
 - `BREVO_API_KEY` - Brevo email service API key
 - `BREVO_SENDER_EMAIL` - Sender email address for transactional emails
 - `BREVO_SENDER_NAME` - Sender name for transactional emails
-- `NOTIFICATION_EMAILS` - Comma-separated list of emails to receive form submissions (e.g., `agent1@company.com,agent2@company.com`)
+- `NOTIFICATION_EMAILS` - Comma-separated list of emails that receive **every** form submission (e.g., `agent1@company.com,agent2@company.com`)
 - `CSRF_SECRET` - Secret for CSRF token generation
+
+#### Per-form email routing
+Each form's agent notification is sent to `NOTIFICATION_EMAILS` **plus** the form's own list, merged and de-duplicated (case-insensitive). All lists are comma-separated and optional. See `.env.example` for a worked example.
+
+- `NOTIFY_ASESORIA` - Extra recipients for advisory/lead requests (`send-email.ts`)
+- `NOTIFY_COTIZACION` - Extra recipients for quote requests (`send-quote-request.ts`)
+- `NOTIFY_EMISION` - Extra recipients for insurance applications/issuance (`send-insurance-application-email.ts`)
+- `NOTIFY_MODIFICACION` - Extra recipients for modification requests (`send-modification-request.ts`)
+- `NOTIFY_CANCELACION` - Extra recipients for cancellation requests (`send-cancellation-request.ts`)
+
+Routing is resolved centrally in `api/utils/notification-emails.ts` via `getNotificationEmails(formType)`. If a form has no recipients configured anywhere, it falls back to `comercial@proense.co` so submissions are never lost.
 
 ### Testing Approach
 - Tests are written using Vitest

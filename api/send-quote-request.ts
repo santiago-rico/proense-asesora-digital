@@ -622,7 +622,7 @@ async function handler(req: VercelRequest, res: VercelResponse) {
 
     const senderName = process.env.BREVO_SENDER_NAME || 'Proense Asesora Digital';
     const senderEmail = process.env.BREVO_SENDER_EMAIL || 'no-reply@proense.co';
-    const notificationRecipients = getNotificationEmails();
+    const notificationRecipients = getNotificationEmails('cotizacion');
 
     // Get the base URL from the request
     const baseUrl = req.headers.host ? `https://${req.headers.host}` : undefined;
