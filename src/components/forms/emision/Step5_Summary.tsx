@@ -34,8 +34,8 @@ const fieldLabels: Record<string, string> = {
   // Step 4 fields
   declaraRenta: '¿Declara Renta?',
   archivoDeclaracionRenta: 'Archivo Declaración de Renta',
-  ingresosNoDeclarante: 'Ingresos (No Declarante)',
-  egresosNoDeclarante: 'Egresos (No Declarante)',
+  ingresosNoDeclarante: 'Ingresos Mensuales (No Declarante)',
+  egresosNoDeclarante: 'Egresos Mensuales (No Declarante)',
   activosNoDeclarante: 'Activos (No Declarante)',
   pasivosNoDeclarante: 'Pasivos (No Declarante)',
 };

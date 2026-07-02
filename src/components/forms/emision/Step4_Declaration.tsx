@@ -63,9 +63,9 @@ const Step4_Declaration: React.FC = () => {
             name="ingresosNoDeclarante"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>¿Cuántos son tus ingresos? <span className="text-red-500">*</span></FormLabel>
+                <FormLabel>¿Cuántos son tus ingresos mensuales? <span className="text-red-500">*</span></FormLabel>
                 <FormControl>
-                  <Input placeholder="Escribe tus ingresos" {...field} />
+                  <Input placeholder="Escribe tus ingresos mensuales" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -76,9 +76,9 @@ const Step4_Declaration: React.FC = () => {
             name="egresosNoDeclarante"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>¿Cuántos son tus egresos? <span className="text-red-500">*</span></FormLabel>
+                <FormLabel>¿Cuántos son tus egresos mensuales? <span className="text-red-500">*</span></FormLabel>
                 <FormControl>
-                  <Input placeholder="Escribe tus egresos" {...field} />
+                  <Input placeholder="Escribe tus egresos mensuales" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
