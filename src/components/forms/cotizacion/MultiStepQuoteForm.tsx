@@ -131,10 +131,8 @@ const MultiStepQuoteForm = ({ onSuccess }: MultiStepQuoteFormProps) => {
       petAge: '',
       petBreed: '',
       petVaccinated: '',
-      civilLiability: '',
-      veterinaryExpenses: '',
-      funeralExpenses: '',
-      theftOrLoss: '',
+      petHasSeriousIllness: '',
+      petSeriousIllnessDetails: '',
       // Additional fields
       additionalComments: '',
       acceptTerms: false,

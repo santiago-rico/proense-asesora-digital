@@ -1,9 +1,9 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { sendTransactionalEmail } from '../src/utils/brevo.js';
-import { z } from 'zod';
 import { JSDOM } from 'jsdom';
 import { withRateLimit, rateLimitConfigs } from './utils/rate-limiter.js';
 import { getNotificationEmails } from './utils/notification-emails.js';
+import { backendQuoteSchema } from './schemas/quote-request-schema.js';
 
 // Defines the expected structure of the quote request data
 interface QuoteRequestData {
@@ -48,6 +48,9 @@ interface QuoteRequestData {
   accessoriesType?: string;
 
   // Step 3: Conditional Fields - Hogar
+  insuredPropertyAddress?: string;
+  insuredPropertyCity?: string;
+  buildingFloors?: string;
   estrato?: string;
   propertyType?: string;
   propertyUse?: string;
@@ -68,10 +71,8 @@ interface QuoteRequestData {
   petAge?: string;
   petBreed?: string;
   petVaccinated?: 'si' | 'no' | '';
-  civilLiability?: string;
-  veterinaryExpenses?: string;
-  funeralExpenses?: string;
-  theftOrLoss?: string;
+  petHasSeriousIllness?: 'si' | 'no' | '';
+  petSeriousIllnessDetails?: string;
 
   // Step 3: Additional Comments
   additionalComments?: string;
@@ -85,74 +86,6 @@ interface QuoteRequestData {
   // Allow other fields
   [key: string]: string | boolean | { day: string; month: string; year: string } | undefined;
 }
-
-// Backend validation schema
-const backendSchema = z.object({
-  // Personal Information
-  firstName: z.string().min(1, 'El nombre es requerido').max(100).transform(str => str.trim()),
-  lastName: z.string().min(1, 'El apellido es requerido').max(100).transform(str => str.trim()),
-  birthDate_day: z.string().regex(/^(0?[1-9]|[12][0-9]|3[01])$/, 'Día inválido'),
-  birthDate_month: z.string().min(1, 'Mes requerido'),
-  birthDate_year: z.string().regex(/^(19|20)\d{2}$/, 'Año inválido'),
-  phoneNumber: z.string().min(10, 'Número de teléfono inválido').transform(str => str.trim()),
-  email: z.string().email('Correo electrónico inválido').transform(str => str.trim().toLowerCase()),
-  cedula: z.string().min(1, 'Número de cédula requerido').regex(/^\d+$/, 'Solo números permitidos').transform(str => str.trim()),
-  city: z.string().min(1, 'Ciudad requerida').transform(str => str.trim()),
-  address: z.string().min(1, 'Dirección requerida').transform(str => str.trim()),
-  employmentStatus: z.enum(['empleado_completo', 'empleado_parcial', 'autonomo', 'desempleado', 'estudiante', 'jubilado', 'ama_casa', 'incapacidad']),
-  occupationSector: z.string().transform(str => str.trim()).optional(),
-
-  // Insurance Information
-  insuranceType: z.enum(['vida', 'auto', 'hogar', 'salud', 'mascotas']),
-
-  // Conditional fields
-  monthlyIncome: z.string().transform(str => str.trim()).optional(),
-  maritalStatus: z.string().transform(str => str.trim()).optional(),
-  hasChildren: z.union([z.enum(['si', 'no']), z.literal('')]).optional(),
-  height: z.string().transform(str => str.trim()).optional(),
-  weight: z.string().transform(str => str.trim()).optional(),
-  epsName: z.string().transform(str => str.trim()).optional(),
-  practicesSports: z.union([z.enum(['si', 'no']), z.literal('')]).optional(),
-  sportsDetails: z.string().transform(str => str.trim()).optional(),
-  hasHealthConditions: z.union([z.enum(['si', 'no']), z.literal('')]).optional(),
-  healthConditionsDetails: z.string().transform(str => str.trim()).optional(),
-  vehiclePlate: z.string().transform(str => str.trim()).optional(),
-  vehicleCity: z.string().transform(str => str.trim()).optional(),
-  vehicleType: z.string().transform(str => str.trim()).optional(),
-  vehicleUse: z.string().transform(str => str.trim()).optional(),
-  hasAccessories: z.union([z.enum(['si', 'no']), z.literal('')]).optional(),
-  accessoriesValue: z.string().transform(str => str.trim()).optional(),
-  accessoriesType: z.string().transform(str => str.trim()).optional(),
-  estrato: z.string().transform(str => str.trim()).optional(),
-  propertyType: z.string().transform(str => str.trim()).optional(),
-  propertyUse: z.string().transform(str => str.trim()).optional(),
-  residesInProperty: z.union([z.enum(['si', 'no']), z.literal('')]).optional(),
-  propertyArea: z.string().transform(str => str.trim()).optional(),
-  hasEconomicActivity: z.union([z.enum(['si', 'no']), z.literal('')]).optional(),
-  propertyValue: z.string().transform(str => str.trim()).optional(),
-  contentsValue: z.string().transform(str => str.trim()).optional(),
-  insuranceMethod: z.string().transform(str => str.trim()).optional(),
-  preExistingConditions: z.string().transform(str => str.trim()).optional(),
-  petType: z.string().transform(str => str.trim()).optional(),
-  petName: z.string().transform(str => str.trim()).optional(),
-  petGender: z.string().transform(str => str.trim()).optional(),
-  petAge: z.string().transform(str => str.trim()).optional(),
-  petBreed: z.string().transform(str => str.trim()).optional(),
-  petVaccinated: z.union([z.enum(['si', 'no']), z.literal('')]).optional(),
-  civilLiability: z.string().transform(str => str.trim()).optional(),
-  veterinaryExpenses: z.string().transform(str => str.trim()).optional(),
-  funeralExpenses: z.string().transform(str => str.trim()).optional(),
-  theftOrLoss: z.string().transform(str => str.trim()).optional(),
-
-  // Additional Comments
-  additionalComments: z.string().transform(str => str.trim()).optional(),
-
-  // Terms
-  acceptTerms: z.enum(['true', 'false']).transform(val => val === 'true'),
-
-  // Honeypot field
-  website: z.string().optional(),
-});
 
 async function QuoteRequestTemplate(
   data: QuoteRequestData,
@@ -362,6 +295,9 @@ async function QuoteRequestTemplate(
         valor_reconstruccion: 'Valor de Reconstrucción',
       };
 
+      if (data.insuredPropertyAddress) insuranceInfoRows.push({ label: 'Dirección del Inmueble a Asegurar', value: data.insuredPropertyAddress, isHighlighted: false });
+      if (data.insuredPropertyCity) insuranceInfoRows.push({ label: 'Ciudad del Inmueble a Asegurar', value: data.insuredPropertyCity, isHighlighted: false });
+      if (data.buildingFloors) insuranceInfoRows.push({ label: 'Número de Pisos del Edificio', value: data.buildingFloors, isHighlighted: false });
       if (data.estrato) insuranceInfoRows.push({ label: 'Estrato', value: estratoMap[data.estrato] || data.estrato, isHighlighted: false });
       if (data.propertyType) insuranceInfoRows.push({ label: 'Tipo de Vivienda', value: propertyTypeMap[data.propertyType] || data.propertyType, isHighlighted: false });
       if (data.propertyUse) insuranceInfoRows.push({ label: 'Uso de la Vivienda', value: propertyUseMap[data.propertyUse] || data.propertyUse, isHighlighted: false });
@@ -391,37 +327,19 @@ async function QuoteRequestTemplate(
           isHighlighted: false,
         });
       }
-      if (data.civilLiability) {
-        const numValue = parseFloat(data.civilLiability);
+      if (data.petHasSeriousIllness) {
         insuranceInfoRows.push({
-          label: 'Responsabilidad Civil',
-          value: !isNaN(numValue) ? `$${numValue.toLocaleString('es-CO')} COP` : data.civilLiability,
+          label: '¿Ha Tenido Enfermedades o Accidentes Graves en el Último Año?',
+          value: data.petHasSeriousIllness === 'si' ? 'Sí' : 'No',
           isHighlighted: false,
         });
-      }
-      if (data.veterinaryExpenses) {
-        const numValue = parseFloat(data.veterinaryExpenses);
-        insuranceInfoRows.push({
-          label: 'Gastos Veterinarios',
-          value: !isNaN(numValue) ? `$${numValue.toLocaleString('es-CO')} COP` : data.veterinaryExpenses,
-          isHighlighted: false,
-        });
-      }
-      if (data.funeralExpenses) {
-        const numValue = parseFloat(data.funeralExpenses);
-        insuranceInfoRows.push({
-          label: 'Gastos Exequiales',
-          value: !isNaN(numValue) ? `$${numValue.toLocaleString('es-CO')} COP` : data.funeralExpenses,
-          isHighlighted: false,
-        });
-      }
-      if (data.theftOrLoss) {
-        const numValue = parseFloat(data.theftOrLoss);
-        insuranceInfoRows.push({
-          label: 'Robo o Pérdida',
-          value: !isNaN(numValue) ? `$${numValue.toLocaleString('es-CO')} COP` : data.theftOrLoss,
-          isHighlighted: false,
-        });
+        if (data.petHasSeriousIllness === 'si' && data.petSeriousIllnessDetails) {
+          insuranceInfoRows.push({
+            label: 'Detalles de Enfermedades o Accidentes',
+            value: data.petSeriousIllnessDetails,
+            isHighlighted: false,
+          });
+        }
       }
     }
 
@@ -533,7 +451,7 @@ async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Validate with backend schema
-    const validationResult = backendSchema.safeParse(rawFormData);
+    const validationResult = backendQuoteSchema.safeParse(rawFormData);
 
     if (!validationResult.success) {
       return res.status(400).json({
@@ -590,6 +508,9 @@ async function handler(req: VercelRequest, res: VercelResponse) {
       hasAccessories: formData.hasAccessories as 'si' | 'no' | '' | undefined,
       accessoriesValue: formData.accessoriesValue ? DOMPurifyInstance.sanitize(formData.accessoriesValue) : undefined,
       accessoriesType: formData.accessoriesType ? DOMPurifyInstance.sanitize(formData.accessoriesType) : undefined,
+      insuredPropertyAddress: formData.insuredPropertyAddress ? DOMPurifyInstance.sanitize(formData.insuredPropertyAddress) : undefined,
+      insuredPropertyCity: formData.insuredPropertyCity ? DOMPurifyInstance.sanitize(formData.insuredPropertyCity) : undefined,
+      buildingFloors: formData.buildingFloors ? DOMPurifyInstance.sanitize(formData.buildingFloors) : undefined,
       estrato: formData.estrato ? DOMPurifyInstance.sanitize(formData.estrato) : undefined,
       propertyType: formData.propertyType ? DOMPurifyInstance.sanitize(formData.propertyType) : undefined,
       propertyUse: formData.propertyUse ? DOMPurifyInstance.sanitize(formData.propertyUse) : undefined,
@@ -608,12 +529,10 @@ async function handler(req: VercelRequest, res: VercelResponse) {
       petAge: formData.petAge ? DOMPurifyInstance.sanitize(formData.petAge) : undefined,
       petBreed: formData.petBreed ? DOMPurifyInstance.sanitize(formData.petBreed) : undefined,
       petVaccinated: formData.petVaccinated as 'si' | 'no' | '' | undefined,
-      civilLiability: formData.civilLiability ? DOMPurifyInstance.sanitize(formData.civilLiability) : undefined,
-      veterinaryExpenses: formData.veterinaryExpenses
-        ? DOMPurifyInstance.sanitize(formData.veterinaryExpenses)
+      petHasSeriousIllness: formData.petHasSeriousIllness as 'si' | 'no' | '' | undefined,
+      petSeriousIllnessDetails: formData.petSeriousIllnessDetails
+        ? DOMPurifyInstance.sanitize(formData.petSeriousIllnessDetails)
         : undefined,
-      funeralExpenses: formData.funeralExpenses ? DOMPurifyInstance.sanitize(formData.funeralExpenses) : undefined,
-      theftOrLoss: formData.theftOrLoss ? DOMPurifyInstance.sanitize(formData.theftOrLoss) : undefined,
       additionalComments: formData.additionalComments
         ? DOMPurifyInstance.sanitize(formData.additionalComments)
         : undefined,
