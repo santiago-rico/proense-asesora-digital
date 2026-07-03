@@ -1,8 +1,14 @@
 import { z } from 'zod';
 import { isValidPhoneNumber } from 'react-phone-number-input';
 
-// Quote form validation schema
-export const quoteFormSchema = z.object({
+// Quote form validation schema.
+//
+// The plain object shape is exported separately as `quoteFormBaseSchema` so its
+// field list can be introspected (see `__tests__/schemaParity.test.ts`, which
+// asserts the server schema in `api/schemas/quote-request-schema.ts` accepts
+// every field collected here). `quoteFormSchema` layers the cross-field
+// conditional validation on top and is what the form actually uses.
+export const quoteFormBaseSchema = z.object({
   // Step 1: Personal Information
   firstName: z.string()
     .min(1, 'El nombre es requerido')
@@ -121,7 +127,9 @@ export const quoteFormSchema = z.object({
 
   // Honeypot field for bot protection
   website: z.string().optional(),
-}).superRefine((data, ctx) => {
+});
+
+export const quoteFormSchema = quoteFormBaseSchema.superRefine((data, ctx) => {
   // Conditional validation for occupation sector based on employment status
   const employmentStatusesRequiringOccupation = [
     'empleado_completo',

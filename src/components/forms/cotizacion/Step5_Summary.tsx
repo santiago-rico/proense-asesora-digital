@@ -48,6 +48,9 @@ const fieldLabels: Record<string, string> = {
   accessoriesType: 'Tipo de Accesorios',
 
   // Hogar Insurance Fields
+  insuredPropertyAddress: 'Dirección del Inmueble a Asegurar',
+  insuredPropertyCity: 'Ciudad del Inmueble a Asegurar',
+  buildingFloors: 'Número de Pisos del Edificio',
   estrato: 'Estrato',
   propertyType: 'Tipo de Vivienda',
   propertyUse: 'Uso de la Vivienda',
@@ -68,10 +71,8 @@ const fieldLabels: Record<string, string> = {
   petAge: 'Edad de la Mascota',
   petBreed: 'Raza de la Mascota',
   petVaccinated: '¿Tiene Esquema de Vacunas al Día?',
-  civilLiability: 'Responsabilidad Civil',
-  veterinaryExpenses: 'Gastos Veterinarios',
-  funeralExpenses: 'Gastos Exequiales',
-  theftOrLoss: 'Robo o Pérdida',
+  petHasSeriousIllness: '¿Ha Tenido Enfermedades o Accidentes Graves?',
+  petSeriousIllnessDetails: 'Enfermedades o Accidentes',
 
   // Additional Comments
   additionalComments: 'Comentarios Adicionales',
@@ -215,6 +216,9 @@ const autoFields = [
   'additionalComments',
 ];
 const hogarFields = [
+  'insuredPropertyAddress',
+  'insuredPropertyCity',
+  'buildingFloors',
   'estrato',
   'propertyType',
   'propertyUse',
@@ -234,10 +238,8 @@ const mascotasFields = [
   'petAge',
   'petBreed',
   'petVaccinated',
-  'civilLiability',
-  'veterinaryExpenses',
-  'funeralExpenses',
-  'theftOrLoss',
+  'petHasSeriousIllness',
+  'petSeriousIllnessDetails',
   'additionalComments',
 ];
 
@@ -285,7 +287,8 @@ const Step5_Summary: React.FC = () => {
       fieldName === 'residesInProperty' ||
       fieldName === 'hasEconomicActivity' ||
       fieldName === 'hasAccessories' ||
-      fieldName === 'petVaccinated'
+      fieldName === 'petVaccinated' ||
+      fieldName === 'petHasSeriousIllness'
     ) {
       return value === 'si' ? 'Sí' : value === 'no' ? 'No' : null;
     }
@@ -352,11 +355,7 @@ const Step5_Summary: React.FC = () => {
       (fieldName === 'monthlyIncome' ||
         fieldName === 'propertyValue' ||
         fieldName === 'contentsValue' ||
-        fieldName === 'accessoriesValue' ||
-        fieldName === 'civilLiability' ||
-        fieldName === 'veterinaryExpenses' ||
-        fieldName === 'funeralExpenses' ||
-        fieldName === 'theftOrLoss') &&
+        fieldName === 'accessoriesValue') &&
       typeof value === 'string'
     ) {
       const numValue = parseFloat(value);
