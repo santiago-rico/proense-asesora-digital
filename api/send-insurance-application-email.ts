@@ -22,8 +22,12 @@ const ALLOWED_MIME_TYPES = [
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 ];
 
-// Disable Vercel's default body parser to handle multipart/form-data
+// Disable Vercel's default body parser to handle multipart/form-data.
+// maxDuration is raised from the platform default (~10-15s) so the function is
+// not killed mid-flight while receiving large mobile uploads and calling Brevo.
+// 60s is the ceiling on Hobby and is safe on Pro.
 export const config = {
+  maxDuration: 60,
   api: {
     bodyParser: false,
   },
@@ -147,6 +151,9 @@ async function handler(
   }
 
   const tempFilePaths: string[] = [];
+  const handlerStart = Date.now();
+  // Diagnostic: request body size as reported by the client (no PII).
+  const contentLengthMB = (Number(req.headers['content-length'] || 0) / (1024 * 1024)).toFixed(2);
 
   try {
     // Dynamic imports for security modules
@@ -173,11 +180,15 @@ async function handler(
     const { fields, files } = await parseForm(req);
 
     // Collect all temp file paths for reliable cleanup and validate them
+    let fileCount = 0;
+    let totalUploadedBytes = 0;
     for (const key in files) {
       const fileArray = files[key];
       if (fileArray) {
         for (const file of fileArray) {
           tempFilePaths.push(file.filepath);
+          fileCount++;
+          totalUploadedBytes += file.size;
 
           // Validate file size
           if (file.size > MAX_FILE_SIZE) {
@@ -191,6 +202,14 @@ async function handler(
         }
       }
     }
+
+    // Diagnostic (Tier 0): sizes/counts only, no PII. Lets us see in Vercel logs
+    // how big real mobile submissions are and correlate with 413/504/timeouts.
+    console.log(
+      `[emision] submission received: contentLength=${contentLengthMB}MB, files=${fileCount}, ` +
+      `uploadedBytes=${(totalUploadedBytes / (1024 * 1024)).toFixed(2)}MB, ` +
+      `parseTime=${Date.now() - handlerStart}ms`,
+    );
 
     // Type assertion for form fields
     const rawFormData = Object.entries(fields).reduce((acc, [key, value]) => {
@@ -316,20 +335,34 @@ async function handler(
       attachment: attachments.length > 0 ? attachments : undefined,
     };
 
-    // Send emails
-    const userEmailResult = await sendTransactionalEmail(userBrevoPayload);
-    if (!userEmailResult.success) {
-      console.error('Failed to send email to user:', userEmailResult.error);
+    // Send both emails in parallel to minimize function execution time: each
+    // Brevo call carries the full base64 attachments, so sending them
+    // sequentially roughly doubles the time spent here. The user confirmation is
+    // best-effort; the agent notification is critical.
+    const brevoStart = Date.now();
+    const [userOutcome, agentOutcome] = await Promise.allSettled([
+      sendTransactionalEmail(userBrevoPayload),
+      sendTransactionalEmail(agentBrevoPayload),
+    ]);
+    console.log(
+      `[emision] brevo finished in ${Date.now() - brevoStart}ms ` +
+      `(attachments=${attachments.length}, totalHandler=${Date.now() - handlerStart}ms)`,
+    );
+
+    if (userOutcome.status === 'rejected' || !userOutcome.value.success) {
+      const err = userOutcome.status === 'rejected' ? userOutcome.reason : userOutcome.value.error;
+      console.error('Failed to send email to user:', err);
       // We don't abort here; the agent email is more critical.
     }
 
-    const agentEmailResult = await sendTransactionalEmail(agentBrevoPayload);
-    if (!agentEmailResult.success) {
-      console.error('Failed to send email to agent:', agentEmailResult.error);
+    if (agentOutcome.status === 'rejected' || !agentOutcome.value.success) {
+      const status = agentOutcome.status === 'fulfilled' ? (agentOutcome.value.status || 500) : 500;
+      const details = agentOutcome.status === 'rejected' ? String(agentOutcome.reason) : agentOutcome.value.error;
+      console.error('Failed to send email to agent:', details);
       // This is a critical failure.
-      return res.status(agentEmailResult.status || 500).json({
+      return res.status(status).json({
         message: 'Error enviando email de notificación al agente.',
-        details: agentEmailResult.error,
+        details,
       });
     }
 

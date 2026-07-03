@@ -4,7 +4,7 @@ import { Upload, File as FileIcon, X, Loader2 } from 'lucide-react';
 import { useFormContext } from 'react-hook-form';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
-const COMPRESSED_TARGET_SIZE = 1 * 1024 * 1024; // 1 MB target for compressed images
+const COMPRESSED_TARGET_SIZE = 800 * 1024; // ~0.8 MB target for compressed images
 const IMAGE_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
 
 /**
@@ -32,7 +32,7 @@ async function compressImage(file: File, targetSize: number = COMPRESSED_TARGET_
       let { width, height } = img;
 
       // Scale down if the image is very large (e.g., 4000x3000 from phone cameras)
-      const MAX_DIMENSION = 2048;
+      const MAX_DIMENSION = 1600;
       if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
         const ratio = Math.min(MAX_DIMENSION / width, MAX_DIMENSION / height);
         width = Math.round(width * ratio);
@@ -50,7 +50,7 @@ async function compressImage(file: File, targetSize: number = COMPRESSED_TARGET_
       ctx.drawImage(img, 0, 0, width, height);
 
       // Convert to JPEG with quality reduction
-      const quality = 0.7;
+      const quality = 0.6;
       canvas.toBlob(
         (blob) => {
           if (!blob || blob.size >= file.size) {
@@ -95,10 +95,12 @@ const FileUpload: React.FC<FileUploadProps> = ({ name, label, description, multi
   const { setValue, getValues, formState: { errors }, clearErrors } = useFormContext();
   const [myFiles, setMyFiles] = useState<File[]>(getValues(name) || []);
   const [fileDropError, setFileDropError] = useState<string | null>(null);
+  const [fileWarning, setFileWarning] = useState<string | null>(null);
   const [isCompressing, setIsCompressing] = useState(false);
 
   const onDropAccepted = useCallback(async (acceptedFiles: File[]) => {
     setFileDropError(null);
+    setFileWarning(null);
     clearErrors(name);
     setIsCompressing(true);
 
@@ -107,6 +109,21 @@ const FileUpload: React.FC<FileUploadProps> = ({ name, label, description, multi
       const processedFiles = await Promise.all(
         acceptedFiles.map((file) => compressImage(file))
       );
+
+      // Warn if an image could not be shrunk in-browser (most often an iPhone
+      // HEIC photo, which some browsers' Canvas can't decode). The file is still
+      // usable, but oversized uploads are the main cause of mobile submission
+      // failures, so we nudge the user toward a smaller/compatible format.
+      const oversized = processedFiles.find(
+        (f) => IMAGE_MIME_TYPES.includes(f.type) && f.size > COMPRESSED_TARGET_SIZE * 1.5
+      );
+      if (oversized) {
+        setFileWarning(
+          `No pudimos optimizar "${oversized.name}" (${formatFileSize(oversized.size)}). ` +
+          `Si es una foto de iPhone, cámbiala a JPG (Ajustes > Cámara > Formatos > "Más compatible") ` +
+          `o sube una captura de pantalla para evitar errores al enviar.`
+        );
+      }
 
       const currentFiles = getValues(name) || [];
       const newFiles = multiple ? [...currentFiles, ...processedFiles] : processedFiles;
@@ -156,6 +173,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ name, label, description, multi
     const newFiles = myFiles.filter(f => f !== file);
     setMyFiles(newFiles);
     setValue(name, newFiles, { shouldValidate: true });
+    setFileWarning(null);
   };
 
   const zodError = errors[name]?.message as string | undefined;
@@ -194,6 +212,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ name, label, description, multi
         <p className="text-xs text-gray-500 mt-2 text-center px-2">PDF, JPG, PNG, WEBP, DOC, DOCX (máx. 5MB por archivo)</p>
       </div>
       {displayError && <p className="text-sm text-red-600 mt-1">{displayError}</p>}
+      {fileWarning && !displayError && <p className="text-sm text-amber-600 mt-1">{fileWarning}</p>}
       {myFiles.length > 0 && (
         <div className="mt-4 space-y-2">
           <h4 className="text-sm font-medium">Archivos seleccionados:</h4>

@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { formSchema, FormSchemaType } from './formSchema';
 import { FormSuccessScreen } from '@/components/shared/FormSuccessScreen';
 import { safeParseResponse } from '@/utils/safe-response';
+import { fetchWithRetry, isTimeoutError } from '@/utils/fetch-with-retry';
 
 const steps = [
   { id: 1, name: 'Información Básica', fields: ['nombreCompleto', 'telefono', 'email'] },
@@ -182,13 +183,18 @@ const MultiStepForm = ({ onSuccess }: MultiStepFormProps) => {
     }
 
     try {
-      const response = await fetch('/api/send-insurance-application-email', {
+      const response = await fetchWithRetry('/api/send-insurance-application-email', {
         method: 'POST',
         headers: {
           'X-CSRF-Token': csrfToken,
         },
         body: formData, // El navegador establecerá automáticamente el Content-Type a multipart/form-data
         credentials: 'include',
+        // Keep the client above the server's maxDuration (60s) so a slow-but-
+        // successful upload resolves with the server's real result instead of a
+        // false "tardó demasiado" that would tempt the user into a resubmit.
+        timeoutMs: 63000,
+        retries: 1,
       });
 
       const { ok, status, data: result, errorMessage } = await safeParseResponse(response);
@@ -245,10 +251,13 @@ const MultiStepForm = ({ onSuccess }: MultiStepFormProps) => {
       }
     } catch (error) {
       console.error('Error de red u otro error:', error);
+      const timedOut = isTimeoutError(error);
       toast({
         variant: "destructive",
-        title: "Error de Conexión",
-        description: "No se pudo conectar con el servidor. Verifica tu conexión a internet e intenta de nuevo.",
+        title: timedOut ? "El envío tardó demasiado" : "Error de Conexión",
+        description: timedOut
+          ? "El envío tardó demasiado, posiblemente por el tamaño de los archivos o una conexión lenta. Intenta con menos archivos o desde una red WiFi."
+          : "No se pudo conectar con el servidor. Verifica tu conexión e intenta de nuevo. Si el problema persiste, intenta con menos archivos o desde una red WiFi.",
       });
     } finally {
       setIsSubmitting(false);
