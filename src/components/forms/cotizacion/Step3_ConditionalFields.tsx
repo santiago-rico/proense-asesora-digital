@@ -397,8 +397,7 @@ const AutoFields = () => {
 
 // Sub-component for Hogar (Home Insurance) Fields
 const HogarFields = () => {
-  const { control, watch } = useFormContext();
-  const propertyUse = watch('propertyUse');
+  const { control } = useFormContext();
 
   return (
     <>
@@ -590,28 +589,27 @@ const HogarFields = () => {
           </FormItem>
         )}
       />
-      {propertyUse === 'propio' && (
-        <FormField
-          control={control}
-          name="propertyValue"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Valor de la vivienda (En pesos) <span className="text-red-500">*</span></FormLabel>
-              <FormControl>
-                <Input
-                  type="number"
-                  placeholder="$"
-                  autoComplete="off"
-                  required
-                  aria-required="true"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      )}
+      <FormField
+        control={control}
+        name="propertyValue"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Valor comercial de la vivienda (En pesos) <span className="text-red-500">*</span></FormLabel>
+            <FormControl>
+              <Input
+                type="number"
+                placeholder="$"
+                autoComplete="off"
+                min="1"
+                required
+                aria-required="true"
+                {...field}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
       <FormField
         control={control}
         name="contentsValue"

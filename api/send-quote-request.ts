@@ -87,6 +87,39 @@ interface QuoteRequestData {
   [key: string]: string | boolean | { day: string; month: string; year: string } | undefined;
 }
 
+// Formats a raw numeric string as Colombian pesos, matching the on-screen
+// review step (Step5_Summary) so the agent sees the same figure the client
+// confirmed. Non-numeric input is passed through untouched.
+function formatCOP(value: string): string {
+  const numValue = parseFloat(value);
+  return isNaN(numValue) ? value : `$${numValue.toLocaleString('es-CO')} COP`;
+}
+
+// Fields the client form marks as required for each insurance type. The server
+// schema keeps them all optional (only the client enforces the conditional
+// rules), so an empty one here means the submission reached us incomplete.
+const REQUIRED_FIELDS_BY_TYPE: Record<string, string[]> = {
+  vida: ['monthlyIncome', 'maritalStatus', 'hasChildren', 'height', 'weight', 'epsName', 'practicesSports', 'hasHealthConditions'],
+  auto: ['vehiclePlate', 'vehicleCity', 'vehicleType', 'vehicleUse', 'hasAccessories'],
+  hogar: ['insuredPropertyAddress', 'insuredPropertyCity', 'estrato', 'propertyType', 'propertyUse', 'residesInProperty', 'propertyArea', 'hasEconomicActivity', 'propertyValue', 'insuranceMethod'],
+  salud: ['height', 'weight', 'epsName', 'practicesSports', 'hasHealthConditions'],
+  mascotas: ['petType', 'petName', 'petGender', 'petAge', 'petBreed', 'petVaccinated', 'petHasSeriousIllness'],
+};
+
+// Logs which expected fields arrived empty, so intermittent "the quote came in
+// incomplete" reports can be correlated with what the server actually received.
+// Field NAMES only — no values, no PII.
+function logIncompleteSubmission(data: QuoteRequestData): void {
+  const expected = REQUIRED_FIELDS_BY_TYPE[data.insuranceType] || [];
+  const missing = expected.filter((field) => !data[field]);
+  if (missing.length > 0) {
+    console.warn(
+      '[quote-request] incomplete submission',
+      JSON.stringify({ insuranceType: data.insuranceType, missing })
+    );
+  }
+}
+
 async function QuoteRequestTemplate(
   data: QuoteRequestData,
   isUserEmail: boolean,
@@ -224,7 +257,7 @@ async function QuoteRequestTemplate(
 
     // Add conditional fields based on insurance type
     if (data.insuranceType === 'vida') {
-      if (data.monthlyIncome) insuranceInfoRows.push({ label: 'Ingresos Mensuales', value: data.monthlyIncome, isHighlighted: false });
+      if (data.monthlyIncome) insuranceInfoRows.push({ label: 'Ingresos Mensuales', value: formatCOP(data.monthlyIncome), isHighlighted: false });
       if (data.maritalStatus) insuranceInfoRows.push({ label: 'Estado Civil', value: data.maritalStatus, isHighlighted: false });
       if (data.hasChildren) insuranceInfoRows.push({ label: 'Tiene Hijos', value: data.hasChildren === 'si' ? 'Sí' : 'No', isHighlighted: false });
       if (data.height) insuranceInfoRows.push({ label: 'Estatura', value: `${data.height} cm`, isHighlighted: false });
@@ -267,7 +300,7 @@ async function QuoteRequestTemplate(
       if (data.hasAccessories) {
         insuranceInfoRows.push({ label: '¿Tiene Accesorios o Modificaciones?', value: data.hasAccessories === 'si' ? 'Sí' : 'No', isHighlighted: false });
         if (data.hasAccessories === 'si') {
-          if (data.accessoriesValue) insuranceInfoRows.push({ label: 'Valor Estimado de Accesorios', value: data.accessoriesValue, isHighlighted: false });
+          if (data.accessoriesValue) insuranceInfoRows.push({ label: 'Valor Estimado de Accesorios', value: formatCOP(data.accessoriesValue), isHighlighted: false });
           if (data.accessoriesType) insuranceInfoRows.push({ label: 'Tipo de Accesorios', value: accessoriesTypeMap[data.accessoriesType] || data.accessoriesType, isHighlighted: false });
         }
       }
@@ -304,8 +337,16 @@ async function QuoteRequestTemplate(
       if (data.residesInProperty) insuranceInfoRows.push({ label: '¿Habitas la Vivienda?', value: data.residesInProperty === 'si' ? 'Sí' : 'No', isHighlighted: false });
       if (data.propertyArea) insuranceInfoRows.push({ label: 'Área de la Vivienda', value: `${data.propertyArea} M2`, isHighlighted: false });
       if (data.hasEconomicActivity) insuranceInfoRows.push({ label: '¿Se Desarrolla Actividad Económica?', value: data.hasEconomicActivity === 'si' ? 'Sí' : 'No', isHighlighted: false });
-      if (data.propertyValue) insuranceInfoRows.push({ label: 'Valor de la Vivienda', value: data.propertyValue, isHighlighted: false });
-      if (data.contentsValue) insuranceInfoRows.push({ label: 'Valor de los Contenidos', value: data.contentsValue, isHighlighted: false });
+      // Always emit this row, even when empty. The form requires the commercial
+      // value for every hogar quote, so a blank one means the submission reached
+      // us incomplete — and silently dropping the row is exactly what kept that
+      // invisible before.
+      insuranceInfoRows.push({
+        label: 'Valor Comercial de la Vivienda',
+        value: data.propertyValue ? formatCOP(data.propertyValue) : 'NO SUMINISTRADO — revisar con el cliente',
+        isHighlighted: true,
+      });
+      if (data.contentsValue) insuranceInfoRows.push({ label: 'Valor de los Contenidos', value: formatCOP(data.contentsValue), isHighlighted: false });
       if (data.insuranceMethod) insuranceInfoRows.push({ label: 'Método de Aseguramiento', value: insuranceMethodMap[data.insuranceMethod] || data.insuranceMethod, isHighlighted: false });
     } else if (data.insuranceType === 'salud') {
       if (data.preExistingConditions) insuranceInfoRows.push({ label: 'Condiciones Preexistentes', value: data.preExistingConditions, isHighlighted: false });
@@ -555,6 +596,8 @@ async function handler(req: VercelRequest, res: VercelResponse) {
     };
 
     const formattedInsuranceType = insuranceTypeMap[sanitizedData.insuranceType] || sanitizedData.insuranceType;
+
+    logIncompleteSubmission(sanitizedData);
 
     // 1. Email to User
     const userEmailSubject = `Confirmación de Solicitud de Cotización - Proense Seguros`;
