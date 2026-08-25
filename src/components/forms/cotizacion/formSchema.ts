@@ -358,15 +358,25 @@ export const quoteFormSchema = quoteFormBaseSchema.superRefine((data, ctx) => {
       });
     }
 
-    // Only validate propertyValue if propertyUse is 'propio'
-    if (data.propertyUse === 'propio') {
-      if (!data.propertyValue || data.propertyValue.trim() === '') {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'El valor de la vivienda es requerido',
-          path: ['propertyValue']
-        });
-      }
+    // Required for every hogar quote. This used to be asked only when
+    // propertyUse === 'propio', which is why agents kept receiving quotes with
+    // every field except this one: rental quotes were never asked for it. The
+    // insurer rates the structure regardless of who occupies it, so both cases
+    // need the figure. Keep this in sync with the render condition (there is
+    // none now) in HogarFields — a field the schema requires but the form does
+    // not render blocks the submit on an input the client cannot see.
+    if (!data.propertyValue || data.propertyValue.trim() === '') {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'El valor comercial de la vivienda es requerido',
+        path: ['propertyValue']
+      });
+    } else if (!(Number(data.propertyValue) > 0)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'El valor comercial de la vivienda debe ser un número positivo',
+        path: ['propertyValue']
+      });
     }
 
     if (!data.insuranceMethod || data.insuranceMethod.trim() === '') {

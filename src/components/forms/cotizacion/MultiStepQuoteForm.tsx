@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useForm, FormProvider } from 'react-hook-form';
+import { useForm, FormProvider, type FieldErrors } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Step1_PersonalInfo from './Step1_PersonalInfo';
 import Step2_InsuranceSelection from './Step2_InsuranceSelection';
@@ -9,56 +9,9 @@ import { Button } from '@/components/ui/button';
 import NumberedProgressBar from './NumberedProgressBar';
 import { useToast } from '@/hooks/use-toast';
 import { quoteFormSchema, QuoteFormSchemaType } from './formSchema';
+import { steps, quoteFormDefaultValues } from './formWiring';
 import { FormSuccessScreen } from '@/components/shared/FormSuccessScreen';
 import { safeParseResponse } from '@/utils/safe-response';
-
-const steps = [
-  {
-    id: 1,
-    name: 'Información Personal',
-    fields: [
-      'firstName',
-      'lastName',
-      'birthDate',
-      'phoneNumber',
-      'email',
-      'cedula',
-      'city',
-      'address',
-      'employmentStatus',
-      'occupationSector'
-    ]
-  },
-  {
-    id: 2,
-    name: 'Tipo de Seguro',
-    fields: ['insuranceType']
-  },
-  {
-    id: 3,
-    name: 'Detalles del Seguro',
-    fields: [
-      'monthlyIncome',
-      'maritalStatus',
-      'hasChildren',
-      'vehicleMake',
-      'vehicleModel',
-      'vehicleYear',
-      'propertyType',
-      'propertyValue',
-      'preExistingConditions',
-      'petType',
-      'petName',
-      'petAge',
-      'additionalComments'
-    ]
-  },
-  {
-    id: 4,
-    name: 'Resumen y Envío',
-    fields: ['acceptTerms']
-  }
-];
 
 interface MultiStepQuoteFormProps {
   onSuccess?: () => void;
@@ -72,72 +25,15 @@ const MultiStepQuoteForm = ({ onSuccess }: MultiStepQuoteFormProps) => {
   const { toast } = useToast();
   const formRef = useRef<HTMLDivElement>(null);
   const isInitialMount = useRef(true);
+  // Set when we jump to an earlier step *because* its fields have errors, so the
+  // effect below does not immediately clear the errors we sent the user to fix.
+  const preserveErrorsOnStepChange = useRef(false);
 
   const methods = useForm<QuoteFormSchemaType>({
     mode: 'onBlur',
     reValidateMode: 'onBlur',
     resolver: zodResolver(quoteFormSchema),
-    defaultValues: {
-      firstName: '',
-      lastName: '',
-      birthDate: {
-        day: '',
-        month: '',
-        year: ''
-      },
-      phoneNumber: '',
-      email: '',
-      cedula: '',
-      city: '',
-      address: '',
-      employmentStatus: undefined,
-      occupationSector: '',
-      insuranceType: undefined,
-      // Vida fields
-      monthlyIncome: '',
-      maritalStatus: '',
-      hasChildren: '',
-      height: '',
-      weight: '',
-      epsName: '',
-      practicesSports: '',
-      sportsDetails: '',
-      hasHealthConditions: '',
-      healthConditionsDetails: '',
-      // Auto fields
-      vehiclePlate: '',
-      vehicleCity: '',
-      vehicleType: '',
-      vehicleUse: '',
-      hasAccessories: '',
-      accessoriesValue: '',
-      accessoriesType: '',
-      // Hogar fields
-      estrato: '',
-      propertyType: '',
-      propertyUse: '',
-      residesInProperty: '',
-      propertyArea: '',
-      hasEconomicActivity: '',
-      propertyValue: '',
-      contentsValue: '',
-      insuranceMethod: '',
-      // Salud fields
-      preExistingConditions: '',
-      // Mascotas fields
-      petType: '',
-      petName: '',
-      petGender: '',
-      petAge: '',
-      petBreed: '',
-      petVaccinated: '',
-      petHasSeriousIllness: '',
-      petSeriousIllnessDetails: '',
-      // Additional fields
-      additionalComments: '',
-      acceptTerms: false,
-      website: '', // Honeypot field
-    }
+    defaultValues: quoteFormDefaultValues
   });
 
   const { handleSubmit, trigger, clearErrors, register } = methods;
@@ -167,7 +63,12 @@ const MultiStepQuoteForm = ({ onSuccess }: MultiStepQuoteFormProps) => {
     // When the step changes, clear any existing errors for the fields of the new current step.
     // This ensures that errors don't persist from a previous attempt to validate this step.
     const fieldsForCurrentStep = steps[currentStep]?.fields;
-    if (fieldsForCurrentStep) {
+    if (preserveErrorsOnStepChange.current) {
+      // We were sent here by a failed submit (or a 400 from the server) that
+      // set errors on these very fields — clearing them now would hide the only
+      // thing telling the user why the form would not send.
+      preserveErrorsOnStepChange.current = false;
+    } else if (fieldsForCurrentStep) {
       clearErrors(fieldsForCurrentStep as (keyof QuoteFormSchemaType)[]);
     }
 
@@ -210,6 +111,34 @@ const MultiStepQuoteForm = ({ onSuccess }: MultiStepQuoteFormProps) => {
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
     }
+  };
+
+  // react-hook-form silently drops the submit when validation fails. Every
+  // invalid field lives on an earlier, unmounted step, so without this the
+  // "Enviar Cotización" button just does nothing: no toast, no scroll, no
+  // message — the submission is simply lost.
+  const onInvalid = (errors: FieldErrors<QuoteFormSchemaType>) => {
+    // Pressing Enter inside any text input submits the form implicitly, on every
+    // step. Only the real "Enviar Cotización" button on the last step should
+    // react — otherwise we would drag the user forward into steps they have not
+    // filled in yet, reporting errors for questions they have not been asked.
+    if (currentStep !== steps.length - 1) return;
+
+    const errorFields = Object.keys(errors);
+    const stepWithError = steps.findIndex((step) =>
+      step.fields.some((field) => errorFields.includes(field))
+    );
+
+    if (stepWithError !== -1 && stepWithError < currentStep) {
+      preserveErrorsOnStepChange.current = true;
+      setCurrentStep(stepWithError);
+    }
+
+    toast({
+      variant: 'destructive',
+      title: 'Faltan datos por completar',
+      description: 'Revisa los campos marcados en rojo antes de enviar tu cotización.',
+    });
   };
 
   const handlePrev = () => {
@@ -303,6 +232,7 @@ const MultiStepQuoteForm = ({ onSuccess }: MultiStepQuoteFormProps) => {
             }
           });
           if (stepWithError !== -1 && stepWithError !== currentStep) {
+            preserveErrorsOnStepChange.current = true;
             setCurrentStep(stepWithError);
           }
           toast({
@@ -354,7 +284,7 @@ const MultiStepQuoteForm = ({ onSuccess }: MultiStepQuoteFormProps) => {
           <div className="mb-8">
             <NumberedProgressBar currentStep={currentStep + 1} steps={steps} />
           </div>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+          <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-8">
             <h3 className="text-xl font-semibold">{steps[currentStep].name}</h3>
 
             {currentStep === 0 && <Step1_PersonalInfo />}

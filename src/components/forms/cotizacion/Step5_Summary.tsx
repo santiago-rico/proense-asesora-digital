@@ -57,7 +57,7 @@ const fieldLabels: Record<string, string> = {
   residesInProperty: '¿Habitas la Vivienda?',
   propertyArea: 'Área de la Vivienda (M2)',
   hasEconomicActivity: '¿Se Desarrolla Actividad Económica?',
-  propertyValue: 'Valor de la Vivienda',
+  propertyValue: 'Valor Comercial de la Vivienda',
   contentsValue: 'Valor de los Contenidos',
   insuranceMethod: 'Método de Aseguramiento',
 
