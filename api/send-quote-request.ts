@@ -53,12 +53,24 @@ interface QuoteRequestData {
   buildingFloors?: string;
   estrato?: string;
   propertyType?: string;
-  propertyUse?: string;
+  propertyUse?: string; // legacy: replaced by propertyRelationship on the client
+  propertyRelationship?: string;
+  ownerName?: string;
+  ownerCedula?: string;
+  ownerBirthDate?: string;
   residesInProperty?: 'si' | 'no' | '';
+  constructionType?: string;
+  constructionYear?: string;
+  unitFloor?: string;
+  basementCount?: string;
   propertyArea?: string;
   hasEconomicActivity?: 'si' | 'no' | '';
   propertyValue?: string;
+  wantsContentsCoverage?: 'si' | 'no' | '';
   contentsValue?: string;
+  electricContentsValue?: string;
+  theftValue?: string;
+  portableContentsValue?: string;
   insuranceMethod?: string;
 
   // Step 3: Conditional Fields - Salud
@@ -95,13 +107,16 @@ function formatCOP(value: string): string {
   return isNaN(numValue) ? value : `$${numValue.toLocaleString('es-CO')} COP`;
 }
 
-// Fields the client form marks as required for each insurance type. The server
-// schema keeps them all optional (only the client enforces the conditional
-// rules), so an empty one here means the submission reached us incomplete.
+// Fields the client form marks as UNCONDITIONALLY required for each insurance
+// type. The server schema keeps them all optional (only the client enforces
+// the conditional rules), so an empty one here means the submission reached us
+// incomplete. Hogar fields whose requirement depends on other answers
+// (propertyValue, insuranceMethod, residesInProperty, ownerName, unitFloor,
+// contentsValue, ...) are validated client-side only and are NOT listed here.
 const REQUIRED_FIELDS_BY_TYPE: Record<string, string[]> = {
   vida: ['monthlyIncome', 'maritalStatus', 'hasChildren', 'height', 'weight', 'epsName', 'practicesSports', 'hasHealthConditions'],
   auto: ['vehiclePlate', 'vehicleCity', 'vehicleType', 'vehicleUse', 'hasAccessories'],
-  hogar: ['insuredPropertyAddress', 'insuredPropertyCity', 'estrato', 'propertyType', 'propertyUse', 'residesInProperty', 'propertyArea', 'hasEconomicActivity', 'propertyValue', 'insuranceMethod'],
+  hogar: ['insuredPropertyAddress', 'insuredPropertyCity', 'estrato', 'propertyType', 'propertyRelationship', 'constructionType', 'constructionYear', 'propertyArea', 'hasEconomicActivity'],
   salud: ['height', 'weight', 'epsName', 'practicesSports', 'hasHealthConditions'],
   mascotas: ['petType', 'petName', 'petGender', 'petAge', 'petBreed', 'petVaccinated', 'petHasSeriousIllness'],
 };
@@ -319,35 +334,85 @@ async function QuoteRequestTemplate(
         casa_campestre: 'Casa Campestre',
         finca: 'Finca',
       };
+      // Legacy map: propertyUse was replaced by propertyRelationship, but old
+      // in-flight clients may still send it.
       const propertyUseMap: Record<string, string> = {
         arrendamiento: 'Arrendamiento',
         propio: 'Propio',
+      };
+      const propertyRelationshipMap: Record<string, string> = {
+        propietario_habita: 'Propietario/a y habito el inmueble',
+        propietario_no_habita: 'Propietario/a, no lo habito (arrendado o desocupado)',
+        arrendatario: 'Arrendatario/a — vivo en arriendo',
+        tercero: 'Cotizo a nombre del propietario (otra persona)',
+      };
+      const constructionTypeMap: Record<string, string> = {
+        concreto_reforzado: 'Concreto reforzado',
+        mamposteria_estructural: 'Mampostería estructural',
+        mamposteria_confinada: 'Mampostería confinada',
+        prefabricado: 'Prefabricado',
+        madera_bahareque: 'Madera / bahareque',
+        no_sabe: 'No estoy seguro/a',
+        otro: 'Otro',
       };
       const insuranceMethodMap: Record<string, string> = {
         valor_comercial: 'Valor Comercial',
         valor_reconstruccion: 'Valor de Reconstrucción',
       };
 
+      const isArrendatario = data.propertyRelationship === 'arrendatario';
+      const contentsRequired = isArrendatario || data.wantsContentsCoverage === 'si';
+
+      // Relación con el inmueble
+      if (data.propertyRelationship) insuranceInfoRows.push({ label: 'Relación con el Inmueble', value: propertyRelationshipMap[data.propertyRelationship] || data.propertyRelationship, isHighlighted: false });
+      if (data.propertyUse) insuranceInfoRows.push({ label: 'Uso de la Vivienda', value: propertyUseMap[data.propertyUse] || data.propertyUse, isHighlighted: false });
+      if (data.ownerName) insuranceInfoRows.push({ label: 'Nombre del Propietario', value: data.ownerName, isHighlighted: false });
+      if (data.ownerCedula) insuranceInfoRows.push({ label: 'Cédula del Propietario', value: data.ownerCedula, isHighlighted: false });
+      if (data.ownerBirthDate) insuranceInfoRows.push({ label: 'Fecha de Nacimiento del Propietario', value: data.ownerBirthDate, isHighlighted: false });
+      if (data.residesInProperty) insuranceInfoRows.push({ label: '¿El propietario habita el inmueble?', value: data.residesInProperty === 'si' ? 'Sí' : 'No', isHighlighted: false });
+
+      // Ubicación y características
       if (data.insuredPropertyAddress) insuranceInfoRows.push({ label: 'Dirección del Inmueble a Asegurar', value: data.insuredPropertyAddress, isHighlighted: false });
       if (data.insuredPropertyCity) insuranceInfoRows.push({ label: 'Ciudad del Inmueble a Asegurar', value: data.insuredPropertyCity, isHighlighted: false });
-      if (data.buildingFloors) insuranceInfoRows.push({ label: 'Número de Pisos del Edificio', value: data.buildingFloors, isHighlighted: false });
-      if (data.estrato) insuranceInfoRows.push({ label: 'Estrato', value: estratoMap[data.estrato] || data.estrato, isHighlighted: false });
       if (data.propertyType) insuranceInfoRows.push({ label: 'Tipo de Vivienda', value: propertyTypeMap[data.propertyType] || data.propertyType, isHighlighted: false });
-      if (data.propertyUse) insuranceInfoRows.push({ label: 'Uso de la Vivienda', value: propertyUseMap[data.propertyUse] || data.propertyUse, isHighlighted: false });
-      if (data.residesInProperty) insuranceInfoRows.push({ label: '¿Habitas la Vivienda?', value: data.residesInProperty === 'si' ? 'Sí' : 'No', isHighlighted: false });
+      if (data.constructionType) insuranceInfoRows.push({ label: 'Tipo de Construcción', value: constructionTypeMap[data.constructionType] || data.constructionType, isHighlighted: false });
+      if (data.constructionYear) insuranceInfoRows.push({ label: 'Año de Construcción', value: data.constructionYear, isHighlighted: false });
+      if (data.unitFloor) insuranceInfoRows.push({ label: 'Piso de Ubicación del Predio', value: data.unitFloor, isHighlighted: false });
+      if (data.buildingFloors) insuranceInfoRows.push({ label: 'Número de Pisos del Edificio', value: data.buildingFloors, isHighlighted: false });
+      if (data.basementCount) insuranceInfoRows.push({ label: 'Número de Sótanos', value: data.basementCount, isHighlighted: false });
+      if (data.estrato) insuranceInfoRows.push({ label: 'Estrato', value: estratoMap[data.estrato] || data.estrato, isHighlighted: false });
       if (data.propertyArea) insuranceInfoRows.push({ label: 'Área de la Vivienda', value: `${data.propertyArea} M2`, isHighlighted: false });
       if (data.hasEconomicActivity) insuranceInfoRows.push({ label: '¿Se Desarrolla Actividad Económica?', value: data.hasEconomicActivity === 'si' ? 'Sí' : 'No', isHighlighted: false });
-      // Always emit this row, even when empty. The form requires the commercial
-      // value for every hogar quote, so a blank one means the submission reached
-      // us incomplete — and silently dropping the row is exactly what kept that
-      // invisible before.
-      insuranceInfoRows.push({
-        label: 'Valor Comercial de la Vivienda',
-        value: data.propertyValue ? formatCOP(data.propertyValue) : 'NO SUMINISTRADO — revisar con el cliente',
-        isHighlighted: true,
-      });
-      if (data.contentsValue) insuranceInfoRows.push({ label: 'Valor de los Contenidos', value: formatCOP(data.contentsValue), isHighlighted: false });
-      if (data.insuranceMethod) insuranceInfoRows.push({ label: 'Método de Aseguramiento', value: insuranceMethodMap[data.insuranceMethod] || data.insuranceMethod, isHighlighted: false });
+
+      // Valores a asegurar
+      // Always emit the property value row when the quote insures the
+      // structure, even when empty: every such quote must carry a value, so a
+      // blank one means the submission reached us incomplete — and silently
+      // dropping the row is exactly what kept that invisible before.
+      // Arrendatarios insure contents only and are exempt (row omitted).
+      if (!isArrendatario) {
+        insuranceInfoRows.push({
+          label: 'Valor de la Propiedad',
+          value: data.propertyValue ? formatCOP(data.propertyValue) : 'NO SUMINISTRADO — revisar con el cliente',
+          isHighlighted: true,
+        });
+        if (data.insuranceMethod) insuranceInfoRows.push({ label: 'Método de Aseguramiento', value: insuranceMethodMap[data.insuranceMethod] || data.insuranceMethod, isHighlighted: false });
+      }
+      if (data.wantsContentsCoverage) insuranceInfoRows.push({ label: '¿Desea Asegurar Contenidos?', value: data.wantsContentsCoverage === 'si' ? 'Sí' : 'No', isHighlighted: false });
+      // Contents value is required for arrendatarios and whenever contents
+      // coverage was requested — same NO SUMINISTRADO treatment as above.
+      if (contentsRequired) {
+        insuranceInfoRows.push({
+          label: 'Valor de los Contenidos',
+          value: data.contentsValue ? formatCOP(data.contentsValue) : 'NO SUMINISTRADO — revisar con el cliente',
+          isHighlighted: !data.contentsValue,
+        });
+      } else if (data.contentsValue) {
+        insuranceInfoRows.push({ label: 'Valor de los Contenidos', value: formatCOP(data.contentsValue), isHighlighted: false });
+      }
+      if (data.electricContentsValue) insuranceInfoRows.push({ label: 'Valor de Contenidos Eléctricos', value: formatCOP(data.electricContentsValue), isHighlighted: false });
+      if (data.theftValue) insuranceInfoRows.push({ label: 'Valor a Asegurar por Hurto', value: formatCOP(data.theftValue), isHighlighted: false });
+      if (data.portableContentsValue) insuranceInfoRows.push({ label: 'Todo Riesgo Contenidos Portátiles', value: formatCOP(data.portableContentsValue), isHighlighted: false });
     } else if (data.insuranceType === 'salud') {
       if (data.preExistingConditions) insuranceInfoRows.push({ label: 'Condiciones Preexistentes', value: data.preExistingConditions, isHighlighted: false });
     } else if (data.insuranceType === 'mascotas') {
@@ -555,11 +620,23 @@ async function handler(req: VercelRequest, res: VercelResponse) {
       estrato: formData.estrato ? DOMPurifyInstance.sanitize(formData.estrato) : undefined,
       propertyType: formData.propertyType ? DOMPurifyInstance.sanitize(formData.propertyType) : undefined,
       propertyUse: formData.propertyUse ? DOMPurifyInstance.sanitize(formData.propertyUse) : undefined,
+      propertyRelationship: formData.propertyRelationship ? DOMPurifyInstance.sanitize(formData.propertyRelationship) : undefined,
+      ownerName: formData.ownerName ? DOMPurifyInstance.sanitize(formData.ownerName) : undefined,
+      ownerCedula: formData.ownerCedula ? DOMPurifyInstance.sanitize(formData.ownerCedula) : undefined,
+      ownerBirthDate: formData.ownerBirthDate ? DOMPurifyInstance.sanitize(formData.ownerBirthDate) : undefined,
       residesInProperty: formData.residesInProperty as 'si' | 'no' | '' | undefined,
+      constructionType: formData.constructionType ? DOMPurifyInstance.sanitize(formData.constructionType) : undefined,
+      constructionYear: formData.constructionYear ? DOMPurifyInstance.sanitize(formData.constructionYear) : undefined,
+      unitFloor: formData.unitFloor ? DOMPurifyInstance.sanitize(formData.unitFloor) : undefined,
+      basementCount: formData.basementCount ? DOMPurifyInstance.sanitize(formData.basementCount) : undefined,
       propertyArea: formData.propertyArea ? DOMPurifyInstance.sanitize(formData.propertyArea) : undefined,
       hasEconomicActivity: formData.hasEconomicActivity as 'si' | 'no' | '' | undefined,
       propertyValue: formData.propertyValue ? DOMPurifyInstance.sanitize(formData.propertyValue) : undefined,
+      wantsContentsCoverage: formData.wantsContentsCoverage as 'si' | 'no' | '' | undefined,
       contentsValue: formData.contentsValue ? DOMPurifyInstance.sanitize(formData.contentsValue) : undefined,
+      electricContentsValue: formData.electricContentsValue ? DOMPurifyInstance.sanitize(formData.electricContentsValue) : undefined,
+      theftValue: formData.theftValue ? DOMPurifyInstance.sanitize(formData.theftValue) : undefined,
+      portableContentsValue: formData.portableContentsValue ? DOMPurifyInstance.sanitize(formData.portableContentsValue) : undefined,
       insuranceMethod: formData.insuranceMethod ? DOMPurifyInstance.sanitize(formData.insuranceMethod) : undefined,
       preExistingConditions: formData.preExistingConditions
         ? DOMPurifyInstance.sanitize(formData.preExistingConditions)

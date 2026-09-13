@@ -2,6 +2,7 @@ import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import {
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -395,12 +396,134 @@ const AutoFields = () => {
   );
 };
 
+// Section heading used to group the hogar fields
+const HogarSectionHeading = ({ children }: { children: React.ReactNode }) => (
+  <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 pt-2 border-t border-gray-200 dark:border-gray-700 first:pt-0 first:border-t-0">
+    {children}
+  </h4>
+);
+
 // Sub-component for Hogar (Home Insurance) Fields
 const HogarFields = () => {
-  const { control } = useFormContext();
+  const { control, watch } = useFormContext();
+  const propertyRelationship = watch('propertyRelationship');
+  const propertyType = watch('propertyType');
+  const wantsContentsCoverage = watch('wantsContentsCoverage');
+
+  const isArrendatario = propertyRelationship === 'arrendatario';
+  const isTercero = propertyRelationship === 'tercero';
+  const isApartamento = propertyType === 'apartamento';
+  const showContentsFields = isArrendatario || wantsContentsCoverage === 'si';
 
   return (
     <>
+      <HogarSectionHeading>Relación con el inmueble</HogarSectionHeading>
+      <FormField
+        control={control}
+        name="propertyRelationship"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>¿Cuál es tu relación con el inmueble? <span className="text-red-500">*</span></FormLabel>
+            <Select onValueChange={field.onChange} value={field.value || ''}>
+              <FormControl>
+                <SelectTrigger>
+                  <SelectValue placeholder="Elige una opción" />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                <SelectItem value="propietario_habita">Propietario/a y habito el inmueble</SelectItem>
+                <SelectItem value="propietario_no_habita">Propietario/a, no lo habito (arrendado o desocupado)</SelectItem>
+                <SelectItem value="arrendatario">Arrendatario/a — vivo en arriendo</SelectItem>
+                <SelectItem value="tercero">Cotizo a nombre del propietario (otra persona)</SelectItem>
+              </SelectContent>
+            </Select>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      {isTercero && (
+        <>
+          <FormField
+            control={control}
+            name="ownerName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nombre completo del propietario <span className="text-red-500">*</span></FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Escribe el nombre completo del propietario"
+                    autoComplete="off"
+                    required
+                    aria-required="true"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={control}
+            name="ownerCedula"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Cédula del propietario <span className="text-red-500">*</span></FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Escribe la cédula del propietario"
+                    autoComplete="off"
+                    inputMode="numeric"
+                    required
+                    aria-required="true"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={control}
+            name="ownerBirthDate"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Fecha de nacimiento del propietario (Opcional)</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="DD/MM/AAAA"
+                    autoComplete="off"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={control}
+            name="residesInProperty"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>¿El propietario habita el inmueble? <span className="text-red-500">*</span></FormLabel>
+                <Select onValueChange={field.onChange} value={field.value || ''}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccione una opción" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="si">Sí</SelectItem>
+                    <SelectItem value="no">No</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </>
+      )}
+
+      <HogarSectionHeading>Ubicación y características</HogarSectionHeading>
       <FormField
         control={control}
         name="insuredPropertyAddress"
@@ -441,16 +564,139 @@ const HogarFields = () => {
       />
       <FormField
         control={control}
+        name="propertyType"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Tipo de vivienda <span className="text-red-500">*</span></FormLabel>
+            <Select onValueChange={field.onChange} value={field.value || ''}>
+              <FormControl>
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleccione el tipo de vivienda" />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                <SelectItem value="apartamento">Apartamento</SelectItem>
+                <SelectItem value="casa">Casa</SelectItem>
+                <SelectItem value="casa_campestre">Casa Campestre</SelectItem>
+                <SelectItem value="finca">Finca</SelectItem>
+              </SelectContent>
+            </Select>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={control}
+        name="constructionType"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Tipo de construcción <span className="text-red-500">*</span></FormLabel>
+            <Select onValueChange={field.onChange} value={field.value || ''}>
+              <FormControl>
+                <SelectTrigger>
+                  <SelectValue placeholder="Elige una opción" />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                <SelectItem value="concreto_reforzado">Concreto reforzado</SelectItem>
+                <SelectItem value="mamposteria_estructural">Mampostería estructural</SelectItem>
+                <SelectItem value="mamposteria_confinada">Mampostería confinada</SelectItem>
+                <SelectItem value="prefabricado">Prefabricado</SelectItem>
+                <SelectItem value="madera_bahareque">Madera / bahareque</SelectItem>
+                <SelectItem value="no_sabe">No estoy seguro/a</SelectItem>
+                <SelectItem value="otro">Otro</SelectItem>
+              </SelectContent>
+            </Select>
+            <FormDescription>
+              El material estructural principal de la vivienda. Si no lo sabes, elige 'No estoy seguro/a'.
+            </FormDescription>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={control}
+        name="constructionYear"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Año de construcción (aproximado) <span className="text-red-500">*</span></FormLabel>
+            <FormControl>
+              <Input
+                type="number"
+                placeholder="Ej: 2005"
+                autoComplete="off"
+                min="1900"
+                required
+                aria-required="true"
+                {...field}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      {isApartamento && (
+        <FormField
+          control={control}
+          name="unitFloor"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Piso en el que se ubica el apartamento <span className="text-red-500">*</span></FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  placeholder="Ej: 3"
+                  autoComplete="off"
+                  min="1"
+                  required
+                  aria-required="true"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      )}
+      <FormField
+        control={control}
         name="buildingFloors"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Número de pisos del edificio (Opcional)</FormLabel>
+            <FormLabel>
+              {isApartamento ? (
+                <>Total de pisos del edificio <span className="text-red-500">*</span></>
+              ) : (
+                <>Número de pisos de la vivienda (Opcional)</>
+              )}
+            </FormLabel>
             <FormControl>
               <Input
                 type="number"
                 placeholder="Ej: 5"
                 autoComplete="off"
                 min="1"
+                required={isApartamento}
+                aria-required={isApartamento ? 'true' : undefined}
+                {...field}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={control}
+        name="basementCount"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Número de sótanos (Opcional)</FormLabel>
+            <FormControl>
+              <Input
+                type="number"
+                placeholder="Ej: 1"
+                autoComplete="off"
+                min="0"
                 {...field}
               />
             </FormControl>
@@ -477,71 +723,6 @@ const HogarFields = () => {
                 <SelectItem value="estrato_4">Estrato 4</SelectItem>
                 <SelectItem value="estrato_5">Estrato 5</SelectItem>
                 <SelectItem value="estrato_6">Estrato 6</SelectItem>
-              </SelectContent>
-            </Select>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={control}
-        name="propertyType"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Tipo de vivienda <span className="text-red-500">*</span></FormLabel>
-            <Select onValueChange={field.onChange} value={field.value || ''}>
-              <FormControl>
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleccione el tipo de vivienda" />
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                <SelectItem value="apartamento">Apartamento</SelectItem>
-                <SelectItem value="casa">Casa</SelectItem>
-                <SelectItem value="casa_campestre">Casa Campestre</SelectItem>
-                <SelectItem value="finca">Finca</SelectItem>
-              </SelectContent>
-            </Select>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={control}
-        name="propertyUse"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Uso de la vivienda <span className="text-red-500">*</span></FormLabel>
-            <Select onValueChange={field.onChange} value={field.value || ''}>
-              <FormControl>
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleccione el uso de la vivienda" />
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                <SelectItem value="arrendamiento">Arrendamiento</SelectItem>
-                <SelectItem value="propio">Propio</SelectItem>
-              </SelectContent>
-            </Select>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={control}
-        name="residesInProperty"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>¿Habitas la vivienda? <span className="text-red-500">*</span></FormLabel>
-            <Select onValueChange={field.onChange} value={field.value || ''}>
-              <FormControl>
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleccione una opción" />
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                <SelectItem value="si">Sí</SelectItem>
-                <SelectItem value="no">No</SelectItem>
               </SelectContent>
             </Select>
             <FormMessage />
@@ -589,66 +770,171 @@ const HogarFields = () => {
           </FormItem>
         )}
       />
-      <FormField
-        control={control}
-        name="propertyValue"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Valor comercial de la vivienda (En pesos) <span className="text-red-500">*</span></FormLabel>
-            <FormControl>
-              <Input
-                type="number"
-                placeholder="$"
-                autoComplete="off"
-                min="1"
-                required
-                aria-required="true"
-                {...field}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={control}
-        name="contentsValue"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Valor de reposición de los contenidos (Opcional)</FormLabel>
-            <FormControl>
-              <Input
-                type="number"
-                placeholder="$"
-                autoComplete="off"
-                {...field}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={control}
-        name="insuranceMethod"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>¿Cómo deseas asegurar el predio? <span className="text-red-500">*</span></FormLabel>
-            <Select onValueChange={field.onChange} value={field.value || ''}>
-              <FormControl>
-                <SelectTrigger>
-                  <SelectValue placeholder="Elige una opción" />
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                <SelectItem value="valor_comercial">Valor comercial</SelectItem>
-                <SelectItem value="valor_reconstruccion">Valor de reconstrucción</SelectItem>
-              </SelectContent>
-            </Select>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+
+      <HogarSectionHeading>Valores a asegurar</HogarSectionHeading>
+      {!isArrendatario && (
+        <>
+          <FormField
+            control={control}
+            name="propertyValue"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Valor de la propiedad (en pesos) <span className="text-red-500">*</span></FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    placeholder="$"
+                    autoComplete="off"
+                    min="1"
+                    required
+                    aria-required="true"
+                    {...field}
+                  />
+                </FormControl>
+                <FormDescription>
+                  Para apartamentos indica el valor de tu apartamento, no del edificio completo. No incluyas el valor del terreno.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={control}
+            name="insuranceMethod"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>¿Cómo deseas asegurar el predio? <span className="text-red-500">*</span></FormLabel>
+                <Select onValueChange={field.onChange} value={field.value || ''}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Elige una opción" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="valor_comercial">Valor comercial</SelectItem>
+                    <SelectItem value="valor_reconstruccion">Valor de reconstrucción</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={control}
+            name="wantsContentsCoverage"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>¿Deseas asegurar también los contenidos de tu hogar? <span className="text-red-500">*</span></FormLabel>
+                <Select onValueChange={field.onChange} value={field.value || ''}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccione una opción" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="si">Sí</SelectItem>
+                    <SelectItem value="no">No</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </>
+      )}
+      {isArrendatario && (
+        <div className="text-sm text-muted-foreground bg-muted p-4 rounded-md">
+          Como arrendatario/a, tu seguro cubre los contenidos de tu hogar.
+        </div>
+      )}
+      {showContentsFields && (
+        <>
+          <FormField
+            control={control}
+            name="contentsValue"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Valor de los contenidos (muebles y enseres) <span className="text-red-500">*</span></FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    placeholder="$"
+                    autoComplete="off"
+                    min="1"
+                    required
+                    aria-required="true"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={control}
+            name="electricContentsValue"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Valor de contenidos eléctricos (Opcional)</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    placeholder="$"
+                    autoComplete="off"
+                    {...field}
+                  />
+                </FormControl>
+                <FormDescription>
+                  Electrodomésticos y equipos eléctricos fijos.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={control}
+            name="theftValue"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Valor a asegurar por hurto (Opcional)</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    placeholder="$"
+                    autoComplete="off"
+                    {...field}
+                  />
+                </FormControl>
+                <FormDescription>
+                  Normalmente un porcentaje del valor de los contenidos.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={control}
+            name="portableContentsValue"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Todo riesgo contenidos portátiles (Opcional)</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    placeholder="$"
+                    autoComplete="off"
+                    {...field}
+                  />
+                </FormControl>
+                <FormDescription>
+                  Portátiles, celulares, cámaras y otros equipos que salen de casa.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </>
+      )}
     </>
   );
 };
