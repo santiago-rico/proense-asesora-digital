@@ -13,8 +13,11 @@ import { useIsMobile } from '@/hooks/use-mobile'
 import { useBreakpoint, useBreakpointMatch, useResponsiveValue } from '@/hooks/use-breakpoint'
 import { useMediaQuery } from '@/hooks/use-media-query'
 
-// Mock window.matchMedia
-const mockMatchMedia = vi.fn((query: string) => ({
+// Mock window.matchMedia. Kept as a named factory so beforeEach can restore
+// it: tests override the return value with mockReturnValue, and
+// vi.clearAllMocks() clears call history but NOT return-value overrides, so
+// without an explicit reset an override leaks into every later test.
+const defaultMatchMediaImpl = (query: string) => ({
   matches: false,
   media: query,
   onchange: null,
@@ -23,7 +26,8 @@ const mockMatchMedia = vi.fn((query: string) => ({
   addEventListener: vi.fn(),
   removeEventListener: vi.fn(),
   dispatchEvent: vi.fn(),
-}))
+})
+const mockMatchMedia = vi.fn(defaultMatchMediaImpl)
 
 // Mock window object
 const mockWindow = {
@@ -149,6 +153,11 @@ describe('Responsive Hooks', () => {
     // @ts-expect-error - Setting window global for testing
     global.window = mockWindow
     vi.clearAllMocks()
+    // Undo per-test state from earlier tests: mockReturnValue overrides and
+    // mockWindow mutations survive clearAllMocks.
+    mockMatchMedia.mockImplementation(defaultMatchMediaImpl)
+    mockWindow.innerWidth = 1024
+    mockWindow.innerHeight = 768
   })
 
   afterEach(() => {
@@ -156,10 +165,12 @@ describe('Responsive Hooks', () => {
   })
 
   describe('useIsMobile', () => {
-    it('should return false during SSR', () => {
+    // renderHook flushes effects before result.current can be read, so this
+    // observes the post-hydration value, not the SSR one: false because the
+    // mocked viewport is desktop-sized.
+    it('should return false for a desktop viewport', () => {
       const { result } = renderHook(() => useIsMobile())
-      
-      // Should return false initially (SSR safe)
+
       expect(result.current).toBe(false)
     })
 
@@ -241,10 +252,12 @@ describe('Responsive Hooks', () => {
   })
 
   describe('useMediaQuery', () => {
-    it('should return false during SSR', () => {
+    // renderHook flushes effects before result.current can be read, so this
+    // observes the post-hydration value: false because the default matchMedia
+    // mock reports no match.
+    it('should return false when the media query does not match', () => {
       const { result } = renderHook(() => useMediaQuery('(min-width: 768px)'))
-      
-      // Should return false initially (SSR safe)
+
       expect(result.current).toBe(false)
     })
 
