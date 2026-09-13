@@ -6,7 +6,7 @@ import { getNotificationEmails } from './utils/notification-emails.js';
 import { backendQuoteSchema } from './schemas/quote-request-schema.js';
 
 // Defines the expected structure of the quote request data
-interface QuoteRequestData {
+export interface QuoteRequestData {
   // Step 1: Personal Information
   firstName: string;
   lastName: string;
@@ -135,7 +135,7 @@ function logIncompleteSubmission(data: QuoteRequestData): void {
   }
 }
 
-async function QuoteRequestTemplate(
+export async function QuoteRequestTemplate(
   data: QuoteRequestData,
   isUserEmail: boolean,
   isDarkMode: boolean = false,
@@ -414,6 +414,24 @@ async function QuoteRequestTemplate(
       if (data.theftValue) insuranceInfoRows.push({ label: 'Valor a Asegurar por Hurto', value: formatCOP(data.theftValue), isHighlighted: false });
       if (data.portableContentsValue) insuranceInfoRows.push({ label: 'Todo Riesgo Contenidos Portátiles', value: formatCOP(data.portableContentsValue), isHighlighted: false });
     } else if (data.insuranceType === 'salud') {
+      // The salud form collects the same medical profile as vida (it is what
+      // REQUIRED_FIELDS_BY_TYPE.salud expects); render every field or the
+      // agent receives a quote with no medical data at all.
+      if (data.height) insuranceInfoRows.push({ label: 'Estatura', value: `${data.height} cm`, isHighlighted: false });
+      if (data.weight) insuranceInfoRows.push({ label: 'Peso', value: `${data.weight} kg`, isHighlighted: false });
+      if (data.epsName) insuranceInfoRows.push({ label: 'EPS', value: data.epsName, isHighlighted: false });
+      if (data.practicesSports) {
+        insuranceInfoRows.push({ label: 'Practica Deportes', value: data.practicesSports === 'si' ? 'Sí' : 'No', isHighlighted: false });
+        if (data.practicesSports === 'si' && data.sportsDetails) {
+          insuranceInfoRows.push({ label: 'Deportes que Practica', value: data.sportsDetails, isHighlighted: false });
+        }
+      }
+      if (data.hasHealthConditions) {
+        insuranceInfoRows.push({ label: 'Tiene Enfermedades', value: data.hasHealthConditions === 'si' ? 'Sí' : 'No', isHighlighted: false });
+        if (data.hasHealthConditions === 'si' && data.healthConditionsDetails) {
+          insuranceInfoRows.push({ label: 'Detalles de Enfermedades', value: data.healthConditionsDetails, isHighlighted: false });
+        }
+      }
       if (data.preExistingConditions) insuranceInfoRows.push({ label: 'Condiciones Preexistentes', value: data.preExistingConditions, isHighlighted: false });
     } else if (data.insuranceType === 'mascotas') {
       const petGenderMap: Record<string, string> = {
