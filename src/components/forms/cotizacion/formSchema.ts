@@ -93,15 +93,26 @@ export const quoteFormBaseSchema = z.object({
   // Step 3: Conditional Fields for Seguro de Hogar
   insuredPropertyAddress: z.string().optional(),
   insuredPropertyCity: z.string().optional(),
+  propertyRelationship: z.string().optional(),
+  ownerName: z.string().optional(),
+  ownerCedula: z.string().regex(/^\d*$/, 'Solo números permitidos').optional(),
+  ownerBirthDate: z.string().optional(),
   buildingFloors: z.string().optional(),
+  unitFloor: z.string().optional(),
+  basementCount: z.string().optional(),
   estrato: z.string().optional(),
   propertyType: z.string().optional(),
-  propertyUse: z.string().optional(),
+  constructionType: z.string().optional(),
+  constructionYear: z.string().optional(),
   residesInProperty: z.union([z.enum(['si', 'no']), z.literal('')]).optional(),
   propertyArea: z.string().optional(),
   hasEconomicActivity: z.union([z.enum(['si', 'no']), z.literal('')]).optional(),
   propertyValue: z.string().optional(),
+  wantsContentsCoverage: z.union([z.enum(['si', 'no']), z.literal('')]).optional(),
   contentsValue: z.string().optional(),
+  electricContentsValue: z.string().optional(),
+  theftValue: z.string().optional(),
+  portableContentsValue: z.string().optional(),
   insuranceMethod: z.string().optional(),
 
   // Step 3: Conditional Fields for Seguro de Salud
@@ -308,7 +319,45 @@ export const quoteFormSchema = quoteFormBaseSchema.superRefine((data, ctx) => {
       });
     }
 
-    // buildingFloors is optional - no validation needed
+    if (!data.propertyRelationship || data.propertyRelationship.trim() === '') {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Indica tu relación con el inmueble',
+        path: ['propertyRelationship']
+      });
+    }
+
+    const isArrendatario = data.propertyRelationship === 'arrendatario';
+    const isTercero = data.propertyRelationship === 'tercero';
+
+    // Fields about the owner are only asked when quoting on behalf of a third
+    // party (tercero); residesInProperty is derived for the other
+    // relationships, so it is only required here.
+    if (isTercero) {
+      if (!data.ownerName || data.ownerName.trim() === '') {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'El nombre del propietario es requerido',
+          path: ['ownerName']
+        });
+      }
+
+      if (!data.ownerCedula || data.ownerCedula.trim() === '') {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'La cédula del propietario es requerida',
+          path: ['ownerCedula']
+        });
+      }
+
+      if (!data.residesInProperty || data.residesInProperty === '') {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Indica si el propietario habita el inmueble',
+          path: ['residesInProperty']
+        });
+      }
+    }
 
     if (!data.estrato || data.estrato.trim() === '') {
       ctx.addIssue({
@@ -326,20 +375,64 @@ export const quoteFormSchema = quoteFormBaseSchema.superRefine((data, ctx) => {
       });
     }
 
-    if (!data.propertyUse || data.propertyUse.trim() === '') {
+    if (!data.constructionType || data.constructionType.trim() === '') {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'El uso de la vivienda es requerido',
-        path: ['propertyUse']
+        message: 'El tipo de construcción es requerido',
+        path: ['constructionType']
       });
     }
 
-    if (!data.residesInProperty || data.residesInProperty === '') {
+    if (!data.constructionYear || data.constructionYear.trim() === '') {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Indica si habitas la vivienda',
-        path: ['residesInProperty']
+        message: 'El año de construcción es requerido',
+        path: ['constructionYear']
       });
+    } else {
+      const year = Number(data.constructionYear);
+      const currentYear = new Date().getFullYear();
+      if (!Number.isInteger(year) || year < 1900 || year > currentYear) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Ingresa un año de construcción válido',
+          path: ['constructionYear']
+        });
+      }
+    }
+
+    // Apartment-specific: the unit's floor and the building's total floors.
+    if (data.propertyType === 'apartamento') {
+      if (!data.unitFloor || data.unitFloor.trim() === '') {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'El piso del apartamento es requerido',
+          path: ['unitFloor']
+        });
+      }
+
+      if (!data.buildingFloors || data.buildingFloors.trim() === '') {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'El total de pisos del edificio es requerido',
+          path: ['buildingFloors']
+        });
+      }
+
+      const unitFloorNum = Number(data.unitFloor);
+      const buildingFloorsNum = Number(data.buildingFloors);
+      if (
+        data.unitFloor && data.unitFloor.trim() !== '' &&
+        data.buildingFloors && data.buildingFloors.trim() !== '' &&
+        !isNaN(unitFloorNum) && !isNaN(buildingFloorsNum) &&
+        unitFloorNum > buildingFloorsNum
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'El piso del apartamento no puede ser mayor que el total de pisos',
+          path: ['unitFloor']
+        });
+      }
     }
 
     if (!data.propertyArea || data.propertyArea.trim() === '') {
@@ -358,33 +451,55 @@ export const quoteFormSchema = quoteFormBaseSchema.superRefine((data, ctx) => {
       });
     }
 
-    // Required for every hogar quote. This used to be asked only when
-    // propertyUse === 'propio', which is why agents kept receiving quotes with
-    // every field except this one: rental quotes were never asked for it. The
-    // insurer rates the structure regardless of who occupies it, so both cases
-    // need the figure. Keep this in sync with the render condition (there is
-    // none now) in HogarFields — a field the schema requires but the form does
-    // not render blocks the submit on an input the client cannot see.
-    if (!data.propertyValue || data.propertyValue.trim() === '') {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'El valor comercial de la vivienda es requerido',
-        path: ['propertyValue']
-      });
-    } else if (!(Number(data.propertyValue) > 0)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'El valor comercial de la vivienda debe ser un número positivo',
-        path: ['propertyValue']
-      });
+    // Every quote that insures the structure carries a value; arrendatarios
+    // insure contents only and are exempt. (PR #166 made this unconditional
+    // after rental quotes kept arriving without it; propertyRelationship now
+    // distinguishes the tenant case, which genuinely has no structure value.)
+    // Keep this in sync with the render condition in HogarFields — a field the
+    // schema requires but the form does not render blocks the submit on an
+    // input the client cannot see.
+    if (!isArrendatario) {
+      if (!data.propertyValue || data.propertyValue.trim() === '') {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'El valor de la propiedad es requerido',
+          path: ['propertyValue']
+        });
+      } else if (!(Number(data.propertyValue) > 0)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'El valor de la propiedad debe ser un número positivo',
+          path: ['propertyValue']
+        });
+      }
+
+      if (!data.insuranceMethod || data.insuranceMethod.trim() === '') {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Selecciona cómo deseas asegurar el predio',
+          path: ['insuranceMethod']
+        });
+      }
+
+      if (!data.wantsContentsCoverage || data.wantsContentsCoverage === '') {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Indica si deseas asegurar los contenidos',
+          path: ['wantsContentsCoverage']
+        });
+      }
     }
 
-    if (!data.insuranceMethod || data.insuranceMethod.trim() === '') {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Selecciona cómo deseas asegurar el predio',
-        path: ['insuranceMethod']
-      });
+    // Contents value: an arrendatario quote is contents-only, and owners who
+    // opted in to contents coverage must say how much to insure.
+    if (isArrendatario || data.wantsContentsCoverage === 'si') {
+      if (!data.contentsValue || data.contentsValue.trim() === '') {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'El valor de los contenidos es requerido',
+          path: ['contentsValue']
+        });
+      }
     }
   } else if (data.insuranceType === 'salud') {
     // Validate required fields for Seguro de Salud

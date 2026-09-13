@@ -50,15 +50,26 @@ const fieldLabels: Record<string, string> = {
   // Hogar Insurance Fields
   insuredPropertyAddress: 'Dirección del Inmueble a Asegurar',
   insuredPropertyCity: 'Ciudad del Inmueble a Asegurar',
+  propertyRelationship: 'Relación con el Inmueble',
+  ownerName: 'Nombre del Propietario',
+  ownerCedula: 'Cédula del Propietario',
+  ownerBirthDate: 'Fecha de Nacimiento del Propietario',
   buildingFloors: 'Número de Pisos del Edificio',
+  unitFloor: 'Piso de Ubicación del Predio',
+  basementCount: 'Número de Sótanos',
   estrato: 'Estrato',
   propertyType: 'Tipo de Vivienda',
-  propertyUse: 'Uso de la Vivienda',
-  residesInProperty: '¿Habitas la Vivienda?',
+  constructionType: 'Tipo de Construcción',
+  constructionYear: 'Año de Construcción',
+  residesInProperty: '¿El Propietario Habita el Inmueble?',
   propertyArea: 'Área de la Vivienda (M2)',
   hasEconomicActivity: '¿Se Desarrolla Actividad Económica?',
-  propertyValue: 'Valor Comercial de la Vivienda',
+  propertyValue: 'Valor de la Propiedad',
+  wantsContentsCoverage: '¿Desea Asegurar Contenidos?',
   contentsValue: 'Valor de los Contenidos',
+  electricContentsValue: 'Valor de Contenidos Eléctricos',
+  theftValue: 'Valor a Asegurar por Hurto',
+  portableContentsValue: 'Todo Riesgo Contenidos Portátiles',
   insuranceMethod: 'Método de Aseguramiento',
 
   // Salud Insurance Fields
@@ -122,9 +133,21 @@ const propertyTypeLabels: Record<string, string> = {
   finca: 'Finca',
 };
 
-const propertyUseLabels: Record<string, string> = {
-  arrendamiento: 'Arrendamiento',
-  propio: 'Propio',
+const propertyRelationshipLabels: Record<string, string> = {
+  propietario_habita: 'Propietario/a y habito el inmueble',
+  propietario_no_habita: 'Propietario/a, no lo habito (arrendado o desocupado)',
+  arrendatario: 'Arrendatario/a — vivo en arriendo',
+  tercero: 'Cotizo a nombre del propietario (otra persona)',
+};
+
+const constructionTypeLabels: Record<string, string> = {
+  concreto_reforzado: 'Concreto reforzado',
+  mamposteria_estructural: 'Mampostería estructural',
+  mamposteria_confinada: 'Mampostería confinada',
+  prefabricado: 'Prefabricado',
+  madera_bahareque: 'Madera / bahareque',
+  no_sabe: 'No estoy seguro/a',
+  otro: 'Otro',
 };
 
 const insuranceMethodLabels: Record<string, string> = {
@@ -216,18 +239,29 @@ const autoFields = [
   'additionalComments',
 ];
 const hogarFields = [
+  'propertyRelationship',
+  'ownerName',
+  'ownerCedula',
+  'ownerBirthDate',
+  'residesInProperty',
   'insuredPropertyAddress',
   'insuredPropertyCity',
-  'buildingFloors',
-  'estrato',
   'propertyType',
-  'propertyUse',
-  'residesInProperty',
+  'constructionType',
+  'constructionYear',
+  'unitFloor',
+  'buildingFloors',
+  'basementCount',
+  'estrato',
   'propertyArea',
   'hasEconomicActivity',
   'propertyValue',
-  'contentsValue',
   'insuranceMethod',
+  'wantsContentsCoverage',
+  'contentsValue',
+  'electricContentsValue',
+  'theftValue',
+  'portableContentsValue',
   'additionalComments',
 ];
 const saludFields = ['preExistingConditions', 'additionalComments'];
@@ -287,6 +321,7 @@ const Step5_Summary: React.FC = () => {
       fieldName === 'residesInProperty' ||
       fieldName === 'hasEconomicActivity' ||
       fieldName === 'hasAccessories' ||
+      fieldName === 'wantsContentsCoverage' ||
       fieldName === 'petVaccinated' ||
       fieldName === 'petHasSeriousIllness'
     ) {
@@ -322,8 +357,12 @@ const Step5_Summary: React.FC = () => {
       return propertyTypeLabels[value] || value;
     }
 
-    if (fieldName === 'propertyUse' && typeof value === 'string') {
-      return propertyUseLabels[value] || value;
+    if (fieldName === 'propertyRelationship' && typeof value === 'string') {
+      return propertyRelationshipLabels[value] || value;
+    }
+
+    if (fieldName === 'constructionType' && typeof value === 'string') {
+      return constructionTypeLabels[value] || value;
     }
 
     if (fieldName === 'insuranceMethod' && typeof value === 'string') {
@@ -355,6 +394,9 @@ const Step5_Summary: React.FC = () => {
       (fieldName === 'monthlyIncome' ||
         fieldName === 'propertyValue' ||
         fieldName === 'contentsValue' ||
+        fieldName === 'electricContentsValue' ||
+        fieldName === 'theftValue' ||
+        fieldName === 'portableContentsValue' ||
         fieldName === 'accessoriesValue') &&
       typeof value === 'string'
     ) {

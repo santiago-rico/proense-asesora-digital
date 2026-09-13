@@ -19,8 +19,11 @@ import { backendQuoteSchema } from '../../../../../api/schemas/quote-request-sch
 
 // Client field that is transformed (not sent verbatim) before reaching the server.
 const CLIENT_ONLY = new Set(['birthDate']);
-// The three server fields that the client `birthDate` object is flattened into.
-const SERVER_ONLY = new Set(['birthDate_day', 'birthDate_month', 'birthDate_year']);
+// The three server fields that the client `birthDate` object is flattened into,
+// plus `propertyUse`: replaced on the client by `propertyRelationship`, kept on
+// the server so in-flight submissions from the old form still validate during
+// the deploy window. Remove it (and its email row) once that window has passed.
+const SERVER_ONLY = new Set(['birthDate_day', 'birthDate_month', 'birthDate_year', 'propertyUse']);
 
 const clientFields = Object.keys(quoteFormBaseSchema.shape);
 const serverFields = Object.keys(backendQuoteSchema.shape);
