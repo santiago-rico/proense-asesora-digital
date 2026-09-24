@@ -2,15 +2,15 @@ import { describe, it, expect, vi } from 'vitest';
 
 // The module under test imports the Brevo client at top level; mock it so
 // importing the file never needs API keys or network access.
-vi.mock('../src/utils/brevo.js', () => ({
+vi.mock('../../src/utils/brevo.js', () => ({
   sendTransactionalEmail: vi.fn(),
 }));
 
-import { backendSchema } from './send-insurance-application-email';
+import { backendSchema } from '../../api/send-insurance-application-email';
 import {
   HOGAR_ASEGURABILIDAD_KEYS,
   HOGAR_ASEGURABILIDAD_REQUIRED_MESSAGE,
-} from '../src/data/hogarAsegurabilidad';
+} from '../../src/data/hogarAsegurabilidad';
 
 // ---------------------------------------------------------------------------
 // Fixtures — raw multipart field values, exactly as formidable hands them over
