@@ -1,5 +1,10 @@
 import { z } from 'zod';
 import { isValidPhoneNumber } from 'react-phone-number-input';
+import {
+  HOGAR_ASEGURABILIDAD_KEYS,
+  HOGAR_ASEGURABILIDAD_REQUIRED_MESSAGE,
+  type HogarAsegurabilidadKey,
+} from '@/data/hogarAsegurabilidad';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 const ACCEPTED_MIME_TYPES = [
@@ -29,6 +34,13 @@ const detailedFileArraySchema = z.array(z.instanceof(File))
     }
     return true;
   });
+
+const siNoOptional = z.union([z.enum(['si', 'no']), z.literal('')]).optional();
+
+// Seguro de Hogar - Declaración de asegurabilidad (one si/no field per question)
+const hogarAsegurabilidadShape = Object.fromEntries(
+  HOGAR_ASEGURABILIDAD_KEYS.map(key => [key, siNoOptional])
+) as Record<HogarAsegurabilidadKey, typeof siNoOptional>;
 
 export const formSchema = z.object({
   nombreCompleto: z.string().min(1, 'El nombre es requerido').transform(str => str.trim()),
@@ -60,6 +72,7 @@ export const formSchema = z.object({
   enfermedadesEspecificar: z.string().optional(),
   valorActualDeuda: z.string().optional(),
   conduceMoto: z.union([z.enum(['si', 'no']), z.literal('')]).optional(),
+  ...hogarAsegurabilidadShape,
   // Fields for non-declarers
   ingresosNoDeclarante: z.string().optional(),
   egresosNoDeclarante: z.string().optional(),
@@ -98,6 +111,11 @@ export const formSchema = z.object({
   } else if (data.tipoSeguro === 'hogar') {
     if (!data.certificadoLibertad || data.certificadoLibertad.length === 0) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, message: "El certificado de libertad y tradición es requerido.", path: ["certificadoLibertad"] });
+    }
+    for (const key of HOGAR_ASEGURABILIDAD_KEYS) {
+      if (data[key] !== 'si' && data[key] !== 'no') {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: HOGAR_ASEGURABILIDAD_REQUIRED_MESSAGE, path: [key] });
+      }
     }
   } else if (data.tipoSeguro === 'auto') {
     if (!data.tarjetaPropiedad || data.tarjetaPropiedad.length === 0) {

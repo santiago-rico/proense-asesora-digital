@@ -10,6 +10,9 @@ import {
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Link } from 'react-router-dom'; // Assuming you use react-router for links
+import { HOGAR_ASEGURABILIDAD_KEYS, HOGAR_ASEGURABILIDAD_QUESTIONS } from '@/data/hogarAsegurabilidad';
+
+const hogarAsegurabilidadKeys: readonly string[] = HOGAR_ASEGURABILIDAD_KEYS;
 
 const fieldLabels: Record<string, string> = {
   nombreCompleto: 'Nombre Completo',
@@ -25,6 +28,7 @@ const fieldLabels: Record<string, string> = {
   documentosBeneficiarios: 'Documentos Beneficiarios (Vida)',
   listaBeneficiarios: 'Lista de Beneficiarios (Vida)',
   certificadoLibertad: 'Certificado de Libertad y Tradición (Hogar)',
+  ...Object.fromEntries(HOGAR_ASEGURABILIDAD_QUESTIONS.map(q => [q.key, q.shortLabel])),
   tarjetaPropiedad: 'Tarjeta de Propiedad (Autos)',
   numeroCedulaRepLegal: 'Cédula Representante Legal (Empresarial)',
   fotoCedulaRepLegal: 'Foto Cédula Representante Legal (Empresarial)',
@@ -54,6 +58,7 @@ const summaryFieldOrder = [
   'documentosBeneficiarios',
   'listaBeneficiarios',
   'certificadoLibertad',
+  ...HOGAR_ASEGURABILIDAD_KEYS,
   'tarjetaPropiedad',
   'numeroCedulaRepLegal',
   'fotoCedulaRepLegal',
@@ -109,7 +114,7 @@ const Step5_Summary: React.FC = () => {
     if (typeof value === 'boolean') {
       return value ? 'Sí' : 'No';
     }
-    if (fieldName === 'declaraRenta') {
+    if (fieldName === 'declaraRenta' || hogarAsegurabilidadKeys.includes(fieldName)) {
         return value === 'si' ? 'Sí' : (value === 'no' ? 'No' : null);
     }
     return String(value);
@@ -121,6 +126,8 @@ const Step5_Summary: React.FC = () => {
       <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">Asegúrate de que todos los datos sean correctos antes de enviar tu solicitud.</p>
       <div className="space-y-3 rounded-md border p-4">
         {summaryFieldOrder.map((fieldName) => {
+          // Answers left over from switching away from hogar are not part of this request
+          if (hogarAsegurabilidadKeys.includes(fieldName) && formData.tipoSeguro !== 'hogar') return null;
           const value = formData[fieldName];
           const displayValue = renderValue(value, fieldName);
           if (displayValue === null) return null; // Don't render if value is null/empty

@@ -12,8 +12,16 @@ import {
   ProgressSteps,
   Divider
 } from './EmailComponents.js';
+import { getThemeStyles } from './EmailStyles.js';
+import {
+  HOGAR_ASEGURABILIDAD_QUESTIONS,
+  HOGAR_ASEGURABILIDAD_TITLE,
+  HOGAR_ASEGURABILIDAD_DISCLAIMER,
+  type HogarAsegurabilidadKey,
+} from '../../data/hogarAsegurabilidad.js';
 
-interface InsuranceApplicationData {
+// Hogar declaración de asegurabilidad answers are keyed by HOGAR_ASEGURABILIDAD_KEYS.
+interface InsuranceApplicationData extends Partial<Record<HogarAsegurabilidadKey, 'si' | 'no' | ''>> {
   // Basic Info
   nombreCompleto: string;
   telefono: string;
@@ -179,6 +187,71 @@ export function InsuranceApplicationTemplate({
     return rows;
   };
   
+  // Hogar: declaración de asegurabilidad. Question text is long, so it gets a
+  // dedicated table (wide question, narrow answer) instead of DataTable's 40%
+  // label column. A "Sí" is information for the asesor, never a blocker.
+  const hasAsegurabilidad = data.tipoSeguro === 'hogar'
+    && HOGAR_ASEGURABILIDAD_QUESTIONS.some(q => data[q.key] === 'si' || data[q.key] === 'no');
+  const asegurabilidadSiCount = HOGAR_ASEGURABILIDAD_QUESTIONS.filter(q => data[q.key] === 'si').length;
+  
+  const buildAsegurabilidadTable = (highlightSi: boolean) => {
+    const styles = getThemeStyles(isDarkMode);
+    const siHighlightStyle = 'font-weight: 700; background-color: #fff3cd; color: #856404;';
+    
+    const tableRows = HOGAR_ASEGURABILIDAD_QUESTIONS.map((q, index) => {
+      const answer = data[q.key];
+      const answerText = answer === 'si' ? 'Sí' : answer === 'no' ? 'No' : 'No respondida';
+      const bgClass = index % 2 === 1 ? 'darkmode-table-alt' : 'darkmode-table-bg';
+      const cellStyle = index % 2 === 0 ? styles.tableCell : styles.tableCellAlt;
+      const isHighlighted = highlightSi && answer === 'si';
+      
+      return `
+        <tr>
+          <td style="${cellStyle}" class="darkmode-text darkmode-border ${bgClass}">
+            ${index + 1}. ${q.question}
+          </td>
+          <td width="90" style="${cellStyle} width: 90px; text-align: center; ${isHighlighted ? siHighlightStyle : ''}" class="darkmode-border ${isHighlighted ? '' : `darkmode-text ${bgClass}`}">
+            ${answerText}
+          </td>
+        </tr>
+      `;
+    }).join('');
+    
+    return `
+      <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="${styles.table}">
+        ${tableRows}
+      </table>
+    `;
+  };
+  
+  const buildAsegurabilidadSection = (isAgent: boolean) => {
+    if (!hasAsegurabilidad) return '';
+    
+    const siAlert = isAgent && asegurabilidadSiCount > 0
+      ? Alert({
+          type: 'warning',
+          message: `El cliente respondió «Sí» a ${asegurabilidadSiCount} ${asegurabilidadSiCount === 1 ? 'pregunta' : 'preguntas'} de la declaración de asegurabilidad (resaltadas abajo).`,
+          isDarkMode
+        })
+      : '';
+    
+    return `
+    ${Spacer({ height: 'lg' })}
+    
+    ${Heading({ level: 2, text: HOGAR_ASEGURABILIDAD_TITLE, isDarkMode })}
+    
+    ${siAlert}
+    
+    ${Paragraph({ text: HOGAR_ASEGURABILIDAD_DISCLAIMER, isDarkMode })}
+    
+    ${Card({
+      content: buildAsegurabilidadTable(isAgent),
+      isDarkMode,
+      noPadding: true
+    })}
+    `;
+  };
+  
   const userContent = `
     ${Heading({ level: 1, text: `¡Gracias por tu solicitud, ${data.nombreCompleto}!`, isDarkMode, align: 'center' })}
     
@@ -208,6 +281,8 @@ export function InsuranceApplicationTemplate({
       isDarkMode,
       noPadding: true
     })}
+    
+    ${buildAsegurabilidadSection(false)}
     
     ${Spacer({ height: 'lg' })}
     
@@ -264,6 +339,8 @@ export function InsuranceApplicationTemplate({
       isDarkMode,
       noPadding: true
     })}
+    
+    ${buildAsegurabilidadSection(true)}
     
     ${Spacer({ height: 'lg' })}
     

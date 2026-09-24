@@ -5,6 +5,10 @@
 
 import { describe, it, expect } from 'vitest';
 import { formSchema, type FormSchemaType } from '../formSchema';
+import {
+  HOGAR_ASEGURABILIDAD_KEYS,
+  HOGAR_ASEGURABILIDAD_REQUIRED_MESSAGE,
+} from '@/data/hogarAsegurabilidad';
 
 // Helper function to create a valid file for testing
 const createTestFile = (name: string, type: string, size: number = 1024) => {
@@ -448,10 +452,14 @@ describe('FormSchema Validation Tests', () => {
     });
 
     describe('Seguro de Hogar', () => {
+      const answerAll = (answer: 'si' | 'no') =>
+        Object.fromEntries(HOGAR_ASEGURABILIDAD_KEYS.map(key => [key, answer])) as Partial<FormSchemaType>;
+
       it('requires certificadoLibertad files', () => {
         const data = getBaseValidData({ 
           tipoSeguro: 'hogar',
           certificadoLibertad: [],
+          ...answerAll('no'),
         });
         const result = formSchema.safeParse(data);
         
@@ -466,10 +474,83 @@ describe('FormSchema Validation Tests', () => {
         const data = getBaseValidData({ 
           tipoSeguro: 'hogar',
           certificadoLibertad: [createTestFile('certificado.pdf', 'application/pdf')],
+          ...answerAll('no'),
         });
         const result = formSchema.safeParse(data);
         
         expect(result.success).toBe(true);
+      });
+
+      describe('Declaración de asegurabilidad', () => {
+        const getHogarData = (overrides: Partial<FormSchemaType> = {}) => getBaseValidData({
+          tipoSeguro: 'hogar',
+          certificadoLibertad: [createTestFile('certificado.pdf', 'application/pdf')],
+          ...answerAll('no'),
+          ...overrides,
+        });
+
+        it('passes when every question is answered "no"', () => {
+          expect(formSchema.safeParse(getHogarData()).success).toBe(true);
+        });
+
+        it('passes when every question is answered "si" (a "Sí" never blocks the request)', () => {
+          expect(formSchema.safeParse(getHogarData(answerAll('si'))).success).toBe(true);
+        });
+
+        it('passes with mixed answers and keeps them in the parsed data', () => {
+          const result = formSchema.safeParse(getHogarData({ hogarPiscina: 'si', hogarDanoSismico: 'si' }));
+
+          expect(result.success).toBe(true);
+          if (result.success) {
+            expect(result.data.hogarPiscina).toBe('si');
+            expect(result.data.hogarDanoSismico).toBe('si');
+            expect(result.data.hogarEnConstruccion).toBe('no');
+          }
+        });
+
+        HOGAR_ASEGURABILIDAD_KEYS.forEach(key => {
+          it(`requires an answer for ${key}, reported at its own path`, () => {
+            const result = formSchema.safeParse(getHogarData({ [key]: '' }));
+
+            expect(result.success).toBe(false);
+            if (!result.success) {
+              const declarationIssues = result.error.issues.filter(
+                issue => issue.message === HOGAR_ASEGURABILIDAD_REQUIRED_MESSAGE,
+              );
+              expect(declarationIssues).toHaveLength(1);
+              expect(declarationIssues[0].path).toEqual([key]);
+            }
+          });
+        });
+
+        it('reports every unanswered question when none are answered', () => {
+          const unanswered = Object.fromEntries(HOGAR_ASEGURABILIDAD_KEYS.map(key => [key, undefined]));
+          const result = formSchema.safeParse(getHogarData(unanswered as Partial<FormSchemaType>));
+
+          expect(result.success).toBe(false);
+          if (!result.success) {
+            const paths = result.error.issues
+              .filter(issue => issue.message === HOGAR_ASEGURABILIDAD_REQUIRED_MESSAGE)
+              .map(issue => issue.path[0]);
+            expect(paths).toEqual(HOGAR_ASEGURABILIDAD_KEYS);
+          }
+        });
+
+        it('rejects values other than "si" or "no"', () => {
+          const result = formSchema.safeParse(getHogarData({ hogarPiscina: 'tal vez' as never }));
+          expect(result.success).toBe(false);
+        });
+
+        const otherTypes = ['vida', 'salud', 'auto', 'mascotas', 'rentas', 'responsabilidad_civil', 'vida_credito_protegido', 'empresarial'];
+        otherTypes.forEach(tipoSeguro => {
+          it(`does not require the declaration for ${tipoSeguro}`, () => {
+            const result = formSchema.safeParse(getBaseValidData({ tipoSeguro }));
+            const declarationIssues = result.success
+              ? []
+              : result.error.issues.filter(issue => issue.message === HOGAR_ASEGURABILIDAD_REQUIRED_MESSAGE);
+            expect(declarationIssues).toHaveLength(0);
+          });
+        });
       });
     });
 
