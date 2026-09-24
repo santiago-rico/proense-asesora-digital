@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { getNotificationEmails } from './notification-emails';
+import { getNotificationEmails } from '../../api/_utils/notification-emails';
 
 const FORM_KEYS = [
   'NOTIFICATION_EMAILS',

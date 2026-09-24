@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { serialize } from 'cookie';
-import { withRateLimit, rateLimitConfigs } from './utils/rate-limiter.js';
+import { withRateLimit, rateLimitConfigs } from './_utils/rate-limiter.js';
 
 async function handler(
   req: VercelRequest,

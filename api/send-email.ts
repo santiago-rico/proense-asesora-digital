@@ -1,9 +1,9 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { z } from 'zod';
 import { JSDOM } from 'jsdom';
-import { withRateLimit, rateLimitConfigs } from './utils/rate-limiter.js';
+import { withRateLimit, rateLimitConfigs } from './_utils/rate-limiter.js';
 import { LeadTemplate } from '../src/utils/email-templates/LeadTemplate.js';
-import { getNotificationEmails } from './utils/notification-emails.js';
+import { getNotificationEmails } from './_utils/notification-emails.js';
 
 // Define the validation schema with Zod
 const leadFormSchema = z.object({

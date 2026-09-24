@@ -6,9 +6,9 @@ import formidable from 'formidable';
 import fs from 'fs';
 import { z } from 'zod';
 import { JSDOM } from 'jsdom';
-import { withRateLimit, rateLimitConfigs } from './utils/rate-limiter.js';
+import { withRateLimit, rateLimitConfigs } from './_utils/rate-limiter.js';
 import { InsuranceApplicationTemplate } from '../src/utils/email-templates/InsuranceApplicationTemplate.js';
-import { getNotificationEmails } from './utils/notification-emails.js';
+import { getNotificationEmails } from './_utils/notification-emails.js';
 import {
   HOGAR_ASEGURABILIDAD_KEYS,
   HOGAR_ASEGURABILIDAD_REQUIRED_MESSAGE,
