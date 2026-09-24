@@ -1,389 +1,211 @@
-import { Page, Locator, expect } from '@playwright/test';
-import { BasePage } from './base-page';
-import { testData } from '../test-data';
+import { expect, type Locator, type Page } from '@playwright/test';
+import {
+  HOGAR_ASEGURABILIDAD_QUESTIONS,
+  type HogarAsegurabilidadKey,
+} from '../../../src/data/hogarAsegurabilidad';
+import { mockCsrfToken } from '../api-mocks';
+import { applicant, pdfFile, pngFile, type UploadFile } from '../test-data';
 
-export class InsuranceFormPage extends BasePage {
-  constructor(page: Page) {
-    super(page);
+export type StepName =
+  | 'Información Básica'
+  | 'Selección de Seguro'
+  | 'Detalles del Seguro'
+  | 'Declaración'
+  | 'Resumen y Envío';
+
+export type InsuranceLabel =
+  | 'Seguro de Vida'
+  | 'Seguro de Salud'
+  | 'Seguro de Hogar'
+  | 'Seguro de Autos'
+  | 'Seguro Empresarial'
+  | 'Seguro de Rentas'
+  | 'Seguro para Mascotas'
+  | 'Seguro de Responsabilidad Civil'
+  | 'Seguro de Vida - Crédito Protegido';
+
+export type SiNo = 'si' | 'no';
+
+/** Page object for the emisión (policy issuance) multi-step form at /clientes/emision-polizas. */
+export class InsuranceFormPage {
+  static readonly PATH = '/clientes/emision-polizas';
+
+  constructor(readonly page: Page) {}
+
+  // --- Navigation -----------------------------------------------------------
+
+  /** Mocks the CSRF endpoint (the form fetches it on mount) and opens the form. */
+  async open(): Promise<void> {
+    await mockCsrfToken(this.page);
+    await this.page.goto(InsuranceFormPage.PATH);
+    await expect(this.nameInput).toBeVisible();
   }
 
-  // Form navigation locators
-  get progressBar(): Locator {
-    return this.page.locator('[data-testid="progress-bar"]');
+  stepHeading(name: StepName): Locator {
+    return this.page.getByRole('heading', { name, exact: true });
+  }
+
+  async expectStep(name: StepName): Promise<void> {
+    await expect(this.stepHeading(name)).toBeVisible();
   }
 
   get nextButton(): Locator {
-    return this.page.locator('[data-testid="next-button"]');
+    return this.page.getByRole('button', { name: 'Siguiente' });
   }
 
   get prevButton(): Locator {
-    return this.page.locator('[data-testid="prev-button"]');
+    return this.page.getByRole('button', { name: 'Anterior' });
   }
 
   get submitButton(): Locator {
-    return this.page.locator('[data-testid="submit-button"]');
+    return this.page.getByRole('button', { name: 'Firmar y Enviar Solicitud' });
   }
 
-  // Step 1: Basic Information locators
-  get fullNameInput(): Locator {
-    return this.page.locator('[data-testid="fullName"]');
+  async next(expected?: StepName): Promise<void> {
+    await this.nextButton.click();
+    if (expected) await this.expectStep(expected);
   }
 
-  get emailInput(): Locator {
-    return this.page.locator('[data-testid="email"]');
+  async prev(expected?: StepName): Promise<void> {
+    await this.prevButton.click();
+    if (expected) await this.expectStep(expected);
+  }
+
+  // --- Step 1: Información Básica -------------------------------------------
+
+  get nameInput(): Locator {
+    return this.page.getByLabel('Nombre completo');
   }
 
   get phoneInput(): Locator {
-    return this.page.locator('[data-testid="phone"]');
+    return this.page.getByPlaceholder('Número telefónico');
   }
 
-  get identificationTypeSelect(): Locator {
-    return this.page.locator('[data-testid="identificationType"]');
+  get emailInput(): Locator {
+    return this.page.getByLabel('Correo Electrónico');
   }
 
-  get identificationNumberInput(): Locator {
-    return this.page.locator('[data-testid="identificationNumber"]');
-  }
-
-  get birthDateInput(): Locator {
-    return this.page.locator('[data-testid="birthDate"]');
-  }
-
-  get genderSelect(): Locator {
-    return this.page.locator('[data-testid="gender"]');
-  }
-
-  get maritalStatusSelect(): Locator {
-    return this.page.locator('[data-testid="maritalStatus"]');
-  }
-
-  get occupationInput(): Locator {
-    return this.page.locator('[data-testid="occupation"]');
-  }
-
-  get addressInput(): Locator {
-    return this.page.locator('[data-testid="address"]');
-  }
-
-  get cityInput(): Locator {
-    return this.page.locator('[data-testid="city"]');
-  }
-
-  get departmentSelect(): Locator {
-    return this.page.locator('[data-testid="department"]');
-  }
-
-  // Step 2: Insurance Selection locators
-  get autoInsuranceCheckbox(): Locator {
-    return this.page.locator('[data-testid="insurance-auto"]');
-  }
-
-  get healthInsuranceCheckbox(): Locator {
-    return this.page.locator('[data-testid="insurance-salud"]');
-  }
-
-  get lifeInsuranceCheckbox(): Locator {
-    return this.page.locator('[data-testid="insurance-vida"]');
-  }
-
-  get homeInsuranceCheckbox(): Locator {
-    return this.page.locator('[data-testid="insurance-hogar"]');
-  }
-
-  // Step 3: Conditional Fields - Auto Insurance
-  get vehicleBrandInput(): Locator {
-    return this.page.locator('[data-testid="vehicleBrand"]');
-  }
-
-  get vehicleModelInput(): Locator {
-    return this.page.locator('[data-testid="vehicleModel"]');
-  }
-
-  get vehicleYearInput(): Locator {
-    return this.page.locator('[data-testid="vehicleYear"]');
-  }
-
-  get vehiclePlateInput(): Locator {
-    return this.page.locator('[data-testid="vehiclePlate"]');
-  }
-
-  get vehicleCylindersInput(): Locator {
-    return this.page.locator('[data-testid="vehicleCylinders"]');
-  }
-
-  get vehicleValueInput(): Locator {
-    return this.page.locator('[data-testid="vehicleValue"]');
-  }
-
-  // Step 3: Conditional Fields - Health Insurance
-  get preexistingConditionsNo(): Locator {
-    return this.page.locator('[data-testid="preexistingConditions-no"]');
-  }
-
-  get preexistingConditionsYes(): Locator {
-    return this.page.locator('[data-testid="preexistingConditions-yes"]');
-  }
-
-  get medicationsInput(): Locator {
-    return this.page.locator('[data-testid="medications"]');
-  }
-
-  get familyHistoryInput(): Locator {
-    return this.page.locator('[data-testid="familyHistory"]');
-  }
-
-  get lifestyleSelect(): Locator {
-    return this.page.locator('[data-testid="lifestyle"]');
-  }
-
-  // Step 3: Conditional Fields - Life Insurance
-  get beneficiaryNameInput(): Locator {
-    return this.page.locator('[data-testid="beneficiaryName"]');
-  }
-
-  get beneficiaryRelationshipInput(): Locator {
-    return this.page.locator('[data-testid="beneficiaryRelationship"]');
-  }
-
-  get beneficiaryPhoneInput(): Locator {
-    return this.page.locator('[data-testid="beneficiaryPhone"]');
-  }
-
-  get coverageAmountInput(): Locator {
-    return this.page.locator('[data-testid="coverageAmount"]');
-  }
-
-  // Step 4: Declaration and Documents
-  get termsCheckbox(): Locator {
-    return this.page.locator('[data-testid="terms-checkbox"]');
-  }
-
-  get privacyCheckbox(): Locator {
-    return this.page.locator('[data-testid="privacy-checkbox"]');
-  }
-
-  get fileUploadInput(): Locator {
-    return this.page.locator('[data-testid="file-upload-input"]');
-  }
-
-  get fileUploadDropzone(): Locator {
-    return this.page.locator('[data-testid="file-upload-dropzone"]');
-  }
-
-  get uploadedFilesList(): Locator {
-    return this.page.locator('[data-testid="uploaded-files-list"]');
-  }
-
-  // Step 5: Summary
-  get summarySection(): Locator {
-    return this.page.locator('[data-testid="summary-section"]');
-  }
-
-  get editButton(): Locator {
-    return this.page.locator('[data-testid="edit-button"]');
-  }
-
-  // Success page
-  get successMessage(): Locator {
-    return this.page.locator('[data-testid="success-message"]');
-  }
-
-  get applicationNumberDisplay(): Locator {
-    return this.page.locator('[data-testid="application-number"]');
-  }
-
-  // Methods for navigating the form
-  async navigateToInsuranceForm(): Promise<void> {
-    await this.navigateTo('/emision');
-    await this.acceptCookies();
-  }
-
-  async fillStep1BasicInfo(data = testData.insuranceApplication.basicInfo): Promise<void> {
-    await this.fullNameInput.fill(data.fullName);
+  async fillBasicInfo(data: { nombreCompleto: string; telefono: string; email: string } = applicant): Promise<void> {
+    await this.nameInput.fill(data.nombreCompleto);
+    await this.phoneInput.fill(data.telefono);
     await this.emailInput.fill(data.email);
-    await this.phoneInput.fill(data.phone);
-    await this.identificationTypeSelect.selectOption(data.identificationType);
-    await this.identificationNumberInput.fill(data.identificationNumber);
-    await this.birthDateInput.fill(data.birthDate);
-    await this.genderSelect.selectOption(data.gender);
-    await this.maritalStatusSelect.selectOption(data.maritalStatus);
-    await this.occupationInput.fill(data.occupation);
-    await this.addressInput.fill(data.address);
-    await this.cityInput.fill(data.city);
-    await this.departmentSelect.selectOption(data.department);
   }
 
-  async proceedToStep2(): Promise<void> {
-    await this.nextButton.click();
-    await this.waitForPageLoad();
-    await this.expectStepToBeActive(2);
+  // --- Step 2: Selección de Seguro ------------------------------------------
+
+  async selectOption(label: string, option: string): Promise<void> {
+    await this.page.getByRole('combobox', { name: label }).click();
+    await this.page.getByRole('option', { name: option, exact: true }).click();
   }
 
-  async selectInsuranceTypes(types: string[]): Promise<void> {
-    for (const type of types) {
-      switch (type) {
-        case 'auto':
-          await this.autoInsuranceCheckbox.check();
-          break;
-        case 'salud':
-          await this.healthInsuranceCheckbox.check();
-          break;
-        case 'vida':
-          await this.lifeInsuranceCheckbox.check();
-          break;
-        case 'hogar':
-          await this.homeInsuranceCheckbox.check();
-          break;
-      }
+  async chooseInsurance(
+    tipo: InsuranceLabel,
+    metodoPago = 'Tarjeta de Crédito',
+    periodicidad = 'Mensual',
+  ): Promise<void> {
+    await this.selectOption('Tipo de seguro que deseas contratar', tipo);
+    await this.selectOption('Método de pago preferido', metodoPago);
+    await this.selectOption('Periodicidad de pago', periodicidad);
+  }
+
+  // --- Step 3: Detalles del Seguro ------------------------------------------
+
+  get cedulaInput(): Locator {
+    return this.page.getByLabel('Número de cédula');
+  }
+
+  /** The hidden `<input type=file>` of the upload whose visible label contains `label`. */
+  fileInput(label: string): Locator {
+    return this.page.locator('label', { hasText: label }).locator('xpath=..').locator('input[type="file"]');
+  }
+
+  async upload(label: string, ...files: UploadFile[]): Promise<void> {
+    await this.fileInput(label).setInputFiles(files);
+    for (const file of files) {
+      await expect(this.removeFileButton(file.name)).toBeVisible();
     }
   }
 
-  async proceedToStep3(): Promise<void> {
-    await this.nextButton.click();
-    await this.waitForPageLoad();
-    await this.expectStepToBeActive(3);
+  removeFileButton(fileName: string): Locator {
+    return this.page.getByRole('button', { name: `Eliminar archivo ${fileName}` });
   }
 
-  async fillAutoInsuranceDetails(data = testData.insuranceApplication.autoInsurance): Promise<void> {
-    await this.vehicleBrandInput.fill(data.vehicleBrand);
-    await this.vehicleModelInput.fill(data.vehicleModel);
-    await this.vehicleYearInput.fill(data.vehicleYear);
-    await this.vehiclePlateInput.fill(data.vehiclePlate);
-    await this.vehicleCylindersInput.fill(data.vehicleCylinders);
-    await this.vehicleValueInput.fill(data.vehicleValue);
+  /** Radio group of one hogar declaration question, named by its question text. */
+  declarationGroup(key: HogarAsegurabilidadKey): Locator {
+    const question = HOGAR_ASEGURABILIDAD_QUESTIONS.find(q => q.key === key)!.question;
+    return this.page.getByRole('radiogroup', { name: question });
   }
 
-  async fillHealthInsuranceDetails(data = testData.insuranceApplication.healthInsurance): Promise<void> {
-    if (data.hasPreexistingConditions) {
-      await this.preexistingConditionsYes.check();
-      await this.medicationsInput.fill(data.medications);
-      await this.familyHistoryInput.fill(data.familyHistory);
-    } else {
-      await this.preexistingConditionsNo.check();
-    }
-    await this.lifestyleSelect.selectOption(data.lifestyle);
-  }
-
-  async fillLifeInsuranceDetails(data = testData.insuranceApplication.lifeInsurance): Promise<void> {
-    await this.beneficiaryNameInput.fill(data.beneficiaryName);
-    await this.beneficiaryRelationshipInput.fill(data.beneficiaryRelationship);
-    await this.beneficiaryPhoneInput.fill(data.beneficiaryPhone);
-    await this.coverageAmountInput.fill(data.coverageAmount);
-  }
-
-  async proceedToStep4(): Promise<void> {
-    await this.nextButton.click();
-    await this.waitForPageLoad();
-    await this.expectStepToBeActive(4);
-  }
-
-  async acceptTermsAndPrivacy(): Promise<void> {
-    await this.termsCheckbox.check();
-    await this.privacyCheckbox.check();
-  }
-
-  async uploadDocuments(filePaths: string[]): Promise<void> {
-    for (const filePath of filePaths) {
-      await this.fileUploadInput.setInputFiles(filePath);
-      await this.page.waitForTimeout(1000); // Wait for upload to process
+  async answerDeclaration(answers: Record<HogarAsegurabilidadKey, SiNo>): Promise<void> {
+    for (const { key } of HOGAR_ASEGURABILIDAD_QUESTIONS) {
+      await this.declarationGroup(key)
+        .getByRole('radio', { name: answers[key] === 'si' ? 'Sí' : 'No', exact: true })
+        .check();
     }
   }
 
-  async proceedToStep5(): Promise<void> {
-    await this.nextButton.click();
-    await this.waitForPageLoad();
-    await this.expectStepToBeActive(5);
+  /** Cédula + foto: the fields every personal insurance type asks for. */
+  async fillCommonDetails(): Promise<void> {
+    await this.cedulaInput.fill(applicant.numeroCedula);
+    await this.upload('Foto cédula (ambos lados)', pngFile('cedula.png'));
   }
 
-  async reviewAndSubmit(): Promise<void> {
-    await this.expectElementToBeVisible('[data-testid="summary-section"]');
-    await this.submitButton.click();
-    await this.waitForPageLoad();
+  // --- Step 4: Declaración --------------------------------------------------
+
+  async setDeclaraRenta(value: SiNo): Promise<void> {
+    await this.page.getByRole('radio', { name: value === 'si' ? 'Sí' : 'No', exact: true }).check();
   }
 
-  async expectSuccessfulSubmission(): Promise<void> {
-    await expect(this.successMessage).toBeVisible();
-    await expect(this.applicationNumberDisplay).toBeVisible();
+  async fillNonDeclarantFinancials(values: { ingresos: string; egresos: string; activos: string; pasivos: string }): Promise<void> {
+    await this.page.getByLabel('¿Cuántos son tus ingresos mensuales?').fill(values.ingresos);
+    await this.page.getByLabel('¿Cuántos son tus egresos mensuales?').fill(values.egresos);
+    await this.page.getByLabel('Valor total de tus activos').fill(values.activos);
+    await this.page.getByLabel('Valor de tus pasivos').fill(values.pasivos);
   }
 
-  // Validation helpers
-  async expectStepToBeActive(stepNumber: number): Promise<void> {
-    await expect(this.page.locator(`[data-testid="step-${stepNumber}"]`)).toHaveClass(/active/);
+  // --- Step 5: Resumen y Envío ----------------------------------------------
+
+  /** The value cell next to a summary row label (labels render as "Label:"). */
+  summaryValue(label: string): Locator {
+    return this.page.getByText(`${label}:`, { exact: true }).locator('xpath=following-sibling::div[1]');
   }
 
-  async expectValidationError(fieldName: string): Promise<void> {
-    await expect(this.page.locator(`[data-testid="${fieldName}-error"]`)).toBeVisible();
+  get termsCheckbox(): Locator {
+    return this.page.getByRole('checkbox', { name: /He leído y acepto/ });
   }
 
-  async expectNoValidationErrors(): Promise<void> {
-    const errorElements = this.page.locator('[data-testid$="-error"]');
-    await expect(errorElements).toHaveCount(0);
+  async acceptTerms(): Promise<void> {
+    await this.termsCheckbox.click();
+    await expect(this.termsCheckbox).toBeChecked();
   }
 
-  // Navigation helpers
-  async goBackToStep(stepNumber: number): Promise<void> {
-    while (true) {
-      const currentStep = await this.getCurrentStep();
-      if (currentStep <= stepNumber) break;
-      await this.prevButton.click();
-      await this.waitForPageLoad();
-    }
+  get successHeading(): Locator {
+    return this.page.getByRole('heading', { name: '¡Solicitud Enviada!' });
   }
 
-  async getCurrentStep(): Promise<number> {
-    const activeStep = await this.page.locator('[data-testid^="step-"].active').getAttribute('data-testid');
-    return parseInt(activeStep?.replace('step-', '') || '1');
+  /** Toasts render their title as plain text (only one toast is shown at a time). */
+  toast(text: string | RegExp): Locator {
+    return this.page.locator('li[data-state="open"]').filter({ hasText: text });
   }
 
-  // Form persistence helpers
-  async refreshPageAndVerifyData(): Promise<void> {
-    await this.page.reload();
-    await this.waitForPageLoad();
-    // Verify that form data persists after refresh
-    await expect(this.fullNameInput).not.toHaveValue('');
+  // --- Composite flows ------------------------------------------------------
+
+  /** Steps 1–2: basic info and the chosen insurance, landing on Step 3. */
+  async startApplication(tipo: InsuranceLabel): Promise<void> {
+    await this.fillBasicInfo();
+    await this.next('Selección de Seguro');
+    await this.chooseInsurance(tipo);
+    await this.next('Detalles del Seguro');
   }
 
-  // Helper method to complete form up to step 4
-  async completeFormToStep4(): Promise<void> {
-    await this.fillStep1BasicInfo();
-    await this.proceedToStep2();
-    await this.selectInsuranceTypes(['auto']);
-    await this.proceedToStep3();
-    await this.fillAutoInsuranceDetails();
-    await this.proceedToStep4();
-    await this.acceptTermsAndPrivacy();
-  }
-
-  // Complete form flow
-  async completeFullApplication(insuranceTypes: string[] = ['auto']): Promise<void> {
-    await this.navigateToInsuranceForm();
-    
-    // Step 1: Basic Information
-    await this.fillStep1BasicInfo();
-    await this.proceedToStep2();
-    
-    // Step 2: Insurance Selection
-    await this.selectInsuranceTypes(insuranceTypes);
-    await this.proceedToStep3();
-    
-    // Step 3: Conditional Fields
-    if (insuranceTypes.includes('auto')) {
-      await this.fillAutoInsuranceDetails();
-    }
-    if (insuranceTypes.includes('salud')) {
-      await this.fillHealthInsuranceDetails();
-    }
-    if (insuranceTypes.includes('vida')) {
-      await this.fillLifeInsuranceDetails();
-    }
-    await this.proceedToStep4();
-    
-    // Step 4: Declaration and Documents
-    await this.acceptTermsAndPrivacy();
-    await this.proceedToStep5();
-    
-    // Step 5: Review and Submit
-    await this.reviewAndSubmit();
-    await this.expectSuccessfulSubmission();
+  /** A complete Seguro de Autos application up to the Step 5 summary, terms accepted. */
+  async reachSummaryAsAuto(): Promise<void> {
+    await this.startApplication('Seguro de Autos');
+    await this.fillCommonDetails();
+    await this.upload('Tarjeta de propiedad (ambos lados)', pdfFile('tarjeta-propiedad.pdf'));
+    await this.next('Declaración');
+    await this.upload('Archivo declaración renta', pdfFile('declaracion-renta.pdf'));
+    await this.next('Resumen y Envío');
+    await this.acceptTerms();
   }
 }

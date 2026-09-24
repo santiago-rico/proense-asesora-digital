@@ -1,9 +1,9 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { sendTransactionalEmail } from '../src/utils/brevo.js';
 import { JSDOM } from 'jsdom';
-import { withRateLimit, rateLimitConfigs } from './utils/rate-limiter.js';
-import { getNotificationEmails } from './utils/notification-emails.js';
-import { backendQuoteSchema } from './schemas/quote-request-schema.js';
+import { withRateLimit, rateLimitConfigs } from './_utils/rate-limiter.js';
+import { getNotificationEmails } from './_utils/notification-emails.js';
+import { backendQuoteSchema } from './_schemas/quote-request-schema.js';
 
 // Defines the expected structure of the quote request data
 export interface QuoteRequestData {

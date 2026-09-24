@@ -1,202 +1,75 @@
-# E2E Tests with Playwright
+# E2E tests (Playwright)
 
-This directory contains end-to-end tests for the Proense Asesora Digital application using Playwright.
+End-to-end tests that drive the real app in a browser. They cover the emisión
+(policy issuance) form at `/clientes/emision-polizas`.
 
 ## Structure
 
 ```
 e2e/
+├── global-setup.ts                 # Warms up the Vite dev server before any test
+├── tsconfig.json                   # Type-checking for the suite (not part of the app build)
 ├── fixtures/
-│   ├── test-data.ts           # Test data and data generators
-│   └── page-objects/          # Page Object Model classes
-│       ├── base-page.ts       # Base page object with common functionality
-│       ├── insurance-form.ts  # Insurance application form page object
-│       └── lead-form.ts       # Lead generation form page object
-├── tests/
-│   └── critical-paths/        # Critical user journey tests
-│       └── insurance-application.spec.ts  # Insurance application flow tests
-├── utils/                     # Test utilities and helpers
-│   ├── csrf-helper.ts         # CSRF token management utilities
-│   ├── file-upload-helper.ts  # File upload testing utilities
-│   ├── test-helpers.ts        # General test helper functions
-│   ├── global-setup.ts        # Global test setup
-│   └── global-teardown.ts     # Global test cleanup
-└── README.md                  # This file
+│   ├── api-mocks.ts                # page.route mocks + multipart capture of submissions
+│   ├── test-data.ts                # Applicant data and in-memory upload files
+│   └── page-objects/
+│       └── insurance-form.ts       # Page object for the emisión multi-step form
+└── tests/
+    └── critical-paths/
+        └── insurance-application.spec.ts
 ```
 
-## Running Tests
-
-### Basic Commands
+## Running
 
 ```bash
-# Run all E2E tests
-npm run test:e2e
+npx playwright install chromium     # once, downloads the browser
+npm run test:e2e                    # starts `npm run dev` on :8080 (or reuses a running one)
+npm run test:e2e:ui                 # interactive mode
+npm run test:e2e:headed             # watch the browser
+npm run test:e2e:report             # open the last HTML report
 
-# Run tests with UI (interactive mode)
-npm run test:e2e:ui
-
-# Run tests in headed mode (see browser)
-npm run test:e2e:headed
-
-# Debug tests (step-by-step)
-npm run test:e2e:debug
-
-# View test report
-npm run test:e2e:report
+npx playwright test -g "Hogar"                  # filter by test title
+npx playwright test --project=chromium          # desktop only
+E2E_WEBKIT=1 npx playwright test                # also Desktop/Mobile Safari (needs `npx playwright install webkit`)
+npx tsc -p e2e/tsconfig.json                    # type-check the suite
 ```
 
-### Advanced Options
+Default projects are desktop Chromium and a mobile Chromium viewport (Pixel 5),
+so every test also runs at phone width. In CI mode (`CI=1`) the suite uses one
+worker, retries failures twice and always starts its own dev server.
 
-```bash
-# Run specific test file
-npx playwright test insurance-application.spec.ts
+## How the API is handled
 
-# Run tests on specific browser
-npx playwright test --project=chromium
-npx playwright test --project=webkit
+`npm run dev` serves only the Vite app — requests to `/api/*` are not executed
+(they return the TypeScript source), and the real functions send emails through
+Brevo. Every test therefore mocks the endpoints with `page.route`
+(`fixtures/api-mocks.ts`):
 
-# Run tests with specific grep pattern
-npx playwright test --grep "auto insurance"
+- `/api/csrf-token` returns a fixed token (`InsuranceFormPage.open()` sets this up).
+- `/api/send-insurance-application-email` answers per test via
+  `mockEmisionSubmission(page, ...responders)`: `respond.success()`,
+  `respond.json(status, body)`, `respond.networkError()` or `respond.hang()`.
+  Responder *i* answers attempt *i* (the last one repeats), which is how the
+  automatic retry is tested.
+- Every submission is captured (headers, text fields, uploaded file names) so
+  tests assert exactly what the form sends — e.g. the CSRF header and the hogar
+  declaration answers.
 
-# Update screenshots
-npx playwright test --update-snapshots
-```
+Server-side behaviour (validation, CSRF verification, sanitization, emails) is
+covered by the Vitest suites in `tests/api/` and `src/utils/email-templates/`.
 
-## Test Categories
+## Conventions
 
-### Critical Paths
-- **Insurance Application Flow**: Complete multi-step insurance application process
-- **Lead Generation**: Contact form and lead capture functionality
-- **Client Services**: Modification and cancellation requests
-
-### Test Types
-- **Functional Tests**: Core application functionality
-- **Security Tests**: CSRF protection, XSS prevention, input sanitization
-- **Accessibility Tests**: Keyboard navigation, ARIA labels, screen reader support
-- **Performance Tests**: Load times, submission times
-- **Mobile Tests**: Responsive design and mobile functionality
-- **Error Handling**: Network failures, server errors, validation errors
-
-## Page Objects
-
-### BasePage
-Common functionality shared across all pages:
-- Navigation helpers
-- Form interaction utilities
-- Accessibility testing methods
-- Performance measurement tools
-- Screenshot and debugging utilities
-
-### InsuranceFormPage
-Specific to the multi-step insurance application form:
-- Step-by-step navigation
-- Form field interactions
-- File upload functionality
-- Validation testing
-- Progress tracking
-
-### LeadFormPage
-Lead generation dialog functionality:
-- Dialog interaction (open/close)
-- Form submission
-- Validation testing
-- Security testing
-
-## Test Data
-
-The `test-data.ts` file contains:
-- Valid and invalid form data
-- Security test payloads (XSS, SQL injection attempts)
-- File upload test data
-- Navigation test data
-- Performance benchmarks
-
-## Utilities
-
-### CSRF Helper
-- Fetches and manages CSRF tokens
-- Tests CSRF protection mechanisms
-- Simulates CSRF attacks for security testing
-
-### File Upload Helper
-- Creates test files (PDF, images, invalid files)
-- Tests file validation (size, type, security)
-- Manages temporary test files
-- Simulates malicious file uploads
-
-### Test Helpers
-- Performance measurement utilities
-- Accessibility testing helpers
-- Network simulation (slow, offline)
-- Form interaction utilities
-- Screenshot and debugging tools
-
-## Configuration
-
-Tests are configured in `playwright.config.ts`:
-- Multiple browser support (Chromium, WebKit)
-- Mobile device testing
-- Parallel execution
-- Report generation
-- Timeout settings
-- Retry logic
-
-## Best Practices
-
-### Writing Tests
-1. Use Page Object Model for maintainability
-2. Include both positive and negative test cases
-3. Test accessibility and keyboard navigation
-4. Verify security measures (CSRF, XSS protection)
-5. Test responsive design across devices
-6. Include performance assertions
-
-### Test Data
-1. Use descriptive test data that reflects real usage
-2. Clean up test files after each test
-3. Use data generators for unique test data
-4. Separate valid and invalid test data clearly
-
-### Error Handling
-1. Test network failure scenarios
-2. Verify graceful error handling
-3. Test form validation edge cases
-4. Simulate server errors
-
-### Security Testing
-1. Test CSRF protection on all forms
-2. Verify input sanitization
-3. Test file upload security
-4. Check for XSS vulnerabilities
-
-## Debugging
-
-### Common Issues
-- **Timeouts**: Increase timeout values or add wait conditions
-- **Flaky Tests**: Add proper wait conditions and retry logic
-- **Element Not Found**: Verify selectors and page load states
-- **File Upload Issues**: Check file paths and cleanup
-
-### Debug Tools
-- Use `--debug` flag for step-by-step debugging
-- Take screenshots with `takeTimestampedScreenshot()`
-- Use `page.pause()` to pause execution
-- Check browser console with `captureConsoleErrors()`
-
-## CI/CD Integration
-
-Tests are designed to run in CI/CD environments:
-- Headless execution by default
-- Configurable base URL
-- Proper cleanup and teardown
-- Test result reporting
-- Screenshot and video capture on failures
-
-## Contributing
-
-When adding new tests:
-1. Follow the existing Page Object Model pattern
-2. Add test data to `test-data.ts`
-3. Include accessibility and security tests
-4. Add appropriate documentation
-5. Ensure tests are reliable and not flaky
+- Locate elements the way users and assistive tech do: `getByRole`,
+  `getByLabel`, `getByPlaceholder`, `getByText`. The app has no `data-testid`s.
+- Upload files are built in memory (`fixtures/test-data.ts`); nothing is written to disk.
+- The hogar declaration questions come from `src/data/hogarAsegurabilidad.ts`,
+  the same source the app uses, so wording changes don't break the tests.
+- Known app bugs are recorded as `test.fail(...)` with the reason. Such a test
+  passes while the bug exists; once the bug is fixed it starts failing — remove
+  the `test.fail` line then.
+- The timeout test installs Playwright's fake clock (`page.clock`) to
+  fast-forward the form's 63s request timeout.
+- `global-setup.ts` loads the form once before the run: on a cold cache Vite
+  re-optimizes dependencies on the first visit and reloads the page, which
+  would otherwise break whichever test hit it first.

@@ -3,11 +3,11 @@ import { describe, it, expect, vi } from 'vitest';
 // The module under test imports the Brevo client at top level; mock it so
 // importing the file never needs API keys or network access. The template
 // components themselves are NOT mocked — these tests render the real HTML.
-vi.mock('../src/utils/brevo.js', () => ({
+vi.mock('../../src/utils/brevo.js', () => ({
   sendTransactionalEmail: vi.fn(),
 }));
 
-import { QuoteRequestTemplate, type QuoteRequestData } from './send-quote-request';
+import { QuoteRequestTemplate, type QuoteRequestData } from '../../api/send-quote-request';
 
 // ---------------------------------------------------------------------------
 // Fixtures

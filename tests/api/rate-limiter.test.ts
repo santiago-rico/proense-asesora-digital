@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { rateLimit, rateLimitConfigs, withRateLimit, _store } from './rate-limiter';
+import { rateLimit, rateLimitConfigs, withRateLimit, _store } from '../../api/_utils/rate-limiter';
 
 // Mock Vercel Request and Response
 const createMockRequest = (ip = '127.0.0.1', method = 'POST'): VercelRequest => ({

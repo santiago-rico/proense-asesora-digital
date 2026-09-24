@@ -4,9 +4,9 @@ import formidable from 'formidable';
 import fs from 'fs';
 import { z } from 'zod';
 import { JSDOM } from 'jsdom';
-import { withRateLimit, rateLimitConfigs } from './utils/rate-limiter.js';
+import { withRateLimit, rateLimitConfigs } from './_utils/rate-limiter.js';
 import { CancellationRequestTemplate } from '../src/utils/email-templates/CancellationRequestTemplate.js';
-import { getNotificationEmails } from './utils/notification-emails.js';
+import { getNotificationEmails } from './_utils/notification-emails.js';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 const ALLOWED_MIME_TYPES = [

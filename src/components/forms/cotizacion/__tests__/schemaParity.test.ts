@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { quoteFormBaseSchema } from '../formSchema';
-import { backendQuoteSchema } from '../../../../../api/schemas/quote-request-schema';
+import { backendQuoteSchema } from '../../../../../api/_schemas/quote-request-schema';
 
 /**
  * Guards against client/server schema drift for the quote (cotización) form.
@@ -34,7 +34,7 @@ describe('cotización schema parity (client ↔ server)', () => {
       (field) => !CLIENT_ONLY.has(field) && !serverFields.includes(field)
     );
 
-    // If this fails, add the listed field(s) to api/schemas/quote-request-schema.ts
+    // If this fails, add the listed field(s) to api/_schemas/quote-request-schema.ts
     // (plus the QuoteRequestData interface, sanitization block and email template
     // in api/send-quote-request.ts) or they will be dropped from the email.
     expect(droppedByServer).toEqual([]);

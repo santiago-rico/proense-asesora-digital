@@ -46,7 +46,11 @@ npm run db:clear     # Clear Sanity database
 │   ├── send-insurance-application-email.ts
 │   ├── send-cancellation-request.ts
 │   ├── send-modification-request.ts
-│   └── csrf-token.ts       # CSRF protection endpoint
+│   ├── send-quote-request.ts
+│   ├── csrf-token.ts       # CSRF protection endpoint
+│   ├── _utils/             # Shared helpers (rate limiter, notification routing)
+│   └── _schemas/           # Shared Zod schemas
+├── tests/api/              # Vitest tests for the api/ functions
 ├── src/
 │   ├── components/
 │   │   ├── forms/          # All form components
@@ -120,13 +124,18 @@ Each form's agent notification is sent to `NOTIFICATION_EMAILS` **plus** the for
 - `NOTIFY_MODIFICACION` - Extra recipients for modification requests (`send-modification-request.ts`)
 - `NOTIFY_CANCELACION` - Extra recipients for cancellation requests (`send-cancellation-request.ts`)
 
-Routing is resolved centrally in `api/utils/notification-emails.ts` via `getNotificationEmails(formType)`. If a form has no recipients configured anywhere, it falls back to `comercial@proense.co` so submissions are never lost.
+Routing is resolved centrally in `api/_utils/notification-emails.ts` via `getNotificationEmails(formType)`. If a form has no recipients configured anywhere, it falls back to `comercial@proense.co` so submissions are never lost.
 
 ### Testing Approach
 - Tests are written using Vitest
 - Test files follow `*.test.ts` or `*.test.tsx` pattern
 - Run a single test file: `npm test path/to/file.test.ts`
 - Security tests available in `tests/security/` directory
+
+### Vercel Function Limit
+The project is on Vercel's Hobby plan, which fails any deployment with more than **12 Serverless Functions** (`exceeded_serverless_functions_per_deployment`). Vercel turns every file under `api/` into a function unless it or its folder starts with `_`, test files included. To stay within the limit:
+- Only real endpoints live directly in `api/`; shared code goes in `api/_utils/` or `api/_schemas/`
+- Tests for API code live in `tests/api/`, never under `api/`
 
 ### Security Implementation
 

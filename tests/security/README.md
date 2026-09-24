@@ -162,7 +162,7 @@ The tests validate compliance with:
 - Ensure Vercel development server is running on port 3002 (`vercel dev --listen 3002`)
 - Check that all environment variables are set correctly in `.env.local`
 - Verify CSRF implementation in API endpoints
-- Confirm rate limiting configuration in `api/utils/rate-limiter.ts`
+- Confirm rate limiting configuration in `api/_utils/rate-limiter.ts`
 - Make sure you have the Vercel CLI installed (`npm i -g vercel`)
 
 ## Adding New Tests

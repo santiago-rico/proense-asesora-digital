@@ -5,7 +5,7 @@ import { isValidPhoneNumber } from 'react-phone-number-input';
 //
 // The plain object shape is exported separately as `quoteFormBaseSchema` so its
 // field list can be introspected (see `__tests__/schemaParity.test.ts`, which
-// asserts the server schema in `api/schemas/quote-request-schema.ts` accepts
+// asserts the server schema in `api/_schemas/quote-request-schema.ts` accepts
 // every field collected here). `quoteFormSchema` layers the cross-field
 // conditional validation on top and is what the form actually uses.
 export const quoteFormBaseSchema = z.object({
