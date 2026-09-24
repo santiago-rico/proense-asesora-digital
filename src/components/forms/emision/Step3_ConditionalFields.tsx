@@ -4,6 +4,7 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/comp
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import FileUpload from './FileUpload';
+import HogarAsegurabilidad from './HogarAsegurabilidad';
 
 const Step3_ConditionalFields = () => {
   const { control, watch } = useFormContext();
@@ -100,6 +101,7 @@ const Step3_ConditionalFields = () => {
           <>
             {renderCommonFields()}
             <FileUpload name="certificadoLibertad" label="Certificado de libertad y tradición o Impuesto Predial *" multiple />
+            <HogarAsegurabilidad />
           </>
         );
       case 'rentas': // Updated: Now requires common and beneficiary fields

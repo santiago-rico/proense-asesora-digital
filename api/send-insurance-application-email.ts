@@ -9,6 +9,11 @@ import { JSDOM } from 'jsdom';
 import { withRateLimit, rateLimitConfigs } from './utils/rate-limiter.js';
 import { InsuranceApplicationTemplate } from '../src/utils/email-templates/InsuranceApplicationTemplate.js';
 import { getNotificationEmails } from './utils/notification-emails.js';
+import {
+  HOGAR_ASEGURABILIDAD_KEYS,
+  HOGAR_ASEGURABILIDAD_REQUIRED_MESSAGE,
+  type HogarAsegurabilidadKey,
+} from '../src/data/hogarAsegurabilidad.js';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 const ALLOWED_MIME_TYPES = [
@@ -34,7 +39,8 @@ export const config = {
 };
 
 // Defines the expected structure of the form data from MultiStepForm.tsx
-interface InsuranceApplicationData {
+// Hogar declaración de asegurabilidad answers are keyed by HOGAR_ASEGURABILIDAD_KEYS.
+interface InsuranceApplicationData extends Partial<Record<HogarAsegurabilidadKey, 'si' | 'no' | ''>> {
   // Step 1: Basic Info
   nombreCompleto: string;
   telefono: string;
@@ -105,8 +111,15 @@ const parseForm = (
   });
 };
 
+// Every submission carries all hogar declaration keys ('' when unanswered or
+// for other insurance types); they are only required for tipoSeguro 'hogar'.
+const siNoOrEmpty = z.union([z.enum(['si', 'no']), z.literal('')]).optional();
+const hogarAsegurabilidadFields = Object.fromEntries(
+  HOGAR_ASEGURABILIDAD_KEYS.map(key => [key, siNoOrEmpty]),
+) as Record<HogarAsegurabilidadKey, typeof siNoOrEmpty>;
+
 // Backend validation schema with trimming
-const backendSchema = z.object({
+export const backendSchema = z.object({
   // Personal Information
   nombreCompleto: z.string().min(2, 'El nombre debe tener al menos 2 caracteres').max(100).transform(str => str.trim()),
   telefono: z.string().regex(/^\+?[0-9]{10,15}$/, 'Número de teléfono inválido').transform(str => str.trim()),
@@ -127,6 +140,7 @@ const backendSchema = z.object({
   enfermedadesEspecificar: z.string().transform(str => str.trim()).optional(),
   valorActualDeuda: z.string().transform(str => str.trim()).optional(),
   conduceMoto: z.union([z.enum(['si', 'no']), z.literal('')]).optional(),
+  ...hogarAsegurabilidadFields,
   
   // Declaration
   declaraRenta: z.enum(['si', 'no']),
@@ -140,6 +154,18 @@ const backendSchema = z.object({
   
   // Honeypot field
   website: z.string().optional(),
+}).superRefine((data, ctx) => {
+  // A "Sí" never blocks the submission (it is information for the asesor),
+  // but every question must be answered for hogar.
+  if (data.tipoSeguro !== 'hogar') return;
+  // Pages loaded before the declaration shipped send none of the keys; accept
+  // those in-flight submissions instead of rejecting on fields they can't show.
+  if (HOGAR_ASEGURABILIDAD_KEYS.every(key => data[key] === undefined)) return;
+  for (const key of HOGAR_ASEGURABILIDAD_KEYS) {
+    if (data[key] !== 'si' && data[key] !== 'no') {
+      ctx.addIssue({ code: 'custom', message: HOGAR_ASEGURABILIDAD_REQUIRED_MESSAGE, path: [key] });
+    }
+  }
 });
 
 async function handler(
