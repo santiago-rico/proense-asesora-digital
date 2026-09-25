@@ -37,7 +37,6 @@ jobs:
         
       - name: Run tests with coverage
         run: npm run test -- --run --coverage --reporter=verbose
-        continue-on-error: true # Allow tests to fail while still getting coverage
         
       - name: Upload coverage reports to Codecov
         if: matrix.node-version == '22.x'
