@@ -38,6 +38,11 @@ Default projects are desktop Chromium and a mobile Chromium viewport (Pixel 5),
 so every test also runs at phone width. In CI mode (`CI=1`) the suite uses one
 worker, retries failures twice and always starts its own dev server.
 
+The suite runs in GitHub Actions as the **E2E Tests (Playwright)** job in
+`.github/workflows/ci.yml`, and a failure fails the CI Summary. Chromium is
+cached per Playwright version. When the job fails, the HTML report and traces
+are uploaded as the `playwright-report` artifact.
+
 ## How the API is handled
 
 `npm run dev` serves only the Vite app — requests to `/api/*` are not executed

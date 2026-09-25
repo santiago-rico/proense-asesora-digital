@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type MouseEvent } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Step1_BasicInfo from './Step1_BasicInfo';
@@ -98,14 +98,20 @@ const MultiStepForm = ({ onSuccess }: MultiStepFormProps) => {
   }, [toast]);
   
 
-  useEffect(() => {
-    // When the step changes, clear any existing errors for the fields of the new current step.
-    // This ensures that errors don't persist from a previous attempt to validate this step.
-    const fieldsForCurrentStep = steps[currentStep]?.fields;
-    if (fieldsForCurrentStep) {
-      clearErrors(fieldsForCurrentStep as (keyof FormSchemaType)[]);
-    }
-  }, [currentStep, clearErrors]); // `steps` is stable, not needed in dep array if defined outside component scope
+  // Navigation buttons open a step without errors left over from an earlier
+  // attempt to validate it. The server-error handler in onSubmit calls
+  // setCurrentStep directly instead, so the errors it has just set survive.
+  const goToStep = (index: number) => {
+    clearErrors(steps[index].fields as (keyof FormSchemaType)[]);
+    setCurrentStep(index);
+  };
+
+  // Keeps focus in the current field while a navigation button is pressed.
+  // Otherwise mousedown blurs the field, its onBlur validation adds or removes an
+  // error message, the button shifts under the pointer and the click is lost.
+  // Skipping that blur validation is safe: handleNext and onSubmit validate the
+  // whole step themselves.
+  const keepFieldFocus = (event: MouseEvent<HTMLButtonElement>) => event.preventDefault();
 
   // Call onSuccess callback when form is submitted
   useEffect(() => {
@@ -122,13 +128,13 @@ const MultiStepForm = ({ onSuccess }: MultiStepFormProps) => {
     if (!output) return;
 
     if (currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1);
+      goToStep(currentStep + 1);
     }
   };
 
   const handlePrev = () => {
     if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
+      goToStep(currentStep - 1);
     }
   };
 
@@ -310,7 +316,8 @@ const MultiStepForm = ({ onSuccess }: MultiStepFormProps) => {
           {currentStep > 0 && (
             <Button 
               type="button" 
-              onClick={handlePrev} 
+              onClick={handlePrev}
+              onMouseDown={keepFieldFocus}
               variant="outline"
               className="w-full sm:w-auto min-h-[44px] touch-manipulation"
             >
@@ -322,6 +329,7 @@ const MultiStepForm = ({ onSuccess }: MultiStepFormProps) => {
             <Button 
               type="button" 
               onClick={handleNext}
+              onMouseDown={keepFieldFocus}
               className="w-full sm:w-auto min-h-[44px] touch-manipulation order-first sm:order-none"
             >
               Siguiente
@@ -329,7 +337,8 @@ const MultiStepForm = ({ onSuccess }: MultiStepFormProps) => {
           )}
           {currentStep === steps.length - 1 && (
             <Button 
-              type="submit" 
+              type="submit"
+              onMouseDown={keepFieldFocus}
               disabled={isSubmitting || !csrfToken}
               className="w-full sm:w-auto min-h-[44px] touch-manipulation order-first sm:order-none"
             >

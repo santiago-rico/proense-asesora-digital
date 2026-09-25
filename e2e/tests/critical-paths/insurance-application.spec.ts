@@ -160,15 +160,10 @@ test.describe('Emisión de pólizas', () => {
       await expect(page.getByText('Email inválido')).toBeVisible();
 
       await form.fillBasicInfo();
-      // Blur first: see the known-bug test below.
-      await form.emailInput.blur();
-      await expect(page.getByText('Email inválido')).toBeHidden();
       await form.next('Selección de Seguro');
     });
 
     test('Paso 1: tras corregir el último campo, un solo clic en "Siguiente" avanza', async ({ page }) => {
-      test.fail(true, 'Known bug: clicking "Siguiente" blurs the field, its error message disappears and the '
-        + 'button shifts up under the pointer, so the click is lost and the user has to click twice.');
       await form.fillBasicInfo({ nombreCompleto: applicant.nombreCompleto, telefono: applicant.telefono, email: 'maria@' });
       await form.next();
       await expect(page.getByText('Email inválido')).toBeVisible();
@@ -304,8 +299,6 @@ test.describe('Emisión de pólizas', () => {
     });
 
     test('400 con errores de campo: muestra el mensaje del servidor junto al campo', async ({ page }) => {
-      test.fail(true, 'Known bug: MultiStepForm clears the errors of a step whenever it becomes the current '
-        + 'step, which wipes the server error it has just set before routing the user back to that step.');
       await mockEmisionSubmission(page, fieldErrorResponse);
       await form.reachSummaryAsAuto();
       await form.submitButton.click();
