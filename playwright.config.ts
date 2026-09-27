@@ -1,9 +1,11 @@
 import { defineConfig, devices } from '@playwright/test';
 
 /**
- * E2E suite for the public forms. The API is mocked per test with `page.route`
- * (see e2e/fixtures/api-mocks.ts): `npm run dev` only serves the Vite app, and
- * the real /api functions send emails through Brevo.
+ * E2E suite for the whole site. Specs import `test` from e2e/fixtures/network.ts,
+ * whose auto fixtures mock every third party (Sanity, fonts, gpteng, CSRF) and
+ * fail a test on page/console errors. Form endpoints are mocked per test with
+ * `page.route` (e2e/fixtures/api-mocks.ts): `npm run dev` only serves the Vite
+ * app, and the real /api functions send emails through Brevo.
  *
  * Default projects: desktop Chromium + a mobile Chromium viewport. Set
  * E2E_WEBKIT=1 to add Desktop/Mobile Safari (needs `npx playwright install webkit`).
@@ -22,9 +24,12 @@ export default defineConfig({
 
   use: {
     baseURL: process.env.BASE_URL || 'http://localhost:8080',
+    // The blog formats dates in the local timezone; pin it so they are deterministic.
+    timezoneId: 'America/Bogota',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
-    video: 'retain-on-failure',
+    // Encoding video costs a lot of CPU; locally, traces and screenshots are enough.
+    video: process.env.CI ? 'retain-on-failure' : 'off',
     actionTimeout: 10000,
     navigationTimeout: 30000,
   },
