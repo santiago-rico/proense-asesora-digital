@@ -181,9 +181,15 @@ jobs:
   # End-to-end tests (Playwright). The tests mock /api, so no secrets are needed;
   # playwright.config.ts starts the dev server itself.
   e2e:
-    name: E2E Tests (Playwright)
+    # The suite covers every page and form on two viewports; one worker per runner
+    # would take ~25 min, so it is split across parallel shards.
+    name: E2E Tests (Playwright ${{ matrix.shard }}/4)
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
 
     steps:
       - name: Checkout code
@@ -218,13 +224,13 @@ jobs:
         run: npx playwright install-deps chromium
 
       - name: Run Playwright tests
-        run: npx playwright test
+        run: npx playwright test --shard=${{ matrix.shard }}/4
 
       - name: Upload Playwright report
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report
+          name: playwright-report-${{ matrix.shard }}
           path: |
             playwright-report/
             test-results/

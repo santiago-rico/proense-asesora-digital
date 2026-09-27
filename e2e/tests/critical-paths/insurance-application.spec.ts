@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, FAILED_REQUEST } from '../../fixtures/network';
 import {
   HOGAR_ASEGURABILIDAD_QUESTIONS,
   HOGAR_ASEGURABILIDAD_REQUIRED_MESSAGE,
@@ -284,6 +284,11 @@ test.describe('Emisión de pólizas', () => {
   });
 
   test.describe('Respuestas del servidor', () => {
+    test.beforeEach(({ consoleErrors }) => {
+      // The failed request itself, and the form's own logging of it.
+      consoleErrors.allow(FAILED_REQUEST, /^API Error:/, /^Error de red u otro error:/);
+    });
+
     const fieldErrorResponse = respond.json(400, {
       message: 'Datos inválidos.',
       errors: { numeroCedula: ['El número de cédula no es válido.'] },
@@ -360,7 +365,8 @@ test.describe('Emisión de pólizas', () => {
 });
 
 test.describe('Emisión de pólizas: servidor que no responde', () => {
-  test('muestra "El envío tardó demasiado" sin reintentar', async ({ page }) => {
+  test('muestra "El envío tardó demasiado" sin reintentar', async ({ page, consoleErrors }) => {
+    consoleErrors.allow(/^Error de red u otro error: AbortError/);
     // Fake timers so the client's 63s request timeout can be fast-forwarded.
     await page.clock.install();
     const form = new InsuranceFormPage(page);

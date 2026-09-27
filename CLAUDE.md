@@ -30,10 +30,10 @@ npm run db:clear     # Clear Sanity database
 ## Architecture Overview
 
 ### Tech Stack
-- **Frontend**: React 18 with TypeScript, built with Vite
+- **Frontend**: React 19 with TypeScript, built with Vite
 - **UI Components**: shadcn/ui with Tailwind CSS
-- **Forms**: React Hook Form with Zod validation
-- **Routing**: React Router v6
+- **Forms**: React Hook Form with Zod 4 validation
+- **Routing**: React Router v7 (`react-router-dom`)
 - **CMS**: Sanity.io for blog and dynamic content
 - **API**: Vercel serverless functions in `/api` directory
 - **Email**: Brevo (formerly Sendinblue) for transactional emails
@@ -130,6 +130,8 @@ Routing is resolved centrally in `api/_utils/notification-emails.ts` via `getNot
 - Tests are written using Vitest
 - Test files follow `*.test.ts` or `*.test.tsx` pattern
 - Run a single test file: `npm test path/to/file.test.ts`
+- CI runs `npm run test -- --run --coverage`; a failing test or coverage below the thresholds in `vitest.config.ts` fails CI
+- E2E tests use Playwright (`npm run test:e2e`), live in `e2e/` and mock all network access; see `e2e/README.md`
 - Security tests available in `tests/security/` directory
 
 ### Vercel Function Limit
