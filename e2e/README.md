@@ -1,7 +1,8 @@
 # E2E tests (Playwright)
 
 End-to-end tests that drive the real app in a browser: every page, its
-navigation and accessibility, and the emisión (policy issuance) form.
+navigation and accessibility, and the public forms (lead, cotización, emisión,
+modificación, cancelación).
 
 ## Structure
 
@@ -17,10 +18,16 @@ e2e/
 │   ├── test-data.ts                # Applicant data and in-memory upload files
 │   └── page-objects/
 │       ├── site.ts                 # Navbar, mobile menu, footer, lead dialog, toasts
-│       └── insurance-form.ts       # Emisión multi-step form
+│       ├── insurance-form.ts       # Emisión multi-step form
+│       ├── lead-form.ts            # LeadForm (page or dialog)
+│       ├── quote-form.ts           # Cotización multi-step form
+│       └── service-request-form.ts # Modificación and cancelación forms
 └── tests/
     ├── critical-paths/             # Forms: submissions, validation, server responses
-    │   └── insurance-application.spec.ts
+    │   ├── insurance-application.spec.ts
+    │   ├── lead-form.spec.ts
+    │   ├── quote-request.spec.ts
+    │   └── service-requests.spec.ts
     └── site/                       # Pages, navigation and accessibility
         ├── smoke.spec.ts           # Every route: h1, title, navbar, footer, no errors
         ├── navigation.spec.ts      # Navbar, mobile menu, dialog entry points, footer, 404
