@@ -62,8 +62,8 @@ other project with `test.skip(({ isMobile }) => …)`. The timezone is pinned to
 (`CI=1`) the suite retries failures twice and always starts its own dev server.
 
 The suite runs in GitHub Actions as the **E2E Tests (Playwright)** job in
-`.github/workflows/ci.yml`, split into 4 parallel shards
-(`npx playwright test --shard=N/4`), and a failure fails the CI Summary.
+`.github/workflows/ci.yml`, split into 6 parallel shards
+(`npx playwright test --shard=N/6`), and a failure fails the CI Summary.
 Chromium is cached per Playwright version. When a shard fails, its HTML report
 and traces are uploaded as the `playwright-report-N` artifact. Locally, video is
 off (it costs a lot of CPU); CI keeps it for failed tests.
