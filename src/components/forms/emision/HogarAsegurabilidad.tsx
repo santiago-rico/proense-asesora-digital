@@ -4,8 +4,9 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/comp
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
   HOGAR_ASEGURABILIDAD_DISCLAIMER,
-  HOGAR_ASEGURABILIDAD_QUESTIONS,
   HOGAR_ASEGURABILIDAD_TITLE,
+  getAsegurabilidadQuestions,
+  type AsegurabilidadRamo,
 } from '@/data/hogarAsegurabilidad';
 
 const ANSWER_OPTIONS = [
@@ -13,10 +14,15 @@ const ANSWER_OPTIONS = [
   { value: 'no', label: 'No' },
 ] as const;
 
-// Declaración de asegurabilidad for Seguro de Hogar. Every question must be
-// answered, but nothing is preselected: the client has to declare each answer.
-// A "Sí" is informational for the asesor and never blocks the submission.
-const HogarAsegurabilidad: React.FC = () => {
+interface HogarAsegurabilidadProps {
+  ramo: AsegurabilidadRamo;
+}
+
+// Declaración de asegurabilidad for Seguro de Hogar and Seguro Empresarial,
+// each with its own wording. Every question must be answered, but nothing is
+// preselected: the client has to declare each answer. A "Sí" is informational
+// for the asesor and never blocks the submission.
+const HogarAsegurabilidad: React.FC<HogarAsegurabilidadProps> = ({ ramo }) => {
   const { control, clearErrors } = useFormContext();
 
   return (
@@ -27,7 +33,7 @@ const HogarAsegurabilidad: React.FC = () => {
       <p className="text-sm text-gray-600 dark:text-gray-400">{HOGAR_ASEGURABILIDAD_DISCLAIMER}</p>
 
       <ol className="divide-y divide-gray-200 dark:divide-gray-700 rounded-md border border-gray-200 dark:border-gray-700">
-        {HOGAR_ASEGURABILIDAD_QUESTIONS.map((q, index) => {
+        {getAsegurabilidadQuestions(ramo).map((q, index) => {
           const questionId = `${q.key}-pregunta`;
           return (
             <li key={q.key} className="p-4">

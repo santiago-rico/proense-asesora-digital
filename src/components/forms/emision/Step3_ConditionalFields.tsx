@@ -101,7 +101,7 @@ const Step3_ConditionalFields = () => {
           <>
             {renderCommonFields()}
             <FileUpload name="certificadoLibertad" label="Certificado de libertad y tradición o Impuesto Predial *" multiple />
-            <HogarAsegurabilidad />
+            <HogarAsegurabilidad ramo="hogar" />
           </>
         );
       case 'rentas': // Updated: Now requires common and beneficiary fields
@@ -162,6 +162,7 @@ const Step3_ConditionalFields = () => {
             />
             <FileUpload name="rut" label="RUT (Obligatorio) *" description="El documento debe estar actualizado a máximo 30 días." multiple />
             <FileUpload name="camaraComercio" label="Cámara de comercio (Obligatorio) *" description="El documento debe estar actualizado a máximo 30 días." multiple />
+            <HogarAsegurabilidad ramo="empresarial" />
           </>
         );
       case 'mascotas':

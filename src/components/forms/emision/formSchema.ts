@@ -3,6 +3,7 @@ import { isValidPhoneNumber } from 'react-phone-number-input';
 import {
   HOGAR_ASEGURABILIDAD_KEYS,
   HOGAR_ASEGURABILIDAD_REQUIRED_MESSAGE,
+  requiresAsegurabilidad,
   type HogarAsegurabilidadKey,
 } from '@/data/hogarAsegurabilidad';
 import { DECLARACION_ASESORIA_REQUIRED_MESSAGE } from '@/data/declaracionAsesoria';
@@ -38,7 +39,7 @@ const detailedFileArraySchema = z.array(z.instanceof(File))
 
 const siNoOptional = z.union([z.enum(['si', 'no']), z.literal('')]).optional();
 
-// Seguro de Hogar - Declaración de asegurabilidad (one si/no field per question)
+// Seguro de Hogar y Empresarial - Declaración de asegurabilidad (one si/no field per question)
 const hogarAsegurabilidadShape = Object.fromEntries(
   HOGAR_ASEGURABILIDAD_KEYS.map(key => [key, siNoOptional])
 ) as Record<HogarAsegurabilidadKey, typeof siNoOptional>;
@@ -116,11 +117,6 @@ export const formSchema = z.object({
     if (!data.certificadoLibertad || data.certificadoLibertad.length === 0) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, message: "El certificado de libertad y tradición es requerido.", path: ["certificadoLibertad"] });
     }
-    for (const key of HOGAR_ASEGURABILIDAD_KEYS) {
-      if (data[key] !== 'si' && data[key] !== 'no') {
-        ctx.addIssue({ code: z.ZodIssueCode.custom, message: HOGAR_ASEGURABILIDAD_REQUIRED_MESSAGE, path: [key] });
-      }
-    }
   } else if (data.tipoSeguro === 'auto') {
     if (!data.tarjetaPropiedad || data.tarjetaPropiedad.length === 0) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, message: "La tarjeta de propiedad es requerida.", path: ["tarjetaPropiedad"] });
@@ -173,6 +169,16 @@ export const formSchema = z.object({
     }
     if (!data.camaraComercio || data.camaraComercio.length === 0) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, message: "La cámara de comercio es requerida.", path: ["camaraComercio"] });
+    }
+  }
+
+  // Step 3: Declaración de asegurabilidad (hogar and empresarial). A "Sí" never
+  // blocks the submission, but every question must be answered.
+  if (requiresAsegurabilidad(data.tipoSeguro)) {
+    for (const key of HOGAR_ASEGURABILIDAD_KEYS) {
+      if (data[key] !== 'si' && data[key] !== 'no') {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: HOGAR_ASEGURABILIDAD_REQUIRED_MESSAGE, path: [key] });
+      }
     }
   }
 

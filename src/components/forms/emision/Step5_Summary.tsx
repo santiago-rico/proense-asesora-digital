@@ -10,7 +10,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Link } from 'react-router-dom'; // Assuming you use react-router for links
-import { HOGAR_ASEGURABILIDAD_KEYS, HOGAR_ASEGURABILIDAD_QUESTIONS } from '@/data/hogarAsegurabilidad';
+import { HOGAR_ASEGURABILIDAD_KEYS, HOGAR_ASEGURABILIDAD_QUESTIONS, requiresAsegurabilidad } from '@/data/hogarAsegurabilidad';
 import {
   DECLARACION_ASESORIA_CHECKBOX_LABEL,
   DECLARACION_ASESORIA_INTRO,
@@ -64,13 +64,14 @@ const summaryFieldOrder = [
   'documentosBeneficiarios',
   'listaBeneficiarios',
   'certificadoLibertad',
-  ...HOGAR_ASEGURABILIDAD_KEYS,
   'tarjetaPropiedad',
   'numeroCedulaRepLegal',
   'fotoCedulaRepLegal',
   'nit',
   'rut',
   'camaraComercio',
+  // Last of the Step 3 fields, as in the form, for both hogar and empresarial
+  ...HOGAR_ASEGURABILIDAD_KEYS,
   'declaraRenta',
   'archivoDeclaracionRenta',
   'ingresosNoDeclarante',
@@ -136,8 +137,8 @@ const Step5_Summary: React.FC = () => {
       <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">Asegúrate de que todos los datos sean correctos antes de enviar tu solicitud.</p>
       <div className="space-y-3 rounded-md border p-4">
         {summaryFieldOrder.map((fieldName) => {
-          // Answers left over from switching away from hogar are not part of this request
-          if (hogarAsegurabilidadKeys.includes(fieldName) && formData.tipoSeguro !== 'hogar') return null;
+          // Answers left over from switching to a ramo without the declaración de asegurabilidad are not part of this request
+          if (hogarAsegurabilidadKeys.includes(fieldName) && !requiresAsegurabilidad(formData.tipoSeguro)) return null;
           const value = formData[fieldName];
           const displayValue = renderValue(value, fieldName);
           if (displayValue === null) return null; // Don't render if value is null/empty

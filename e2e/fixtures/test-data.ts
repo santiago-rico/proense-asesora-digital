@@ -15,6 +15,12 @@ export const applicant = {
   numeroCedula: '1020304050',
 };
 
+/** The company behind a Seguro Empresarial application. */
+export const company = {
+  numeroCedulaRepLegal: '79876543',
+  nit: '900123456',
+};
+
 /** A minimal but well-formed PDF, padded to roughly `sizeBytes`. */
 export function pdfFile(name = 'documento.pdf', sizeBytes = 2048): UploadFile {
   const header = '%PDF-1.4\n1 0 obj << /Type /Catalog >> endobj\n';
