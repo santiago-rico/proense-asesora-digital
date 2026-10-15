@@ -12,6 +12,7 @@ import {
   type AsegurabilidadRamo,
 } from '@/data/hogarAsegurabilidad';
 import { DECLARACION_ASESORIA_REQUIRED_MESSAGE } from '@/data/declaracionAsesoria';
+import { SALUD_ASEGURABILIDAD_KEYS, SALUD_ASEGURABILIDAD_TEXT_MAX_LENGTH } from '@/data/saludAsegurabilidad';
 
 // Helper function to create a valid file for testing
 const createTestFile = (name: string, type: string, size: number = 1024) => {
@@ -21,6 +22,19 @@ const createTestFile = (name: string, type: string, size: number = 1024) => {
   Object.defineProperty(file, 'size', { value: size });
   return file;
 };
+
+// The vida/salud declaración de asegurabilidad questions every client must answer;
+// citología is optional and the rest are follow-ups shown only after a "Sí"
+const SALUD_REQUIRED_KEYS = [
+  'saludDiagnosticos',
+  'saludCovidUci',
+  'saludOtrasEnfermedades',
+  'saludEmbarazo',
+  'saludExclusionExtraprima',
+] as const;
+
+const saludRequiredAnswers = (answer: 'si' | 'no' = 'no') =>
+  Object.fromEntries(SALUD_REQUIRED_KEYS.map(key => [key, answer])) as Partial<FormSchemaType>;
 
 // Base valid data for testing
 const getBaseValidData = (overrides: Partial<FormSchemaType> = {}): Record<string, unknown> => ({
@@ -461,6 +475,7 @@ describe('FormSchema Validation Tests', () => {
           tipoSeguro: 'vida',
           beneficiarios: 'María Pérez 50%, Carlos Pérez 50%',
           documentosBeneficiarios: [createTestFile('beneficiary.pdf', 'application/pdf')],
+          ...saludRequiredAnswers(),
         });
         const result = formSchema.safeParse(data);
         
@@ -487,6 +502,7 @@ describe('FormSchema Validation Tests', () => {
         const data = getBaseValidData({ 
           tipoSeguro: 'salud',
           listaBeneficiarios: 'Cónyuge, 2 hijos menores',
+          ...saludRequiredAnswers(),
         });
         const result = formSchema.safeParse(data);
         
@@ -602,15 +618,104 @@ describe('FormSchema Validation Tests', () => {
     });
 
     describe('Declaración de asegurabilidad in other ramos', () => {
+      const issuesOn = (keys: readonly string[], tipoSeguro: string) => {
+        const result = formSchema.safeParse(getBaseValidData({ tipoSeguro }));
+        return result.success ? [] : result.error.issues.filter(issue => keys.includes(String(issue.path[0])));
+      };
+
       const otherTypes = ['vida', 'salud', 'auto', 'mascotas', 'rentas', 'responsabilidad_civil', 'vida_credito_protegido'];
       otherTypes.forEach(tipoSeguro => {
-        it(`does not require the declaration for ${tipoSeguro}`, () => {
-          const result = formSchema.safeParse(getBaseValidData({ tipoSeguro }));
-          const declarationIssues = result.success
-            ? []
-            : result.error.issues.filter(issue => issue.message === HOGAR_ASEGURABILIDAD_REQUIRED_MESSAGE);
-          expect(declarationIssues).toHaveLength(0);
+        it(`does not require the hogar declaration for ${tipoSeguro}`, () => {
+          expect(issuesOn(HOGAR_ASEGURABILIDAD_KEYS, tipoSeguro)).toHaveLength(0);
         });
+      });
+
+      const nonSaludTypes = ['hogar', 'empresarial', 'auto', 'mascotas', 'rentas', 'responsabilidad_civil', 'vida_credito_protegido'];
+      nonSaludTypes.forEach(tipoSeguro => {
+        it(`does not require the vida/salud declaration for ${tipoSeguro}`, () => {
+          expect(issuesOn(SALUD_ASEGURABILIDAD_KEYS, tipoSeguro)).toHaveLength(0);
+        });
+      });
+    });
+
+    describe.each(['vida', 'salud'])('Declaración de asegurabilidad de vida y salud (%s)', (tipoSeguro) => {
+      // Every other field a complete request of the ramo needs
+      const ramoFields: Partial<FormSchemaType> = tipoSeguro === 'vida'
+        ? {
+            tipoSeguro,
+            beneficiarios: 'María Pérez 100%',
+            documentosBeneficiarios: [createTestFile('beneficiario.pdf', 'application/pdf')],
+          }
+        : { tipoSeguro, listaBeneficiarios: 'Cónyuge, 2 hijos menores' };
+
+      const parse = (answers: Partial<FormSchemaType>) =>
+        formSchema.safeParse(getBaseValidData({ ...ramoFields, ...answers }));
+
+      const declarationIssuePaths = (answers: Partial<FormSchemaType>) => {
+        const result = parse(answers);
+        return result.success
+          ? []
+          : result.error.issues
+            .filter(issue => issue.message === HOGAR_ASEGURABILIDAD_REQUIRED_MESSAGE)
+            .map(issue => issue.path[0]);
+      };
+
+      it('requires each top-level question except citología, each on its own field', () => {
+        expect(declarationIssuePaths({})).toEqual([...SALUD_REQUIRED_KEYS]);
+      });
+
+      it('passes with the required questions answered and citología left blank', () => {
+        expect(parse(saludRequiredAnswers('no')).success).toBe(true);
+      });
+
+      it('never blocks on a "Sí" once the follow-ups are answered', () => {
+        const result = parse({
+          ...saludRequiredAnswers('si'),
+          saludCovidNumeroAsegurado: '2',
+          saludEmbarazoComplicaciones: 'si',
+          saludCitologia: 'si',
+          saludCitologiaAlteraciones: 'si',
+          saludCitologiaMasDeUnAno: 'si',
+        });
+        expect(result.success).toBe(true);
+        if (result.success) {
+          expect(result.data.saludDiagnosticos).toBe('si');
+          expect(result.data.saludCovidNumeroAsegurado).toBe('2');
+        }
+      });
+
+      it('requires the pregnancy complications follow-up only when pregnant', () => {
+        expect(declarationIssuePaths({ ...saludRequiredAnswers(), saludEmbarazo: 'si' }))
+          .toEqual(['saludEmbarazoComplicaciones']);
+        expect(declarationIssuePaths({ ...saludRequiredAnswers(), saludEmbarazo: 'no' })).toEqual([]);
+      });
+
+      it('requires both citología follow-ups only after a "Sí" to citología', () => {
+        expect(declarationIssuePaths({ ...saludRequiredAnswers(), saludCitologia: 'si' }))
+          .toEqual(['saludCitologiaAlteraciones', 'saludCitologiaMasDeUnAno']);
+        expect(declarationIssuePaths({ ...saludRequiredAnswers(), saludCitologia: 'no' })).toEqual([]);
+        expect(declarationIssuePaths({ ...saludRequiredAnswers(), saludCitologia: '' })).toEqual([]);
+      });
+
+      it('leaves the número de asegurado optional after a COVID "Sí"', () => {
+        expect(parse({ ...saludRequiredAnswers(), saludCovidUci: 'si', saludCovidNumeroAsegurado: '' }).success).toBe(true);
+      });
+
+      it(`rejects a número de asegurado longer than ${SALUD_ASEGURABILIDAD_TEXT_MAX_LENGTH} characters`, () => {
+        const result = parse({
+          ...saludRequiredAnswers(),
+          saludCovidUci: 'si',
+          saludCovidNumeroAsegurado: 'x'.repeat(SALUD_ASEGURABILIDAD_TEXT_MAX_LENGTH + 1),
+        });
+        expect(result.success).toBe(false);
+        if (!result.success) {
+          expect(result.error.issues.map(issue => issue.path[0])).toContain('saludCovidNumeroAsegurado');
+        }
+      });
+
+      it('rejects answers other than si, no or blank', () => {
+        const result = parse({ ...saludRequiredAnswers(), saludEmbarazo: 'quizas' as 'si' });
+        expect(result.success).toBe(false);
       });
     });
 
@@ -1006,6 +1111,7 @@ describe('FormSchema Validation Tests', () => {
         documentosBeneficiarios: [createTestFile('beneficiary.pdf', 'application/pdf')],
         // Missing health insurance specific fields
         listaBeneficiarios: '',
+        ...saludRequiredAnswers(),
       });
       
       const result = formSchema.safeParse(dataForVida);

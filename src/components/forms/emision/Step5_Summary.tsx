@@ -12,6 +12,13 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Link } from 'react-router-dom'; // Assuming you use react-router for links
 import { HOGAR_ASEGURABILIDAD_KEYS, HOGAR_ASEGURABILIDAD_QUESTIONS, requiresAsegurabilidad } from '@/data/hogarAsegurabilidad';
 import {
+  SALUD_ASEGURABILIDAD_KEYS,
+  SALUD_ASEGURABILIDAD_QUESTIONS,
+  SALUD_ASEGURABILIDAD_SI_NO_KEYS,
+  isSaludQuestionShown,
+  requiresSaludAsegurabilidad,
+} from '@/data/saludAsegurabilidad';
+import {
   DECLARACION_ASESORIA_CHECKBOX_LABEL,
   DECLARACION_ASESORIA_INTRO,
   DECLARACION_ASESORIA_POINTS,
@@ -19,6 +26,7 @@ import {
 } from '@/data/declaracionAsesoria';
 
 const hogarAsegurabilidadKeys: readonly string[] = HOGAR_ASEGURABILIDAD_KEYS;
+const saludSiNoKeys: readonly string[] = SALUD_ASEGURABILIDAD_SI_NO_KEYS;
 
 const fieldLabels: Record<string, string> = {
   nombreCompleto: 'Nombre Completo',
@@ -35,6 +43,7 @@ const fieldLabels: Record<string, string> = {
   listaBeneficiarios: 'Lista de Beneficiarios (Vida)',
   certificadoLibertad: 'Certificado de Libertad y Tradición (Hogar)',
   ...Object.fromEntries(HOGAR_ASEGURABILIDAD_QUESTIONS.map(q => [q.key, q.shortLabel])),
+  ...Object.fromEntries(SALUD_ASEGURABILIDAD_QUESTIONS.map(q => [q.key, q.shortLabel])),
   tarjetaPropiedad: 'Tarjeta de Propiedad (Autos)',
   numeroCedulaRepLegal: 'Cédula Representante Legal (Empresarial)',
   fotoCedulaRepLegal: 'Foto Cédula Representante Legal (Empresarial)',
@@ -70,8 +79,9 @@ const summaryFieldOrder = [
   'nit',
   'rut',
   'camaraComercio',
-  // Last of the Step 3 fields, as in the form, for both hogar and empresarial
+  // Last of the Step 3 fields, as in the form: hogar and empresarial, then vida and salud
   ...HOGAR_ASEGURABILIDAD_KEYS,
+  ...SALUD_ASEGURABILIDAD_KEYS,
   'declaraRenta',
   'archivoDeclaracionRenta',
   'ingresosNoDeclarante',
@@ -125,7 +135,7 @@ const Step5_Summary: React.FC = () => {
     if (typeof value === 'boolean') {
       return value ? 'Sí' : 'No';
     }
-    if (fieldName === 'declaraRenta' || hogarAsegurabilidadKeys.includes(fieldName)) {
+    if (fieldName === 'declaraRenta' || hogarAsegurabilidadKeys.includes(fieldName) || saludSiNoKeys.includes(fieldName)) {
         return value === 'si' ? 'Sí' : (value === 'no' ? 'No' : null);
     }
     return String(value);
@@ -139,6 +149,9 @@ const Step5_Summary: React.FC = () => {
         {summaryFieldOrder.map((fieldName) => {
           // Answers left over from switching to a ramo without the declaración de asegurabilidad are not part of this request
           if (hogarAsegurabilidadKeys.includes(fieldName) && !requiresAsegurabilidad(formData.tipoSeguro)) return null;
+          // Same for vida and salud, plus follow-ups whose question is no longer answered "Sí"
+          const saludQuestion = SALUD_ASEGURABILIDAD_QUESTIONS.find(q => q.key === fieldName);
+          if (saludQuestion && (!requiresSaludAsegurabilidad(formData.tipoSeguro) || !isSaludQuestionShown(saludQuestion, formData))) return null;
           const value = formData[fieldName];
           const displayValue = renderValue(value, fieldName);
           if (displayValue === null) return null; // Don't render if value is null/empty

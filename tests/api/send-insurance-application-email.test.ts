@@ -34,6 +34,12 @@ import {
   getAsegurabilidadQuestions,
 } from '../../src/data/hogarAsegurabilidad';
 import {
+  SALUD_ASEGURABILIDAD_KEYS,
+  SALUD_ASEGURABILIDAD_QUESTIONS,
+  SALUD_ASEGURABILIDAD_TEXT_MAX_LENGTH,
+  type SaludAsegurabilidadKey,
+} from '../../src/data/saludAsegurabilidad';
+import {
   DECLARACION_ASESORIA_TITLE,
   DECLARACION_ASESORIA_POINTS,
   DECLARACION_ASESORIA_REQUIRED_MESSAGE,
@@ -85,6 +91,37 @@ function empresarialSubmission(overrides: Record<string, string> = {}): Record<s
     ...answeredAsegurabilidad('no'),
     ...overrides,
   });
+}
+
+/** Vida and salud questions that must always be answered; the rest are optional or follow-ups. */
+const SALUD_REQUIRED_KEYS: SaludAsegurabilidadKey[] = [
+  'saludDiagnosticos',
+  'saludCovidUci',
+  'saludOtrasEnfermedades',
+  'saludEmbarazo',
+  'saludExclusionExtraprima',
+];
+
+const saludQuestion = (key: SaludAsegurabilidadKey) => SALUD_ASEGURABILIDAD_QUESTIONS.find(q => q.key === key)!.question;
+
+/**
+ * Vida/salud answers as the client sends them: every key, '' when unanswered
+ * or hidden, with the always-required questions answered "no".
+ */
+function saludAnswers(overrides: Partial<Record<SaludAsegurabilidadKey, string>> = {}): Record<string, string> {
+  return {
+    ...Object.fromEntries(SALUD_ASEGURABILIDAD_KEYS.map(key => [key, ''])),
+    ...Object.fromEntries(SALUD_REQUIRED_KEYS.map(key => [key, 'no'])),
+    ...overrides,
+  };
+}
+
+function vidaSubmission(overrides: Record<string, string> = {}): Record<string, string> {
+  return baseSubmission({ tipoSeguro: 'vida', beneficiarios: 'Juan Gómez, hijo, 100%', ...saludAnswers(), ...overrides });
+}
+
+function saludSubmission(overrides: Record<string, string> = {}): Record<string, string> {
+  return baseSubmission({ tipoSeguro: 'salud', listaBeneficiarios: 'María Gómez, Juan Gómez', ...saludAnswers(), ...overrides });
 }
 
 /** Mirrors the handler's 400 response body: `error.flatten().fieldErrors`. */
@@ -204,6 +241,115 @@ describe('backendSchema — empresarial declaración de asegurabilidad', () => {
     const input = empresarialSubmission();
     for (const key of HOGAR_ASEGURABILIDAD_KEYS) delete input[key];
     expect(backendSchema.safeParse(input).success).toBe(true);
+  });
+});
+
+describe.each([
+  ['vida', vidaSubmission],
+  ['salud', saludSubmission],
+])('backendSchema — %s declaración de asegurabilidad', (_ramo, submission) => {
+  const saludErrorKeys = (errors: Record<string, string[] | undefined>) =>
+    SALUD_ASEGURABILIDAD_KEYS.filter(key => errors[key]);
+
+  it('accepts every required question answered "no", with citología and the follow-ups blank', () => {
+    expect(backendSchema.safeParse(submission()).success).toBe(true);
+  });
+
+  it('accepts "Sí" answers with their follow-ups and keeps them in the parsed data', () => {
+    const result = backendSchema.safeParse(submission({
+      ...Object.fromEntries(SALUD_REQUIRED_KEYS.map(key => [key, 'si'])),
+      saludCovidNumeroAsegurado: '  2 ',
+      saludEmbarazoComplicaciones: 'no',
+      saludCitologia: 'si',
+      saludCitologiaAlteraciones: 'si',
+      saludCitologiaMasDeUnAno: 'no',
+    }));
+
+    expect(result.success).toBe(true);
+    if (!result.success) return;
+    expect(result.data.saludDiagnosticos).toBe('si');
+    expect(result.data.saludCovidNumeroAsegurado).toBe('2');
+    expect(result.data.saludCitologiaAlteraciones).toBe('si');
+    expect(result.data.saludCitologiaMasDeUnAno).toBe('no');
+  });
+
+  it.each(SALUD_REQUIRED_KEYS)('rejects "%s" left empty, on that field only', (key) => {
+    const errors = fieldErrors(submission({ [key]: '' }));
+    expect(errors[key]).toEqual([HOGAR_ASEGURABILIDAD_REQUIRED_MESSAGE]);
+    expect(saludErrorKeys(errors)).toEqual([key]);
+  });
+
+  it('rejects a required question that is left out while the others are sent', () => {
+    const input = submission();
+    delete input.saludExclusionExtraprima;
+    expect(fieldErrors(input).saludExclusionExtraprima).toEqual([HOGAR_ASEGURABILIDAD_REQUIRED_MESSAGE]);
+  });
+
+  it('reports every unanswered required question', () => {
+    const errors = fieldErrors(submission(Object.fromEntries(SALUD_REQUIRED_KEYS.map(key => [key, '']))));
+    expect(saludErrorKeys(errors)).toEqual(SALUD_REQUIRED_KEYS);
+  });
+
+  it('requires the pregnancy complications only when embarazo is "Sí"', () => {
+    expect(fieldErrors(submission({ saludEmbarazo: 'si' })).saludEmbarazoComplicaciones)
+      .toEqual([HOGAR_ASEGURABILIDAD_REQUIRED_MESSAGE]);
+    expect(backendSchema.safeParse(submission({ saludEmbarazo: 'si', saludEmbarazoComplicaciones: 'si' })).success).toBe(true);
+    expect(backendSchema.safeParse(submission({ saludEmbarazo: 'no' })).success).toBe(true);
+  });
+
+  it('lets citología be left blank, but requires both follow-ups once it is "Sí"', () => {
+    expect(backendSchema.safeParse(submission({ saludCitologia: '' })).success).toBe(true);
+    expect(backendSchema.safeParse(submission({ saludCitologia: 'no' })).success).toBe(true);
+
+    const errors = fieldErrors(submission({ saludCitologia: 'si' }));
+    expect(saludErrorKeys(errors)).toEqual(['saludCitologiaAlteraciones', 'saludCitologiaMasDeUnAno']);
+  });
+
+  it('keeps the número de asegurado optional when COVID required UCI or UCE', () => {
+    expect(backendSchema.safeParse(submission({ saludCovidUci: 'si', saludCovidNumeroAsegurado: '' })).success).toBe(true);
+  });
+
+  it('ignores a follow-up whose parent is not "Sí", even when it carries a value', () => {
+    const result = backendSchema.safeParse(submission({
+      saludEmbarazo: 'no',
+      saludEmbarazoComplicaciones: 'si',
+      saludCovidUci: 'no',
+      saludCovidNumeroAsegurado: '3',
+    }));
+    expect(result.success).toBe(true);
+  });
+
+  it('accepts a submission from a page loaded before the declaration shipped (no keys sent)', () => {
+    const input = submission();
+    for (const key of SALUD_ASEGURABILIDAD_KEYS) delete input[key];
+    expect(backendSchema.safeParse(input).success).toBe(true);
+  });
+
+  it('rejects a número de asegurado longer than the limit', () => {
+    const errors = fieldErrors(submission({
+      saludCovidUci: 'si',
+      saludCovidNumeroAsegurado: '1'.repeat(SALUD_ASEGURABILIDAD_TEXT_MAX_LENGTH + 1),
+    }));
+    expect(errors.saludCovidNumeroAsegurado).toBeDefined();
+  });
+
+  it('rejects an invalid answer value', () => {
+    expect(fieldErrors(submission({ saludCitologia: 'maybe' })).saludCitologia).toBeDefined();
+  });
+});
+
+describe('backendSchema — vida and salud declaración de asegurabilidad on other ramos', () => {
+  it.each(['responsabilidad_civil', 'auto', 'vida_credito_protegido'])(
+    'does not require it for tipoSeguro "%s" (empty values pass)',
+    (tipoSeguro) => {
+      const empty = Object.fromEntries(SALUD_ASEGURABILIDAD_KEYS.map(key => [key, '']));
+      expect(backendSchema.safeParse(baseSubmission({ tipoSeguro, ...empty })).success).toBe(true);
+    },
+  );
+
+  it('does not ask hogar answers from vida and salud', () => {
+    expect(fieldErrors(vidaSubmission()).hogarPiscina).toBeUndefined();
+    expect(fieldErrors(saludSubmission()).hogarPiscina).toBeUndefined();
   });
 });
 
@@ -343,6 +489,47 @@ describe('handler — empresarial declaración de asegurabilidad', () => {
 
     expect(res.statusCode).toBe(400);
     expect((res.body as { errors: Record<string, string[]> }).errors.hogarRiesgoTerreno)
+      .toEqual([HOGAR_ASEGURABILIDAD_REQUIRED_MESSAGE]);
+    expect(sendTransactionalEmail).not.toHaveBeenCalled();
+  });
+});
+
+describe('handler — vida and salud declaración de asegurabilidad', () => {
+  beforeEach(resetHandlerMocks);
+
+  it('emails the questions and the answered follow-ups to the client and the agent', async () => {
+    const res = await submit(saludSubmission({ saludCovidUci: 'si', saludCovidNumeroAsegurado: '2' }));
+
+    expect(res.statusCode).toBe(200);
+    const emails = sentHtml();
+    expect(emails).toHaveLength(2);
+    for (const html of emails) {
+      expect(html).toContain(`1. ${saludQuestion('saludDiagnosticos')}`);
+      expect(html).toContain(`6. ${saludQuestion('saludExclusionExtraprima')}`);
+      expect(html).toContain(saludQuestion('saludCovidNumeroAsegurado'));
+      expect(html).not.toContain(saludQuestion('saludEmbarazoComplicaciones'));
+    }
+  });
+
+  it('sanitizes the número de asegurado before it reaches the emails', async () => {
+    const res = await submit(vidaSubmission({
+      saludCovidUci: 'si',
+      saludCovidNumeroAsegurado: '<script>alert(1)</script><b onmouseover="x()">7</b>',
+    }));
+
+    expect(res.statusCode).toBe(200);
+    for (const html of sentHtml()) {
+      expect(html).toContain(saludQuestion('saludCovidNumeroAsegurado'));
+      expect(html).not.toContain('<script>alert(1)');
+      expect(html).not.toContain('onmouseover');
+    }
+  });
+
+  it('answers 400 on the unanswered follow-up and sends no email', async () => {
+    const res = await submit(vidaSubmission({ saludEmbarazo: 'si' }));
+
+    expect(res.statusCode).toBe(400);
+    expect((res.body as { errors: Record<string, string[]> }).errors.saludEmbarazoComplicaciones)
       .toEqual([HOGAR_ASEGURABILIDAD_REQUIRED_MESSAGE]);
     expect(sendTransactionalEmail).not.toHaveBeenCalled();
   });

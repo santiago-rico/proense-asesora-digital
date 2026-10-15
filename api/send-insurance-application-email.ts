@@ -15,6 +15,14 @@ import {
   requiresAsegurabilidad,
   type HogarAsegurabilidadKey,
 } from '../src/data/hogarAsegurabilidad.js';
+import {
+  SALUD_ASEGURABILIDAD_KEYS,
+  SALUD_ASEGURABILIDAD_QUESTIONS,
+  SALUD_ASEGURABILIDAD_TEXT_MAX_LENGTH,
+  getMissingSaludAnswers,
+  requiresSaludAsegurabilidad,
+  type SaludAsegurabilidadKey,
+} from '../src/data/saludAsegurabilidad.js';
 import { DECLARACION_ASESORIA_REQUIRED_MESSAGE } from '../src/data/declaracionAsesoria.js';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
@@ -41,8 +49,10 @@ export const config = {
 };
 
 // Defines the expected structure of the form data from MultiStepForm.tsx
-// Declaración de asegurabilidad answers (hogar and empresarial) are keyed by HOGAR_ASEGURABILIDAD_KEYS.
-interface InsuranceApplicationData extends Partial<Record<HogarAsegurabilidadKey, 'si' | 'no' | ''>> {
+// Declaración de asegurabilidad answers are keyed by HOGAR_ASEGURABILIDAD_KEYS
+// (hogar and empresarial) and SALUD_ASEGURABILIDAD_KEYS (vida and salud).
+interface InsuranceApplicationData
+  extends Partial<Record<HogarAsegurabilidadKey, 'si' | 'no' | ''>>, Partial<Record<SaludAsegurabilidadKey, string>> {
   // Step 1: Basic Info
   nombreCompleto: string;
   telefono: string;
@@ -122,6 +132,16 @@ const hogarAsegurabilidadFields = Object.fromEntries(
   HOGAR_ASEGURABILIDAD_KEYS.map(key => [key, siNoOrEmpty]),
 ) as Record<HogarAsegurabilidadKey, typeof siNoOrEmpty>;
 
+// Vida and salud send all their keys the same way; they are only required for
+// SALUD_ASEGURABILIDAD_RAMOS, and follow-ups only while their parent is "Sí".
+const saludAsegurabilidadText = z.string()
+  .max(SALUD_ASEGURABILIDAD_TEXT_MAX_LENGTH, `Máximo ${SALUD_ASEGURABILIDAD_TEXT_MAX_LENGTH} caracteres.`)
+  .transform(str => str.trim())
+  .optional();
+const saludAsegurabilidadFields = Object.fromEntries(
+  SALUD_ASEGURABILIDAD_QUESTIONS.map(q => [q.key, q.type === 'siNo' ? siNoOrEmpty : saludAsegurabilidadText]),
+) as Record<SaludAsegurabilidadKey, typeof siNoOrEmpty | typeof saludAsegurabilidadText>;
+
 // Step 5 checkboxes arrive as the string 'true' when ticked. Anything else,
 // including a missing field, is rejected with the client's own message so the
 // error shows under the checkbox.
@@ -151,6 +171,7 @@ export const backendSchema = z.object({
   valorActualDeuda: z.string().transform(str => str.trim()).optional(),
   conduceMoto: z.union([z.enum(['si', 'no']), z.literal('')]).optional(),
   ...hogarAsegurabilidadFields,
+  ...saludAsegurabilidadFields,
   
   // Declaration
   declaraRenta: z.enum(['si', 'no']),
@@ -167,13 +188,23 @@ export const backendSchema = z.object({
   website: z.string().optional(),
 }).superRefine((data, ctx) => {
   // A "Sí" never blocks the submission (it is information for the asesor),
-  // but every question must be answered for hogar and empresarial.
-  if (!requiresAsegurabilidad(data.tipoSeguro)) return;
-  // Pages loaded before the declaration shipped send none of the keys; accept
-  // those in-flight submissions instead of rejecting on fields they can't show.
-  if (HOGAR_ASEGURABILIDAD_KEYS.every(key => data[key] === undefined)) return;
-  for (const key of HOGAR_ASEGURABILIDAD_KEYS) {
-    if (data[key] !== 'si' && data[key] !== 'no') {
+  // but every required question must be answered. Pages loaded before a
+  // declaration shipped send none of its keys; accept those in-flight
+  // submissions instead of rejecting on fields they can't show.
+  const sentNone = (keys: readonly (keyof typeof data)[]) => keys.every(key => data[key] === undefined);
+
+  // Hogar and empresarial: every question.
+  if (requiresAsegurabilidad(data.tipoSeguro) && !sentNone(HOGAR_ASEGURABILIDAD_KEYS)) {
+    for (const key of HOGAR_ASEGURABILIDAD_KEYS) {
+      if (data[key] !== 'si' && data[key] !== 'no') {
+        ctx.addIssue({ code: 'custom', message: HOGAR_ASEGURABILIDAD_REQUIRED_MESSAGE, path: [key] });
+      }
+    }
+  }
+
+  // Vida and salud: the shown, required questions (the shared client/server rule).
+  if (requiresSaludAsegurabilidad(data.tipoSeguro) && !sentNone(SALUD_ASEGURABILIDAD_KEYS)) {
+    for (const key of getMissingSaludAnswers(data)) {
       ctx.addIssue({ code: 'custom', message: HOGAR_ASEGURABILIDAD_REQUIRED_MESSAGE, path: [key] });
     }
   }
@@ -302,6 +333,7 @@ async function handler(
       egresosNoDeclarante: formData.egresosNoDeclarante ? DOMPurifyInstance.sanitize(formData.egresosNoDeclarante) : undefined,
       activosNoDeclarante: formData.activosNoDeclarante ? DOMPurifyInstance.sanitize(formData.activosNoDeclarante) : undefined,
       pasivosNoDeclarante: formData.pasivosNoDeclarante ? DOMPurifyInstance.sanitize(formData.pasivosNoDeclarante) : undefined,
+      saludCovidNumeroAsegurado: formData.saludCovidNumeroAsegurado ? DOMPurifyInstance.sanitize(formData.saludCovidNumeroAsegurado) : undefined,
     } as InsuranceApplicationData;
 
     const attachments: { name: string; content: string }[] = [];

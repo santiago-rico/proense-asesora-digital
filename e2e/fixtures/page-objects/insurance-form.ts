@@ -5,6 +5,7 @@ import {
   type AsegurabilidadRamo,
   type HogarAsegurabilidadKey,
 } from '../../../src/data/hogarAsegurabilidad';
+import { SALUD_ASEGURABILIDAD_QUESTIONS, type SaludAsegurabilidadKey } from '../../../src/data/saludAsegurabilidad';
 import { mockCsrfToken } from '../api-mocks';
 import { applicant, company, pdfFile, pngFile, type UploadFile } from '../test-data';
 
@@ -143,6 +144,33 @@ export class InsuranceFormPage {
       await this.declarationGroup(key, ramo)
         .getByRole('radio', { name: answers[key] === 'si' ? 'Sí' : 'No', exact: true })
         .check();
+    }
+  }
+
+  /** Radio group of one vida/salud declaración de asegurabilidad question. */
+  saludGroup(key: SaludAsegurabilidadKey): Locator {
+    const question = SALUD_ASEGURABILIDAD_QUESTIONS.find(q => q.key === key)!.question;
+    return this.page.getByRole('radiogroup', { name: question });
+  }
+
+  get saludNumeroAseguradoInput(): Locator {
+    return this.page.getByLabel('En caso positivo indique el número de asegurado');
+  }
+
+  /**
+   * Answers the given vida/salud questions in form order, so a follow-up is
+   * answered after the "Sí" that shows it. Sí/No questions take 'si' | 'no';
+   * the número de asegurado takes its text.
+   */
+  async answerSaludDeclaration(answers: Partial<Record<SaludAsegurabilidadKey, string>>): Promise<void> {
+    for (const q of SALUD_ASEGURABILIDAD_QUESTIONS) {
+      const answer = answers[q.key];
+      if (answer === undefined) continue;
+      if (q.type === 'text') {
+        await this.saludNumeroAseguradoInput.fill(answer);
+      } else {
+        await this.saludGroup(q.key).getByRole('radio', { name: answer === 'si' ? 'Sí' : 'No', exact: true }).check();
+      }
     }
   }
 

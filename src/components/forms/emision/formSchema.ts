@@ -6,6 +6,13 @@ import {
   requiresAsegurabilidad,
   type HogarAsegurabilidadKey,
 } from '@/data/hogarAsegurabilidad';
+import {
+  SALUD_ASEGURABILIDAD_QUESTIONS,
+  SALUD_ASEGURABILIDAD_TEXT_MAX_LENGTH,
+  getMissingSaludAnswers,
+  requiresSaludAsegurabilidad,
+  type SaludAsegurabilidadQuestion,
+} from '@/data/saludAsegurabilidad';
 import { DECLARACION_ASESORIA_REQUIRED_MESSAGE } from '@/data/declaracionAsesoria';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
@@ -44,6 +51,16 @@ const hogarAsegurabilidadShape = Object.fromEntries(
   HOGAR_ASEGURABILIDAD_KEYS.map(key => [key, siNoOptional])
 ) as Record<HogarAsegurabilidadKey, typeof siNoOptional>;
 
+// Seguro de Vida y Salud - Declaración de asegurabilidad (si/no fields plus one free-text follow-up)
+type SaludTextKey = Extract<SaludAsegurabilidadQuestion, { type: 'text' }>['key'];
+type SaludSiNoKey = Exclude<SaludAsegurabilidadQuestion['key'], SaludTextKey>;
+const saludTextOptional = z.string()
+  .max(SALUD_ASEGURABILIDAD_TEXT_MAX_LENGTH, `Máximo ${SALUD_ASEGURABILIDAD_TEXT_MAX_LENGTH} caracteres.`)
+  .optional();
+const saludAsegurabilidadShape = Object.fromEntries(
+  SALUD_ASEGURABILIDAD_QUESTIONS.map(q => [q.key, q.type === 'text' ? saludTextOptional : siNoOptional])
+) as Record<SaludSiNoKey, typeof siNoOptional> & Record<SaludTextKey, typeof saludTextOptional>;
+
 export const formSchema = z.object({
   nombreCompleto: z.string().min(1, 'El nombre es requerido').transform(str => str.trim()),
   telefono: z.string().refine(isValidPhoneNumber, { message: 'Número de teléfono inválido' }).transform(str => str.trim()),
@@ -75,6 +92,7 @@ export const formSchema = z.object({
   valorActualDeuda: z.string().optional(),
   conduceMoto: z.union([z.enum(['si', 'no']), z.literal('')]).optional(),
   ...hogarAsegurabilidadShape,
+  ...saludAsegurabilidadShape,
   // Fields for non-declarers
   ingresosNoDeclarante: z.string().optional(),
   egresosNoDeclarante: z.string().optional(),
@@ -179,6 +197,15 @@ export const formSchema = z.object({
       if (data[key] !== 'si' && data[key] !== 'no') {
         ctx.addIssue({ code: z.ZodIssueCode.custom, message: HOGAR_ASEGURABILIDAD_REQUIRED_MESSAGE, path: [key] });
       }
+    }
+  }
+
+  // Step 3: Declaración de asegurabilidad (vida and salud). Every shown question
+  // must be answered except the optional ones; follow-ups only while their
+  // question is answered "Sí".
+  if (requiresSaludAsegurabilidad(data.tipoSeguro)) {
+    for (const key of getMissingSaludAnswers(data)) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: HOGAR_ASEGURABILIDAD_REQUIRED_MESSAGE, path: [key] });
     }
   }
 

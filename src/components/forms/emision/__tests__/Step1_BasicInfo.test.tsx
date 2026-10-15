@@ -256,6 +256,12 @@ describe('Step1_BasicInfo Component', () => {
         archivoDeclaracionRenta: [new File(['test'], 'declaracion.pdf', { type: 'application/pdf' })],
         beneficiarios: 'María Pérez 50%, Carlos Pérez 50%',
         documentosBeneficiarios: [new File(['test'], 'beneficiario.pdf', { type: 'application/pdf' })],
+        // Vida asks the declaración de asegurabilidad; optional and follow-up questions may stay blank
+        saludDiagnosticos: 'no',
+        saludCovidUci: 'no',
+        saludOtrasEnfermedades: 'no',
+        saludEmbarazo: 'no',
+        saludExclusionExtraprima: 'no',
       };
 
       const result = formSchema.safeParse(validData);
