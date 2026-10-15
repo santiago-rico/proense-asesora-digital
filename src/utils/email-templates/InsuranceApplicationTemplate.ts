@@ -19,6 +19,11 @@ import {
   HOGAR_ASEGURABILIDAD_DISCLAIMER,
   type HogarAsegurabilidadKey,
 } from '../../data/hogarAsegurabilidad.js';
+import {
+  DECLARACION_ASESORIA_TITLE,
+  DECLARACION_ASESORIA_INTRO,
+  DECLARACION_ASESORIA_POINTS,
+} from '../../data/declaracionAsesoria.js';
 
 // Hogar declaración de asegurabilidad answers are keyed by HOGAR_ASEGURABILIDAD_KEYS.
 interface InsuranceApplicationData extends Partial<Record<HogarAsegurabilidadKey, 'si' | 'no' | ''>> {
@@ -50,8 +55,9 @@ interface InsuranceApplicationData extends Partial<Record<HogarAsegurabilidadKey
   activosNoDeclarante?: string;
   pasivosNoDeclarante?: string;
   
-  // Terms
+  // Terms and Declaración de Asesoría y Conformidad
   aceptaTerminosYPolitica: boolean;
+  aceptaDeclaracionAsesoria: boolean;
 }
 
 interface AttachedFiles {
@@ -64,6 +70,8 @@ interface EmailTemplateProps {
   isUserEmail: boolean;
   isDarkMode?: boolean;
   baseUrl?: string;
+  /** Server time the client accepted the Declaración de Asesoría y Conformidad. */
+  declaracionAceptadaEn?: Date;
 }
 
 export function InsuranceApplicationTemplate({ 
@@ -71,7 +79,8 @@ export function InsuranceApplicationTemplate({
   attachedFiles, 
   isUserEmail, 
   isDarkMode = false,
-  baseUrl
+  baseUrl,
+  declaracionAceptadaEn
 }: EmailTemplateProps): string {
   const preheader = isUserEmail 
     ? `Confirmación de tu solicitud de ${data.tipoSeguro}`
@@ -252,6 +261,43 @@ export function InsuranceApplicationTemplate({
     `;
   };
   
+  // Declaración de Asesoría y Conformidad: the exact text the client accepted,
+  // with the acceptance time, as the record of the declaration in both emails.
+  const buildDeclaracionAsesoriaSection = () => {
+    if (!data.aceptaDeclaracionAsesoria) return '';
+    
+    const styles = getThemeStyles(isDarkMode);
+    const points = DECLARACION_ASESORIA_POINTS
+      .map(point => `<li style="${styles.p}" class="darkmode-text mobile-text">${point}</li>`)
+      .join('');
+    const acceptedAt = declaracionAceptadaEn
+      ? Paragraph({
+          text: `<strong>Aceptada electrónicamente el ${new Intl.DateTimeFormat('es-CO', {
+            timeZone: 'America/Bogota',
+            dateStyle: 'long',
+            timeStyle: 'short',
+          }).format(declaracionAceptadaEn)} (hora de Colombia).</strong>`,
+          isDarkMode,
+          isLast: true
+        })
+      : '';
+    
+    return `
+    ${Spacer({ height: 'lg' })}
+    
+    ${Heading({ level: 2, text: DECLARACION_ASESORIA_TITLE, isDarkMode })}
+    
+    ${Card({
+      content: `
+        ${Paragraph({ text: DECLARACION_ASESORIA_INTRO, isDarkMode })}
+        <ol style="margin: 16px 0; padding-left: 20px;">${points}</ol>
+        ${acceptedAt}
+      `,
+      isDarkMode
+    })}
+    `;
+  };
+  
   const userContent = `
     ${Heading({ level: 1, text: `¡Gracias por tu solicitud, ${data.nombreCompleto}!`, isDarkMode, align: 'center' })}
     
@@ -283,6 +329,8 @@ export function InsuranceApplicationTemplate({
     })}
     
     ${buildAsegurabilidadSection(false)}
+    
+    ${buildDeclaracionAsesoriaSection()}
     
     ${Spacer({ height: 'lg' })}
     
@@ -341,6 +389,8 @@ export function InsuranceApplicationTemplate({
     })}
     
     ${buildAsegurabilidadSection(true)}
+    
+    ${buildDeclaracionAsesoriaSection()}
     
     ${Spacer({ height: 'lg' })}
     

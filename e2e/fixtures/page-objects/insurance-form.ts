@@ -1,4 +1,5 @@
 import { expect, type Locator, type Page } from '@playwright/test';
+import { DECLARACION_ASESORIA_CHECKBOX_LABEL, DECLARACION_ASESORIA_TITLE } from '../../../src/data/declaracionAsesoria';
 import {
   HOGAR_ASEGURABILIDAD_QUESTIONS,
   type HogarAsegurabilidadKey,
@@ -170,13 +171,33 @@ export class InsuranceFormPage {
     return this.page.getByText(`${label}:`, { exact: true }).locator('xpath=following-sibling::div[1]');
   }
 
+  /** The Declaración de Asesoría y Conformidad del Cliente: its text and its own checkbox. */
+  get advisoryDeclaration(): Locator {
+    return this.page.getByRole('region', { name: DECLARACION_ASESORIA_TITLE });
+  }
+
+  get advisoryDeclarationCheckbox(): Locator {
+    return this.page.getByRole('checkbox', { name: DECLARACION_ASESORIA_CHECKBOX_LABEL });
+  }
+
   get termsCheckbox(): Locator {
-    return this.page.getByRole('checkbox', { name: /He leído y acepto/ });
+    return this.page.getByRole('checkbox', { name: /Política de Privacidad/ });
+  }
+
+  async acceptAdvisoryDeclaration(): Promise<void> {
+    await this.advisoryDeclarationCheckbox.click();
+    await expect(this.advisoryDeclarationCheckbox).toBeChecked();
   }
 
   async acceptTerms(): Promise<void> {
     await this.termsCheckbox.click();
     await expect(this.termsCheckbox).toBeChecked();
+  }
+
+  /** Both Step 5 checkboxes a submission needs: the advisory declaration, then privacy and terms. */
+  async acceptDeclarationAndTerms(): Promise<void> {
+    await this.acceptAdvisoryDeclaration();
+    await this.acceptTerms();
   }
 
   get successHeading(): Locator {
@@ -198,7 +219,7 @@ export class InsuranceFormPage {
     await this.next('Detalles del Seguro');
   }
 
-  /** A complete Seguro de Autos application up to the Step 5 summary, terms accepted. */
+  /** A complete Seguro de Autos application up to the Step 5 summary, declaration and terms accepted. */
   async reachSummaryAsAuto(): Promise<void> {
     await this.startApplication('Seguro de Autos');
     await this.fillCommonDetails();
@@ -206,6 +227,6 @@ export class InsuranceFormPage {
     await this.next('Declaración');
     await this.upload('Archivo declaración renta', pdfFile('declaracion-renta.pdf'));
     await this.next('Resumen y Envío');
-    await this.acceptTerms();
+    await this.acceptDeclarationAndTerms();
   }
 }

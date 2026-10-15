@@ -6,6 +6,11 @@ import {
   HOGAR_ASEGURABILIDAD_DISCLAIMER,
   type HogarAsegurabilidadKey,
 } from '../../data/hogarAsegurabilidad';
+import {
+  DECLARACION_ASESORIA_TITLE,
+  DECLARACION_ASESORIA_INTRO,
+  DECLARACION_ASESORIA_POINTS,
+} from '../../data/declaracionAsesoria';
 
 type TemplateData = Parameters<typeof InsuranceApplicationTemplate>[0]['data'];
 type Answer = 'si' | 'no' | '';
@@ -21,6 +26,7 @@ function baseData(overrides: Partial<TemplateData> = {}): TemplateData {
     numeroCedula: '1234567890',
     declaraRenta: 'si',
     aceptaTerminosYPolitica: true,
+    aceptaDeclaracionAsesoria: true,
     ...overrides,
   };
 }
@@ -32,8 +38,8 @@ function answers(answer: Answer, overrides: Partial<Record<HogarAsegurabilidadKe
   } as Record<HogarAsegurabilidadKey, Answer>;
 }
 
-function render(data: TemplateData, isUserEmail: boolean): string {
-  return InsuranceApplicationTemplate({ data, attachedFiles: {}, isUserEmail, isDarkMode: false });
+function render(data: TemplateData, isUserEmail: boolean, declaracionAceptadaEn?: Date): string {
+  return InsuranceApplicationTemplate({ data, attachedFiles: {}, isUserEmail, isDarkMode: false, declaracionAceptadaEn });
 }
 
 /** Returns the rendered answer cell (opening tag + text) for each question, in order. */
@@ -126,6 +132,47 @@ describe('InsuranceApplicationTemplate — hogar declaración de asegurabilidad'
     it('does not highlight answers in the user email', () => {
       const html = render(baseData(answers('si')), true);
       expect(highlighted(html)).toEqual(HOGAR_ASEGURABILIDAD_QUESTIONS.map(() => false));
+    });
+  });
+});
+
+describe('InsuranceApplicationTemplate — Declaración de Asesoría y Conformidad', () => {
+  // 15:42 UTC is 10:42 in Bogotá (UTC-5, no daylight saving time).
+  const ACCEPTED_AT = new Date('2026-10-15T15:42:00Z');
+
+  describe.each([
+    ['user', true],
+    ['agent', false],
+  ])('%s email', (_label, isUserEmail) => {
+    it.each(['hogar', 'auto', 'vida', 'empresarial'])('renders the full declaration for tipoSeguro "%s"', (tipoSeguro) => {
+      const html = render(baseData({ tipoSeguro }), isUserEmail, ACCEPTED_AT);
+
+      expect(html).toContain(DECLARACION_ASESORIA_TITLE);
+      expect(html).toContain(DECLARACION_ASESORIA_INTRO);
+      for (const point of DECLARACION_ASESORIA_POINTS) {
+        expect(html).toContain(point);
+      }
+    });
+
+    it('states when the declaration was accepted, in Colombian time', () => {
+      const html = render(baseData(), isUserEmail, ACCEPTED_AT);
+      const acceptedAt = html.match(/Aceptada electrónicamente el ([^<]*) \(hora de Colombia\)\./)?.[1];
+
+      expect(acceptedAt).toContain('15 de octubre de 2026');
+      expect(acceptedAt).toContain('10:42');
+    });
+
+    it('omits the acceptance time when none is given', () => {
+      const html = render(baseData(), isUserEmail);
+      expect(html).toContain(DECLARACION_ASESORIA_TITLE);
+      expect(html).not.toContain('Aceptada electrónicamente');
+    });
+
+    it('omits the section when the declaration was not accepted', () => {
+      const html = render(baseData({ aceptaDeclaracionAsesoria: false }), isUserEmail, ACCEPTED_AT);
+      expect(html).not.toContain(DECLARACION_ASESORIA_TITLE);
+      expect(html).not.toContain(DECLARACION_ASESORIA_POINTS[0]);
+      expect(html).not.toContain('Aceptada electrónicamente');
     });
   });
 });

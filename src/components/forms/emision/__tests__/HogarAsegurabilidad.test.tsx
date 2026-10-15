@@ -34,6 +34,7 @@ const TestWrapper = ({ children }: { children: React.ReactNode }) => {
       metodoPago: 'tarjeta_credito',
       periodicidadPago: 'mensual',
       declaraRenta: 'si',
+      aceptaDeclaracionAsesoria: true,
       aceptaTerminosYPolitica: true,
       ...(Object.fromEntries(HOGAR_ASEGURABILIDAD_KEYS.map(key => [key, ''])) as Partial<FormSchemaType>),
     },

@@ -9,6 +9,7 @@ import {
   HOGAR_ASEGURABILIDAD_KEYS,
   HOGAR_ASEGURABILIDAD_REQUIRED_MESSAGE,
 } from '@/data/hogarAsegurabilidad';
+import { DECLARACION_ASESORIA_REQUIRED_MESSAGE } from '@/data/declaracionAsesoria';
 
 // Helper function to create a valid file for testing
 const createTestFile = (name: string, type: string, size: number = 1024) => {
@@ -27,6 +28,7 @@ const getBaseValidData = (overrides: Partial<FormSchemaType> = {}): Record<strin
   tipoSeguro: 'responsabilidad_civil', // Type with minimal requirements
   metodoPago: 'tarjeta_credito',
   periodicidadPago: 'mensual',
+  aceptaDeclaracionAsesoria: true,
   aceptaTerminosYPolitica: true,
   declaraRenta: 'si',
   numeroCedula: '12345678',
@@ -225,6 +227,45 @@ describe('FormSchema Validation Tests', () => {
         const data = getBaseValidData({ aceptaTerminosYPolitica: true });
         const result = formSchema.safeParse(data);
         
+        expect(result.success).toBe(true);
+      });
+    });
+
+    describe('Declaración de Asesoría y Conformidad', () => {
+      it('rejects an unaccepted declaration with its own message on its own field', () => {
+        const result = formSchema.safeParse(getBaseValidData({ aceptaDeclaracionAsesoria: false }));
+
+        expect(result.success).toBe(false);
+        if (!result.success) {
+          expect(result.error.issues).toContainEqual(expect.objectContaining({
+            path: ['aceptaDeclaracionAsesoria'],
+            message: DECLARACION_ASESORIA_REQUIRED_MESSAGE,
+          }));
+        }
+      });
+
+      it('rejects a missing declaration', () => {
+        const { aceptaDeclaracionAsesoria: _omitted, ...data } = getBaseValidData();
+        const result = formSchema.safeParse(data);
+
+        expect(result.success).toBe(false);
+        if (!result.success) {
+          expect(result.error.issues.map(issue => issue.path[0])).toContain('aceptaDeclaracionAsesoria');
+        }
+      });
+
+      it('is validated separately from the privacy and terms acceptance', () => {
+        const result = formSchema.safeParse(getBaseValidData({ aceptaDeclaracionAsesoria: true, aceptaTerminosYPolitica: false }));
+
+        expect(result.success).toBe(false);
+        if (!result.success) {
+          expect(result.error.issues.map(issue => issue.path[0])).not.toContain('aceptaDeclaracionAsesoria');
+        }
+      });
+
+      it('accepts when the declaration is accepted', () => {
+        const result = formSchema.safeParse(getBaseValidData({ aceptaDeclaracionAsesoria: true }));
+
         expect(result.success).toBe(true);
       });
     });

@@ -1,5 +1,9 @@
 import { test, expect, FAILED_REQUEST } from '../../fixtures/network';
 import {
+  DECLARACION_ASESORIA_POINTS,
+  DECLARACION_ASESORIA_REQUIRED_MESSAGE,
+} from '../../../src/data/declaracionAsesoria';
+import {
   HOGAR_ASEGURABILIDAD_QUESTIONS,
   HOGAR_ASEGURABILIDAD_REQUIRED_MESSAGE,
   type HogarAsegurabilidadKey,
@@ -50,6 +54,7 @@ test.describe('Emisión de pólizas', () => {
       expect(field(sent, 'periodicidadPago')).toBe('mensual');
       expect(field(sent, 'numeroCedula')).toBe(applicant.numeroCedula);
       expect(field(sent, 'declaraRenta')).toBe('si');
+      expect(field(sent, 'aceptaDeclaracionAsesoria')).toBe('true');
       expect(field(sent, 'aceptaTerminosYPolitica')).toBe('true');
       expect(field(sent, 'website')).toBe(''); // honeypot stays empty for humans
       expect(sent.files.fotoCedula?.map(f => f.filename)).toEqual(['cedula.png']);
@@ -76,7 +81,7 @@ test.describe('Emisión de pólizas', () => {
       await expect(form.summaryValue('¿Declara Renta?')).toHaveText('No');
       await expect(form.summaryValue('Ingresos Mensuales (No Declarante)')).toHaveText('4500000');
 
-      await form.acceptTerms();
+      await form.acceptDeclarationAndTerms();
       await form.submitButton.click();
       await expect(form.successHeading).toBeVisible();
 
@@ -108,7 +113,7 @@ test.describe('Emisión de pólizas', () => {
         await expect(form.summaryValue(shortLabel)).toHaveText(HOGAR_ANSWERS[key] === 'si' ? 'Sí' : 'No');
       }
 
-      await form.acceptTerms();
+      await form.acceptDeclarationAndTerms();
       await form.submitButton.click();
       await expect(form.successHeading).toBeVisible();
 
@@ -231,13 +236,33 @@ test.describe('Emisión de pólizas', () => {
       }
     });
 
+    test('Paso 5: muestra la declaración de asesoría completa antes de enviar', async () => {
+      await form.reachSummaryAsAuto();
+
+      await expect(form.advisoryDeclaration.getByRole('listitem')).toHaveText([...DECLARACION_ASESORIA_POINTS]);
+      await expect(form.advisoryDeclarationCheckbox).toBeChecked();
+    });
+
+    test('Paso 5: no envía sin aceptar la declaración de asesoría', async ({ page }) => {
+      const submissions = await mockEmisionSubmission(page, respond.success());
+      await form.reachSummaryAsAuto(); // declaration and terms accepted
+      await form.advisoryDeclarationCheckbox.click(); // un-accept the declaration only
+      await form.submitButton.click();
+
+      await expect(page.getByText(DECLARACION_ASESORIA_REQUIRED_MESSAGE)).toBeVisible();
+      await expect(page.getByText('Debes aceptar la política de privacidad y los términos y condiciones para continuar.')).toBeHidden();
+      await form.expectStep('Resumen y Envío');
+      expect(submissions).toHaveLength(0);
+    });
+
     test('Paso 5: no envía sin aceptar la política y los términos', async ({ page }) => {
       const submissions = await mockEmisionSubmission(page, respond.success());
-      await form.reachSummaryAsAuto();
-      await form.termsCheckbox.click(); // un-accept
+      await form.reachSummaryAsAuto(); // declaration and terms accepted
+      await form.termsCheckbox.click(); // un-accept privacy and terms only
       await form.submitButton.click();
 
       await expect(page.getByText('Debes aceptar la política de privacidad y los términos y condiciones para continuar.')).toBeVisible();
+      await expect(page.getByText(DECLARACION_ASESORIA_REQUIRED_MESSAGE)).toBeHidden();
       await form.expectStep('Resumen y Envío');
       expect(submissions).toHaveLength(0);
     });
@@ -274,7 +299,7 @@ test.describe('Emisión de pólizas', () => {
       await form.next('Declaración');
       await form.upload('Archivo declaración renta', pdfFile('declaracion-renta.pdf', 2.5 * MB));
       await form.next('Resumen y Envío');
-      await form.acceptTerms();
+      await form.acceptDeclarationAndTerms();
       await form.submitButton.click();
 
       await expect(form.toast('Archivos demasiado grandes')).toBeVisible();
@@ -310,6 +335,19 @@ test.describe('Emisión de pólizas', () => {
 
       await form.expectStep('Detalles del Seguro');
       await expect(page.getByText('El número de cédula no es válido.')).toBeVisible();
+    });
+
+    test('400 rechazando la declaración de asesoría: muestra el mensaje en el paso de resumen', async ({ page }) => {
+      await mockEmisionSubmission(page, respond.json(400, {
+        message: 'Datos inválidos.',
+        errors: { aceptaDeclaracionAsesoria: [DECLARACION_ASESORIA_REQUIRED_MESSAGE] },
+      }));
+      await form.reachSummaryAsAuto();
+      await form.submitButton.click();
+
+      await expect(form.toast('Por favor revisa los campos del formulario')).toBeVisible();
+      await form.expectStep('Resumen y Envío');
+      await expect(form.advisoryDeclaration.getByText(DECLARACION_ASESORIA_REQUIRED_MESSAGE)).toBeVisible();
     });
 
     test('500: muestra el error del servidor y permite reintentar', async ({ page }) => {
