@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import FileUpload from './FileUpload';
 import HogarAsegurabilidad from './HogarAsegurabilidad';
+import SaludAsegurabilidad from './SaludAsegurabilidad';
 
 const Step3_ConditionalFields = () => {
   const { control, watch } = useFormContext();
@@ -69,6 +70,7 @@ const Step3_ConditionalFields = () => {
           <>
             {renderCommonFields()}
             {renderBeneficiaryFields()}
+            <SaludAsegurabilidad />
           </>
         );
       case 'salud':
@@ -94,6 +96,7 @@ const Step3_ConditionalFields = () => {
                 </FormItem>
                 )}
             />
+            <SaludAsegurabilidad />
           </>
         );
       case 'hogar':

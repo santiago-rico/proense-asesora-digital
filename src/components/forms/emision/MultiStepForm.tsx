@@ -14,11 +14,12 @@ import { FormSuccessScreen } from '@/components/shared/FormSuccessScreen';
 import { safeParseResponse } from '@/utils/safe-response';
 import { fetchWithRetry, isTimeoutError } from '@/utils/fetch-with-retry';
 import { HOGAR_ASEGURABILIDAD_KEYS, type HogarAsegurabilidadKey } from '@/data/hogarAsegurabilidad';
+import { SALUD_ASEGURABILIDAD_KEYS, type SaludAsegurabilidadKey } from '@/data/saludAsegurabilidad';
 
 const steps = [
   { id: 1, name: 'Información Básica', fields: ['nombreCompleto', 'telefono', 'email'] },
   { id: 2, name: 'Selección de Seguro', fields: ['tipoSeguro', 'metodoPago', 'periodicidadPago'] },
-  { id: 3, name: 'Detalles del Seguro', fields: ['numeroCedula', 'fotoCedula', 'beneficiarios', 'documentosBeneficiarios', 'listaBeneficiarios', 'certificadoLibertad', 'tarjetaPropiedad', 'numeroCedulaRepLegal', 'fotoCedulaRepLegal', 'nit', 'rut', 'camaraComercio', 'contratoArrendamiento', 'tieneEnfermedadesDiagnosticadas', 'enfermedadesEspecificar', 'valorActualDeuda', 'conduceMoto', ...HOGAR_ASEGURABILIDAD_KEYS] },
+  { id: 3, name: 'Detalles del Seguro', fields: ['numeroCedula', 'fotoCedula', 'beneficiarios', 'documentosBeneficiarios', 'listaBeneficiarios', 'certificadoLibertad', 'tarjetaPropiedad', 'numeroCedulaRepLegal', 'fotoCedulaRepLegal', 'nit', 'rut', 'camaraComercio', 'contratoArrendamiento', 'tieneEnfermedadesDiagnosticadas', 'enfermedadesEspecificar', 'valorActualDeuda', 'conduceMoto', ...HOGAR_ASEGURABILIDAD_KEYS, ...SALUD_ASEGURABILIDAD_KEYS] },
   { id: 4, name: 'Declaración', fields: ['declaraRenta', 'archivoDeclaracionRenta', 'ingresosNoDeclarante', 'egresosNoDeclarante', 'activosNoDeclarante', 'pasivosNoDeclarante'] },
   { id: 5, name: 'Resumen y Envío', fields: ['aceptaDeclaracionAsesoria', 'aceptaTerminosYPolitica'] },
 ];
@@ -65,6 +66,7 @@ const MultiStepForm = ({ onSuccess }: MultiStepFormProps) => {
       valorActualDeuda: '',
       conduceMoto: '',
       ...(Object.fromEntries(HOGAR_ASEGURABILIDAD_KEYS.map(key => [key, ''])) as Record<HogarAsegurabilidadKey, ''>),
+      ...(Object.fromEntries(SALUD_ASEGURABILIDAD_KEYS.map(key => [key, ''])) as Record<SaludAsegurabilidadKey, ''>),
       ingresosNoDeclarante: '',
       egresosNoDeclarante: '',
       activosNoDeclarante: '',

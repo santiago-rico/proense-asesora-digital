@@ -1,6 +1,7 @@
 /**
  * Step5_Summary Component Tests
- * Tests the Declaración de Asesoría y Conformidad and the two acceptance checkboxes
+ * Tests the Declaración de Asesoría y Conformidad, the two acceptance checkboxes and
+ * which declaración de asegurabilidad answers the summary lists
  */
 
 import { useEffect } from 'react';
@@ -19,13 +20,14 @@ import {
   DECLARACION_ASESORIA_REQUIRED_MESSAGE,
   DECLARACION_ASESORIA_TITLE,
 } from '@/data/declaracionAsesoria';
+import { SALUD_ASEGURABILIDAD_QUESTIONS, type SaludAsegurabilidadKey } from '@/data/saludAsegurabilidad';
 
 const PRIVACY_REQUIRED_MESSAGE = 'Debes aceptar la política de privacidad y los términos y condiciones para continuar.';
 
 // Exposes the form API to the assertions below
 const form = {} as { methods: UseFormReturn<FormSchemaType> };
 
-const TestWrapper = ({ children }: { children: React.ReactNode }) => {
+const TestWrapper = ({ children, values = {} }: { children: React.ReactNode; values?: Partial<FormSchemaType> }) => {
   const methods = useForm<FormSchemaType>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -38,6 +40,7 @@ const TestWrapper = ({ children }: { children: React.ReactNode }) => {
       declaraRenta: 'si',
       aceptaDeclaracionAsesoria: false,
       aceptaTerminosYPolitica: false,
+      ...values,
     },
   });
   useEffect(() => {
@@ -50,9 +53,9 @@ const TestWrapper = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-const renderComponent = () =>
+const renderComponent = (values?: Partial<FormSchemaType>) =>
   render(
-    <TestWrapper>
+    <TestWrapper values={values}>
       <Step5_Summary />
     </TestWrapper>
   );
@@ -104,5 +107,63 @@ describe('Step5_Summary', () => {
     renderComponent();
 
     expect(screen.getByText(/Al hacer clic en "Firmar y Enviar Solicitud"/)).toBeInTheDocument();
+  });
+
+  describe('Declaración de asegurabilidad de vida y salud', () => {
+    const label = (key: SaludAsegurabilidadKey) => SALUD_ASEGURABILIDAD_QUESTIONS.find(q => q.key === key)!.shortLabel;
+    const summaryValue = (key: SaludAsegurabilidadKey) => screen.getByText(`${label(key)}:`).nextElementSibling;
+    const querySummaryRow = (key: SaludAsegurabilidadKey) => screen.queryByText(`${label(key)}:`);
+
+    const answers: Partial<FormSchemaType> = {
+      saludDiagnosticos: 'no',
+      saludCovidUci: 'si',
+      saludCovidNumeroAsegurado: '2',
+      saludOtrasEnfermedades: 'no',
+      saludEmbarazo: 'si',
+      saludEmbarazoComplicaciones: 'no',
+      saludCitologia: 'si',
+      saludCitologiaAlteraciones: 'no',
+      saludCitologiaMasDeUnAno: 'si',
+      saludExclusionExtraprima: 'no',
+    };
+
+    it.each(['vida', 'salud'] as const)('lists every answer, follow-ups included, for %s', (tipoSeguro) => {
+      renderComponent({ tipoSeguro, ...answers });
+
+      expect(summaryValue('saludDiagnosticos')).toHaveTextContent('No');
+      expect(summaryValue('saludCovidUci')).toHaveTextContent('Sí');
+      expect(summaryValue('saludCovidNumeroAsegurado')).toHaveTextContent('2');
+      expect(summaryValue('saludEmbarazo')).toHaveTextContent('Sí');
+      expect(summaryValue('saludEmbarazoComplicaciones')).toHaveTextContent('No');
+      expect(summaryValue('saludCitologia')).toHaveTextContent('Sí');
+      expect(summaryValue('saludCitologiaAlteraciones')).toHaveTextContent('No');
+      expect(summaryValue('saludCitologiaMasDeUnAno')).toHaveTextContent('Sí');
+      expect(summaryValue('saludExclusionExtraprima')).toHaveTextContent('No');
+    });
+
+    it('leaves out follow-ups whose question is not answered "Sí" and a blank citología', () => {
+      renderComponent({
+        tipoSeguro: 'salud',
+        ...answers,
+        saludCovidUci: 'no',
+        saludEmbarazo: 'no',
+        saludCitologia: '',
+      });
+
+      expect(querySummaryRow('saludCovidNumeroAsegurado')).not.toBeInTheDocument();
+      expect(querySummaryRow('saludEmbarazoComplicaciones')).not.toBeInTheDocument();
+      expect(querySummaryRow('saludCitologia')).not.toBeInTheDocument();
+      expect(querySummaryRow('saludCitologiaAlteraciones')).not.toBeInTheDocument();
+      expect(querySummaryRow('saludCitologiaMasDeUnAno')).not.toBeInTheDocument();
+      expect(summaryValue('saludEmbarazo')).toHaveTextContent('No');
+    });
+
+    it('leaves out answers left over from switching to another ramo', () => {
+      renderComponent({ tipoSeguro: 'auto', ...answers });
+
+      SALUD_ASEGURABILIDAD_QUESTIONS.forEach(q => {
+        expect(querySummaryRow(q.key)).not.toBeInTheDocument();
+      });
+    });
   });
 });

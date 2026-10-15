@@ -21,13 +21,23 @@ import {
   type HogarAsegurabilidadKey,
 } from '../../data/hogarAsegurabilidad.js';
 import {
+  SALUD_ASEGURABILIDAD_QUESTIONS,
+  SALUD_ASEGURABILIDAD_SI_NO_KEYS,
+  getShownSaludQuestions,
+  isSaludFlagged,
+  requiresSaludAsegurabilidad,
+  type SaludAsegurabilidadKey,
+} from '../../data/saludAsegurabilidad.js';
+import {
   DECLARACION_ASESORIA_TITLE,
   DECLARACION_ASESORIA_INTRO,
   DECLARACION_ASESORIA_POINTS,
 } from '../../data/declaracionAsesoria.js';
 
-// Declaración de asegurabilidad answers (hogar and empresarial) are keyed by HOGAR_ASEGURABILIDAD_KEYS.
-interface InsuranceApplicationData extends Partial<Record<HogarAsegurabilidadKey, 'si' | 'no' | ''>> {
+// Declaración de asegurabilidad answers are keyed by HOGAR_ASEGURABILIDAD_KEYS
+// (hogar and empresarial) and SALUD_ASEGURABILIDAD_KEYS (vida and salud).
+interface InsuranceApplicationData
+  extends Partial<Record<HogarAsegurabilidadKey, 'si' | 'no' | ''>>, Partial<Record<SaludAsegurabilidadKey, string>> {
   // Basic Info
   nombreCompleto: string;
   telefono: string;
@@ -197,9 +207,10 @@ export function InsuranceApplicationTemplate({
     return rows;
   };
   
-  // Hogar and empresarial: declaración de asegurabilidad, quoted in the wording
-  // that ramo's client saw. Question text is long, so it gets a dedicated table
-  // (wide question, narrow answer) instead of DataTable's 40% label column.
+  // Declaración de asegurabilidad, quoted in the wording the client saw: hogar
+  // and empresarial ask the same flat questions, vida and salud their own, with
+  // follow-ups. Question text is long, so it gets a dedicated table (wide
+  // question, narrow answer) instead of DataTable's 40% label column.
   // A "Sí" is information for the asesor, never a blocker.
   const asegurabilidadQuestions = requiresAsegurabilidad(data.tipoSeguro)
     ? getAsegurabilidadQuestions(data.tipoSeguro)
@@ -207,24 +218,37 @@ export function InsuranceApplicationTemplate({
   const hasAsegurabilidad = asegurabilidadQuestions.some(q => data[q.key] === 'si' || data[q.key] === 'no');
   const asegurabilidadSiCount = asegurabilidadQuestions.filter(q => data[q.key] === 'si').length;
   
-  const buildAsegurabilidadTable = (highlightSi: boolean) => {
+  // Vida and salud: only the questions the client was shown, so a follow-up
+  // whose parent is not "Sí" never appears even if a value came along.
+  const saludQuestions = requiresSaludAsegurabilidad(data.tipoSeguro) ? getShownSaludQuestions(data) : [];
+  const hasSaludAsegurabilidad = saludQuestions.length > 0
+    && SALUD_ASEGURABILIDAD_SI_NO_KEYS.some(key => data[key] === 'si' || data[key] === 'no');
+  const saludFlaggedCount = saludQuestions.filter(q => isSaludFlagged(q, data[q.key])).length;
+  // Top-level questions keep the insurer's numbering (1–6); follow-ups have none.
+  const saludTopLevelKeys: string[] = SALUD_ASEGURABILIDAD_QUESTIONS.filter(q => !('parent' in q)).map(q => q.key);
+  
+  const siNoAnswerText = (answer: string | undefined) =>
+    answer === 'si' ? 'Sí' : answer === 'no' ? 'No' : 'No respondida';
+  
+  type QuestionRow = { question: string; answerText: string; isHighlighted: boolean; isFollowUp?: boolean };
+  
+  const buildQuestionTable = (rows: QuestionRow[]) => {
     const styles = getThemeStyles(isDarkMode);
     const siHighlightStyle = 'font-weight: 700; background-color: #fff3cd; color: #856404;';
     
-    const tableRows = asegurabilidadQuestions.map((q, index) => {
-      const answer = data[q.key];
-      const answerText = answer === 'si' ? 'Sí' : answer === 'no' ? 'No' : 'No respondida';
+    const tableRows = rows.map((row, index) => {
       const bgClass = index % 2 === 1 ? 'darkmode-table-alt' : 'darkmode-table-bg';
       const cellStyle = index % 2 === 0 ? styles.tableCell : styles.tableCellAlt;
-      const isHighlighted = highlightSi && answer === 'si';
+      // Follow-ups are indented under the question they depend on
+      const questionStyle = row.isFollowUp ? `${cellStyle} padding-left: 40px;` : cellStyle;
       
       return `
         <tr>
-          <td style="${cellStyle}" class="darkmode-text darkmode-border ${bgClass}">
-            ${index + 1}. ${q.question}
+          <td style="${questionStyle}" class="darkmode-text darkmode-border ${bgClass}">
+            ${row.question}
           </td>
-          <td width="90" style="${cellStyle} width: 90px; text-align: center; ${isHighlighted ? siHighlightStyle : ''}" class="darkmode-border ${isHighlighted ? '' : `darkmode-text ${bgClass}`}">
-            ${answerText}
+          <td width="90" style="${cellStyle} width: 90px; text-align: center; ${row.isHighlighted ? siHighlightStyle : ''}" class="darkmode-border ${row.isHighlighted ? '' : `darkmode-text ${bgClass}`}">
+            ${row.answerText}
           </td>
         </tr>
       `;
@@ -237,13 +261,32 @@ export function InsuranceApplicationTemplate({
     `;
   };
   
-  const buildAsegurabilidadSection = (isAgent: boolean) => {
-    if (!hasAsegurabilidad) return '';
-    
-    const siAlert = isAgent && asegurabilidadSiCount > 0
+  const buildAsegurabilidadTable = (highlightSi: boolean) => buildQuestionTable(
+    asegurabilidadQuestions.map((q, index) => ({
+      question: `${index + 1}. ${q.question}`,
+      answerText: siNoAnswerText(data[q.key]),
+      isHighlighted: highlightSi && data[q.key] === 'si',
+    })),
+  );
+  
+  const buildSaludAsegurabilidadTable = (highlight: boolean) => buildQuestionTable(
+    saludQuestions.map(q => {
+      const answer = data[q.key];
+      const isFollowUp = 'parent' in q;
+      return {
+        question: isFollowUp ? q.question : `${saludTopLevelKeys.indexOf(q.key) + 1}. ${q.question}`,
+        answerText: q.type === 'text' ? (answer || 'No indicado') : siNoAnswerText(answer),
+        isHighlighted: highlight && isSaludFlagged(q, answer),
+        isFollowUp,
+      };
+    }),
+  );
+  
+  const buildAsegurabilidadCard = (table: string, alertMessage: string) => {
+    const siAlert = alertMessage
       ? Alert({
           type: 'warning',
-          message: `El cliente respondió «Sí» a ${asegurabilidadSiCount} ${asegurabilidadSiCount === 1 ? 'pregunta' : 'preguntas'} de la declaración de asegurabilidad (resaltadas abajo).`,
+          message: alertMessage,
           isDarkMode
         })
       : '';
@@ -258,11 +301,33 @@ export function InsuranceApplicationTemplate({
     ${Paragraph({ text: HOGAR_ASEGURABILIDAD_DISCLAIMER, isDarkMode })}
     
     ${Card({
-      content: buildAsegurabilidadTable(isAgent),
+      content: table,
       isDarkMode,
       noPadding: true
     })}
     `;
+  };
+  
+  // The agent email highlights the answers to review and counts them in an alert.
+  const buildAsegurabilidadSection = (isAgent: boolean) => {
+    if (hasAsegurabilidad) {
+      return buildAsegurabilidadCard(
+        buildAsegurabilidadTable(isAgent),
+        isAgent && asegurabilidadSiCount > 0
+          ? `El cliente respondió «Sí» a ${asegurabilidadSiCount} ${asegurabilidadSiCount === 1 ? 'pregunta' : 'preguntas'} de la declaración de asegurabilidad (resaltadas abajo).`
+          : '',
+      );
+    }
+    if (hasSaludAsegurabilidad) {
+      // Not every "Sí" is counted: having had a citología is not a risk.
+      return buildAsegurabilidadCard(
+        buildSaludAsegurabilidadTable(isAgent),
+        isAgent && saludFlaggedCount > 0
+          ? `${saludFlaggedCount} ${saludFlaggedCount === 1 ? 'respuesta' : 'respuestas'} de la declaración de asegurabilidad ${saludFlaggedCount === 1 ? 'requiere' : 'requieren'} revisión (resaltadas abajo).`
+          : '',
+      );
+    }
+    return '';
   };
   
   // Declaración de Asesoría y Conformidad: the exact text the client accepted,

@@ -322,6 +322,12 @@ describe('Step2_InsuranceSelection Component', () => {
         archivoDeclaracionRenta: [new File(['test'], 'declaracion.pdf', { type: 'application/pdf' })],
         beneficiarios: 'Test Beneficiary',
         documentosBeneficiarios: [new File(['test'], 'beneficiary.pdf', { type: 'application/pdf' })],
+        // Vida asks the declaración de asegurabilidad; optional and follow-up questions may stay blank
+        saludDiagnosticos: 'no',
+        saludCovidUci: 'no',
+        saludOtrasEnfermedades: 'no',
+        saludEmbarazo: 'no',
+        saludExclusionExtraprima: 'no',
       };
 
       const result = formSchema.safeParse(validData);

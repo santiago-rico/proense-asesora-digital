@@ -9,6 +9,11 @@ import {
   type HogarAsegurabilidadKey,
 } from '../../data/hogarAsegurabilidad';
 import {
+  SALUD_ASEGURABILIDAD_KEYS,
+  SALUD_ASEGURABILIDAD_QUESTIONS,
+  type SaludAsegurabilidadKey,
+} from '../../data/saludAsegurabilidad';
+import {
   DECLARACION_ASESORIA_TITLE,
   DECLARACION_ASESORIA_INTRO,
   DECLARACION_ASESORIA_POINTS,
@@ -208,6 +213,194 @@ describe('InsuranceApplicationTemplate — empresarial declaración de asegurabi
     const html = render(baseData({ tipoSeguro, ...answers('si') }), false);
     expect(html).not.toContain(HOGAR_ASEGURABILIDAD_TITLE);
     expect(html).not.toMatch(SI_ALERT_PATTERN);
+  });
+});
+
+describe('InsuranceApplicationTemplate — vida and salud declaración de asegurabilidad', () => {
+  const HIGHLIGHT = 'font-weight: 700; background-color: #fff3cd; color: #856404;';
+  const FLAGGED_ALERT_PATTERN = /(\d+) respuestas? de la declaración de asegurabilidad requieren? revisión/;
+  const question = (key: SaludAsegurabilidadKey) => SALUD_ASEGURABILIDAD_QUESTIONS.find(q => q.key === key)!.question;
+  const TOP_LEVEL_KEYS: SaludAsegurabilidadKey[] = [
+    'saludDiagnosticos',
+    'saludCovidUci',
+    'saludOtrasEnfermedades',
+    'saludEmbarazo',
+    'saludCitologia',
+    'saludExclusionExtraprima',
+  ];
+  const FOLLOW_UP_KEYS: SaludAsegurabilidadKey[] = [
+    'saludCovidNumeroAsegurado',
+    'saludEmbarazoComplicaciones',
+    'saludCitologiaAlteraciones',
+    'saludCitologiaMasDeUnAno',
+  ];
+  /** Every follow-up shown: all parents "Sí". */
+  const ALL_SHOWN_KEYS: SaludAsegurabilidadKey[] = [
+    'saludDiagnosticos',
+    'saludCovidUci',
+    'saludCovidNumeroAsegurado',
+    'saludOtrasEnfermedades',
+    'saludEmbarazo',
+    'saludEmbarazoComplicaciones',
+    'saludCitologia',
+    'saludCitologiaAlteraciones',
+    'saludCitologiaMasDeUnAno',
+    'saludExclusionExtraprima',
+  ];
+
+  /** Required questions answered "no", citología and follow-ups blank, unless overridden. */
+  const saludAnswers = (overrides: Partial<Record<SaludAsegurabilidadKey, string>> = {}) => ({
+    ...Object.fromEntries(SALUD_ASEGURABILIDAD_KEYS.map(key => [key, ''])),
+    saludDiagnosticos: 'no',
+    saludCovidUci: 'no',
+    saludOtrasEnfermedades: 'no',
+    saludEmbarazo: 'no',
+    saludExclusionExtraprima: 'no',
+    ...overrides,
+  });
+  const allSi = (overrides: Partial<Record<SaludAsegurabilidadKey, string>> = {}) => saludAnswers({
+    ...Object.fromEntries(ALL_SHOWN_KEYS.map(key => [key, 'si'])),
+    saludCovidNumeroAsegurado: '2',
+    ...overrides,
+  });
+
+  /** The question cell (opening tag + text) and answer cell of each row, by key, in order. */
+  const rows = (html: string, keys: SaludAsegurabilidadKey[]) => {
+    let from = 0;
+    return keys.map(key => {
+      const start = html.indexOf(question(key), from);
+      expect(start, `${key} should be rendered`).toBeGreaterThan(-1);
+      from = start;
+      const questionOpen = html.lastIndexOf('<td', start);
+      const questionTag = html.slice(questionOpen, html.indexOf('>', questionOpen) + 1);
+      const questionText = html.slice(questionOpen + questionTag.length, html.indexOf('</td>', start)).trim();
+      const row = html.slice(start, html.indexOf('</tr>', start));
+      const answerOpen = row.lastIndexOf('<td');
+      const answerTagEnd = row.indexOf('>', answerOpen) + 1;
+      return {
+        questionTag,
+        questionText,
+        answerTag: row.slice(answerOpen, answerTagEnd),
+        answer: row.slice(answerTagEnd, row.lastIndexOf('</td>')).trim(),
+      };
+    });
+  };
+
+  describe.each([
+    ['vida', 'user', true],
+    ['vida', 'agent', false],
+    ['salud', 'user', true],
+    ['salud', 'agent', false],
+  ])('%s, %s email', (tipoSeguro, _label, isUserEmail) => {
+    const ramo = (answers: Record<string, string>) => baseData({ tipoSeguro, ...answers });
+
+    it('renders the title, disclaimer and the six questions numbered 1–6, without hidden follow-ups', () => {
+      const html = render(ramo(saludAnswers()), isUserEmail);
+
+      expect(html).toContain(HOGAR_ASEGURABILIDAD_TITLE);
+      expect(html).toContain(HOGAR_ASEGURABILIDAD_DISCLAIMER);
+      expect(rows(html, TOP_LEVEL_KEYS).map(row => row.questionText))
+        .toEqual(TOP_LEVEL_KEYS.map((key, index) => `${index + 1}. ${question(key)}`));
+      for (const key of FOLLOW_UP_KEYS) {
+        expect(html).not.toContain(question(key));
+      }
+    });
+
+    it('shows each follow-up under its "Sí" parent, unnumbered and indented', () => {
+      const html = render(ramo(allSi({ saludEmbarazoComplicaciones: 'no', saludCitologiaAlteraciones: 'no' })), isUserEmail);
+      const rendered = rows(html, ALL_SHOWN_KEYS);
+
+      expect(rendered.map(row => row.answer)).toEqual(['Sí', 'Sí', '2', 'Sí', 'Sí', 'No', 'Sí', 'No', 'Sí', 'Sí']);
+      rendered.forEach((row, index) => {
+        const key = ALL_SHOWN_KEYS[index];
+        const isFollowUp = FOLLOW_UP_KEYS.includes(key);
+        expect(row.questionText, key).toBe(isFollowUp ? question(key) : `${TOP_LEVEL_KEYS.indexOf(key) + 1}. ${question(key)}`);
+        expect(row.questionTag.includes('padding-left: 40px;'), key).toBe(isFollowUp);
+      });
+    });
+
+    it('never shows a follow-up whose parent is not "Sí", even when a value came along', () => {
+      const html = render(ramo(saludAnswers({
+        saludCovidUci: 'no',
+        saludCovidNumeroAsegurado: '3',
+        saludEmbarazo: 'no',
+        saludEmbarazoComplicaciones: 'si',
+        saludCitologia: '',
+        saludCitologiaAlteraciones: 'si',
+      })), isUserEmail);
+
+      for (const key of FOLLOW_UP_KEYS) {
+        expect(html).not.toContain(question(key));
+      }
+    });
+
+    it('renders "No respondida" for a blank citología and "No indicado" for a blank número de asegurado', () => {
+      const html = render(ramo(saludAnswers({ saludCovidUci: 'si', saludCovidNumeroAsegurado: '' })), isUserEmail);
+      const [covidNumero, citologia] = rows(html, ['saludCovidNumeroAsegurado', 'saludCitologia']);
+
+      expect(covidNumero.answer).toBe('No indicado');
+      expect(citologia.answer).toBe('No respondida');
+    });
+
+    it('omits the section when no answer was submitted', () => {
+      const empty = Object.fromEntries(SALUD_ASEGURABILIDAD_KEYS.map(key => [key, '']));
+      expect(render(ramo(empty), isUserEmail)).not.toContain(HOGAR_ASEGURABILIDAD_TITLE);
+      expect(render(baseData({ tipoSeguro }), isUserEmail)).not.toContain(HOGAR_ASEGURABILIDAD_TITLE);
+    });
+  });
+
+  describe('agent review alert and highlighting', () => {
+    const highlighted = (html: string) => rows(html, ALL_SHOWN_KEYS).map(row => row.answerTag.includes(HIGHLIGHT));
+
+    it('highlights and counts every flagged "Sí", never the citología itself or the número de asegurado', () => {
+      const html = render(baseData({ tipoSeguro: 'salud', ...allSi() }), false);
+
+      expect(html.match(FLAGGED_ALERT_PATTERN)?.[0]).toBe('8 respuestas de la declaración de asegurabilidad requieren revisión');
+      expect(highlighted(html)).toEqual([true, true, false, true, true, true, false, true, true, true]);
+    });
+
+    it('uses the singular for one flagged answer', () => {
+      const html = render(baseData({ tipoSeguro: 'vida', ...saludAnswers({ saludExclusionExtraprima: 'si' }) }), false);
+      expect(html.match(FLAGGED_ALERT_PATTERN)?.[0]).toBe('1 respuesta de la declaración de asegurabilidad requiere revisión');
+    });
+
+    it('raises nothing when the only "Sí" is having had a citología', () => {
+      const html = render(baseData({
+        tipoSeguro: 'salud',
+        ...saludAnswers({ saludCitologia: 'si', saludCitologiaAlteraciones: 'no', saludCitologiaMasDeUnAno: 'no' }),
+      }), false);
+
+      expect(html).not.toMatch(FLAGGED_ALERT_PATTERN);
+      expect(html).not.toContain(HIGHLIGHT);
+    });
+
+    it('neither alerts nor highlights in the user email', () => {
+      const html = render(baseData({ tipoSeguro: 'vida', ...allSi() }), true);
+
+      expect(html).not.toMatch(FLAGGED_ALERT_PATTERN);
+      expect(highlighted(html).some(Boolean)).toBe(false);
+    });
+
+    it('does not use the hogar "Sí" count wording', () => {
+      const html = render(baseData({ tipoSeguro: 'vida', ...allSi() }), false);
+      expect(html).not.toMatch(SI_ALERT_PATTERN);
+    });
+  });
+
+  it.each(['auto', 'empresarial', 'vida_credito_protegido'])(
+    'omits the section for tipoSeguro "%s" even with vida/salud answers present',
+    (tipoSeguro) => {
+      const html = render(baseData({ tipoSeguro, ...allSi() }), false);
+      expect(html).not.toContain(question('saludDiagnosticos'));
+      expect(html).not.toMatch(FLAGGED_ALERT_PATTERN);
+    },
+  );
+
+  it('shows only the hogar questions for hogar, even with vida/salud answers present', () => {
+    const html = render(baseData({ ...answers('no'), ...allSi() }), false);
+
+    expect(html).toContain(`1. ${HOGAR_ASEGURABILIDAD_QUESTIONS[0].question}`);
+    expect(html).not.toContain(question('saludDiagnosticos'));
   });
 });
 

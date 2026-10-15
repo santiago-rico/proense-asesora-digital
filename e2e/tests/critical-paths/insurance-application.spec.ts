@@ -9,6 +9,7 @@ import {
   getAsegurabilidadQuestions,
   type HogarAsegurabilidadKey,
 } from '../../../src/data/hogarAsegurabilidad';
+import { SALUD_ASEGURABILIDAD_QUESTIONS, type SaludAsegurabilidadKey } from '../../../src/data/saludAsegurabilidad';
 import { CSRF_TOKEN, field, mockEmisionSubmission, respond } from '../../fixtures/api-mocks';
 import { InsuranceFormPage, type SiNo } from '../../fixtures/page-objects/insurance-form';
 import { applicant, company, MB, pdfFile, pngFile, textFile } from '../../fixtures/test-data';
@@ -32,6 +33,31 @@ const EMPRESARIAL_ANSWERS: Record<HogarAsegurabilidadKey, SiNo> = {
   hogarFisurasHumedad: 'no',
   hogarDanoSismico: 'si',
 };
+
+// Vida: only the questions everyone must answer (citología is optional, follow-ups stay hidden)
+const VIDA_ANSWERS: Partial<Record<SaludAsegurabilidadKey, string>> = {
+  saludDiagnosticos: 'no',
+  saludCovidUci: 'no',
+  saludOtrasEnfermedades: 'no',
+  saludEmbarazo: 'no',
+  saludExclusionExtraprima: 'no',
+};
+
+// Salud: every "Sí" that opens a follow-up, and the follow-ups answered
+const SALUD_ANSWERS: Record<SaludAsegurabilidadKey, string> = {
+  saludDiagnosticos: 'no',
+  saludCovidUci: 'si',
+  saludCovidNumeroAsegurado: '2',
+  saludOtrasEnfermedades: 'no',
+  saludEmbarazo: 'si',
+  saludEmbarazoComplicaciones: 'no',
+  saludCitologia: 'si',
+  saludCitologiaAlteraciones: 'no',
+  saludCitologiaMasDeUnAno: 'si',
+  saludExclusionExtraprima: 'no',
+};
+
+const siNoText = (answer: string) => (answer === 'si' ? 'Sí' : answer === 'no' ? 'No' : answer);
 
 test.describe('Emisión de pólizas', () => {
   let form: InsuranceFormPage;
@@ -84,6 +110,7 @@ test.describe('Emisión de pólizas', () => {
       await form.fillCommonDetails();
       await page.getByLabel('Nombre completo de beneficiarios').fill('Ana Gómez, hija, 50%; Luis Gómez, hijo, 50%');
       await form.upload('Documento de identidad beneficiarios', pdfFile('ti-ana.pdf'), pdfFile('ti-luis.pdf'));
+      await form.answerSaludDeclaration(VIDA_ANSWERS);
       await form.next('Declaración');
 
       await form.setDeclaraRenta('no');
@@ -106,6 +133,42 @@ test.describe('Emisión de pólizas', () => {
       expect(field(sent, 'activosNoDeclarante')).toBe('120000000');
       expect(field(sent, 'pasivosNoDeclarante')).toBe('20000000');
       expect(sent.files.archivoDeclaracionRenta).toBeUndefined();
+      for (const { key } of SALUD_ASEGURABILIDAD_QUESTIONS) {
+        expect(field(sent, key), key).toBe(VIDA_ANSWERS[key] ?? '');
+      }
+    });
+
+    test('Seguro de Salud: declaración de asegurabilidad con sus preguntas de seguimiento', async ({ page }) => {
+      const submissions = await mockEmisionSubmission(page, respond.success());
+
+      await form.startApplication('Seguro de Salud');
+      await form.fillCommonDetails();
+      await page.getByLabel('Lista de beneficiarios').fill('Ana Gómez (cónyuge), Luis Gómez (hijo)');
+      await expect(form.saludNumeroAseguradoInput).toBeHidden();
+      await expect(form.saludGroup('saludEmbarazoComplicaciones')).toBeHidden();
+      await expect(form.saludGroup('saludCitologiaAlteraciones')).toBeHidden();
+      await form.answerSaludDeclaration(SALUD_ANSWERS);
+      await form.next('Declaración');
+
+      await form.upload('Archivo declaración renta', pdfFile('declaracion-renta.pdf'));
+      await form.next('Resumen y Envío');
+      for (const { key, shortLabel } of SALUD_ASEGURABILIDAD_QUESTIONS) {
+        await expect(form.summaryValue(shortLabel)).toHaveText(siNoText(SALUD_ANSWERS[key]));
+      }
+
+      await form.acceptDeclarationAndTerms();
+      await form.submitButton.click();
+      await expect(form.successHeading).toBeVisible();
+
+      const [sent] = submissions;
+      expect(field(sent, 'tipoSeguro')).toBe('salud');
+      expect(field(sent, 'listaBeneficiarios')).toBe('Ana Gómez (cónyuge), Luis Gómez (hijo)');
+      for (const { key } of SALUD_ASEGURABILIDAD_QUESTIONS) {
+        expect(field(sent, key), key).toBe(SALUD_ANSWERS[key]);
+      }
+      for (const { key } of HOGAR_ASEGURABILIDAD_QUESTIONS) {
+        expect(field(sent, key), key).toBe('');
+      }
     });
 
     test('Seguro de Hogar: declaración de asegurabilidad con respuestas "Sí" no bloquea el envío', async ({ page }) => {
@@ -267,6 +330,72 @@ test.describe('Emisión de pólizas', () => {
       await form.answerDeclaration(EMPRESARIAL_ANSWERS, 'empresarial');
       await expect(requiredMessages).toHaveCount(0);
       await form.next('Declaración');
+    });
+
+    test('Vida: no avanza sin responder la declaración de asegurabilidad ni sus preguntas de seguimiento', async ({ page }) => {
+      await form.startApplication('Seguro de Vida');
+      await form.fillCommonDetails();
+      await page.getByLabel('Nombre completo de beneficiarios').fill('Ana Gómez, hija, 100%');
+      await form.upload('Documento de identidad beneficiarios', pdfFile('ti-ana.pdf'));
+      await form.next();
+      await form.expectStep('Detalles del Seguro');
+
+      // Every question but the optional citología
+      const requiredMessages = page.getByText(HOGAR_ASEGURABILIDAD_REQUIRED_MESSAGE, { exact: true });
+      await expect(requiredMessages).toHaveCount(5);
+      await form.answerSaludDeclaration({ ...VIDA_ANSWERS, saludEmbarazo: 'si' });
+      await expect(requiredMessages).toHaveCount(0);
+
+      // The follow-up the "Sí" opened is required too
+      await form.next();
+      await form.expectStep('Detalles del Seguro');
+      await expect(requiredMessages).toHaveCount(1);
+      await expect(form.saludGroup('saludEmbarazoComplicaciones')).toBeVisible();
+      await form.answerSaludDeclaration({ saludEmbarazoComplicaciones: 'no' });
+      await form.next('Declaración');
+    });
+
+    test('Salud: al volver a "No" oculta y borra las preguntas de seguimiento', async ({ page }) => {
+      const submissions = await mockEmisionSubmission(page, respond.success());
+
+      await form.startApplication('Seguro de Salud');
+      await form.fillCommonDetails();
+      await page.getByLabel('Lista de beneficiarios').fill('Ana Gómez (cónyuge)');
+      await form.answerSaludDeclaration(SALUD_ANSWERS);
+
+      await form.answerSaludDeclaration({ saludCovidUci: 'no', saludEmbarazo: 'no', saludCitologia: 'no' });
+      await expect(form.saludNumeroAseguradoInput).toBeHidden();
+      await expect(form.saludGroup('saludEmbarazoComplicaciones')).toBeHidden();
+      await expect(form.saludGroup('saludCitologiaAlteraciones')).toBeHidden();
+      await expect(form.saludGroup('saludCitologiaMasDeUnAno')).toBeHidden();
+
+      // Answering "Sí" again starts the follow-ups blank
+      await form.answerSaludDeclaration({ saludCovidUci: 'si', saludCitologia: 'si' });
+      await expect(form.saludNumeroAseguradoInput).toHaveValue('');
+      await expect(form.saludGroup('saludCitologiaAlteraciones').getByRole('radio', { name: 'Sí', exact: true })).not.toBeChecked();
+      await form.answerSaludDeclaration({ saludCovidUci: 'no', saludCitologia: 'no' });
+      await form.next('Declaración');
+
+      await form.upload('Archivo declaración renta', pdfFile('declaracion-renta.pdf'));
+      await form.next('Resumen y Envío');
+      await expect(form.summaryValue('Citología practicada')).toHaveText('No');
+      for (const key of ['saludCovidNumeroAsegurado', 'saludEmbarazoComplicaciones', 'saludCitologiaAlteraciones', 'saludCitologiaMasDeUnAno'] as const) {
+        const { shortLabel } = SALUD_ASEGURABILIDAD_QUESTIONS.find(q => q.key === key)!;
+        await expect(page.getByText(`${shortLabel}:`, { exact: true })).toBeHidden();
+      }
+
+      await form.acceptDeclarationAndTerms();
+      await form.submitButton.click();
+      await expect(form.successHeading).toBeVisible();
+
+      const [sent] = submissions;
+      expect(field(sent, 'saludCovidUci')).toBe('no');
+      expect(field(sent, 'saludCovidNumeroAsegurado')).toBe('');
+      expect(field(sent, 'saludEmbarazo')).toBe('no');
+      expect(field(sent, 'saludEmbarazoComplicaciones')).toBe('');
+      expect(field(sent, 'saludCitologia')).toBe('no');
+      expect(field(sent, 'saludCitologiaAlteraciones')).toBe('');
+      expect(field(sent, 'saludCitologiaMasDeUnAno')).toBe('');
     });
 
     test('Paso 4: pide el archivo de renta o, si no declara, sus datos financieros', async ({ page }) => {
