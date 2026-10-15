@@ -6,11 +6,12 @@ import {
 import {
   HOGAR_ASEGURABILIDAD_QUESTIONS,
   HOGAR_ASEGURABILIDAD_REQUIRED_MESSAGE,
+  getAsegurabilidadQuestions,
   type HogarAsegurabilidadKey,
 } from '../../../src/data/hogarAsegurabilidad';
 import { CSRF_TOKEN, field, mockEmisionSubmission, respond } from '../../fixtures/api-mocks';
 import { InsuranceFormPage, type SiNo } from '../../fixtures/page-objects/insurance-form';
-import { applicant, MB, pdfFile, pngFile, textFile } from '../../fixtures/test-data';
+import { applicant, company, MB, pdfFile, pngFile, textFile } from '../../fixtures/test-data';
 
 const HOGAR_ANSWERS: Record<HogarAsegurabilidadKey, SiNo> = {
   hogarPiscina: 'si',
@@ -20,6 +21,16 @@ const HOGAR_ANSWERS: Record<HogarAsegurabilidadKey, SiNo> = {
   hogarRiesgoTerreno: 'si',
   hogarFisurasHumedad: 'no',
   hogarDanoSismico: 'no',
+};
+
+const EMPRESARIAL_ANSWERS: Record<HogarAsegurabilidadKey, SiNo> = {
+  hogarPiscina: 'no',
+  hogarMaterialesNoConvencionales: 'no',
+  hogarEnConstruccion: 'si',
+  hogarPatrimonio: 'no',
+  hogarRiesgoTerreno: 'no',
+  hogarFisurasHumedad: 'no',
+  hogarDanoSismico: 'si',
 };
 
 test.describe('Emisión de pólizas', () => {
@@ -124,6 +135,38 @@ test.describe('Emisión de pólizas', () => {
         expect(field(sent, key), key).toBe(HOGAR_ANSWERS[key]);
       }
     });
+
+    test('Seguro Empresarial: documentos de la empresa y declaración de asegurabilidad con su propia redacción', async ({ page }) => {
+      const submissions = await mockEmisionSubmission(page, respond.success());
+
+      await form.startApplication('Seguro Empresarial');
+      await form.fillEmpresarialDetails();
+      await expect(page.getByRole('group', { name: /Declaración de asegurabilidad/ })).not.toContainText(/tu hogar/i);
+      await form.answerDeclaration(EMPRESARIAL_ANSWERS, 'empresarial');
+      await form.next('Declaración');
+
+      await form.upload('Archivo declaración renta', pdfFile('declaracion-renta.pdf'));
+      await form.next('Resumen y Envío');
+      await expect(form.summaryValue('NIT (Empresarial)')).toHaveText(company.nit);
+      for (const { key, shortLabel } of getAsegurabilidadQuestions('empresarial')) {
+        await expect(form.summaryValue(shortLabel)).toHaveText(EMPRESARIAL_ANSWERS[key] === 'si' ? 'Sí' : 'No');
+      }
+
+      await form.acceptDeclarationAndTerms();
+      await form.submitButton.click();
+      await expect(form.successHeading).toBeVisible();
+
+      const [sent] = submissions;
+      expect(field(sent, 'tipoSeguro')).toBe('empresarial');
+      expect(field(sent, 'numeroCedulaRepLegal')).toBe(company.numeroCedulaRepLegal);
+      expect(field(sent, 'nit')).toBe(company.nit);
+      expect(sent.files.fotoCedulaRepLegal?.map(f => f.filename)).toEqual(['cedula-rep-legal.png']);
+      expect(sent.files.rut?.map(f => f.filename)).toEqual(['rut.pdf']);
+      expect(sent.files.camaraComercio?.map(f => f.filename)).toEqual(['camara-comercio.pdf']);
+      for (const { key } of HOGAR_ASEGURABILIDAD_QUESTIONS) {
+        expect(field(sent, key), key).toBe(EMPRESARIAL_ANSWERS[key]);
+      }
+    });
   });
 
   test.describe('Navegación', () => {
@@ -210,6 +253,19 @@ test.describe('Emisión de pólizas', () => {
 
       await form.fillCommonDetails();
       await form.upload('Certificado de libertad y tradición', pdfFile('certificado-libertad.pdf'));
+      await form.next('Declaración');
+    });
+
+    test('Empresarial: no avanza sin responder la declaración de asegurabilidad', async ({ page }) => {
+      await form.startApplication('Seguro Empresarial');
+      await form.fillEmpresarialDetails();
+      await form.next();
+      await form.expectStep('Detalles del Seguro');
+
+      const requiredMessages = page.getByText(HOGAR_ASEGURABILIDAD_REQUIRED_MESSAGE, { exact: true });
+      await expect(requiredMessages).toHaveCount(HOGAR_ASEGURABILIDAD_QUESTIONS.length);
+      await form.answerDeclaration(EMPRESARIAL_ANSWERS, 'empresarial');
+      await expect(requiredMessages).toHaveCount(0);
       await form.next('Declaración');
     });
 

@@ -4,6 +4,8 @@ import {
   HOGAR_ASEGURABILIDAD_QUESTIONS,
   HOGAR_ASEGURABILIDAD_TITLE,
   HOGAR_ASEGURABILIDAD_DISCLAIMER,
+  getAsegurabilidadQuestions,
+  type AsegurabilidadQuestion,
   type HogarAsegurabilidadKey,
 } from '../../data/hogarAsegurabilidad';
 import {
@@ -43,8 +45,11 @@ function render(data: TemplateData, isUserEmail: boolean, declaracionAceptadaEn?
 }
 
 /** Returns the rendered answer cell (opening tag + text) for each question, in order. */
-function answerCells(html: string): { openTag: string; text: string }[] {
-  return HOGAR_ASEGURABILIDAD_QUESTIONS.map((q, index) => {
+function answerCells(
+  html: string,
+  questions: readonly AsegurabilidadQuestion[] = HOGAR_ASEGURABILIDAD_QUESTIONS,
+): { openTag: string; text: string }[] {
+  return questions.map((q, index) => {
     const start = html.indexOf(`${index + 1}. ${q.question}`);
     expect(start, `question ${index + 1} should be rendered`).toBeGreaterThan(-1);
     const row = html.slice(start, html.indexOf('</tr>', start));
@@ -133,6 +138,76 @@ describe('InsuranceApplicationTemplate — hogar declaración de asegurabilidad'
       const html = render(baseData(answers('si')), true);
       expect(highlighted(html)).toEqual(HOGAR_ASEGURABILIDAD_QUESTIONS.map(() => false));
     });
+  });
+});
+
+describe('InsuranceApplicationTemplate — empresarial declaración de asegurabilidad', () => {
+  const EMPRESARIAL_QUESTIONS = getAsegurabilidadQuestions('empresarial');
+  const empresarial = (overrides: Partial<TemplateData> = {}) =>
+    baseData({ tipoSeguro: 'empresarial', numeroCedula: undefined, nit: '900123456', ...overrides });
+
+  describe.each([
+    ['user', true],
+    ['agent', false],
+  ])('%s email', (_label, isUserEmail) => {
+    it('renders every question in the empresarial wording, never "¿Tu hogar"', () => {
+      const html = render(empresarial(answers('no')), isUserEmail);
+
+      expect(html).toContain(HOGAR_ASEGURABILIDAD_TITLE);
+      expect(html).toContain(HOGAR_ASEGURABILIDAD_DISCLAIMER);
+      EMPRESARIAL_QUESTIONS.forEach((q, index) => {
+        expect(html).toContain(`${index + 1}. ${q.question}`);
+      });
+      expect(html).not.toContain('¿Tu hogar');
+    });
+
+    it('adapts questions 1–4 to "el inmueble de tu empresa" and keeps 5–7 as in hogar', () => {
+      const html = render(empresarial(answers('no')), isUserEmail);
+
+      EMPRESARIAL_QUESTIONS.slice(0, 4).forEach((q, index) => {
+        expect(q.question).toMatch(/^¿El inmueble de tu empresa /);
+        expect(html).not.toContain(HOGAR_ASEGURABILIDAD_QUESTIONS[index].question);
+      });
+      EMPRESARIAL_QUESTIONS.slice(4).forEach((q, offset) => {
+        expect(q.question).toBe(HOGAR_ASEGURABILIDAD_QUESTIONS[offset + 4].question);
+        expect(html).toContain(`${offset + 5}. ${q.question}`);
+      });
+    });
+
+    it('renders Sí / No per question and "No respondida" for a missing answer', () => {
+      const data = empresarial(answers('no', { hogarPiscina: 'si', hogarDanoSismico: '' }));
+      const cells = answerCells(render(data, isUserEmail), EMPRESARIAL_QUESTIONS).map(cell => cell.text);
+
+      expect(cells).toEqual(['Sí', 'No', 'No', 'No', 'No', 'No', 'No respondida']);
+    });
+
+    it('omits the section when no answer was submitted', () => {
+      const html = render(empresarial(answers('')), isUserEmail);
+      expect(html).not.toContain(HOGAR_ASEGURABILIDAD_TITLE);
+    });
+  });
+
+  it('counts and highlights the "Sí" answers in the agent email', () => {
+    const HIGHLIGHT = 'font-weight: 700; background-color: #fff3cd; color: #856404;';
+    const html = render(empresarial(answers('no', { hogarPatrimonio: 'si', hogarFisurasHumedad: 'si' })), false);
+
+    expect(html.match(SI_ALERT_PATTERN)?.[1]).toBe('2');
+    expect(answerCells(html, EMPRESARIAL_QUESTIONS).map(cell => cell.openTag.includes(HIGHLIGHT)))
+      .toEqual([false, false, false, true, false, true, false]);
+  });
+
+  it('neither alerts nor highlights in the user email', () => {
+    const HIGHLIGHT = 'font-weight: 700; background-color: #fff3cd; color: #856404;';
+    const html = render(empresarial(answers('si')), true);
+
+    expect(html).not.toMatch(SI_ALERT_PATTERN);
+    expect(answerCells(html, EMPRESARIAL_QUESTIONS).some(cell => cell.openTag.includes(HIGHLIGHT))).toBe(false);
+  });
+
+  it.each(['auto', 'vida'])('still omits the section for tipoSeguro "%s" even with answers present', (tipoSeguro) => {
+    const html = render(baseData({ tipoSeguro, ...answers('si') }), false);
+    expect(html).not.toContain(HOGAR_ASEGURABILIDAD_TITLE);
+    expect(html).not.toMatch(SI_ALERT_PATTERN);
   });
 });
 

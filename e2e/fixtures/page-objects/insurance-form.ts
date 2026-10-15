@@ -1,11 +1,12 @@
 import { expect, type Locator, type Page } from '@playwright/test';
 import { DECLARACION_ASESORIA_CHECKBOX_LABEL, DECLARACION_ASESORIA_TITLE } from '../../../src/data/declaracionAsesoria';
 import {
-  HOGAR_ASEGURABILIDAD_QUESTIONS,
+  getAsegurabilidadQuestions,
+  type AsegurabilidadRamo,
   type HogarAsegurabilidadKey,
 } from '../../../src/data/hogarAsegurabilidad';
 import { mockCsrfToken } from '../api-mocks';
-import { applicant, pdfFile, pngFile, type UploadFile } from '../test-data';
+import { applicant, company, pdfFile, pngFile, type UploadFile } from '../test-data';
 
 export type StepName =
   | 'Información Básica'
@@ -131,15 +132,15 @@ export class InsuranceFormPage {
     return this.page.getByRole('button', { name: `Eliminar archivo ${fileName}` });
   }
 
-  /** Radio group of one hogar declaration question, named by its question text. */
-  declarationGroup(key: HogarAsegurabilidadKey): Locator {
-    const question = HOGAR_ASEGURABILIDAD_QUESTIONS.find(q => q.key === key)!.question;
+  /** Radio group of one declaración de asegurabilidad question, named by the ramo's wording of it. */
+  declarationGroup(key: HogarAsegurabilidadKey, ramo: AsegurabilidadRamo = 'hogar'): Locator {
+    const question = getAsegurabilidadQuestions(ramo).find(q => q.key === key)!.question;
     return this.page.getByRole('radiogroup', { name: question });
   }
 
-  async answerDeclaration(answers: Record<HogarAsegurabilidadKey, SiNo>): Promise<void> {
-    for (const { key } of HOGAR_ASEGURABILIDAD_QUESTIONS) {
-      await this.declarationGroup(key)
+  async answerDeclaration(answers: Record<HogarAsegurabilidadKey, SiNo>, ramo: AsegurabilidadRamo = 'hogar'): Promise<void> {
+    for (const { key } of getAsegurabilidadQuestions(ramo)) {
+      await this.declarationGroup(key, ramo)
         .getByRole('radio', { name: answers[key] === 'si' ? 'Sí' : 'No', exact: true })
         .check();
     }
@@ -149,6 +150,15 @@ export class InsuranceFormPage {
   async fillCommonDetails(): Promise<void> {
     await this.cedulaInput.fill(applicant.numeroCedula);
     await this.upload('Foto cédula (ambos lados)', pngFile('cedula.png'));
+  }
+
+  /** Representante legal, NIT, RUT and cámara de comercio: the Seguro Empresarial documents. */
+  async fillEmpresarialDetails(): Promise<void> {
+    await this.page.getByLabel('Número de cédula (Representante Legal)').fill(company.numeroCedulaRepLegal);
+    await this.upload('Imagen o documento de tu cédula por ambos lados (Representante Legal)', pngFile('cedula-rep-legal.png'));
+    await this.page.getByLabel('NIT (Sin espacios ni guiones)').fill(company.nit);
+    await this.upload('RUT (Obligatorio)', pdfFile('rut.pdf'));
+    await this.upload('Cámara de comercio (Obligatorio)', pdfFile('camara-comercio.pdf'));
   }
 
   // --- Step 4: Declaración --------------------------------------------------

@@ -12,6 +12,7 @@ import { getNotificationEmails } from './_utils/notification-emails.js';
 import {
   HOGAR_ASEGURABILIDAD_KEYS,
   HOGAR_ASEGURABILIDAD_REQUIRED_MESSAGE,
+  requiresAsegurabilidad,
   type HogarAsegurabilidadKey,
 } from '../src/data/hogarAsegurabilidad.js';
 import { DECLARACION_ASESORIA_REQUIRED_MESSAGE } from '../src/data/declaracionAsesoria.js';
@@ -40,7 +41,7 @@ export const config = {
 };
 
 // Defines the expected structure of the form data from MultiStepForm.tsx
-// Hogar declaración de asegurabilidad answers are keyed by HOGAR_ASEGURABILIDAD_KEYS.
+// Declaración de asegurabilidad answers (hogar and empresarial) are keyed by HOGAR_ASEGURABILIDAD_KEYS.
 interface InsuranceApplicationData extends Partial<Record<HogarAsegurabilidadKey, 'si' | 'no' | ''>> {
   // Step 1: Basic Info
   nombreCompleto: string;
@@ -113,8 +114,9 @@ const parseForm = (
   });
 };
 
-// Every submission carries all hogar declaration keys ('' when unanswered or
-// for other insurance types); they are only required for tipoSeguro 'hogar'.
+// Every submission carries all declaración de asegurabilidad keys ('' when
+// unanswered or for other insurance types); they are only required for the
+// ASEGURABILIDAD_RAMOS (hogar and empresarial).
 const siNoOrEmpty = z.union([z.enum(['si', 'no']), z.literal('')]).optional();
 const hogarAsegurabilidadFields = Object.fromEntries(
   HOGAR_ASEGURABILIDAD_KEYS.map(key => [key, siNoOrEmpty]),
@@ -165,8 +167,8 @@ export const backendSchema = z.object({
   website: z.string().optional(),
 }).superRefine((data, ctx) => {
   // A "Sí" never blocks the submission (it is information for the asesor),
-  // but every question must be answered for hogar.
-  if (data.tipoSeguro !== 'hogar') return;
+  // but every question must be answered for hogar and empresarial.
+  if (!requiresAsegurabilidad(data.tipoSeguro)) return;
   // Pages loaded before the declaration shipped send none of the keys; accept
   // those in-flight submissions instead of rejecting on fields they can't show.
   if (HOGAR_ASEGURABILIDAD_KEYS.every(key => data[key] === undefined)) return;

@@ -14,9 +14,10 @@ import {
 } from './EmailComponents.js';
 import { getThemeStyles } from './EmailStyles.js';
 import {
-  HOGAR_ASEGURABILIDAD_QUESTIONS,
   HOGAR_ASEGURABILIDAD_TITLE,
   HOGAR_ASEGURABILIDAD_DISCLAIMER,
+  getAsegurabilidadQuestions,
+  requiresAsegurabilidad,
   type HogarAsegurabilidadKey,
 } from '../../data/hogarAsegurabilidad.js';
 import {
@@ -25,7 +26,7 @@ import {
   DECLARACION_ASESORIA_POINTS,
 } from '../../data/declaracionAsesoria.js';
 
-// Hogar declaración de asegurabilidad answers are keyed by HOGAR_ASEGURABILIDAD_KEYS.
+// Declaración de asegurabilidad answers (hogar and empresarial) are keyed by HOGAR_ASEGURABILIDAD_KEYS.
 interface InsuranceApplicationData extends Partial<Record<HogarAsegurabilidadKey, 'si' | 'no' | ''>> {
   // Basic Info
   nombreCompleto: string;
@@ -196,18 +197,21 @@ export function InsuranceApplicationTemplate({
     return rows;
   };
   
-  // Hogar: declaración de asegurabilidad. Question text is long, so it gets a
-  // dedicated table (wide question, narrow answer) instead of DataTable's 40%
-  // label column. A "Sí" is information for the asesor, never a blocker.
-  const hasAsegurabilidad = data.tipoSeguro === 'hogar'
-    && HOGAR_ASEGURABILIDAD_QUESTIONS.some(q => data[q.key] === 'si' || data[q.key] === 'no');
-  const asegurabilidadSiCount = HOGAR_ASEGURABILIDAD_QUESTIONS.filter(q => data[q.key] === 'si').length;
+  // Hogar and empresarial: declaración de asegurabilidad, quoted in the wording
+  // that ramo's client saw. Question text is long, so it gets a dedicated table
+  // (wide question, narrow answer) instead of DataTable's 40% label column.
+  // A "Sí" is information for the asesor, never a blocker.
+  const asegurabilidadQuestions = requiresAsegurabilidad(data.tipoSeguro)
+    ? getAsegurabilidadQuestions(data.tipoSeguro)
+    : [];
+  const hasAsegurabilidad = asegurabilidadQuestions.some(q => data[q.key] === 'si' || data[q.key] === 'no');
+  const asegurabilidadSiCount = asegurabilidadQuestions.filter(q => data[q.key] === 'si').length;
   
   const buildAsegurabilidadTable = (highlightSi: boolean) => {
     const styles = getThemeStyles(isDarkMode);
     const siHighlightStyle = 'font-weight: 700; background-color: #fff3cd; color: #856404;';
     
-    const tableRows = HOGAR_ASEGURABILIDAD_QUESTIONS.map((q, index) => {
+    const tableRows = asegurabilidadQuestions.map((q, index) => {
       const answer = data[q.key];
       const answerText = answer === 'si' ? 'Sí' : answer === 'no' ? 'No' : 'No respondida';
       const bgClass = index % 2 === 1 ? 'darkmode-table-alt' : 'darkmode-table-bg';
