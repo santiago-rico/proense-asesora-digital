@@ -14,6 +14,7 @@ import {
   HOGAR_ASEGURABILIDAD_REQUIRED_MESSAGE,
   type HogarAsegurabilidadKey,
 } from '../src/data/hogarAsegurabilidad.js';
+import { DECLARACION_ASESORIA_REQUIRED_MESSAGE } from '../src/data/declaracionAsesoria.js';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 const ALLOWED_MIME_TYPES = [
@@ -88,8 +89,9 @@ interface InsuranceApplicationData extends Partial<Record<HogarAsegurabilidadKey
   activosNoDeclarante?: string;
   pasivosNoDeclarante?: string;
 
-  // Step 5: Terms
+  // Step 5: Terms and Declaración de Asesoría y Conformidad
   aceptaTerminosYPolitica: boolean;
+  aceptaDeclaracionAsesoria: boolean;
 
   // Allow other fields that might be dynamically added or part of the broader form state
   [key: string]: string | boolean | File[] | undefined;
@@ -117,6 +119,12 @@ const siNoOrEmpty = z.union([z.enum(['si', 'no']), z.literal('')]).optional();
 const hogarAsegurabilidadFields = Object.fromEntries(
   HOGAR_ASEGURABILIDAD_KEYS.map(key => [key, siNoOrEmpty]),
 ) as Record<HogarAsegurabilidadKey, typeof siNoOrEmpty>;
+
+// Step 5 checkboxes arrive as the string 'true' when ticked. Anything else,
+// including a missing field, is rejected with the client's own message so the
+// error shows under the checkbox.
+const mustAccept = (message: string) =>
+  z.literal('true', { error: message }).transform(() => true as const);
 
 // Backend validation schema with trimming
 export const backendSchema = z.object({
@@ -149,8 +157,9 @@ export const backendSchema = z.object({
   activosNoDeclarante: z.string().transform(str => str.trim()).optional(),
   pasivosNoDeclarante: z.string().transform(str => str.trim()).optional(),
   
-  // Terms
-  aceptaTerminosYPolitica: z.enum(['true', 'false']).transform(val => val === 'true'),
+  // Terms and Declaración de Asesoría y Conformidad
+  aceptaTerminosYPolitica: mustAccept('Debes aceptar la política de privacidad y los términos y condiciones para continuar.'),
+  aceptaDeclaracionAsesoria: mustAccept(DECLARACION_ASESORIA_REQUIRED_MESSAGE),
   
   // Honeypot field
   website: z.string().optional(),
@@ -267,6 +276,9 @@ async function handler(
     }
     
     const formData = validationResult.data as InsuranceApplicationData;
+    // Server time of the acceptance, quoted in both emails as the record of
+    // the client's Declaración de Asesoría y Conformidad.
+    const declaracionAceptadaEn = new Date();
     
     // Sanitize all text fields to prevent XSS
     const sanitizedData = {
@@ -333,7 +345,8 @@ async function handler(
       attachedFiles: attachedFileNames,
       isUserEmail: true,
       isDarkMode: false,
-      baseUrl
+      baseUrl,
+      declaracionAceptadaEn,
     });
 
     const userBrevoPayload = {
@@ -350,7 +363,8 @@ async function handler(
       attachedFiles: attachedFileNames,
       isUserEmail: false,
       isDarkMode: false,
-      baseUrl
+      baseUrl,
+      declaracionAceptadaEn,
     });
 
     const agentBrevoPayload = {

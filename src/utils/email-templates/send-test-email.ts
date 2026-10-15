@@ -23,7 +23,8 @@ async function sendTestEmail() {
     listaBeneficiarios: 'Beneficiario 1, Beneficiario 2',
     tieneEnfermedadesDiagnosticadas: 'no' as const,
     declaraRenta: 'si' as const,
-    aceptaTerminosYPolitica: true
+    aceptaTerminosYPolitica: true,
+    aceptaDeclaracionAsesoria: true
   };
 
   const attachedFiles = {

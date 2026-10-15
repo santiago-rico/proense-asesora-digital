@@ -5,6 +5,7 @@ import {
   HOGAR_ASEGURABILIDAD_REQUIRED_MESSAGE,
   type HogarAsegurabilidadKey,
 } from '@/data/hogarAsegurabilidad';
+import { DECLARACION_ASESORIA_REQUIRED_MESSAGE } from '@/data/declaracionAsesoria';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 const ACCEPTED_MIME_TYPES = [
@@ -79,6 +80,9 @@ export const formSchema = z.object({
   activosNoDeclarante: z.string().optional(),
   pasivosNoDeclarante: z.string().optional(),
   // Step 5 fields
+  aceptaDeclaracionAsesoria: z.boolean().refine(val => val === true, {
+    message: DECLARACION_ASESORIA_REQUIRED_MESSAGE,
+  }),
   aceptaTerminosYPolitica: z.boolean().refine(val => val === true, {
     message: 'Debes aceptar la política de privacidad y los términos y condiciones para continuar.',
   }),

@@ -139,6 +139,7 @@ describe('formSchema', () => {
       tipoSeguro: 'vida',
       metodoPago: 'mensual',
       periodicidadPago: 'mensual',
+      aceptaDeclaracionAsesoria: true,
       aceptaTerminosYPolitica: true,
     };
     
@@ -159,6 +160,7 @@ describe('formSchema', () => {
       tipoSeguro: 'vida',
       metodoPago: 'mensual',
       periodicidadPago: 'mensual',
+      aceptaDeclaracionAsesoria: false,
       aceptaTerminosYPolitica: false,
     };
     
@@ -179,6 +181,7 @@ describe('formSchema', () => {
       tipoSeguro: 'responsabilidad_civil', // This type requires fewer fields
       metodoPago: 'mensual',
       periodicidadPago: 'mensual',
+      aceptaDeclaracionAsesoria: true,
       aceptaTerminosYPolitica: true,
       declaraRenta: 'si' as const,
       numeroCedula: '12345678',

@@ -20,7 +20,7 @@ const steps = [
   { id: 2, name: 'Selección de Seguro', fields: ['tipoSeguro', 'metodoPago', 'periodicidadPago'] },
   { id: 3, name: 'Detalles del Seguro', fields: ['numeroCedula', 'fotoCedula', 'beneficiarios', 'documentosBeneficiarios', 'listaBeneficiarios', 'certificadoLibertad', 'tarjetaPropiedad', 'numeroCedulaRepLegal', 'fotoCedulaRepLegal', 'nit', 'rut', 'camaraComercio', 'contratoArrendamiento', 'tieneEnfermedadesDiagnosticadas', 'enfermedadesEspecificar', 'valorActualDeuda', 'conduceMoto', ...HOGAR_ASEGURABILIDAD_KEYS] },
   { id: 4, name: 'Declaración', fields: ['declaraRenta', 'archivoDeclaracionRenta', 'ingresosNoDeclarante', 'egresosNoDeclarante', 'activosNoDeclarante', 'pasivosNoDeclarante'] },
-  { id: 5, name: 'Resumen y Envío', fields: ['aceptaTerminosYPolitica'] },
+  { id: 5, name: 'Resumen y Envío', fields: ['aceptaDeclaracionAsesoria', 'aceptaTerminosYPolitica'] },
 ];
 
 interface MultiStepFormProps {
@@ -69,6 +69,7 @@ const MultiStepForm = ({ onSuccess }: MultiStepFormProps) => {
       egresosNoDeclarante: '',
       activosNoDeclarante: '',
       pasivosNoDeclarante: '',
+      aceptaDeclaracionAsesoria: false,
       aceptaTerminosYPolitica: false,
       website: '', // Honeypot field
     }

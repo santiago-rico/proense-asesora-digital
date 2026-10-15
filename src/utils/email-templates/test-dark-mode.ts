@@ -16,7 +16,8 @@ const insuranceData = {
   listaBeneficiarios: 'Maria Pérez (Esposa), Carlos Pérez (Hijo)',
   tieneEnfermedadesDiagnosticadas: 'no' as const,
   declaraRenta: 'si' as const,
-  aceptaTerminosYPolitica: true
+  aceptaTerminosYPolitica: true,
+  aceptaDeclaracionAsesoria: true
 };
 
 // Test data for Lead
@@ -38,7 +39,8 @@ const cancellationData = {
   numeroPoliza: 'POL-2024-001',
   tipoSeguro: 'vehiculos',
   cancellationReason: 'Encontré mejores condiciones en otro lugar',
-  aceptaTerminosYPolitica: true
+  aceptaTerminosYPolitica: true,
+  aceptaDeclaracionAsesoria: true
 };
 
 const attachedFiles = {

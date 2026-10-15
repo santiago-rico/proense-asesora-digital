@@ -80,6 +80,7 @@ const TestWrapper = ({ children, defaultValues = {} }: { children: React.ReactNo
       tipoSeguro: '',
       metodoPago: '',
       periodicidadPago: '',
+      aceptaDeclaracionAsesoria: false,
       aceptaTerminosYPolitica: false,
       declaraRenta: 'si',
       ...defaultValues,
@@ -253,6 +254,7 @@ describe('Step2_InsuranceSelection Component', () => {
         tipoSeguro: '', // Empty - should fail
         metodoPago: 'tarjeta_credito',
         periodicidadPago: 'mensual',
+        aceptaDeclaracionAsesoria: true,
         aceptaTerminosYPolitica: true,
         declaraRenta: 'si',
       });
@@ -272,6 +274,7 @@ describe('Step2_InsuranceSelection Component', () => {
         tipoSeguro: 'vida',
         metodoPago: '', // Empty - should fail
         periodicidadPago: 'mensual',
+        aceptaDeclaracionAsesoria: true,
         aceptaTerminosYPolitica: true,
         declaraRenta: 'si',
       });
@@ -291,6 +294,7 @@ describe('Step2_InsuranceSelection Component', () => {
         tipoSeguro: 'vida',
         metodoPago: 'tarjeta_credito',
         periodicidadPago: '', // Empty - should fail
+        aceptaDeclaracionAsesoria: true,
         aceptaTerminosYPolitica: true,
         declaraRenta: 'si',
       });
@@ -310,6 +314,7 @@ describe('Step2_InsuranceSelection Component', () => {
         tipoSeguro: 'vida',
         metodoPago: 'tarjeta_credito',
         periodicidadPago: 'mensual',
+        aceptaDeclaracionAsesoria: true,
         aceptaTerminosYPolitica: true,
         declaraRenta: 'si',
         numeroCedula: '12345678',
@@ -341,6 +346,7 @@ describe('Step2_InsuranceSelection Component', () => {
             tipoSeguro: '',
             metodoPago: '',
             periodicidadPago: '',
+            aceptaDeclaracionAsesoria: false,
             aceptaTerminosYPolitica: false,
             declaraRenta: 'si',
           },
@@ -382,6 +388,7 @@ describe('Step2_InsuranceSelection Component', () => {
             tipoSeguro: '',
             metodoPago: '',
             periodicidadPago: '',
+            aceptaDeclaracionAsesoria: false,
             aceptaTerminosYPolitica: false,
             declaraRenta: 'si',
           },
@@ -423,6 +430,7 @@ describe('Step2_InsuranceSelection Component', () => {
             tipoSeguro: '',
             metodoPago: '',
             periodicidadPago: '',
+            aceptaDeclaracionAsesoria: false,
             aceptaTerminosYPolitica: false,
             declaraRenta: 'si',
           },
@@ -547,6 +555,7 @@ describe('Step2_InsuranceSelection Component', () => {
         email: 'test@example.com',
         metodoPago: 'tarjeta_credito',
         periodicidadPago: 'mensual',
+        aceptaDeclaracionAsesoria: true,
         aceptaTerminosYPolitica: true,
         declaraRenta: 'si',
         numeroCedula: '12345678',

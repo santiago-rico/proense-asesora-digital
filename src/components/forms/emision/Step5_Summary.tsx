@@ -11,6 +11,12 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Link } from 'react-router-dom'; // Assuming you use react-router for links
 import { HOGAR_ASEGURABILIDAD_KEYS, HOGAR_ASEGURABILIDAD_QUESTIONS } from '@/data/hogarAsegurabilidad';
+import {
+  DECLARACION_ASESORIA_CHECKBOX_LABEL,
+  DECLARACION_ASESORIA_INTRO,
+  DECLARACION_ASESORIA_POINTS,
+  DECLARACION_ASESORIA_TITLE,
+} from '@/data/declaracionAsesoria';
 
 const hogarAsegurabilidadKeys: readonly string[] = HOGAR_ASEGURABILIDAD_KEYS;
 
@@ -82,13 +88,17 @@ const Step5_Summary: React.FC = () => {
   } = useFormContext();
   const formData = getValues();
 
-  const handleCheckboxChange = (checked: boolean, onChange: (checked: boolean) => void) => {
+  const handleCheckboxChange = (
+    name: 'aceptaDeclaracionAsesoria' | 'aceptaTerminosYPolitica',
+    checked: boolean,
+    onChange: (checked: boolean) => void,
+  ) => {
     // Update the checkbox value
     onChange(checked);
     
     // Clear the error if the checkbox is checked
     if (checked) {
-      clearErrors('aceptaTerminosYPolitica');
+      clearErrors(name);
     }
   };
 
@@ -141,6 +151,42 @@ const Step5_Summary: React.FC = () => {
         })}
       </div>
 
+      <section
+        aria-labelledby="declaracion-asesoria-titulo"
+        className="space-y-4 rounded-md border border-gray-200 dark:border-gray-700 p-4"
+      >
+        <h4 id="declaracion-asesoria-titulo" className="text-base font-semibold">
+          {DECLARACION_ASESORIA_TITLE}
+        </h4>
+        <p className="text-sm text-gray-800 dark:text-gray-200">{DECLARACION_ASESORIA_INTRO}</p>
+        <ol className="list-decimal space-y-2 pl-5 text-sm leading-relaxed text-gray-800 dark:text-gray-200">
+          {DECLARACION_ASESORIA_POINTS.map(point => (
+            <li key={point}>{point}</li>
+          ))}
+        </ol>
+        <FormField
+          control={control}
+          name="aceptaDeclaracionAsesoria"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-start space-x-3 space-y-0 border-t border-gray-200 dark:border-gray-700 pt-4">
+              <FormControl>
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={(checked) => handleCheckboxChange('aceptaDeclaracionAsesoria', checked as boolean, field.onChange)}
+                  className={errors.aceptaDeclaracionAsesoria ? 'border-red-500' : ''}
+                />
+              </FormControl>
+              <div className="space-y-1 leading-none">
+                <FormLabel>
+                  {DECLARACION_ASESORIA_CHECKBOX_LABEL} <span className="text-red-500">*</span>
+                </FormLabel>
+                <FormMessage />
+              </div>
+            </FormItem>
+          )}
+        />
+      </section>
+
       <div className="space-y-4 pt-6 border-t border-gray-200 dark:border-gray-700">
         <FormField
           control={control}
@@ -150,7 +196,7 @@ const Step5_Summary: React.FC = () => {
               <FormControl>
                 <Checkbox 
                   checked={field.value} 
-                  onCheckedChange={(checked) => handleCheckboxChange(checked as boolean, field.onChange)} 
+                  onCheckedChange={(checked) => handleCheckboxChange('aceptaTerminosYPolitica', checked as boolean, field.onChange)} 
                   className={errors.aceptaTerminosYPolitica ? 'border-red-500' : ''}
                 />
               </FormControl>
@@ -165,7 +211,7 @@ const Step5_Summary: React.FC = () => {
         />
         <div className="border border-gray-300 dark:border-gray-600 rounded-md p-4 bg-gray-50 dark:bg-gray-700/30 text-center mt-6">
           <p className="text-xs text-gray-600 dark:text-gray-400">
-            Al hacer clic en "Enviar Solicitud", usted está firmando electrónicamente este documento y aceptando los términos aquí descritos, según lo establecido en la Ley 527 de 1999.
+            Al hacer clic en "Firmar y Enviar Solicitud", usted está firmando electrónicamente este documento y aceptando los términos aquí descritos, según lo establecido en la Ley 527 de 1999.
           </p>
         </div>
       </div>
