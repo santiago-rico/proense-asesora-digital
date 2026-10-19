@@ -13,12 +13,12 @@ This directory contains the GitHub Actions workflows and configurations for the 
 **Jobs:**
 
 #### Quality Checks (`quality`)
-- **Node.js Matrix**: Tests on Node.js 18.x and 20.x
+- **Node.js Matrix**: Tests on Node.js 22.x and 24.x
 - **TypeScript**: Type checking with `tsc --noEmit`
 - **ESLint**: Code quality and style checks
-- **Tests**: Runs Vitest with coverage reporting
+- **Tests**: Runs Vitest with coverage; falling below the thresholds in `vitest.config.ts` fails the job
 - **Build**: Production build verification
-- **Artifacts**: Uploads build files and coverage reports
+- **Artifacts**: Uploads the build files
 
 #### Security Audit (`security`)
 - **npm audit**: Checks for vulnerable dependencies
@@ -49,16 +49,6 @@ This directory contains the GitHub Actions workflows and configurations for the 
 - **Issue Creation**: Auto-creates GitHub issues for security findings
 - **Artifact Reports**: Stores security reports for review
 
-### 3. Dependabot Auto-merge (`dependabot-auto-merge.yml`)
-
-**Triggers:**
-- Dependabot pull requests
-
-**Behavior:**
-- **Auto-merge**: Patch updates and minor dev dependencies
-- **Manual Review**: Major updates require human approval
-- **CI Integration**: Waits for CI checks before merging
-
 ## 🔧 Configuration Files
 
 ### Dependabot (`dependabot.yml`)
@@ -69,7 +59,8 @@ This directory contains the GitHub Actions workflows and configurations for the 
 - **GitHub Actions**: Weekly on Mondays at 11:00 UTC
 
 **Features:**
-- **Grouped Updates**: Reduces PR noise
+- **Grouped Updates**: Minor and patch updates are grouped per dependency type; each major update gets its own PR
+- **Manual Merge**: Every Dependabot PR is reviewed and merged by hand
 - **Automatic Labels**: Categorizes updates
 - **Review Assignment**: Assigns maintainers
 - **Commit Conventions**: Follows conventional commit format
@@ -131,19 +122,18 @@ Run the CI pipeline locally before pushing:
 
 ### Required Checks
 For branch protection, configure these as required status checks:
-- `Code Quality & Tests (18.x)`
+- `Code Quality & Tests (22.x)`
 - `Security Audit`
 - `CI Summary`
 
 ### Optional Checks
-- `Code Quality & Tests (20.x)` - For Node.js compatibility
+- `Code Quality & Tests (24.x)` - For Node.js compatibility
 - `Performance Analysis` - For bundle size monitoring
 
 ## 🔧 Environment Variables
 
 ### Required Secrets
 ```bash
-CODECOV_TOKEN=         # For coverage reporting
 GITHUB_TOKEN=          # Automatically provided by GitHub
 ```
 

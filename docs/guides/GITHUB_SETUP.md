@@ -8,10 +8,6 @@ Go to **Settings > Secrets and variables > Actions** and add these secrets:
 
 ### High Priority (CI will fail without these):
 ```
-CODECOV_TOKEN
-- Get from: https://codecov.io (connect your repo first)
-- Purpose: Upload test coverage reports
-
 BREVO_API_KEY
 - Get from: Your Brevo account dashboard
 - Purpose: Send emails through Brevo API
@@ -59,7 +55,8 @@ Go to **Settings > Branches** and configure for `main` branch:
 3. **Require status checks to pass before merging** ✅
    - Require branches to be up to date before merging ✅
    - Required status checks:
-     - `Code Quality & Tests (18.x)`
+     - `Code Quality & Tests (22.x)`
+     - `Code Quality & Tests (24.x)`
      - `Security Audit`
      - `Deployment Readiness`
      - `Performance Analysis`
@@ -97,7 +94,6 @@ Before your CI/CD pipeline runs successfully:
 - [ ] Security settings enabled
 - [ ] Brevo account configured with API key
 - [ ] Sanity CMS project set up
-- [ ] Codecov account connected to repository
 
 ## 🚀 Testing Your Setup
 
@@ -113,17 +109,15 @@ Once configured, your CI/CD pipeline will:
 - ✅ Perform security audits
 - ✅ Verify deployment readiness
 - ✅ Analyze performance metrics
-- ✅ Upload coverage reports
+- ✅ Enforce the coverage thresholds
 - ✅ Run daily security monitoring
-- ✅ Auto-merge safe dependency updates
 
 ## 🔧 Troubleshooting
 
 ### Common Issues:
 1. **CI fails with "secret not found"** → Add missing secrets
-2. **Codecov upload fails** → Check CODECOV_TOKEN
-3. **Email tests fail** → Verify BREVO_API_KEY
-4. **Sanity tests fail** → Check Sanity project settings
+2. **Email tests fail** → Verify BREVO_API_KEY
+3. **Sanity tests fail** → Check Sanity project settings
 
 ### Getting Help:
 - Check the Actions tab for detailed error logs
