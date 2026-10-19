@@ -22,6 +22,7 @@ test.describe('Blog: listado', () => {
     const site = new Site(page);
     await page.goto('/blog');
 
+    await expect(site.h1).toHaveText('Blog');
     await expect(page.getByRole('heading', { level: 2, name: 'Artículo Destacado' })).toBeVisible();
     await expect(listedPostTitles(page).first()).toHaveText('Artículo 1');
     await expect(page.getByText('30 de junio de 2025', { exact: true })).toBeVisible();

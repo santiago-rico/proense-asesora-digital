@@ -19,9 +19,9 @@ export class Site {
     return this.page.getByRole('navigation', { name: 'Navegación principal' });
   }
 
-  /** Layout's `<main id="main-content">`. `.first()` because /blog nests a second `<main>`. */
+  /** Layout's `<main id="main-content">`. */
   get main(): Locator {
-    return this.page.getByRole('main').first();
+    return this.page.getByRole('main');
   }
 
   get footer(): Locator {

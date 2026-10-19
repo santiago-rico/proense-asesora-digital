@@ -46,14 +46,15 @@ test.describe('Páginas de producto', () => {
       await page.goto(`/seguros/${type}`);
       await expect(site.h1).toHaveText(data.title);
 
-      // The coverage cards are the only h4s, right below the coveragesTitle h2.
-      const coverages = site.main.getByRole('heading', { level: 4 });
-      await expect(coverages).toHaveCount(6);
-      await expect(coverages).toHaveText(data.coverages.map(c => c.title));
+      // The 6 coverage cards are h3s, right below the coveragesTitle h2.
+      expect(data.coverages).toHaveLength(6);
+      for (const { title } of data.coverages) {
+        await expect(site.main.getByRole('heading', { level: 3, name: title, exact: true })).toBeVisible();
+      }
       await expect(site.main).toMatchAriaSnapshot(
         [
           `- heading ${JSON.stringify(data.coveragesTitle)} [level=2]`,
-          ...data.coverages.map(c => `- heading ${JSON.stringify(c.title)} [level=4]`),
+          ...data.coverages.map(c => `- heading ${JSON.stringify(c.title)} [level=3]`),
         ].join('\n'),
       );
 

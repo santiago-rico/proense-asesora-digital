@@ -67,7 +67,7 @@ const BlogPostCard: React.FC<BlogPostCardProps> = ({ post }) => {
       </div>
       <CardHeader className="p-4">
         <div className="flex items-center space-x-2 mb-2">
-          <Badge variant="outline" className="bg-primary/10 text-primary">
+          <Badge variant="outline" className="bg-primary/10 text-primary-hover">
             {post.category}
           </Badge>
           <time dateTime={post.date} className="text-xs text-gray-500">{formatPostDate(post.date)}</time>

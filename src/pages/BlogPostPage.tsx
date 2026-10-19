@@ -135,9 +135,9 @@ const BlogPostPage: React.FC<BlogPostPageProps> = ({ handleOpenLeadDialog }) => 
 
                 {productPageUrl && (
                   <div className="mt-12 p-6 bg-blue-50 border-l-4 border-primary rounded-r-lg not-prose">
-                    <h3 className="text-xl font-bold text-primary">
+                    <h2 className="text-xl font-bold text-primary">
                       Conoce más sobre el {post.category}
-                    </h3>
+                    </h2>
                     <p className="mt-2 text-gray-700">
                       En Proense, te ofrecemos asesoría experta para que encuentres el plan que mejor se adapta a tus necesidades.
                     </p>

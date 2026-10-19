@@ -89,11 +89,19 @@ const BlogListPage: React.FC<BlogListPageProps> = ({ handleOpenLeadDialog }) => 
 
   return (
     <Layout handleOpenLeadDialog={handleOpenLeadDialog}>
+      <section className="bg-primary text-white py-12 md:py-16">
+        <div className="container mx-auto px-4 text-center">
+          <h1 className="text-4xl md:text-5xl font-bold">Blog</h1>
+          <p className="mt-4 text-lg max-w-2xl mx-auto">
+            Consejos y guías sobre seguros para que tomes las mejores decisiones al proteger lo que más valoras.
+          </p>
+        </div>
+      </section>
       <div className="bg-gray-50 pt-8">
         <div className="container mx-auto px-4 py-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start">
-            {/* Main Content */}
-            <main className="lg:col-span-2">
+            {/* Main Content (Layout already provides the <main> landmark) */}
+            <div className="lg:col-span-2">
               {categorySlug && (
                 <div className="flex flex-wrap items-center gap-3 mb-8">
                   <span className="text-gray-700">Categoría:</span>
@@ -159,7 +167,7 @@ const BlogListPage: React.FC<BlogListPageProps> = ({ handleOpenLeadDialog }) => 
                     <Button variant="outline" size="icon" onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>&gt;</Button>
                 </div>
               )}
-            </main>
+            </div>
 
             {/* Sidebar */}
             <aside className="lg:col-span-1">

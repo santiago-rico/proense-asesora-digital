@@ -81,7 +81,7 @@ const InsuranceProductPage: React.FC<InsuranceProductPageProps> = ({ type: propT
                       {IconComponent && <IconComponent className="h-8 w-8 text-primary" />}
                     </div>
                     <div className="ml-4">
-                      <h4 className="text-lg font-semibold text-gray-800">{coverage.title}</h4>
+                      <h3 className="text-lg font-semibold text-gray-800">{coverage.title}</h3>
                       <p className="text-gray-600">{coverage.description}</p>
                     </div>
                   </div>
@@ -160,7 +160,7 @@ const InsuranceProductPage: React.FC<InsuranceProductPageProps> = ({ type: propT
             <div className="max-w-3xl mx-auto text-center">
               <h2 className="text-2xl md:text-3xl font-bold mb-4">{data.contactSectionTitle}</h2>
               {data.contactSectionSubtitle && (
-                <p className="mb-6 text-lg text-white/90">
+                <p className="mb-6 text-lg text-white">
                   {data.contactSectionSubtitle}
                 </p>
               )}
