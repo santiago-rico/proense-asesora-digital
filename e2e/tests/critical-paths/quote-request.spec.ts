@@ -137,9 +137,6 @@ const TYPE_CASES: TypeCase[] = [
 
 const DETAIL_FIELDS = [...new Set(TYPE_CASES.flatMap(c => Object.keys(c.sent)))];
 
-// Known-bug tests give the assertion the bug breaks a 2 s timeout: the correct
-// state appears at once, so there's no point idling for the default 5 s.
-
 test.describe('Cotización de seguros', () => {
   let form: QuoteFormPage;
 
@@ -620,10 +617,6 @@ test.describe('Cotización de seguros', () => {
     });
 
     test('400 con errores de la fecha de nacimiento: vuelve al paso 1 y muestra el mensaje', async ({ page }) => {
-      test.fail(
-        true,
-        'Known bug: server errors keyed birthDate_day/_month/_year match no step field, so the form stays on the summary with only a toast, src/components/forms/cotizacion/MultiStepQuoteForm.tsx:219-237.',
-      );
       await mockJsonSubmission(
         page,
         QUOTE_ENDPOINT,
@@ -632,7 +625,7 @@ test.describe('Cotización de seguros', () => {
       await form.submit();
 
       await expect(form.toast('Por favor revisa los campos del formulario')).toBeVisible();
-      await expect(form.stepHeading('Información Personal')).toBeVisible({ timeout: 2000 });
+      await form.expectStep('Información Personal');
       await expect(form.birthDayInput).toHaveAccessibleDescription('Día inválido');
     });
 

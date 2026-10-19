@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useForm, FormProvider, type FieldErrors } from 'react-hook-form';
+import { useForm, FormProvider, type FieldErrors, type FieldPath } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Step1_PersonalInfo from './Step1_PersonalInfo';
 import Step2_InsuranceSelection from './Step2_InsuranceSelection';
@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import NumberedProgressBar from './NumberedProgressBar';
 import { useToast } from '@/hooks/use-toast';
 import { quoteFormSchema, QuoteFormSchemaType } from './formSchema';
-import { steps, quoteFormDefaultValues } from './formWiring';
+import { steps, quoteFormDefaultValues, formFieldForServerError, stepIndexForField } from './formWiring';
 import { FormSuccessScreen } from '@/components/shared/FormSuccessScreen';
 import { safeParseResponse } from '@/utils/safe-response';
 
@@ -232,18 +232,19 @@ const MultiStepQuoteForm = ({ onSuccess }: MultiStepQuoteFormProps) => {
 
         // Handle validation errors
         if (status === 400 && result?.errors) {
+          // Earliest step with an error: that's where the client is sent.
           let stepWithError = -1;
-          Object.entries(result.errors as Record<string, string[]>).forEach(([field, messages]) => {
+          Object.entries(result.errors as Record<string, string[]>).forEach(([key, messages]) => {
             if (Array.isArray(messages) && messages.length > 0) {
-              methods.setError(field as keyof QuoteFormSchemaType, {
+              const field = formFieldForServerError(key);
+              methods.setError(field as FieldPath<QuoteFormSchemaType>, {
                 type: 'server',
                 message: messages[0]
               });
-              steps.forEach((step, index) => {
-                if (step.fields.includes(field) && stepWithError === -1) {
-                  stepWithError = index;
-                }
-              });
+              const step = stepIndexForField(field);
+              if (step !== -1 && (stepWithError === -1 || step < stepWithError)) {
+                stepWithError = step;
+              }
             }
           });
           if (stepWithError !== -1 && stepWithError !== currentStep) {

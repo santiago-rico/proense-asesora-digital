@@ -1,6 +1,12 @@
 import { describe, it, expect } from 'vitest';
 import { quoteFormBaseSchema } from '../formSchema';
-import { steps, quoteFormDefaultValues } from '../formWiring';
+import {
+  steps,
+  quoteFormDefaultValues,
+  formFieldForServerError,
+  stepIndexForField,
+} from '../formWiring';
+import { backendQuoteSchema } from '../../../../../api/_schemas/quote-request-schema';
 
 /**
  * Guards the wiring between the Zod schema, the per-step validation lists and
@@ -63,5 +69,39 @@ describe('cotización form wiring (schema ↔ steps ↔ defaults)', () => {
       (field) => !schemaFields.includes(field)
     );
     expect(orphanDefaults).toEqual([]);
+  });
+});
+
+/**
+ * A 400 from the server names the fields it rejected; the form sets each error
+ * on its field and goes back to the earliest step that has one. A key that
+ * matches no step leaves the client on the summary with only a toast.
+ */
+describe('cotización form wiring (server errors → field and step)', () => {
+  it.each([
+    ['birthDate_day', 'birthDate.day'],
+    ['birthDate_month', 'birthDate.month'],
+    ['birthDate_year', 'birthDate.year'],
+  ])('maps the flattened payload key %s to %s, on step 1', (key, field) => {
+    expect(formFieldForServerError(key)).toBe(field);
+    expect(stepIndexForField(formFieldForServerError(key))).toBe(0);
+  });
+
+  it('keeps keys that already name a form field', () => {
+    expect(formFieldForServerError('email')).toBe('email');
+    expect(stepIndexForField('email')).toBe(0);
+    expect(stepIndexForField('insuranceType')).toBe(1);
+    expect(stepIndexForField('ownerCedula')).toBe(2);
+    expect(stepIndexForField('acceptTerms')).toBe(3);
+  });
+
+  it('every field the server can reject leads to a step', () => {
+    // propertyUse is a legacy server-only field the current form never sends.
+    const unreachable = Object.keys(backendQuoteSchema.shape).filter(
+      (key) =>
+        !['website', 'preExistingConditions', 'propertyUse'].includes(key) &&
+        stepIndexForField(formFieldForServerError(key)) === -1
+    );
+    expect(unreachable).toEqual([]);
   });
 });
