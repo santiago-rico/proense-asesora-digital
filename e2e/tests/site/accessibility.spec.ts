@@ -179,14 +179,15 @@ const KNOWN: KnownBug[] = [
   {
     title: 'Contraste: texto blanco/90 sobre el azul primario de las secciones CTA',
     rules: ['color-contrast'],
-    bug: 'text-white/90 on bg-primary (#e6f1fa on #0073d1) is 4.19:1 in the blue CTA sections, src/components/home/CallToActionSection.tsx:15, src/components/layout/BlogCtaSection.tsx:16, src/pages/InsuranceProductPage.tsx:175 and the same <p> in AboutPage, QuotePage, PaymentsPage and ClientServicePage',
+    bug: 'text-white/90 on bg-primary (#e5f1fa on #0073d1) is 4.18:1 in the blue CTA sections, src/components/home/CallToActionSection.tsx:15, src/components/layout/BlogCtaSection.tsx:16, src/pages/InsuranceProductPage.tsx:175 and the same <p> in AboutPage, QuotePage, PaymentsPage and ClientServicePage',
     ...both(['/']),
-    node: colors('#e6f1fa', '#0073d1'),
+    // axe 4.14 blends white/90 over #0073d1 to #e5f1fa; 4.11 measured #e6f1fa
+    node: colors('#e5f1fa', '#0073d1'),
   },
   {
     title: 'Contraste: enlace del 404',
     rules: ['color-contrast'],
-    bug: 'the 404 "Return to Home" link, text-blue-500 on bg-gray-100 (#2b7fff on #f3f4f6), is 3.37:1, src/pages/NotFound.tsx:19',
+    bug: 'the 404 "Return to Home" link, text-blue-500 on bg-gray-100 (#2b7fff on #f3f4f6), is 3.41:1, src/pages/NotFound.tsx:19',
     ...both(['/no-existe']),
     node: colors('#2b7fff', '#f3f4f6'),
   },
