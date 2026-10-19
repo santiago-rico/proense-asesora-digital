@@ -35,7 +35,8 @@ const AsegurabilidadSiNoField: React.FC<AsegurabilidadSiNoFieldProps> = ({ name,
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
             <p id={questionId} className="text-sm leading-relaxed text-gray-800 dark:text-gray-200">
               {number && <span className="font-medium">{number}</span>} {question}
-              {optional && <span className="text-gray-500 dark:text-gray-400"> (opcional)</span>}
+              {/* Space outside the span, or the accessible name loses it */}
+              {optional && <>{' '}<span className="text-gray-500 dark:text-gray-400">(opcional)</span></>}
             </p>
             <FormControl>
               <RadioGroup
