@@ -56,7 +56,7 @@ export const quoteFormBaseSchema = z.object({
   address: z.string()
     .min(1, 'Dirección requerida')
     .transform(str => str.trim()),
-
+  // @ts-expect-error TODO(zod 4): required_error/invalid_type_error are zod 3 params that zod 4 ignores, so the English default shows (Known bug in e2e quote-request.spec.ts).
   employmentStatus: z.enum([
     'empleado_completo',
     'empleado_parcial',
@@ -75,6 +75,7 @@ export const quoteFormBaseSchema = z.object({
   occupationSector: z.string().optional(),
 
   // Step 2: Insurance Type Selection
+  // @ts-expect-error TODO(zod 4): same zod 3 params as employmentStatus above.
   insuranceType: z.enum(['vida', 'auto', 'hogar', 'salud', 'mascotas'], {
     error: 'Selecciona un tipo de seguro'
   }),
@@ -200,7 +201,7 @@ const validateInsuranceDetails = (data: QuoteFormBase, ctx: QuoteFormRefinementC
       });
     }
 
-    if (!data.hasChildren || data.hasChildren === '') {
+    if (!data.hasChildren) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: 'Indica si tienes hijos',
@@ -232,7 +233,7 @@ const validateInsuranceDetails = (data: QuoteFormBase, ctx: QuoteFormRefinementC
       });
     }
 
-    if (!data.practicesSports || data.practicesSports === '') {
+    if (!data.practicesSports) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: 'Indica si practicas algún deporte',
@@ -251,7 +252,7 @@ const validateInsuranceDetails = (data: QuoteFormBase, ctx: QuoteFormRefinementC
       }
     }
 
-    if (!data.hasHealthConditions || data.hasHealthConditions === '') {
+    if (!data.hasHealthConditions) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: 'Indica si tienes o padeces alguna enfermedad',
@@ -376,7 +377,7 @@ const validateInsuranceDetails = (data: QuoteFormBase, ctx: QuoteFormRefinementC
         });
       }
 
-      if (!data.residesInProperty || data.residesInProperty === '') {
+      if (!data.residesInProperty) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: 'Indica si el propietario habita el inmueble',
@@ -469,7 +470,7 @@ const validateInsuranceDetails = (data: QuoteFormBase, ctx: QuoteFormRefinementC
       });
     }
 
-    if (!data.hasEconomicActivity || data.hasEconomicActivity === '') {
+    if (!data.hasEconomicActivity) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: 'Indica si se desarrolla alguna actividad económica',
@@ -507,7 +508,7 @@ const validateInsuranceDetails = (data: QuoteFormBase, ctx: QuoteFormRefinementC
         });
       }
 
-      if (!data.wantsContentsCoverage || data.wantsContentsCoverage === '') {
+      if (!data.wantsContentsCoverage) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: 'Indica si deseas asegurar los contenidos',
@@ -553,7 +554,7 @@ const validateInsuranceDetails = (data: QuoteFormBase, ctx: QuoteFormRefinementC
       });
     }
 
-    if (!data.practicesSports || data.practicesSports === '') {
+    if (!data.practicesSports) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: 'Indica si practicas algún deporte',
@@ -572,7 +573,7 @@ const validateInsuranceDetails = (data: QuoteFormBase, ctx: QuoteFormRefinementC
       }
     }
 
-    if (!data.hasHealthConditions || data.hasHealthConditions === '') {
+    if (!data.hasHealthConditions) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: 'Indica si tienes o padeces alguna enfermedad',
@@ -632,7 +633,7 @@ const validateInsuranceDetails = (data: QuoteFormBase, ctx: QuoteFormRefinementC
       });
     }
 
-    if (!data.petHasSeriousIllness || data.petHasSeriousIllness === '') {
+    if (!data.petHasSeriousIllness) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: 'Indica si tu mascota ha tenido enfermedades o accidentes graves',

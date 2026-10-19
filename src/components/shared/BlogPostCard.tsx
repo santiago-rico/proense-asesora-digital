@@ -7,15 +7,6 @@ import type { SanityImageSource } from "@sanity/image-url";
 import SanityImage from "@/components/shared/SanityImage";
 import { formatPostDate } from "@/utils/format-post-date";
 
-interface SanityImageAsset {
-  _type: 'image';
-  asset: {
-    _ref: string;
-    _type: 'reference';
-  };
-  alt?: string;
-}
-
 interface PortableTextBlock {
   _type: string;
   _key: string;

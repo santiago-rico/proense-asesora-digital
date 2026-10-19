@@ -1,6 +1,4 @@
 import React from "react";
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import InsuranceCard from "@/components/shared/InsuranceCard";
 import { Heart, Landmark, Stethoscope, Car, Home, Briefcase } from 'lucide-react';
 

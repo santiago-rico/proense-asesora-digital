@@ -165,7 +165,7 @@ export function CancellationForm({ onSuccess }: CancellationFormProps) {
           // Set field-specific errors in the form
           Object.entries(result.errors as Record<string, unknown>).forEach(([field, messages]) => {
             if (Array.isArray(messages) && messages.length > 0) {
-              form.setError(field as keyof FormData, {
+              form.setError(field as keyof CancellationFormValues, {
                 type: 'server',
                 message: messages[0]
               });

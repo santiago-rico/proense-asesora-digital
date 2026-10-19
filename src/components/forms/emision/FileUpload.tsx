@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useId } from 'react';
-import { useDropzone } from 'react-dropzone';
+import { useDropzone, type FileRejection } from 'react-dropzone';
 import { Upload, File as FileIcon, X, Loader2 } from 'lucide-react';
 import { useFormContext } from 'react-hook-form';
 
@@ -135,7 +135,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ name, label, description, multi
     }
   }, [multiple, name, setValue, getValues, clearErrors]);
 
-  const onDropRejected = useCallback((fileRejections: { file: File; errors: Array<{ code: string; message: string }> }[]) => {
+  const onDropRejected = useCallback((fileRejections: FileRejection[]) => {
     if (fileRejections && fileRejections.length > 0) {
       clearErrors(name);
 

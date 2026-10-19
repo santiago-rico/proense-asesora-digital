@@ -83,6 +83,7 @@ export class LogoUtils {
       height,
       alt = 'Proense Seguros',
       darkModeUrl = 'https://proense.com.co/images/text-logo-dark.png',
+      fallbackText = alt,
     } = options;
 
     const calculatedHeight = height || Math.round(width * 0.82);
