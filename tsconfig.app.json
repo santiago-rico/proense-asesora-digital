@@ -1,15 +1,19 @@
 {
   "compilerOptions": {
-    "composite": true,
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
     "resolveJsonModule": true,
     "target": "ES2020",
     "useDefineForClassFields": true,
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
+    // node: the server-side helpers under src/ (Brevo, email templates, Sanity
+    // seed scripts) and the test setup. vitest/globals: vitest.config.ts sets
+    // `globals: true` and some tests rely on it.
+    "types": ["node", "vitest/globals"],
 
     /* Bundler mode */
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "allowSyntheticDefaultImports": true,
     "allowImportingTsExtensions": true,
     "isolatedModules": true,

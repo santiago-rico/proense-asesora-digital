@@ -29,8 +29,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
         
+      # tsc -b checks every project referenced by tsconfig.json (app, api, e2e);
+      # a bare `tsc --noEmit` checks nothing, as the root config lists no files.
       - name: Run TypeScript type checking
-        run: npx tsc --noEmit
+        run: npm run typecheck
         
       - name: Run ESLint
         run: npm run lint
