@@ -21,7 +21,9 @@ const followUpsOf = (key: SaludAsegurabilidadKey) =>
 
 const isOptional = (q: SaludAsegurabilidadQuestion) => 'optional' in q && q.optional;
 
-const OptionalMark = () => <span className="text-gray-500 dark:text-gray-400"> (opcional)</span>;
+// The space stays outside the span: accessible-name computation trims an inline
+// element's own text, so a space inside it would be dropped from the label's name.
+const OptionalMark = () => <>{' '}<span className="text-gray-500 dark:text-gray-400">(opcional)</span></>;
 
 // Declaración de asegurabilidad for Seguro de Vida and Seguro de Salud. Follow-up
 // questions appear under their question only while it is answered "Sí"; answering

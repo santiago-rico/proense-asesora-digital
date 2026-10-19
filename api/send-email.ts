@@ -24,7 +24,7 @@ async function handler(
     const dompurifyModule = await import('dompurify');
     // Handle both default export and named export cases
     const DOMPurify = typeof dompurifyModule.default === 'function' ? dompurifyModule.default : dompurifyModule;
-    const { parse } = await import('cookie');
+    const { parseCookie } = await import('cookie');
     const { default: Tokens } = await import('csrf') as unknown as { default: new() => { verify: (secret: string, token: string) => boolean } };
     const tokens = new Tokens();
     
@@ -34,7 +34,7 @@ async function handler(
     const DOMPurifyInstance = (DOMPurify as any)(window);
     
     // Verify CSRF token
-    const cookies = parse(req.headers.cookie || '');
+    const cookies = parseCookie(req.headers.cookie || '');
     const secret = cookies._csrf_secret;
     const token = req.headers['x-csrf-token'] as string;
     

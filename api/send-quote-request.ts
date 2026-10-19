@@ -543,7 +543,7 @@ async function handler(req: VercelRequest, res: VercelResponse) {
     // Handle both ES module and CommonJS default export
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const DOMPurify = (dompurifyModule as any).default || dompurifyModule;
-    const { parse } = await import('cookie');
+    const { parseCookie } = await import('cookie');
     const { default: Tokens } = (await import('csrf')) as unknown as {
       default: new () => { verify: (secret: string, token: string) => boolean };
     };
@@ -555,7 +555,7 @@ async function handler(req: VercelRequest, res: VercelResponse) {
     const DOMPurifyInstance = DOMPurify(window);
 
     // Verify CSRF token
-    const cookies = parse(req.headers.cookie || '');
+    const cookies = parseCookie(req.headers.cookie || '');
     const secret = cookies._csrf_secret;
     const token = req.headers['x-csrf-token'] as string;
 
