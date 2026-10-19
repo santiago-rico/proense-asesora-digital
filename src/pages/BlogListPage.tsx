@@ -13,6 +13,7 @@ import LeadForm from "@/components/forms/LeadForm";
 import BlogCtaSection from "@/components/layout/BlogCtaSection";
 import SanityImage from "@/components/shared/SanityImage";
 import { PRODUCT_BLOG_CATEGORIES, getCategorySlug } from "@/constants/blogCategories";
+import { formatPostDate } from "@/utils/format-post-date";
 
 interface BlogListPageProps {
   handleOpenLeadDialog: () => void;
@@ -118,7 +119,7 @@ const BlogListPage: React.FC<BlogListPageProps> = ({ handleOpenLeadDialog }) => 
                     <CardContent className="p-6">
                       <div className="flex items-center gap-4 mb-3 text-sm text-gray-500">
                         <Badge variant="secondary">{featuredPost.category}</Badge>
-                        <span>{new Date(featuredPost.date).toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                        <time dateTime={featuredPost.date}>{formatPostDate(featuredPost.date)}</time>
                       </div>
                       <h3 className="text-2xl font-bold mb-3 hover:text-primary transition-colors">
                         <Link to={`/blog/${featuredPost.slug}`}>{featuredPost.title}</Link>

@@ -222,12 +222,15 @@ test.describe('Blog: artículo', () => {
     await expect(page.getByRole('img', { name: 'Mi post' })).toHaveCount(0);
   });
 
-  test('la fecha del artículo no se muestra en formato ISO', async ({ page }) => {
-    test.fail(true, 'Known bug: the post header and its related posts print the raw Sanity datetime (e.g. "2025-06-30T12:00:00.000Z"), src/pages/BlogPostPage.tsx:94,185.');
+  test('las fechas del artículo y de sus relacionados se muestran en español, no en formato ISO', async ({ page }) => {
     const site = new Site(page);
     await page.goto('/blog/articulo-2');
     await expect(site.h1).toHaveText('Artículo 2');
     await expect(page.getByRole('heading', { level: 4, name: 'Artículo 1' })).toBeVisible();
+    // Posts 1, 2 and 3 are dated June 30th, 29th and 28th.
+    for (const day of [29, 30, 28]) {
+      await expect(page.getByText(`${day} de junio de 2025`, { exact: true })).toBeVisible();
+    }
     await expect(page.getByText(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/)).toHaveCount(0);
   });
 });

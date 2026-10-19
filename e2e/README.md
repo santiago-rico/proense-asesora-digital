@@ -58,7 +58,8 @@ npx tsc -p e2e/tsconfig.json                    # type-check the suite
 Default projects are desktop Chromium and a mobile Chromium viewport (Pixel 5),
 so every test also runs at phone width. Desktop- or mobile-only tests skip the
 other project with `test.skip(({ isMobile }) => …)`. The timezone is pinned to
-`America/Bogota`, because the blog formats dates in local time. In CI mode
+`America/Bogota`, like the site's visitors (blog dates are always shown in
+Bogotá time, whatever the browser's timezone). In CI mode
 (`CI=1`) the suite retries failures twice and always starts its own dev server.
 
 The suite runs in GitHub Actions as the **E2E Tests (Playwright)** job in

@@ -3,9 +3,9 @@ import React from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
-import { urlFor } from "@/sanity/imageUrl";
 import type { SanityImageSource } from "@sanity/image-url";
 import SanityImage from "@/components/shared/SanityImage";
+import { formatPostDate } from "@/utils/format-post-date";
 
 interface SanityImageAsset {
   _type: 'image';
@@ -52,16 +52,6 @@ interface BlogPostCardProps {
 }
 
 const BlogPostCard: React.FC<BlogPostCardProps> = ({ post }) => {
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const options: Intl.DateTimeFormatOptions = {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      timeZone: 'UTC',
-    };
-    return new Intl.DateTimeFormat('es-ES', options).format(date);
-  };
   return (
     <Card className="overflow-hidden flex flex-col h-full hover:shadow-lg transition-shadow duration-300">
       <div className="aspect-video overflow-hidden">
@@ -80,7 +70,7 @@ const BlogPostCard: React.FC<BlogPostCardProps> = ({ post }) => {
           <Badge variant="outline" className="bg-primary/10 text-primary">
             {post.category}
           </Badge>
-          <span className="text-xs text-gray-500">{formatDate(post.date)}</span>
+          <time dateTime={post.date} className="text-xs text-gray-500">{formatPostDate(post.date)}</time>
         </div>
         <CardTitle className="text-lg font-bold line-clamp-2 hover:text-primary transition-colors">
           <Link to={`/blog/${post.slug}`}>{post.title}</Link>

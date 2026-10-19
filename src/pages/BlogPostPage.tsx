@@ -14,6 +14,7 @@ import BlogCtaSection from "@/components/layout/BlogCtaSection";
 import LeadForm from "@/components/forms/LeadForm";
 import SanityImage from "@/components/shared/SanityImage";
 import { getCategoryBlogPath, getCategoryProductPath } from "@/constants/blogCategories";
+import { formatPostDate } from "@/utils/format-post-date";
 
 interface BlogPostPageProps {
   handleOpenLeadDialog: () => void;
@@ -102,7 +103,7 @@ const BlogPostPage: React.FC<BlogPostPageProps> = ({ handleOpenLeadDialog }) => 
                 <Badge className="bg-white text-primary hover:bg-white/90">
                   {post.category}
                 </Badge>
-                <span className="text-sm">{post.date}</span>
+                <time dateTime={post.date} className="text-sm">{formatPostDate(post.date)}</time>
               </div>
               <h1 className="text-3xl md:text-4xl font-bold mb-4">{post.title}</h1>
               <div className="flex items-center">
@@ -195,7 +196,9 @@ const BlogPostPage: React.FC<BlogPostPageProps> = ({ handleOpenLeadDialog }) => 
                           <h4 className="font-semibold line-clamp-2 hover:text-primary">
                             <Link to={`/blog/${relatedPost.slug}`}>{relatedPost.title}</Link>
                           </h4>
-                          <p className="text-sm text-gray-500 mt-1">{relatedPost.date}</p>
+                          <time dateTime={relatedPost.date} className="block text-sm text-gray-500 mt-1">
+                            {formatPostDate(relatedPost.date)}
+                          </time>
                         </div>
                       </Card>
                     ))}
