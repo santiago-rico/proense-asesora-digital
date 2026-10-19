@@ -18,6 +18,7 @@ import {
 import {
   SALUD_ASEGURABILIDAD_KEYS,
   SALUD_ASEGURABILIDAD_QUESTIONS,
+  SALUD_ASEGURABILIDAD_SI_NO_KEYS,
   SALUD_ASEGURABILIDAD_TEXT_MAX_LENGTH,
   getMissingSaludAnswers,
   requiresSaludAsegurabilidad,
@@ -203,8 +204,12 @@ export const backendSchema = z.object({
   }
 
   // Vida and salud: the shown, required questions (the shared client/server rule).
+  // Pages loaded before the "¿Cuál o cuáles?" boxes shipped send every Sí/No
+  // key but no text key, so a text key that was not sent is not required.
   if (requiresSaludAsegurabilidad(data.tipoSeguro) && !sentNone(SALUD_ASEGURABILIDAD_KEYS)) {
-    for (const key of getMissingSaludAnswers(data)) {
+    const missing = getMissingSaludAnswers(data)
+      .filter(key => SALUD_ASEGURABILIDAD_SI_NO_KEYS.includes(key) || data[key] !== undefined);
+    for (const key of missing) {
       ctx.addIssue({ code: 'custom', message: HOGAR_ASEGURABILIDAD_REQUIRED_MESSAGE, path: [key] });
     }
   }
@@ -333,7 +338,10 @@ async function handler(
       egresosNoDeclarante: formData.egresosNoDeclarante ? DOMPurifyInstance.sanitize(formData.egresosNoDeclarante) : undefined,
       activosNoDeclarante: formData.activosNoDeclarante ? DOMPurifyInstance.sanitize(formData.activosNoDeclarante) : undefined,
       pasivosNoDeclarante: formData.pasivosNoDeclarante ? DOMPurifyInstance.sanitize(formData.pasivosNoDeclarante) : undefined,
-      saludCovidNumeroAsegurado: formData.saludCovidNumeroAsegurado ? DOMPurifyInstance.sanitize(formData.saludCovidNumeroAsegurado) : undefined,
+      ...Object.fromEntries(SALUD_ASEGURABILIDAD_QUESTIONS.filter(q => q.type === 'text').map(q => [
+        q.key,
+        formData[q.key] ? DOMPurifyInstance.sanitize(formData[q.key]!) : undefined,
+      ])),
     } as InsuranceApplicationData;
 
     const attachments: { name: string; content: string }[] = [];

@@ -153,21 +153,27 @@ export class InsuranceFormPage {
     return this.page.getByRole('radiogroup', { name: question });
   }
 
+  /** Text box of one vida/salud free-text follow-up, labelled by its question. */
+  saludTextInput(key: SaludAsegurabilidadKey): Locator {
+    const question = SALUD_ASEGURABILIDAD_QUESTIONS.find(q => q.key === key)!.question;
+    return this.page.getByLabel(question);
+  }
+
   get saludNumeroAseguradoInput(): Locator {
-    return this.page.getByLabel('En caso positivo indique el número de asegurado');
+    return this.saludTextInput('saludCovidNumeroAsegurado');
   }
 
   /**
    * Answers the given vida/salud questions in form order, so a follow-up is
    * answered after the "Sí" that shows it. Sí/No questions take 'si' | 'no';
-   * the número de asegurado takes its text.
+   * free-text follow-ups (número de asegurado, "¿Cuál o cuáles?") take their text.
    */
   async answerSaludDeclaration(answers: Partial<Record<SaludAsegurabilidadKey, string>>): Promise<void> {
     for (const q of SALUD_ASEGURABILIDAD_QUESTIONS) {
       const answer = answers[q.key];
       if (answer === undefined) continue;
       if (q.type === 'text') {
-        await this.saludNumeroAseguradoInput.fill(answer);
+        await this.saludTextInput(q.key).fill(answer);
       } else {
         await this.saludGroup(q.key).getByRole('radio', { name: answer === 'si' ? 'Sí' : 'No', exact: true }).check();
       }

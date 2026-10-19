@@ -12,7 +12,11 @@ import {
   type AsegurabilidadRamo,
 } from '@/data/hogarAsegurabilidad';
 import { DECLARACION_ASESORIA_REQUIRED_MESSAGE } from '@/data/declaracionAsesoria';
-import { SALUD_ASEGURABILIDAD_KEYS, SALUD_ASEGURABILIDAD_TEXT_MAX_LENGTH } from '@/data/saludAsegurabilidad';
+import {
+  SALUD_ASEGURABILIDAD_KEYS,
+  SALUD_ASEGURABILIDAD_TEXT_MAX_LENGTH,
+  getMissingSaludAnswers,
+} from '@/data/saludAsegurabilidad';
 
 // Helper function to create a valid file for testing
 const createTestFile = (name: string, type: string, size: number = 1024) => {
@@ -671,7 +675,9 @@ describe('FormSchema Validation Tests', () => {
       it('never blocks on a "Sí" once the follow-ups are answered', () => {
         const result = parse({
           ...saludRequiredAnswers('si'),
+          saludDiagnosticosDetalle: 'Hipertensión arterial',
           saludCovidNumeroAsegurado: '2',
+          saludOtrasEnfermedadesDetalle: 'Fractura de tibia en 2022',
           saludEmbarazoComplicaciones: 'si',
           saludCitologia: 'si',
           saludCitologiaAlteraciones: 'si',
@@ -680,8 +686,44 @@ describe('FormSchema Validation Tests', () => {
         expect(result.success).toBe(true);
         if (result.success) {
           expect(result.data.saludDiagnosticos).toBe('si');
+          expect(result.data.saludDiagnosticosDetalle).toBe('Hipertensión arterial');
           expect(result.data.saludCovidNumeroAsegurado).toBe('2');
+          expect(result.data.saludOtrasEnfermedadesDetalle).toBe('Fractura de tibia en 2022');
         }
+      });
+
+      describe.each([
+        ['saludDiagnosticos', 'saludDiagnosticosDetalle'],
+        ['saludOtrasEnfermedades', 'saludOtrasEnfermedadesDetalle'],
+      ] as const)('"¿Cuál o cuáles?" after a "Sí" to %s', (parent, detalle) => {
+        it('is required, on that field only', () => {
+          expect(declarationIssuePaths({ ...saludRequiredAnswers(), [parent]: 'si' })).toEqual([detalle]);
+          expect(declarationIssuePaths({ ...saludRequiredAnswers(), [parent]: 'si', [detalle]: '' })).toEqual([detalle]);
+        });
+
+        it('rejects whitespace only', () => {
+          expect(declarationIssuePaths({ ...saludRequiredAnswers(), [parent]: 'si', [detalle]: '   ' })).toEqual([detalle]);
+        });
+
+        it('passes once answered', () => {
+          expect(parse({ ...saludRequiredAnswers(), [parent]: 'si', [detalle]: 'Diabetes' }).success).toBe(true);
+        });
+
+        it('is not required when the question is answered "No"', () => {
+          expect(declarationIssuePaths({ ...saludRequiredAnswers(), [parent]: 'no', [detalle]: '' })).toEqual([]);
+        });
+
+        it(`rejects more than ${SALUD_ASEGURABILIDAD_TEXT_MAX_LENGTH} characters`, () => {
+          const result = parse({
+            ...saludRequiredAnswers(),
+            [parent]: 'si',
+            [detalle]: 'x'.repeat(SALUD_ASEGURABILIDAD_TEXT_MAX_LENGTH + 1),
+          });
+          expect(result.success).toBe(false);
+          if (!result.success) {
+            expect(result.error.issues.map(issue => issue.path[0])).toContain(detalle);
+          }
+        });
       });
 
       it('requires the pregnancy complications follow-up only when pregnant', () => {
@@ -716,6 +758,34 @@ describe('FormSchema Validation Tests', () => {
       it('rejects answers other than si, no or blank', () => {
         const result = parse({ ...saludRequiredAnswers(), saludEmbarazo: 'quizas' as 'si' });
         expect(result.success).toBe(false);
+      });
+    });
+
+    describe('getMissingSaludAnswers', () => {
+      const answered = Object.fromEntries(SALUD_REQUIRED_KEYS.map(key => [key, 'no']));
+
+      it('lists nothing once every required question is answered', () => {
+        expect(getMissingSaludAnswers(answered)).toEqual([]);
+      });
+
+      it('requires a shown text follow-up to have non-blank text', () => {
+        expect(getMissingSaludAnswers({ ...answered, saludDiagnosticos: 'si' })).toEqual(['saludDiagnosticosDetalle']);
+        expect(getMissingSaludAnswers({ ...answered, saludDiagnosticos: 'si', saludDiagnosticosDetalle: ' \n ' }))
+          .toEqual(['saludDiagnosticosDetalle']);
+        expect(getMissingSaludAnswers({ ...answered, saludDiagnosticos: 'si', saludDiagnosticosDetalle: 'Asma' })).toEqual([]);
+      });
+
+      it('does not require a text follow-up whose question is answered "No"', () => {
+        expect(getMissingSaludAnswers({ ...answered, saludOtrasEnfermedadesDetalle: '' })).toEqual([]);
+      });
+
+      it('never requires the optional número de asegurado', () => {
+        expect(getMissingSaludAnswers({ ...answered, saludCovidUci: 'si', saludCovidNumeroAsegurado: '' })).toEqual([]);
+      });
+
+      it('lists missing answers in form order', () => {
+        expect(getMissingSaludAnswers({ ...answered, saludDiagnosticos: 'si', saludOtrasEnfermedades: 'si', saludEmbarazo: 'si' }))
+          .toEqual(['saludDiagnosticosDetalle', 'saludOtrasEnfermedadesDetalle', 'saludEmbarazoComplicaciones']);
       });
     });
 

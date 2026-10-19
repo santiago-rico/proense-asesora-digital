@@ -45,10 +45,12 @@ const VIDA_ANSWERS: Partial<Record<SaludAsegurabilidadKey, string>> = {
 
 // Salud: every "Sí" that opens a follow-up, and the follow-ups answered
 const SALUD_ANSWERS: Record<SaludAsegurabilidadKey, string> = {
-  saludDiagnosticos: 'no',
+  saludDiagnosticos: 'si',
+  saludDiagnosticosDetalle: 'Hipertensión arterial (Ana Gómez)',
   saludCovidUci: 'si',
   saludCovidNumeroAsegurado: '2',
-  saludOtrasEnfermedades: 'no',
+  saludOtrasEnfermedades: 'si',
+  saludOtrasEnfermedadesDetalle: 'Fractura de muñeca en 2024 (Luis Gómez)',
   saludEmbarazo: 'si',
   saludEmbarazoComplicaciones: 'no',
   saludCitologia: 'si',
@@ -144,7 +146,9 @@ test.describe('Emisión de pólizas', () => {
       await form.startApplication('Seguro de Salud');
       await form.fillCommonDetails();
       await page.getByLabel('Lista de beneficiarios').fill('Ana Gómez (cónyuge), Luis Gómez (hijo)');
+      await expect(form.saludTextInput('saludDiagnosticosDetalle')).toBeHidden();
       await expect(form.saludNumeroAseguradoInput).toBeHidden();
+      await expect(form.saludTextInput('saludOtrasEnfermedadesDetalle')).toBeHidden();
       await expect(form.saludGroup('saludEmbarazoComplicaciones')).toBeHidden();
       await expect(form.saludGroup('saludCitologiaAlteraciones')).toBeHidden();
       await form.answerSaludDeclaration(SALUD_ANSWERS);
@@ -343,15 +347,23 @@ test.describe('Emisión de pólizas', () => {
       // Every question but the optional citología
       const requiredMessages = page.getByText(HOGAR_ASEGURABILIDAD_REQUIRED_MESSAGE, { exact: true });
       await expect(requiredMessages).toHaveCount(5);
-      await form.answerSaludDeclaration({ ...VIDA_ANSWERS, saludEmbarazo: 'si' });
+      await form.answerSaludDeclaration({ ...VIDA_ANSWERS, saludDiagnosticos: 'si', saludEmbarazo: 'si' });
       await expect(requiredMessages).toHaveCount(0);
 
-      // The follow-up the "Sí" opened is required too
+      // The follow-ups the "Sí" answers opened are required too, including
+      // which of the listed diseases the client has
       await form.next();
       await form.expectStep('Detalles del Seguro');
-      await expect(requiredMessages).toHaveCount(1);
+      await expect(requiredMessages).toHaveCount(2);
+      await expect(form.saludTextInput('saludDiagnosticosDetalle')).toHaveAccessibleDescription(HOGAR_ASEGURABILIDAD_REQUIRED_MESSAGE);
       await expect(form.saludGroup('saludEmbarazoComplicaciones')).toBeVisible();
+      // Typing clears the box's error right away, so the radio below stays put
+      // for the next click instead of moving up when the box loses focus
+      await form.answerSaludDeclaration({ saludDiagnosticosDetalle: 'Diabetes' });
+      await expect(form.saludTextInput('saludDiagnosticosDetalle')).toBeFocused();
+      await expect(requiredMessages).toHaveCount(1);
       await form.answerSaludDeclaration({ saludEmbarazoComplicaciones: 'no' });
+      await expect(requiredMessages).toHaveCount(0);
       await form.next('Declaración');
     });
 
@@ -363,23 +375,25 @@ test.describe('Emisión de pólizas', () => {
       await page.getByLabel('Lista de beneficiarios').fill('Ana Gómez (cónyuge)');
       await form.answerSaludDeclaration(SALUD_ANSWERS);
 
-      await form.answerSaludDeclaration({ saludCovidUci: 'no', saludEmbarazo: 'no', saludCitologia: 'no' });
+      await form.answerSaludDeclaration({ saludDiagnosticos: 'no', saludCovidUci: 'no', saludEmbarazo: 'no', saludCitologia: 'no' });
+      await expect(form.saludTextInput('saludDiagnosticosDetalle')).toBeHidden();
       await expect(form.saludNumeroAseguradoInput).toBeHidden();
       await expect(form.saludGroup('saludEmbarazoComplicaciones')).toBeHidden();
       await expect(form.saludGroup('saludCitologiaAlteraciones')).toBeHidden();
       await expect(form.saludGroup('saludCitologiaMasDeUnAno')).toBeHidden();
 
       // Answering "Sí" again starts the follow-ups blank
-      await form.answerSaludDeclaration({ saludCovidUci: 'si', saludCitologia: 'si' });
+      await form.answerSaludDeclaration({ saludDiagnosticos: 'si', saludCovidUci: 'si', saludCitologia: 'si' });
+      await expect(form.saludTextInput('saludDiagnosticosDetalle')).toHaveValue('');
       await expect(form.saludNumeroAseguradoInput).toHaveValue('');
       await expect(form.saludGroup('saludCitologiaAlteraciones').getByRole('radio', { name: 'Sí', exact: true })).not.toBeChecked();
-      await form.answerSaludDeclaration({ saludCovidUci: 'no', saludCitologia: 'no' });
+      await form.answerSaludDeclaration({ saludDiagnosticos: 'no', saludCovidUci: 'no', saludCitologia: 'no' });
       await form.next('Declaración');
 
       await form.upload('Archivo declaración renta', pdfFile('declaracion-renta.pdf'));
       await form.next('Resumen y Envío');
       await expect(form.summaryValue('Citología practicada')).toHaveText('No');
-      for (const key of ['saludCovidNumeroAsegurado', 'saludEmbarazoComplicaciones', 'saludCitologiaAlteraciones', 'saludCitologiaMasDeUnAno'] as const) {
+      for (const key of ['saludDiagnosticosDetalle', 'saludCovidNumeroAsegurado', 'saludEmbarazoComplicaciones', 'saludCitologiaAlteraciones', 'saludCitologiaMasDeUnAno'] as const) {
         const { shortLabel } = SALUD_ASEGURABILIDAD_QUESTIONS.find(q => q.key === key)!;
         await expect(page.getByText(`${shortLabel}:`, { exact: true })).toBeHidden();
       }
@@ -389,6 +403,8 @@ test.describe('Emisión de pólizas', () => {
       await expect(form.successHeading).toBeVisible();
 
       const [sent] = submissions;
+      expect(field(sent, 'saludDiagnosticos')).toBe('no');
+      expect(field(sent, 'saludDiagnosticosDetalle')).toBe('');
       expect(field(sent, 'saludCovidUci')).toBe('no');
       expect(field(sent, 'saludCovidNumeroAsegurado')).toBe('');
       expect(field(sent, 'saludEmbarazo')).toBe('no');

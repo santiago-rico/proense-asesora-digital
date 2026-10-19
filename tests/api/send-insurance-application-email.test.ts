@@ -258,7 +258,9 @@ describe.each([
   it('accepts "Sí" answers with their follow-ups and keeps them in the parsed data', () => {
     const result = backendSchema.safeParse(submission({
       ...Object.fromEntries(SALUD_REQUIRED_KEYS.map(key => [key, 'si'])),
+      saludDiagnosticosDetalle: '  Hipertensión arterial \n',
       saludCovidNumeroAsegurado: '  2 ',
+      saludOtrasEnfermedadesDetalle: ' Fractura de tibia en 2024  ',
       saludEmbarazoComplicaciones: 'no',
       saludCitologia: 'si',
       saludCitologiaAlteraciones: 'si',
@@ -268,7 +270,9 @@ describe.each([
     expect(result.success).toBe(true);
     if (!result.success) return;
     expect(result.data.saludDiagnosticos).toBe('si');
+    expect(result.data.saludDiagnosticosDetalle).toBe('Hipertensión arterial');
     expect(result.data.saludCovidNumeroAsegurado).toBe('2');
+    expect(result.data.saludOtrasEnfermedadesDetalle).toBe('Fractura de tibia en 2024');
     expect(result.data.saludCitologiaAlteraciones).toBe('si');
     expect(result.data.saludCitologiaMasDeUnAno).toBe('no');
   });
@@ -303,6 +307,43 @@ describe.each([
 
     const errors = fieldErrors(submission({ saludCitologia: 'si' }));
     expect(saludErrorKeys(errors)).toEqual(['saludCitologiaAlteraciones', 'saludCitologiaMasDeUnAno']);
+  });
+
+  describe.each([
+    ['saludDiagnosticos', 'saludDiagnosticosDetalle'],
+    ['saludOtrasEnfermedades', 'saludOtrasEnfermedadesDetalle'],
+  ] as const)('the "¿Cuál o cuáles?" follow-up of %s', (parent, detail) => {
+    it.each(['', '   '])('rejects the detail sent as %j while the question is "Sí", on that field only', (value) => {
+      const errors = fieldErrors(submission({ [parent]: 'si', [detail]: value }));
+      expect(errors[detail]).toEqual([HOGAR_ASEGURABILIDAD_REQUIRED_MESSAGE]);
+      expect(saludErrorKeys(errors)).toEqual([detail]);
+    });
+
+    it('accepts the question "Sí" with the detail filled in', () => {
+      expect(backendSchema.safeParse(submission({ [parent]: 'si', [detail]: 'Diabetes' })).success).toBe(true);
+    });
+
+    it('accepts a "Sí" from a page loaded before the detail shipped (detail key not sent)', () => {
+      const input = submission({ [parent]: 'si' });
+      delete input[detail];
+      expect(backendSchema.safeParse(input).success).toBe(true);
+    });
+
+    it('rejects a detail longer than the limit', () => {
+      const errors = fieldErrors(submission({
+        [parent]: 'si',
+        [detail]: 'x'.repeat(SALUD_ASEGURABILIDAD_TEXT_MAX_LENGTH + 1),
+      }));
+      expect(errors[detail]).toBeDefined();
+    });
+  });
+
+  it('still rejects a left-out Sí/No follow-up while the detail keys are left out too', () => {
+    const input = submission({ saludEmbarazo: 'si' });
+    delete input.saludEmbarazoComplicaciones;
+    delete input.saludDiagnosticosDetalle;
+    delete input.saludOtrasEnfermedadesDetalle;
+    expect(fieldErrors(input).saludEmbarazoComplicaciones).toEqual([HOGAR_ASEGURABILIDAD_REQUIRED_MESSAGE]);
   });
 
   it('keeps the número de asegurado optional when COVID required UCI or UCE', () => {
@@ -523,6 +564,33 @@ describe('handler — vida and salud declaración de asegurabilidad', () => {
       expect(html).not.toContain('<script>alert(1)');
       expect(html).not.toContain('onmouseover');
     }
+  });
+
+  it('sanitizes the "¿Cuál o cuáles?" detail and emails it under its question', async () => {
+    const res = await submit(saludSubmission({
+      saludDiagnosticos: 'si',
+      saludDiagnosticosDetalle: 'Diabetes tipo 2<script>alert(1)</script><img src=x onerror="x()">',
+    }));
+
+    expect(res.statusCode).toBe(200);
+    const emails = sentHtml();
+    expect(emails).toHaveLength(2);
+    for (const html of emails) {
+      const question = html.indexOf(saludQuestion('saludDiagnosticosDetalle'));
+      expect(question).toBeGreaterThan(html.indexOf(`1. ${saludQuestion('saludDiagnosticos')}`));
+      expect(html.indexOf('Diabetes tipo 2', question)).toBeGreaterThan(question);
+      expect(html).not.toContain('<script>alert(1)');
+      expect(html).not.toContain('onerror');
+    }
+  });
+
+  it('answers 400 on an empty "¿Cuál o cuáles?" detail and sends no email', async () => {
+    const res = await submit(vidaSubmission({ saludOtrasEnfermedades: 'si' }));
+
+    expect(res.statusCode).toBe(400);
+    expect((res.body as { errors: Record<string, string[]> }).errors.saludOtrasEnfermedadesDetalle)
+      .toEqual([HOGAR_ASEGURABILIDAD_REQUIRED_MESSAGE]);
+    expect(sendTransactionalEmail).not.toHaveBeenCalled();
   });
 
   it('answers 400 on the unanswered follow-up and sends no email', async () => {

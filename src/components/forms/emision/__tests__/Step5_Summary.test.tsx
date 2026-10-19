@@ -158,6 +158,28 @@ describe('Step5_Summary', () => {
       expect(summaryValue('saludEmbarazo')).toHaveTextContent('No');
     });
 
+    it('lists which diseases after a "Sí" to questions 1 and 3, and leaves them out after a "No"', () => {
+      const detalles: Partial<FormSchemaType> = {
+        saludDiagnosticosDetalle: 'Hipertensión arterial',
+        saludOtrasEnfermedadesDetalle: 'Fractura de tibia en 2022',
+      };
+
+      const { unmount } = renderComponent({
+        tipoSeguro: 'vida',
+        ...answers,
+        saludDiagnosticos: 'si',
+        saludOtrasEnfermedades: 'si',
+        ...detalles,
+      });
+      expect(summaryValue('saludDiagnosticosDetalle')).toHaveTextContent('Hipertensión arterial');
+      expect(summaryValue('saludOtrasEnfermedadesDetalle')).toHaveTextContent('Fractura de tibia en 2022');
+      unmount();
+
+      renderComponent({ tipoSeguro: 'vida', ...answers, ...detalles });
+      expect(querySummaryRow('saludDiagnosticosDetalle')).not.toBeInTheDocument();
+      expect(querySummaryRow('saludOtrasEnfermedadesDetalle')).not.toBeInTheDocument();
+    });
+
     it('leaves out answers left over from switching to another ramo', () => {
       renderComponent({ tipoSeguro: 'auto', ...answers });
 
