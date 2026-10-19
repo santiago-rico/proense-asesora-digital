@@ -26,7 +26,7 @@ const fieldLabels: Record<string, string> = {
   // Insurance Type
   insuranceType: 'Tipo de Seguro',
 
-  // Vida Insurance Fields
+  // Vida (and Salud) Insurance Fields
   monthlyIncome: 'Ingreso Mensual',
   maritalStatus: 'Estado Civil',
   hasChildren: '¿Tiene Hijos?',
@@ -211,6 +211,7 @@ const personalInfoFields = [
   'city',
   'address',
   'employmentStatus',
+  'occupationSector',
 ];
 
 const insuranceTypeField = ['insuranceType'];
@@ -264,7 +265,17 @@ const hogarFields = [
   'portableContentsValue',
   'additionalComments',
 ];
-const saludFields = ['preExistingConditions', 'additionalComments'];
+const saludFields = [
+  'height',
+  'weight',
+  'epsName',
+  'practicesSports',
+  'sportsDetails',
+  'hasHealthConditions',
+  'healthConditionsDetails',
+  'preExistingConditions',
+  'additionalComments',
+];
 const mascotasFields = [
   'petType',
   'petName',

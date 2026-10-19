@@ -48,7 +48,7 @@ const TYPE_CASES: TypeCase[] = [
   },
   {
     type: 'salud',
-    summary: {}, // the salud answers are missing from the summary (bug #4, tested below)
+    summary: {}, // its summary rows are checked in "Salud: el resumen muestra…" below
     sent: HEALTH_SENT,
   },
   {
@@ -560,15 +560,12 @@ test.describe('Cotización de seguros', () => {
     });
 
     test('Salud: el resumen muestra las respuestas de salud y la actividad laboral', async () => {
-      test.fail(
-        true,
-        'Known bug: the summary shows none of the salud answers (saludFields lists only preExistingConditions and additionalComments) and never shows occupationSector (missing from personalInfoFields), src/components/forms/cotizacion/Step5_Summary.tsx:267, 204-214.',
-      );
       await form.reachSummary('salud');
-      await expect(form.summaryValue('Estatura')).toHaveText('170 cm', { timeout: 2000 });
+      await expect(form.summaryValue('Estatura')).toHaveText('170 cm');
       await expect(form.summaryValue('Peso')).toHaveText('68 kg');
       await expect(form.summaryValue('EPS')).toHaveText('Sura EPS');
       await expect(form.summaryValue('¿Practica Deportes?')).toHaveText('Sí');
+      await expect(form.summaryValue('Deportes que Practica')).toHaveText('Natación');
       await expect(form.summaryValue('¿Tiene Enfermedades?')).toHaveText('No');
       await expect(form.summaryValue('Actividad Laboral o Sector Económico')).toHaveText(quoteApplicant.occupationSector);
     });
