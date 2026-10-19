@@ -2,6 +2,7 @@ import React from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { HOGAR_ASEGURABILIDAD_DISCLAIMER, HOGAR_ASEGURABILIDAD_TITLE } from '@/data/hogarAsegurabilidad';
 import {
   SALUD_ASEGURABILIDAD_KEYS,
@@ -48,18 +49,28 @@ const SaludAsegurabilidad: React.FC = () => {
         key={q.key}
         control={control}
         name={q.key}
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel className="text-sm font-normal leading-relaxed text-gray-800 dark:text-gray-200">
-              {q.question}
-              {isOptional(q) && <OptionalMark />}
-            </FormLabel>
-            <FormControl>
-              <Input autoComplete="off" maxLength={SALUD_ASEGURABILIDAD_TEXT_MAX_LENGTH} {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
+        render={({ field }) => {
+          // Drop "Responde esta pregunta." as soon as there is text rather than on
+          // blur, when it would shift the next question out from under the click.
+          const onChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+            field.onChange(event);
+            if (event.target.value.trim()) clearErrors(q.key);
+          };
+          return (
+            <FormItem>
+              <FormLabel className="text-sm font-normal leading-relaxed text-gray-800 dark:text-gray-200">
+                {q.question}
+                {isOptional(q) && <OptionalMark />}
+              </FormLabel>
+              <FormControl>
+                {'multiline' in q && q.multiline
+                  ? <Textarea autoComplete="off" rows={3} maxLength={SALUD_ASEGURABILIDAD_TEXT_MAX_LENGTH} {...field} onChange={onChange} />
+                  : <Input autoComplete="off" maxLength={SALUD_ASEGURABILIDAD_TEXT_MAX_LENGTH} {...field} onChange={onChange} />}
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          );
+        }}
       />
     );
   };

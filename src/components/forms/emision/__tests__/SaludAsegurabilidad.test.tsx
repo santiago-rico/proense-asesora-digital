@@ -126,6 +126,76 @@ describe('SaludAsegurabilidad', () => {
     expect(form.methods.getValues('saludCovidNumeroAsegurado')).toBe('2');
   });
 
+  describe.each([
+    ['saludDiagnosticos', 'saludDiagnosticosDetalle'],
+    ['saludOtrasEnfermedades', 'saludOtrasEnfermedadesDetalle'],
+  ] as const)('"¿Cuál o cuáles?" after a "Sí" to %s', (parent, detalle) => {
+    const queryDetalle = () => screen.queryByRole('textbox', { name: question(detalle).question });
+
+    it('asks it, required, in a textarea limited in length', async () => {
+      const user = userEvent.setup();
+      renderComponent();
+
+      expect(queryDetalle()).not.toBeInTheDocument();
+      await answer(user, parent, 'Sí');
+
+      const detalleInput = queryDetalle()!;
+      expect(detalleInput).toBeInTheDocument();
+      expect(detalleInput.tagName).toBe('TEXTAREA');
+      expect(detalleInput).toHaveAttribute('maxLength', String(SALUD_ASEGURABILIDAD_TEXT_MAX_LENGTH));
+      await user.type(detalleInput, 'Diabetes');
+      expect(form.methods.getValues(detalle)).toBe('Diabetes');
+    });
+
+    it('shows the required message on it while blank', async () => {
+      const user = userEvent.setup();
+      renderComponent();
+
+      await answer(user, parent, 'Sí');
+      await act(async () => {
+        await form.methods.trigger(detalle);
+      });
+
+      expect(form.methods.getFieldState(detalle).error?.message).toBe(HOGAR_ASEGURABILIDAD_REQUIRED_MESSAGE);
+      expect(queryDetalle()).toHaveAttribute('aria-invalid', 'true');
+    });
+
+    it('drops the required message as soon as there is text, before it loses focus', async () => {
+      const user = userEvent.setup();
+      renderComponent();
+
+      await answer(user, parent, 'Sí');
+      await act(async () => {
+        await form.methods.trigger(detalle);
+      });
+
+      // Spaces alone are still blank
+      await user.type(queryDetalle()!, '  ');
+      expect(form.methods.getFieldState(detalle).error?.message).toBe(HOGAR_ASEGURABILIDAD_REQUIRED_MESSAGE);
+
+      await user.type(queryDetalle()!, 'Diabetes');
+      expect(queryDetalle()).toHaveFocus();
+      expect(form.methods.getFieldState(detalle).error).toBeUndefined();
+      expect(queryDetalle()).toHaveAttribute('aria-invalid', 'false');
+    });
+
+    it('hides and clears it when the question changes back to "No"', async () => {
+      const user = userEvent.setup();
+      renderComponent();
+
+      await answer(user, parent, 'Sí');
+      await user.type(queryDetalle()!, 'Asma');
+      await answer(user, parent, 'No');
+
+      expect(queryDetalle()).not.toBeInTheDocument();
+      expect(form.methods.getValues(detalle)).toBe('');
+
+      // Answering "Sí" again starts it blank
+      await answer(user, parent, 'Sí');
+      expect(queryDetalle()).toHaveValue('');
+    });
+  });
+
   it('asks about pregnancy complications after a pregnancy "Sí"', async () => {
     const user = userEvent.setup();
     renderComponent();

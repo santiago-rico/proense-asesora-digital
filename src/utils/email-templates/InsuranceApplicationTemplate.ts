@@ -230,7 +230,9 @@ export function InsuranceApplicationTemplate({
   const siNoAnswerText = (answer: string | undefined) =>
     answer === 'si' ? 'Sí' : answer === 'no' ? 'No' : 'No respondida';
   
-  type QuestionRow = { question: string; answerText: string; isHighlighted: boolean; isFollowUp?: boolean };
+  // A multiline answer goes under its question, across the full width, instead
+  // of in the narrow answer column.
+  type QuestionRow = { question: string; answerText: string; isHighlighted: boolean; isFollowUp?: boolean; isMultiline?: boolean };
   
   const buildQuestionTable = (rows: QuestionRow[]) => {
     const styles = getThemeStyles(isDarkMode);
@@ -241,6 +243,17 @@ export function InsuranceApplicationTemplate({
       const cellStyle = index % 2 === 0 ? styles.tableCell : styles.tableCellAlt;
       // Follow-ups are indented under the question they depend on
       const questionStyle = row.isFollowUp ? `${cellStyle} padding-left: 40px;` : cellStyle;
+      
+      if (row.isMultiline) {
+        return `
+        <tr>
+          <td colspan="2" style="${questionStyle}" class="darkmode-text darkmode-border ${bgClass}">
+            ${row.question}
+            <div style="margin-top: 6px; font-weight: 700; white-space: pre-line;">${row.answerText}</div>
+          </td>
+        </tr>
+      `;
+      }
       
       return `
         <tr>
@@ -278,6 +291,7 @@ export function InsuranceApplicationTemplate({
         answerText: q.type === 'text' ? (answer || 'No indicado') : siNoAnswerText(answer),
         isHighlighted: highlight && isSaludFlagged(q, answer),
         isFollowUp,
+        isMultiline: 'multiline' in q && q.multiline,
       };
     }),
   );

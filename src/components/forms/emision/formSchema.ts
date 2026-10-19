@@ -51,7 +51,7 @@ const hogarAsegurabilidadShape = Object.fromEntries(
   HOGAR_ASEGURABILIDAD_KEYS.map(key => [key, siNoOptional])
 ) as Record<HogarAsegurabilidadKey, typeof siNoOptional>;
 
-// Seguro de Vida y Salud - Declaración de asegurabilidad (si/no fields plus one free-text follow-up)
+// Seguro de Vida y Salud - Declaración de asegurabilidad (si/no fields plus free-text follow-ups)
 type SaludTextKey = Extract<SaludAsegurabilidadQuestion, { type: 'text' }>['key'];
 type SaludSiNoKey = Exclude<SaludAsegurabilidadQuestion['key'], SaludTextKey>;
 const saludTextOptional = z.string()

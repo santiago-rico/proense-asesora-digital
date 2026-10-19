@@ -229,12 +229,17 @@ describe('InsuranceApplicationTemplate — vida and salud declaración de asegur
     'saludExclusionExtraprima',
   ];
   const FOLLOW_UP_KEYS: SaludAsegurabilidadKey[] = [
+    'saludDiagnosticosDetalle',
     'saludCovidNumeroAsegurado',
+    'saludOtrasEnfermedadesDetalle',
     'saludEmbarazoComplicaciones',
     'saludCitologiaAlteraciones',
     'saludCitologiaMasDeUnAno',
   ];
-  /** Every follow-up shown: all parents "Sí". */
+  /**
+   * Every row with an answer column, all parents "Sí". The multiline
+   * "¿Cuál o cuáles?" details have none; see their own describe below.
+   */
   const ALL_SHOWN_KEYS: SaludAsegurabilidadKey[] = [
     'saludDiagnosticos',
     'saludCovidUci',
@@ -385,6 +390,81 @@ describe('InsuranceApplicationTemplate — vida and salud declaración de asegur
       const html = render(baseData({ tipoSeguro: 'vida', ...allSi() }), false);
       expect(html).not.toMatch(SI_ALERT_PATTERN);
     });
+  });
+
+  describe.each([
+    ['saludDiagnosticos', 'saludDiagnosticosDetalle', 'saludCovidUci'],
+    ['saludOtrasEnfermedades', 'saludOtrasEnfermedadesDetalle', 'saludEmbarazo'],
+  ] as const)('the "¿Cuál o cuáles?" detail of %s', (parent, detail, nextQuestion) => {
+    /** The detail's whole row: its single cell's opening tag and the answer under the question. */
+    const detailRow = (html: string) => {
+      const start = html.indexOf(question(detail));
+      expect(start, `${detail} should be rendered`).toBeGreaterThan(-1);
+      const cellOpen = html.lastIndexOf('<td', start);
+      const row = html.slice(html.lastIndexOf('<tr>', start), html.indexOf('</tr>', start));
+      const answer = row.match(/<div style="([^"]*)">([\s\S]*?)<\/div>/);
+      return {
+        start,
+        row,
+        cellTag: html.slice(cellOpen, html.indexOf('>', cellOpen) + 1),
+        answerStyle: answer?.[1],
+        answer: answer?.[2],
+      };
+    };
+
+    it.each([
+      ['user', true],
+      ['agent', false],
+    ])('spans the full width under its "Sí" parent, keeping line breaks, in the %s email', (_label, isUserEmail) => {
+      const html = render(baseData({
+        tipoSeguro: 'salud',
+        ...saludAnswers({ [parent]: 'si', [detail]: 'Hipertensión arterial (yo)\nDiabetes (mi esposo)' }),
+      }), isUserEmail);
+      const rendered = detailRow(html);
+
+      expect(rendered.start).toBeGreaterThan(html.indexOf(question(parent)));
+      expect(rendered.start).toBeLessThan(html.indexOf(question(nextQuestion)));
+      expect(rendered.cellTag).toContain('colspan="2"');
+      expect(rendered.cellTag).toContain('padding-left: 40px;');
+      expect(rendered.row.match(/<td/g)).toHaveLength(1);
+      expect(rendered.row).not.toContain('width="90"');
+      expect(rendered.answerStyle).toContain('white-space: pre-line;');
+      expect(rendered.answer).toBe('Hipertensión arterial (yo)\nDiabetes (mi esposo)');
+    });
+
+    it('renders "No indicado" for a blank detail', () => {
+      const html = render(baseData({ tipoSeguro: 'vida', ...saludAnswers({ [parent]: 'si' }) }), false);
+      expect(detailRow(html).answer).toBe('No indicado');
+    });
+
+    it('is absent when its question is "No", even when a value came along', () => {
+      const html = render(baseData({
+        tipoSeguro: 'vida',
+        ...saludAnswers({ [parent]: 'no', [detail]: 'Detalle que no se mostró' }),
+      }), false);
+
+      expect(html).not.toContain(question(detail));
+      expect(html).not.toContain('Detalle que no se mostró');
+    });
+
+    it('is neither highlighted nor counted for review in the agent email; its "Sí" parent is', () => {
+      const html = render(baseData({ tipoSeguro: 'vida', ...saludAnswers({ [parent]: 'si', [detail]: 'Asma' }) }), false);
+
+      expect(html.match(FLAGGED_ALERT_PATTERN)?.[0]).toBe('1 respuesta de la declaración de asegurabilidad requiere revisión');
+      expect(detailRow(html).row).not.toContain(HIGHLIGHT);
+    });
+  });
+
+  it('keeps the número de asegurado in the narrow answer column', () => {
+    const html = render(baseData({
+      tipoSeguro: 'vida',
+      ...saludAnswers({ saludDiagnosticos: 'si', saludDiagnosticosDetalle: 'Lupus', saludCovidUci: 'si', saludCovidNumeroAsegurado: '2' }),
+    }), false);
+    const [numero] = rows(html, ['saludCovidNumeroAsegurado']);
+
+    expect(numero.questionTag).not.toContain('colspan');
+    expect(numero.answerTag).toContain('width="90"');
+    expect(numero.answer).toBe('2');
   });
 
   it.each(['auto', 'empresarial', 'vida_credito_protegido'])(
