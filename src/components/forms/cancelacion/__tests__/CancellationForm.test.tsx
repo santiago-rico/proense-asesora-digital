@@ -225,6 +225,27 @@ describe('CancellationForm', () => {
         expect(screen.getByText(/Debes aceptar la política de privacidad y los términos y condiciones para continuar/i)).toBeInTheDocument();
       });
     }, 10000);
+
+    it('shows the insurance type message on submit when none is selected', async () => {
+      const user = userEvent.setup();
+      render(<CancellationForm />);
+
+      // Fill everything except the insurance type
+      await user.type(screen.getByLabelText(/nombre completo del tomador/i), 'Test User');
+      await user.type(screen.getByLabelText(/número de cédula del tomador/i), '12345678');
+      await user.type(screen.getByLabelText(/teléfono de contacto/i), '+573001234567');
+      await user.type(screen.getByLabelText(/email de contacto/i), 'test@example.com');
+      await user.type(screen.getByLabelText(/nombre de la aseguradora/i), 'Test Insurance');
+      await user.click(screen.getByLabelText(/acepto la política/i));
+
+      await user.click(screen.getByRole('button', { name: /enviar solicitud de cancelación/i }));
+
+      // The empty select must not block the submit before zod runs
+      await waitFor(() => {
+        expect(screen.getByText('Debe seleccionar un tipo de seguro')).toBeInTheDocument();
+      });
+      expect(global.fetch).not.toHaveBeenCalled();
+    }, 10000);
   });
 
   describe('Conditional Fields', () => {

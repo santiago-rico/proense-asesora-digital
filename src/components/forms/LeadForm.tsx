@@ -256,8 +256,9 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick, 
               <FormItem>
                 <FormLabel>Tipo de Seguro de Interés</FormLabel>
                 <FormControl>
-                  <Select onValueChange={field.onChange} defaultValue={field.value} required>
-                    <SelectTrigger>
+                  {/* No `required` on Select: the hidden native select it renders blocks submit before zod can show its message */}
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <SelectTrigger aria-required="true">
                       <SelectValue placeholder="Selecciona un tipo de seguro" />
                     </SelectTrigger>
                     <SelectContent>
