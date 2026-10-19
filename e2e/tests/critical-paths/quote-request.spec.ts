@@ -508,16 +508,14 @@ test.describe('Cotización de seguros', () => {
     });
 
     test('Hogar: una cédula de propietario inválida no bloquea al dejar de cotizar a nombre de otra persona', async () => {
-      test.fail(
-        true,
-        'Known bug: ownerCedula keeps its digits-only check after the tercero fields are hidden, so a stale value blocks "Siguiente" with no message on screen, src/components/forms/cotizacion/formSchema.ts:98.',
-      );
       await form.startQuote('hogar');
       await form.choose(RELATIONSHIP, 'Cotizo a nombre del propietario (otra persona)');
       await form.input('Cédula del propietario').fill('CC 123');
       await form.fillHogar(); // switches to "Propietario/a y habito el inmueble"
-      await form.next();
-      await expect(form.stepHeading('Resumen y Envío')).toBeVisible({ timeout: 2000 });
+      await form.next('Resumen y Envío');
+      await expect(form.summaryValue('Relación con el Inmueble')).toHaveText('Propietario/a y habito el inmueble');
+      // Leaving "tercero" clears the hidden owner fields: the stale cédula is not shown (nor sent).
+      await expect(form.summaryValue('Cédula del Propietario')).toBeHidden();
     });
 
     test('Mascotas: exige los datos de la mascota y el detalle si tuvo una enfermedad o accidente grave', async () => {

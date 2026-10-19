@@ -403,9 +403,12 @@ const HogarSectionHeading = ({ children }: { children: React.ReactNode }) => (
   </h4>
 );
 
+// Owner details, asked only when quoting on behalf of the owner (tercero).
+const TERCERO_FIELDS = ['ownerName', 'ownerCedula', 'ownerBirthDate', 'residesInProperty'] as const;
+
 // Sub-component for Hogar (Home Insurance) Fields
 const HogarFields = () => {
-  const { control, watch } = useFormContext();
+  const { control, watch, setValue } = useFormContext();
   const propertyRelationship = watch('propertyRelationship');
   const propertyType = watch('propertyType');
   const wantsContentsCoverage = watch('wantsContentsCoverage');
@@ -424,7 +427,17 @@ const HogarFields = () => {
         render={({ field }) => (
           <FormItem>
             <FormLabel>¿Cuál es tu relación con el inmueble? <span className="text-red-500">*</span></FormLabel>
-            <Select onValueChange={field.onChange} value={field.value || ''}>
+            <Select
+              onValueChange={(value) => {
+                field.onChange(value);
+                // The owner fields are hidden for this relationship: drop what was
+                // typed for "tercero", so it doesn't reach the summary or the email.
+                if (value !== 'tercero') {
+                  TERCERO_FIELDS.forEach((name) => setValue(name, ''));
+                }
+              }}
+              value={field.value || ''}
+            >
               <FormControl>
                 <SelectTrigger>
                   <SelectValue placeholder="Elige una opción" />

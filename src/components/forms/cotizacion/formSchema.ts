@@ -105,7 +105,9 @@ export const quoteFormBaseSchema = z.object({
   insuredPropertyCity: z.string().optional(),
   propertyRelationship: z.string().optional(),
   ownerName: z.string().optional(),
-  ownerCedula: z.string().regex(/^\d*$/, 'Solo números permitidos').optional(),
+  // Digits-only is checked in validateInsuranceDetails, and only for terceros:
+  // a field-level rule kept rejecting a stale value once the field was hidden.
+  ownerCedula: z.string().optional(),
   ownerBirthDate: z.string().optional(),
   buildingFloors: z.string().optional(),
   unitFloor: z.string().optional(),
@@ -364,6 +366,12 @@ const validateInsuranceDetails = (data: QuoteFormBase, ctx: QuoteFormRefinementC
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: 'La cédula del propietario es requerida',
+          path: ['ownerCedula']
+        });
+      } else if (!/^\d+$/.test(data.ownerCedula)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Solo números permitidos',
           path: ['ownerCedula']
         });
       }
