@@ -30,13 +30,28 @@ const MultiStepQuoteForm = ({ onSuccess }: MultiStepQuoteFormProps) => {
   const preserveErrorsOnStepChange = useRef(false);
 
   const methods = useForm<QuoteFormSchemaType>({
-    mode: 'onBlur',
-    reValidateMode: 'onBlur',
+    // Errors appear only when "Siguiente" or "Enviar Cotización" validates the
+    // step. With 'onBlur', the mousedown on "Siguiente" blurred the field, its
+    // error disappeared, the button moved up before mouseup and the click was lost.
+    mode: 'onSubmit',
+    reValidateMode: 'onChange',
     resolver: zodResolver(quoteFormSchema),
     defaultValues: quoteFormDefaultValues
   });
 
-  const { handleSubmit, trigger, clearErrors, register } = methods;
+  const { handleSubmit, trigger, clearErrors, register, watch, getFieldState } = methods;
+
+  // Once a field shows an error, re-check it on every change so the message
+  // goes away as soon as the field is fixed. reValidateMode only does this
+  // after a real submit, and the steps before the summary validate with
+  // trigger(), not submit. Fields without an error are left alone, so no new
+  // message appears while the client is still typing.
+  useEffect(() => {
+    const subscription = watch((_values, { name }) => {
+      if (name && getFieldState(name).error) void trigger(name);
+    });
+    return () => subscription.unsubscribe();
+  }, [watch, getFieldState, trigger]);
 
   // Fetch CSRF token on component mount
   useEffect(() => {

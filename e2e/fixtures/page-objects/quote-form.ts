@@ -72,17 +72,10 @@ export class QuoteFormPage {
   }
 
   /**
-   * Blurs the focused field by clicking outside it, the way a user would. With
-   * `mode: 'onBlur'` a click whose mousedown blurs a field can show or hide that
-   * field's error, which moves the button before mouseup and loses the click
-   * (known bug #1). Blurring first lets the layout settle.
+   * Clicks "Siguiente" straight from the last field, the way a user would: blur
+   * does not validate, so the click's mousedown can no longer move the button.
    */
-  async blur(): Promise<void> {
-    await this.page.getByRole('heading', { name: 'Solicitud de Cotización' }).click();
-  }
-
   async next(expected?: QuoteStep): Promise<void> {
-    await this.blur();
     await this.nextButton.click();
     if (expected) await this.expectStep(expected);
   }

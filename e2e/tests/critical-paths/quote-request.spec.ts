@@ -267,10 +267,6 @@ test.describe('Cotización de seguros', () => {
     });
 
     test('tras corregir el último campo inválido, un solo clic en "Siguiente" avanza', async () => {
-      test.fail(
-        true,
-        'Known bug: the first "Siguiente" click after fixing the last invalid field is lost. Its mousedown blurs the field, onBlur validation removes "Dirección requerida", the button moves up before mouseup and the click never fires, src/components/forms/cotizacion/MultiStepQuoteForm.tsx:32-37 (mode "onBlur"), 317-325.',
-      );
       // A field near the button: when the fixed field is scrolled out of view,
       // Chrome's scroll anchoring keeps the button still and the click lands.
       await form.fillPersonalInfo({ address: '' });
@@ -278,7 +274,7 @@ test.describe('Cotización de seguros', () => {
       await expect(form.message('Dirección requerida')).toBeVisible();
       await form.input('Dirección').fill(quoteApplicant.address);
       await form.nextButton.click(); // focus is still in the address field
-      await expect(form.stepHeading('Tipo de Seguro')).toBeVisible({ timeout: 2000 });
+      await expect(form.stepHeading('Tipo de Seguro')).toBeVisible();
     });
 
     test('exige la actividad laboral antes de pasar al paso 2', async () => {
