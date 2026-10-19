@@ -12,7 +12,14 @@ interface NumberedProgressBarProps {
 
 const NumberedProgressBar: React.FC<NumberedProgressBarProps> = ({ currentStep, steps }) => {
   return (
-    <div className="w-full overflow-x-auto">
+    // On narrow screens the bar (min-w-[500px]) scrolls sideways: as a named,
+    // focusable region it can also be scrolled with the keyboard.
+    <div
+      className="w-full overflow-x-auto rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      tabIndex={0}
+      role="region"
+      aria-label="Progreso del formulario"
+    >
       <div className="flex w-full min-w-[500px] items-center justify-between py-4 px-1 sm:px-2 md:px-4">
         {steps.map((step, index) => {
           const isActive = currentStep === step.id;

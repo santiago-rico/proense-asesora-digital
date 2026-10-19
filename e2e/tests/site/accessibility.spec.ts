@@ -222,12 +222,6 @@ const KNOWN: KnownBug[] = [
     bug: 'the mobile menu panel has role="menu" but holds plain links and buttons, no menuitems, src/components/layout/Navbar.tsx:302',
     ...mobileOnly([MOBILE_MENU]),
   },
-  {
-    title: 'La barra de progreso desplazable es accesible con el teclado',
-    rules: ['scrollable-region-focusable'],
-    bug: 'on mobile the step progress bar (min-w-[500px]) scrolls horizontally but can\'t be focused to scroll it with the keyboard, src/components/forms/cotizacion/NumberedProgressBar.tsx:15 and src/components/forms/emision/NumberedProgressBar.tsx:15',
-    ...mobileOnly(['/clientes/cotizacion', '/clientes/emision-polizas']),
-  },
   // The rest are axe best-practice rules, outside WCAG_TAGS, so the regression
   // scans never run them. The handover predicted them; each test runs only its rules.
   {
