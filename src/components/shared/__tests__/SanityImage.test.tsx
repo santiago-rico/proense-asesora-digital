@@ -3,34 +3,39 @@ import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import SanityImage from '../SanityImage';
 
-// Mock the Sanity urlFor function
+// Mock the Sanity urlFor function. Like the real one, it throws for a source without an asset.
 vi.mock('@/sanity/imageUrl', () => ({
-  urlFor: (source: unknown) => ({
-    width: (w: number) => ({
-      height: (h?: number) => ({
+  urlFor: (source: unknown) => {
+    if (!source || !(source as { asset?: unknown }).asset) {
+      throw new Error(`Unable to resolve image URL from source (${JSON.stringify(source)})`);
+    }
+    return {
+      width: (w: number) => ({
+        height: (h?: number) => ({
+          quality: (q: number) => ({
+            format: (f?: string) => ({
+              url: () => `https://cdn.sanity.io/images/test/${w}x${h || 'auto'}?q=${q}${f ? `&fm=${f}` : ''}`
+            }),
+            url: () => `https://cdn.sanity.io/images/test/${w}x${h || 'auto'}?q=${q}`
+          }),
+          format: (f?: string) => ({
+            url: () => `https://cdn.sanity.io/images/test/${w}x${h || 'auto'}${f ? `?fm=${f}` : ''}`
+          }),
+          url: () => `https://cdn.sanity.io/images/test/${w}x${h || 'auto'}`
+        }),
         quality: (q: number) => ({
           format: (f?: string) => ({
-            url: () => `https://cdn.sanity.io/images/test/${w}x${h || 'auto'}?q=${q}${f ? `&fm=${f}` : ''}`
+            url: () => `https://cdn.sanity.io/images/test/${w}?q=${q}${f ? `&fm=${f}` : ''}`
           }),
-          url: () => `https://cdn.sanity.io/images/test/${w}x${h || 'auto'}?q=${q}`
+          url: () => `https://cdn.sanity.io/images/test/${w}?q=${q}`
         }),
         format: (f?: string) => ({
-          url: () => `https://cdn.sanity.io/images/test/${w}x${h || 'auto'}${f ? `?fm=${f}` : ''}`
+          url: () => `https://cdn.sanity.io/images/test/${w}${f ? `?fm=${f}` : ''}`
         }),
-        url: () => `https://cdn.sanity.io/images/test/${w}x${h || 'auto'}`
-      }),
-      quality: (q: number) => ({
-        format: (f?: string) => ({
-          url: () => `https://cdn.sanity.io/images/test/${w}?q=${q}${f ? `&fm=${f}` : ''}`
-        }),
-        url: () => `https://cdn.sanity.io/images/test/${w}?q=${q}`
-      }),
-      format: (f?: string) => ({
-        url: () => `https://cdn.sanity.io/images/test/${w}${f ? `?fm=${f}` : ''}`
-      }),
-      url: () => `https://cdn.sanity.io/images/test/${w}`
-    })
-  })
+        url: () => `https://cdn.sanity.io/images/test/${w}`
+      })
+    };
+  },
 }));
 
 describe('SanityImage Component', () => {
@@ -150,5 +155,25 @@ describe('SanityImage Component', () => {
 
     const img = screen.getByRole('img');
     expect(img).toHaveAttribute('loading', 'eager');
+  });
+
+  it.each([
+    ['null', null],
+    ['undefined', undefined],
+    ['an image without an asset', { _type: 'image' }],
+  ])('renders an empty placeholder, not an image, for %s', (_, source) => {
+    const { container } = render(
+      <SanityImage
+        source={source as React.ComponentProps<typeof SanityImage>['source']}
+        alt="Test image"
+        className="w-full h-32 rounded-lg"
+      />
+    );
+
+    expect(screen.queryByRole('img')).not.toBeInTheDocument();
+    expect(container.querySelector('picture')).not.toBeInTheDocument();
+    const placeholder = container.firstElementChild;
+    expect(placeholder).toHaveAttribute('aria-hidden', 'true');
+    expect(placeholder).toHaveClass('bg-gray-100', 'w-full', 'h-32', 'rounded-lg');
   });
 });

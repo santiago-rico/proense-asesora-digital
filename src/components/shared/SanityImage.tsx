@@ -1,13 +1,14 @@
 import React, { ImgHTMLAttributes } from "react";
-import { SanityImageSource } from "@sanity/image-url/lib/types/types";
+import type { SanityImageSource } from "@sanity/image-url";
 import { urlFor } from "@/sanity/imageUrl";
 import { cn } from "@/lib/utils";
 
 interface SanityImageProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, 'src' | 'srcSet'> {
   /**
-   * Sanity image source object
+   * Sanity image source object. A post can have no image (null), in which case
+   * a decorative placeholder sized by `className` is rendered instead.
    */
-  source: SanityImageSource;
+  source: SanityImageSource | null | undefined;
   
   /**
    * Alt text for the image (required for accessibility)
@@ -70,6 +71,7 @@ interface SanityImageProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, 'sr
  * - Proper sizes attribute for responsive behavior
  * - Lazy loading by default
  * - Error handling with fallback images
+ * - An empty placeholder when the source is missing or has no image asset
  * - TypeScript support with Sanity image types
  * 
  * @example
@@ -94,6 +96,14 @@ const SanityImage: React.FC<SanityImageProps> = ({
   fallbackSrc,
   ...rest
 }) => {
+  // A post can have no image (featuredImage: null, or an image field without an
+  // asset) and urlFor throws on those, which would blank the whole app. Render an
+  // empty box sized by className instead.
+  const placeholder = <div aria-hidden="true" className={cn("bg-gray-100", className)} />;
+  if (!source) {
+    return placeholder;
+  }
+
   // Determine the base width (largest width by default)
   const resolvedBaseWidth = baseWidth || Math.max(...widths);
   
@@ -120,12 +130,21 @@ const SanityImage: React.FC<SanityImageProps> = ({
       .join(', ');
   };
   
-  // Generate fallback src
-  let fallbackImageBuilder = urlFor(source).width(resolvedBaseWidth).quality(quality);
-  if (height) {
-    fallbackImageBuilder = fallbackImageBuilder.height(height);
+  // Generate fallback src and srcsets (urlFor throws if the source has no asset)
+  let fallbackImageSrc: string;
+  let srcSet: string;
+  let webpSrcSet: string | undefined;
+  try {
+    let fallbackImageBuilder = urlFor(source).width(resolvedBaseWidth).quality(quality);
+    if (height) {
+      fallbackImageBuilder = fallbackImageBuilder.height(height);
+    }
+    fallbackImageSrc = fallbackImageBuilder.url();
+    srcSet = generateSrcSet();
+    webpSrcSet = enableWebP ? generateSrcSet('webp') : undefined;
+  } catch {
+    return placeholder;
   }
-  const fallbackImageSrc = fallbackImageBuilder.url();
   
   // Error handler
   const handleError = (event: React.SyntheticEvent<HTMLImageElement>) => {
@@ -144,13 +163,13 @@ const SanityImage: React.FC<SanityImageProps> = ({
         {/* WebP source with srcset */}
         <source
           type="image/webp"
-          srcSet={generateSrcSet('webp')}
+          srcSet={webpSrcSet}
           sizes={resolvedSizes}
         />
         
         {/* Original format source with srcset */}
         <source
-          srcSet={generateSrcSet()}
+          srcSet={srcSet}
           sizes={resolvedSizes}
         />
         
@@ -171,7 +190,7 @@ const SanityImage: React.FC<SanityImageProps> = ({
   return (
     <img
       src={fallbackImageSrc}
-      srcSet={generateSrcSet()}
+      srcSet={srcSet}
       sizes={resolvedSizes}
       alt={alt}
       className={cn("object-cover", className)}

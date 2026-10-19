@@ -125,6 +125,13 @@ test.describe('Blog: listado', () => {
     await expect(listedPostTitles(page)).toHaveCount(0);
     await expect(page.getByRole('heading', { name: 'Artículo Destacado' })).toHaveCount(0);
   });
+
+  test('los artículos sin imagen destacada se listan sin imagen', async ({ page, sanity }) => {
+    sanity.posts = blogPosts(3).map(post => ({ ...post, featuredImage: null }));
+    await page.goto('/blog');
+    await expect(listedPostTitles(page)).toHaveText(titles(1, 2, 3));
+    await expect(page.getByRole('img', { name: /^Artículo \d+$/ })).toHaveCount(0);
+  });
 });
 
 test.describe('Blog: artículo', () => {
@@ -194,16 +201,19 @@ test.describe('Blog: artículo', () => {
   });
 
   test('un slug inexistente muestra un "no encontrado" dentro del sitio', async ({ page }) => {
-    test.fail(true, 'Known bug: when Sanity returns no post the page renders nothing at all (no navbar, footer or 404), src/pages/BlogPostPage.tsx:77-79.');
     const site = new Site(page);
     await page.goto('/blog/no-existe');
     await expect(page.getByText(/404|no encontrad|no existe/i).first()).toBeVisible();
+    await expect(site.h1).toHaveText('Artículo no encontrado');
     await expect(site.nav).toBeVisible();
     await expect(site.footer).toBeVisible();
+
+    await site.main.getByRole('link', { name: 'Volver al Blog' }).click();
+    await expect(page).toHaveURL('/blog');
+    await expect(listedPostTitles(page).first()).toHaveText('Artículo 1');
   });
 
   test('un artículo sin imagen destacada se muestra sin imagen', async ({ page, sanity }) => {
-    test.fail(true, 'Known bug: a post whose featuredImage is null throws "Unable to resolve image URL from source (null)" and, with no ErrorBoundary, blanks the whole app, src/components/shared/SanityImage.tsx:124-128.');
     sanity.posts = [blogPost({ featuredImage: null })];
     const site = new Site(page);
     await page.goto('/blog/mi-post');

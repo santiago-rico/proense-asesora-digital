@@ -50,7 +50,8 @@ const BlogPostPage: React.FC<BlogPostPageProps> = ({ handleOpenLeadDialog }) => 
     }
   }, [isError, navigate]);
 
-  if (isLoading) {
+  // A failed query redirects to /blog (see the effect above): keep the skeleton until then.
+  if (isLoading || isError) {
     return (
       <Layout handleOpenLeadDialog={handleOpenLeadDialog}>
         <div className="container mx-auto px-4 py-16 mt-16">
@@ -72,7 +73,20 @@ const BlogPostPage: React.FC<BlogPostPageProps> = ({ handleOpenLeadDialog }) => 
   }
 
   if (!post) {
-    return null;
+    return (
+      <Layout handleOpenLeadDialog={handleOpenLeadDialog}>
+        <section className="container mx-auto px-4 py-16 md:py-24 text-center">
+          <p className="text-5xl md:text-6xl font-bold text-primary mb-4">404</p>
+          <h1 className="text-3xl md:text-4xl font-bold mb-4">Artículo no encontrado</h1>
+          <p className="text-lg text-gray-600 max-w-xl mx-auto mb-8">
+            El artículo que buscas no existe o ya no está disponible. Te invitamos a explorar nuestros demás artículos sobre seguros.
+          </p>
+          <Button asChild>
+            <Link to="/blog">Volver al Blog</Link>
+          </Button>
+        </section>
+      </Layout>
+    );
   }
 
   const productPageUrl = getCategoryProductPath(post.category);
@@ -103,16 +117,18 @@ const BlogPostPage: React.FC<BlogPostPageProps> = ({ handleOpenLeadDialog }) => 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
               <article className="prose prose-lg max-w-none">
-                <div className="mb-8">
-                  <SanityImage
-                    source={post.featuredImage}
-                    alt={post.title}
-                    className="w-full h-auto rounded-lg"
-                    widths={[480, 768, 1024, 1200]}
-                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 80vw, 800px"
-                    loading="eager"
-                  />
-                </div>
+                {post.featuredImage && (
+                  <div className="mb-8">
+                    <SanityImage
+                      source={post.featuredImage}
+                      alt={post.title}
+                      className="w-full h-auto rounded-lg"
+                      widths={[480, 768, 1024, 1200]}
+                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 80vw, 800px"
+                      loading="eager"
+                    />
+                  </div>
+                )}
                 
                                 {post.body && <PortableText value={post.body} />}
 
@@ -165,7 +181,7 @@ const BlogPostPage: React.FC<BlogPostPageProps> = ({ handleOpenLeadDialog }) => 
                   <div className="space-y-4">
                     {relatedPosts?.filter((p: BlogPost) => p.slug !== slug).map((relatedPost: BlogPost) => (
                       <Card key={relatedPost._id} className="overflow-hidden">
-                        <div className="h-32 overflow-hidden">
+                        <div className="h-32 overflow-hidden bg-gray-100">
                           <SanityImage
                             source={relatedPost.featuredImage}
                             alt={relatedPost.title}

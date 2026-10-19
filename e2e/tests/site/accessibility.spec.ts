@@ -89,6 +89,7 @@ const SCANS: Scan[] = [
   route('/nosotros', 'Sobre Nosotros'),
   route('/blog', 'Últimos Artículos', NEWEST_POST),
   route('/blog/mi-post', 'Mi post', NEWEST_POST),
+  route('/blog/no-existe', 'Artículo no encontrado'),
   ...PRODUCT_SCANS,
   route('/clientes/cotizacion', 'Cotización de Seguros'),
   route('/clientes/emision-polizas', 'Emisión de Pólizas'),

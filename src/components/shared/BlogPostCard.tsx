@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { urlFor } from "@/sanity/imageUrl";
-import { SanityImageSource } from "@sanity/image-url/lib/types/types";
+import type { SanityImageSource } from "@sanity/image-url";
 import SanityImage from "@/components/shared/SanityImage";
 
 interface SanityImageAsset {
@@ -39,7 +39,8 @@ export interface BlogPost {
   slug: string;
   title: string;
   excerpt: string;
-  featuredImage: SanityImageSource;
+  /** Null when the post has no featured image. */
+  featuredImage: SanityImageSource | null;
   category: string;
   date: string;
   author: string;
