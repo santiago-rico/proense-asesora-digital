@@ -3,7 +3,7 @@
  * Tests to verify the functionality works after linting fixes
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, type Mock, beforeEach } from 'vitest';
 import { CancellationForm } from '../CancellationForm';
 
 // Mock the useToast hook
@@ -35,7 +35,7 @@ vi.mock('@/components/forms/emision/FileUpload', () => ({
 describe('CancellationForm Functional Tests', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (global.fetch as vi.Mock).mockResolvedValue({
+    (global.fetch as Mock).mockResolvedValue({
       ok: true,
       json: () => Promise.resolve({ message: 'Success' }),
     });

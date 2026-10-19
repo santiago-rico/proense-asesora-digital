@@ -93,7 +93,7 @@ describe('FormSchema Validation Tests', () => {
         validNames.forEach(name => {
           const data = getBaseValidData({ nombreCompleto: name });
           const result = formSchema.safeParse(data);
-          expect(result.success).toBe(true, `Name "${name}" should be valid`);
+          expect(result.success, `Name "${name}" should be valid`).toBe(true);
         });
       });
     });
@@ -111,7 +111,7 @@ describe('FormSchema Validation Tests', () => {
         invalidPhones.forEach(phone => {
           const data = getBaseValidData({ telefono: phone });
           const result = formSchema.safeParse(data);
-          expect(result.success).toBe(false, `Phone "${phone}" should be invalid`);
+          expect(result.success, `Phone "${phone}" should be invalid`).toBe(false);
           if (!result.success) {
             const errors = result.error.issues.map(err => err.message);
             expect(errors).toContain('Número de teléfono inválido');
@@ -162,7 +162,7 @@ describe('FormSchema Validation Tests', () => {
         invalidEmails.forEach(email => {
           const data = getBaseValidData({ email });
           const result = formSchema.safeParse(data);
-          expect(result.success).toBe(false, `Email "${email}" should be invalid`);
+          expect(result.success, `Email "${email}" should be invalid`).toBe(false);
           if (!result.success) {
             const errors = result.error.issues.map(err => err.message);
             expect(errors).toContain('Email inválido');
@@ -181,7 +181,7 @@ describe('FormSchema Validation Tests', () => {
         validEmails.forEach(email => {
           const data = getBaseValidData({ email });
           const result = formSchema.safeParse(data);
-          expect(result.success).toBe(true, `Email "${email}" should be valid`);
+          expect(result.success, `Email "${email}" should be valid`).toBe(true);
         });
       });
 
@@ -306,7 +306,7 @@ describe('FormSchema Validation Tests', () => {
         validFiles.forEach(file => {
           const data = getBaseValidData({ fotoCedula: [file] });
           const result = formSchema.safeParse(data);
-          expect(result.success).toBe(true, `File type "${file.type}" should be valid`);
+          expect(result.success, `File type "${file.type}" should be valid`).toBe(true);
         });
       });
 
@@ -322,7 +322,7 @@ describe('FormSchema Validation Tests', () => {
         invalidFiles.forEach(file => {
           const data = getBaseValidData({ fotoCedula: [file] });
           const result = formSchema.safeParse(data);
-          expect(result.success).toBe(false, `File type "${file.type}" should be invalid`);
+          expect(result.success, `File type "${file.type}" should be invalid`).toBe(false);
           if (!result.success) {
             const errors = result.error.issues.map(err => err.message);
             expect(errors).toContain('Verifica los archivos: solo se aceptan PDF, JPG, PNG, WEBP, DOC, DOCX (máx. 5MB).');
@@ -344,7 +344,7 @@ describe('FormSchema Validation Tests', () => {
           const file = createTestFile('test.pdf', 'application/pdf', size);
           const data = getBaseValidData({ fotoCedula: [file] });
           const result = formSchema.safeParse(data);
-          expect(result.success).toBe(true, `File size ${size} bytes should be valid`);
+          expect(result.success, `File size ${size} bytes should be valid`).toBe(true);
         });
       });
 
@@ -359,7 +359,7 @@ describe('FormSchema Validation Tests', () => {
           const file = createTestFile('large.pdf', 'application/pdf', size);
           const data = getBaseValidData({ fotoCedula: [file] });
           const result = formSchema.safeParse(data);
-          expect(result.success).toBe(false, `File size ${size} bytes should be invalid`);
+          expect(result.success, `File size ${size} bytes should be invalid`).toBe(false);
           if (!result.success) {
             const errors = result.error.issues.map(err => err.message);
             expect(errors).toContain('Verifica los archivos: solo se aceptan PDF, JPG, PNG, WEBP, DOC, DOCX (máx. 5MB).');
@@ -864,7 +864,7 @@ describe('FormSchema Validation Tests', () => {
           });
           const result = formSchema.safeParse(data);
           
-          expect(result.success).toBe(false, `Field ${field} should be required`);
+          expect(result.success, `Field ${field} should be required`).toBe(false);
           if (!result.success) {
             const errors = result.error.issues.map(err => err.message);
             expect(errors).toContain(error);
@@ -888,7 +888,7 @@ describe('FormSchema Validation Tests', () => {
           });
           const result = formSchema.safeParse(data);
           
-          expect(result.success).toBe(false, `File field ${field} should be required`);
+          expect(result.success, `File field ${field} should be required`).toBe(false);
           if (!result.success) {
             const errors = result.error.issues.map(err => err.message);
             expect(errors).toContain(error);
@@ -979,7 +979,7 @@ describe('FormSchema Validation Tests', () => {
           });
           const result = formSchema.safeParse(data);
           
-          expect(result.success).toBe(false, `Debt value "${debtValue}" should be invalid`);
+          expect(result.success, `Debt value "${debtValue}" should be invalid`).toBe(false);
           if (!result.success) {
             const errors = result.error.issues.map(err => err.message);
             expect(errors).toContain('El valor de la deuda debe ser un número positivo.');
@@ -1004,7 +1004,7 @@ describe('FormSchema Validation Tests', () => {
           });
           const result = formSchema.safeParse(data);
           
-          expect(result.success).toBe(true, `Debt value "${debtValue}" should be valid`);
+          expect(result.success, `Debt value "${debtValue}" should be valid`).toBe(true);
         });
       });
 
@@ -1150,7 +1150,7 @@ describe('FormSchema Validation Tests', () => {
           const data = getBaseValidData({ fotoCedula: [file] });
           const result = formSchema.safeParse(data);
           
-          expect(result.success).toBe(false, `Dangerous file type "${file.type}" should be rejected`);
+          expect(result.success, `Dangerous file type "${file.type}" should be rejected`).toBe(false);
         });
       });
 

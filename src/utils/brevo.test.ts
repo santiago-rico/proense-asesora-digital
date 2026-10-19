@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, type Mock, beforeEach, afterEach } from 'vitest';
 import { sendTransactionalEmail } from './brevo';
 
 // Mock global fetch
@@ -29,7 +29,7 @@ describe('sendTransactionalEmail', () => {
     process.env.BREVO_SENDER_EMAIL = 'default-sender@example.com';
     process.env.BREVO_SENDER_NAME = 'Default Sender';
 
-    (fetch as vi.Mock).mockResolvedValueOnce({
+    (fetch as Mock).mockResolvedValueOnce({
       ok: true,
       status: 201,
       json: async () => ({ messageId: '12345' }),
@@ -58,7 +58,7 @@ describe('sendTransactionalEmail', () => {
     process.env.BREVO_SENDER_EMAIL = 'default-sender@example.com'; // Still needed for fallback check
     process.env.BREVO_SENDER_NAME = 'Default Sender';
 
-    (fetch as vi.Mock).mockResolvedValueOnce({
+    (fetch as Mock).mockResolvedValueOnce({
       ok: true,
       status: 201,
       json: async () => ({ messageId: '67890' }),
@@ -127,7 +127,7 @@ describe('sendTransactionalEmail', () => {
     process.env.BREVO_SENDER_NAME = 'Default Sender';
 
     const apiError = { code: 'invalid_parameter', message: 'Recipient email is invalid' };
-    (fetch as vi.Mock).mockResolvedValueOnce({
+    (fetch as Mock).mockResolvedValueOnce({
       ok: false,
       status: 400,
       json: async () => apiError,
@@ -145,7 +145,7 @@ describe('sendTransactionalEmail', () => {
     process.env.BREVO_SENDER_NAME = 'Default Sender';
 
     const networkError = new Error('Network connection failed');
-    (fetch as vi.Mock).mockRejectedValueOnce(networkError);
+    (fetch as Mock).mockRejectedValueOnce(networkError);
 
     const result = await sendTransactionalEmail(mockEmailParams);
 

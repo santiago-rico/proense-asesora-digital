@@ -9,7 +9,6 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Step2_InsuranceSelection from '../Step2_InsuranceSelection';
 import { formSchema, type FormSchemaType } from '../formSchema';
-import userEvent from '@testing-library/user-event';
 
 // Mock the Select components for consistent testing
 interface MockSelectProps {
@@ -49,13 +48,9 @@ vi.mock('@/components/ui/select', () => ({
 }));
 
 // Mock the Form components to work better with React Hook Form
-import { Controller } from 'react-hook-form';
+import { Controller, type ControllerProps } from 'react-hook-form';
 
-interface MockFormFieldProps {
-  control: unknown;
-  name: string;
-  render: (props: unknown) => React.ReactElement;
-}
+type MockFormFieldProps = Pick<ControllerProps, 'control' | 'name' | 'render'>;
 
 vi.mock('@/components/ui/form', () => {
   return {
@@ -158,8 +153,7 @@ describe('Step2_InsuranceSelection Component', () => {
       ];
 
       // Check that all insurance types are available in the select
-      const selects = screen.getAllByTestId('select');
-      const insuranceSelect = selects[0]; // First select is for insurance type
+      screen.getAllByTestId('select'); // throws if no select is rendered
       
       expectedInsuranceTypes.forEach(insurance => {
         const options = screen.getAllByRole('option', { name: insurance.label });
@@ -340,8 +334,6 @@ describe('Step2_InsuranceSelection Component', () => {
 
   describe('Data Flow and User Interaction', () => {
     it('updates form state when insurance type is selected', async () => {
-      const user = userEvent.setup();
-
       const TestFormComponent = () => {
         const methods = useForm<FormSchemaType>({
           resolver: zodResolver(formSchema),
@@ -382,8 +374,6 @@ describe('Step2_InsuranceSelection Component', () => {
     });
 
     it('updates form state when payment method is selected', async () => {
-      const user = userEvent.setup();
-
       const TestFormComponent = () => {
         const methods = useForm<FormSchemaType>({
           resolver: zodResolver(formSchema),
@@ -424,8 +414,6 @@ describe('Step2_InsuranceSelection Component', () => {
     });
 
     it('updates form state when payment frequency is selected', async () => {
-      const user = userEvent.setup();
-
       const TestFormComponent = () => {
         const methods = useForm<FormSchemaType>({
           resolver: zodResolver(formSchema),

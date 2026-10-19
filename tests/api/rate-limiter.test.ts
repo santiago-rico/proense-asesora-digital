@@ -10,7 +10,7 @@ const createMockRequest = (ip = '127.0.0.1', method = 'POST'): VercelRequest => 
   },
   connection: {},
   socket: {},
-} as VercelRequest);
+} as unknown as VercelRequest);
 
 const createMockResponse = (): VercelResponse => {
   const headers: Record<string, string> = {};

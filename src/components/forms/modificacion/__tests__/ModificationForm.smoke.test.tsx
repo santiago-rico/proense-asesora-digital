@@ -3,7 +3,7 @@
  * Basic tests to ensure the component imports and renders without crashing
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, type Mock, beforeEach } from 'vitest';
 import { render } from '@testing-library/react';
 
 // Mock required dependencies
@@ -32,7 +32,7 @@ global.fetch = vi.fn();
 describe('ModificationForm Smoke Test', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (global.fetch as vi.Mock).mockResolvedValue({
+    (global.fetch as Mock).mockResolvedValue({
       ok: true,
       json: () => Promise.resolve({ message: 'Success' }),
     });

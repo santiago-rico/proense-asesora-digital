@@ -3,7 +3,7 @@
  * Basic functionality and compilation tests
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, type Mock, beforeEach } from 'vitest';
 import { render } from '@testing-library/react';
 import { CancellationForm } from '../CancellationForm';
 
@@ -36,7 +36,7 @@ vi.mock('@/components/forms/emision/FileUpload', () => ({
 describe('CancellationForm Smoke Tests', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (global.fetch as vi.Mock).mockResolvedValue({
+    (global.fetch as Mock).mockResolvedValue({
       ok: true,
       json: () => Promise.resolve({ message: 'Success' }),
     });

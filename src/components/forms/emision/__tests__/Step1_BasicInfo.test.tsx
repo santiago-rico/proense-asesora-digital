@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Step1_BasicInfo from '../Step1_BasicInfo';
@@ -15,7 +15,7 @@ import userEvent from '@testing-library/user-event';
 interface MockPhoneInputProps {
   placeholder?: string;
   value?: string;
-  onChange?: (value: string) => void;
+  onChange: (value: string) => void;
   [key: string]: unknown;
 }
 
@@ -201,7 +201,7 @@ describe('Step1_BasicInfo Component', () => {
           declaraRenta: 'si',
         });
 
-        expect(result.success).toBe(false, `Phone number "${invalidPhone}" should be invalid`);
+        expect(result.success, `Phone number "${invalidPhone}" should be invalid`).toBe(false);
         if (!result.success) {
           const errors = result.error.issues.map(err => err.message);
           expect(errors).toContain('Número de teléfono inválido');
@@ -232,7 +232,7 @@ describe('Step1_BasicInfo Component', () => {
           declaraRenta: 'si',
         });
 
-        expect(result.success).toBe(false, `Email "${invalidEmail}" should be invalid`);
+        expect(result.success, `Email "${invalidEmail}" should be invalid`).toBe(false);
         if (!result.success) {
           const errors = result.error.issues.map(err => err.message);
           expect(errors).toContain('Email inválido');

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import MultiStepForm from '../MultiStepForm';
-import { formSchema, type FormSchemaType } from '../formSchema';
+import { formSchema } from '../formSchema';
 
 // Mock the toast hook
 vi.mock('@/hooks/use-toast', () => ({

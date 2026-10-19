@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, type Mock, beforeEach, afterEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { useCsrf } from '../use-csrf';
 
@@ -23,7 +23,7 @@ describe('useCsrf', () => {
 
   it('should fetch CSRF token on mount successfully', async () => {
     const mockToken = 'csrf-token-123';
-    (fetch as vi.Mock).mockResolvedValueOnce({
+    (fetch as Mock).mockResolvedValueOnce({
       ok: true,
       status: 200,
       json: async () => ({ token: mockToken }),
@@ -59,7 +59,7 @@ describe('useCsrf', () => {
 
   it('should handle network errors gracefully', async () => {
     const networkError = new Error('Network connection failed');
-    (fetch as vi.Mock).mockRejectedValueOnce(networkError);
+    (fetch as Mock).mockRejectedValueOnce(networkError);
 
     const { result } = renderHook(() => useCsrf());
 
@@ -75,7 +75,7 @@ describe('useCsrf', () => {
   });
 
   it('should handle HTTP error responses', async () => {
-    (fetch as vi.Mock).mockResolvedValueOnce({
+    (fetch as Mock).mockResolvedValueOnce({
       ok: false,
       status: 500,
     });
@@ -92,7 +92,7 @@ describe('useCsrf', () => {
   });
 
   it('should handle 403 forbidden responses', async () => {
-    (fetch as vi.Mock).mockResolvedValueOnce({
+    (fetch as Mock).mockResolvedValueOnce({
       ok: false,
       status: 403,
     });
@@ -109,7 +109,7 @@ describe('useCsrf', () => {
   });
 
   it('should handle missing token in response', async () => {
-    (fetch as vi.Mock).mockResolvedValueOnce({
+    (fetch as Mock).mockResolvedValueOnce({
       ok: true,
       status: 200,
       json: async () => ({}), // Empty response without token
@@ -127,7 +127,7 @@ describe('useCsrf', () => {
   });
 
   it('should handle null token in response', async () => {
-    (fetch as vi.Mock).mockResolvedValueOnce({
+    (fetch as Mock).mockResolvedValueOnce({
       ok: true,
       status: 200,
       json: async () => ({ token: null }),
@@ -145,7 +145,7 @@ describe('useCsrf', () => {
   });
 
   it('should handle undefined token in response', async () => {
-    (fetch as vi.Mock).mockResolvedValueOnce({
+    (fetch as Mock).mockResolvedValueOnce({
       ok: true,
       status: 200,
       json: async () => ({ token: undefined }),
@@ -163,7 +163,7 @@ describe('useCsrf', () => {
   });
 
   it('should handle empty string token in response', async () => {
-    (fetch as vi.Mock).mockResolvedValueOnce({
+    (fetch as Mock).mockResolvedValueOnce({
       ok: true,
       status: 200,
       json: async () => ({ token: '' }),
@@ -181,7 +181,7 @@ describe('useCsrf', () => {
   });
 
   it('should handle malformed JSON response', async () => {
-    (fetch as vi.Mock).mockResolvedValueOnce({
+    (fetch as Mock).mockResolvedValueOnce({
       ok: true,
       status: 200,
       json: async () => {
@@ -205,7 +205,7 @@ describe('useCsrf', () => {
     const secondToken = 'csrf-token-456';
 
     // First call returns first token
-    (fetch as vi.Mock).mockResolvedValueOnce({
+    (fetch as Mock).mockResolvedValueOnce({
       ok: true,
       status: 200,
       json: async () => ({ token: firstToken }),
@@ -220,7 +220,7 @@ describe('useCsrf', () => {
     expect(result.current.token).toBe(firstToken);
 
     // Second call returns second token
-    (fetch as vi.Mock).mockResolvedValueOnce({
+    (fetch as Mock).mockResolvedValueOnce({
       ok: true,
       status: 200,
       json: async () => ({ token: secondToken }),
@@ -241,7 +241,7 @@ describe('useCsrf', () => {
     const validToken = 'csrf-token-123';
 
     // First call fails
-    (fetch as vi.Mock).mockRejectedValueOnce(new Error('Network error'));
+    (fetch as Mock).mockRejectedValueOnce(new Error('Network error'));
 
     const { result } = renderHook(() => useCsrf());
 
@@ -253,7 +253,7 @@ describe('useCsrf', () => {
     expect(result.current.error).toBe('Network error');
 
     // Second call succeeds
-    (fetch as vi.Mock).mockResolvedValueOnce({
+    (fetch as Mock).mockResolvedValueOnce({
       ok: true,
       status: 200,
       json: async () => ({ token: validToken }),
@@ -273,7 +273,7 @@ describe('useCsrf', () => {
 
   it('should clear error state when refetching', async () => {
     // First call fails
-    (fetch as vi.Mock).mockRejectedValueOnce(new Error('Initial error'));
+    (fetch as Mock).mockRejectedValueOnce(new Error('Initial error'));
 
     const { result } = renderHook(() => useCsrf());
 
@@ -282,7 +282,7 @@ describe('useCsrf', () => {
     });
 
     // Second call also fails but with different error
-    (fetch as vi.Mock).mockRejectedValueOnce(new Error('Second error'));
+    (fetch as Mock).mockRejectedValueOnce(new Error('Second error'));
 
     // Trigger refetch
     await result.current.refetch();
@@ -297,7 +297,7 @@ describe('useCsrf', () => {
     const token = 'csrf-token-123';
 
     // First call
-    (fetch as vi.Mock).mockResolvedValueOnce({
+    (fetch as Mock).mockResolvedValueOnce({
       ok: true,
       status: 200,
       json: async () => ({ token }),
@@ -315,7 +315,7 @@ describe('useCsrf', () => {
       resolvePromise = resolve;
     });
 
-    (fetch as vi.Mock).mockReturnValueOnce(delayedPromise);
+    (fetch as Mock).mockReturnValueOnce(delayedPromise);
 
     // Start refetch - should set loading to true
     const refetchPromise = result.current.refetch();
@@ -344,7 +344,7 @@ describe('useCsrf', () => {
 
   it('should handle non-Error thrown objects', async () => {
     const thrownString = 'String error';
-    (fetch as vi.Mock).mockRejectedValueOnce(thrownString);
+    (fetch as Mock).mockRejectedValueOnce(thrownString);
 
     const { result } = renderHook(() => useCsrf());
 
@@ -359,7 +359,7 @@ describe('useCsrf', () => {
 
   it('should use proper HTTP method and headers', async () => {
     const token = 'csrf-token-123';
-    (fetch as vi.Mock).mockResolvedValueOnce({
+    (fetch as Mock).mockResolvedValueOnce({
       ok: true,
       status: 200,
       json: async () => ({ token }),
@@ -385,7 +385,7 @@ describe('useCsrf', () => {
     const token = 'csrf-token-123';
 
     // Initial successful fetch
-    (fetch as vi.Mock).mockResolvedValueOnce({
+    (fetch as Mock).mockResolvedValueOnce({
       ok: true,
       status: 200,
       json: async () => ({ token }),
@@ -400,7 +400,7 @@ describe('useCsrf', () => {
     // Setup mock for concurrent calls
     const resolvers: Array<(value: unknown) => void> = [];
     
-    (fetch as vi.Mock).mockImplementation(() => {
+    (fetch as Mock).mockImplementation(() => {
       return new Promise((resolve) => {
         resolvers.push(resolve);
       });
@@ -429,7 +429,7 @@ describe('useCsrf', () => {
     const token = 'csrf-token-123';
 
     // Initial fetch
-    (fetch as vi.Mock).mockResolvedValueOnce({
+    (fetch as Mock).mockResolvedValueOnce({
       ok: true,
       status: 200,
       json: async () => ({ token }),
@@ -442,7 +442,7 @@ describe('useCsrf', () => {
     });
 
     // First refetch
-    (fetch as vi.Mock).mockResolvedValueOnce({
+    (fetch as Mock).mockResolvedValueOnce({
       ok: true,
       status: 200,
       json: async () => ({ token: 'token-2' }),
@@ -456,7 +456,7 @@ describe('useCsrf', () => {
     });
 
     // Second refetch
-    (fetch as vi.Mock).mockResolvedValueOnce({
+    (fetch as Mock).mockResolvedValueOnce({
       ok: true,
       status: 200,
       json: async () => ({ token: 'token-3' }),
