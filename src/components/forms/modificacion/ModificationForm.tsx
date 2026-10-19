@@ -369,7 +369,8 @@ export const ModificationForm = ({ onSuccess }: ModificationFormProps) => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>¿Qué seguro quieres modificar? <span className="text-red-500">*</span></FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isSubmitting} required>
+                {/* No `required` on Select: the hidden native select it renders blocks submit before zod can show its message */}
+                <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isSubmitting}>
                   <FormControl>
                     <SelectTrigger aria-required="true">
                       <SelectValue placeholder="Selecciona un tipo de seguro" />

@@ -256,8 +256,9 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick, 
               <FormItem>
                 <FormLabel>Tipo de Seguro de Interés</FormLabel>
                 <FormControl>
-                  <Select onValueChange={field.onChange} defaultValue={field.value} required>
-                    <SelectTrigger>
+                  {/* No `required` on Select: the hidden native select it renders blocks submit before zod can show its message */}
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <SelectTrigger aria-required="true">
                       <SelectValue placeholder="Selecciona un tipo de seguro" />
                     </SelectTrigger>
                     <SelectContent>
@@ -294,10 +295,11 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick, 
             render={({ field }) => (
               <FormItem className="flex flex-row items-start space-x-3 space-y-0 mt-4">
                 <FormControl>
+                  {/* No `required` on Checkbox: the hidden native checkbox it renders blocks submit before zod can show its message */}
                   <Checkbox
                     checked={field.value}
                     onCheckedChange={field.onChange}
-                    required
+                    aria-required="true"
                   />
                 </FormControl>
                 <div className="space-y-1 leading-none">
