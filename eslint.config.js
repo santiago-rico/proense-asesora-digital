@@ -19,10 +19,6 @@ export default tseslint.config(
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
-      // An error since eslint-plugin-react-hooks 7.1. The existing hooks that
-      // sync window/media-query state in an effect are flagged; keep them
-      // visible as warnings until they are rewritten.
-      "react-hooks/set-state-in-effect": "warn",
       "react-refresh/only-export-components": [
         "warn",
         { allowConstantExport: true },
