@@ -295,10 +295,11 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick, 
             render={({ field }) => (
               <FormItem className="flex flex-row items-start space-x-3 space-y-0 mt-4">
                 <FormControl>
+                  {/* No `required` on Checkbox: the hidden native checkbox it renders blocks submit before zod can show its message */}
                   <Checkbox
                     checked={field.value}
                     onCheckedChange={field.onChange}
-                    required
+                    aria-required="true"
                   />
                 </FormControl>
                 <div className="space-y-1 leading-none">

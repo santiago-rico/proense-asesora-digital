@@ -53,5 +53,23 @@ describe('LeadForm', () => {
       });
       expect(global.fetch).not.toHaveBeenCalledWith('/api/send-email', expect.anything());
     }, 10000);
+
+    it('shows the terms message on submit when the box is not ticked', async () => {
+      const user = userEvent.setup();
+      renderLeadForm();
+
+      await user.type(screen.getByLabelText(/nombre completo/i), 'Test User');
+      await user.type(screen.getByLabelText(/^email/i), 'test@example.com');
+      await user.type(screen.getByLabelText(/teléfono/i), '+573001234567');
+
+      await user.click(screen.getByRole('button', { name: /obtener mi asesoría/i }));
+
+      // The unticked checkbox must not block the submit before zod runs
+      await waitFor(() => {
+        expect(screen.getByText('Debes aceptar los términos y condiciones')).toBeInTheDocument();
+      });
+      expect(screen.getByRole('checkbox')).toHaveAttribute('aria-required', 'true');
+      expect(global.fetch).not.toHaveBeenCalledWith('/api/send-email', expect.anything());
+    }, 10000);
   });
 });
