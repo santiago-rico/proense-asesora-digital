@@ -35,10 +35,6 @@ export default defineConfig({
         '**/__tests__/**',
         'src/test-utils/**',
         'src/sanity/**',
-        // Unused shadcn/ui components whose packages were never installed
-        // (vaul, recharts, several @radix-ui/*): they can't be transformed, and
-        // vitest 4.1 logs a parse error for each one.
-        'src/components/ui/{avatar,chart,context-menu,drawer,hover-card,input-otp,menubar,progress,resizable,slider,switch,tabs,toggle,toggle-group}.tsx',
       ],
       // A ratchet just below today's coverage (Sep 2026: statements 30.71%,
       // branches 30.4%, functions 24.18%, lines 30.08%). Raise these as tests
