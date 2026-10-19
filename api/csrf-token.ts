@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { serialize } from 'cookie';
+import { stringifySetCookie } from 'cookie';
 import { withRateLimit, rateLimitConfigs } from './_utils/rate-limiter.js';
 
 async function handler(
@@ -21,7 +21,9 @@ async function handler(
     const token = tokens.create(secret);
     
     // Store the secret in an httpOnly cookie
-    const cookie = serialize('_csrf_secret', secret, {
+    const cookie = stringifySetCookie({
+      name: '_csrf_secret',
+      value: secret,
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',

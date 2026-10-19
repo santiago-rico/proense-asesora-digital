@@ -108,7 +108,7 @@ async function handler(req: VercelRequest, res: VercelResponse) {
         const dompurifyModule = await import('dompurify');
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const DOMPurify = (dompurifyModule as any).default || dompurifyModule;
-        const { parse } = await import('cookie');
+        const { parseCookie } = await import('cookie');
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const Tokens = (await import('csrf') as any).default;
         const tokens = new Tokens();
@@ -118,7 +118,7 @@ async function handler(req: VercelRequest, res: VercelResponse) {
         const DOMPurifyInstance = typeof DOMPurify === 'function' ? DOMPurify(window) : DOMPurify.default(window);
         
         // Verify CSRF token
-        const cookies = parse(req.headers.cookie || '');
+        const cookies = parseCookie(req.headers.cookie || '');
         const secret = cookies._csrf_secret;
         const token = req.headers['x-csrf-token'] as string;
         
