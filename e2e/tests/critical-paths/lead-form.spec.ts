@@ -21,8 +21,8 @@ function expectLeadRequest(sent: CapturedJson, tipoSeguro: string): void {
 
 const typeLabel = (value: string) => LEAD_FORM_INSURANCE_TYPES.find(t => t.value === value)!.label;
 
-/** Product routes whose type is a LeadForm option (the other four are bug #10). */
-const PRODUCT_TYPES = ['vida', 'salud', 'auto', 'hogar', 'mascotas', 'viaje'];
+/** Every /seguros route; its LeadForm preselects the option with the same value. */
+const PRODUCT_TYPES = ['vida', 'vida-deudores', 'salud', 'auto', 'hogar', 'pymes', 'mascotas', 'motos', 'arrendamiento', 'viaje'];
 
 test.describe('LeadForm: envío', () => {
   test('desde /contacto envía el JSON exacto y "Entendido" reinicia el formulario', async ({ page }) => {
@@ -84,38 +84,48 @@ test.describe('LeadForm: envío', () => {
 });
 
 test.describe('LeadForm: validación', () => {
-  test('muestra los mensajes de zod al salir de cada campo', async ({ page }) => {
+  test('muestra los mensajes de zod al enviar y quita cada uno en cuanto se corrige su campo', async ({ page }) => {
+    const submissions = await mockJsonSubmission(page, LEAD_ENDPOINT, respond.success());
     await page.goto('/contacto');
     const form = LeadForm.inMain(page);
 
-    // Filling the next field blurs the previous one (`mode: 'onBlur'`).
+    // Leaving an invalid field shows nothing yet (`mode: 'onSubmit'`).
     await form.nameInput.fill('A');
     await form.emailInput.fill('maria@');
+    await form.phoneInput.fill('123');
+    await form.messageInput.focus();
+    await expect(form.error('El nombre es requerido')).toBeHidden();
+
+    await form.submit();
     await expect(form.error('El nombre es requerido')).toBeVisible();
     await expect(form.nameInput).toHaveAttribute('aria-invalid', 'true');
-
-    await form.phoneInput.fill('123');
     await expect(form.error('Email inválido')).toBeVisible();
-
-    await form.messageInput.focus();
     await expect(form.error('Número de teléfono inválido')).toBeVisible();
+    await expect(form.error('Por favor seleccione un tipo de seguro')).toBeVisible();
+    await expect(form.error('Debes aceptar los términos y condiciones')).toBeVisible();
+    expect(submissions).toHaveLength(0);
+
+    // Then each field re-validates as it changes (`reValidateMode: 'onChange'`), without leaving it.
+    await form.nameInput.fill(lead.nombre);
+    await expect(form.error('El nombre es requerido')).toBeHidden();
+    await expect(form.nameInput).toHaveAttribute('aria-invalid', 'false');
+    await form.emailInput.fill(lead.email);
+    await expect(form.error('Email inválido')).toBeHidden();
+    await expect(form.emailInput).toBeFocused();
   });
 
   test('un solo clic en "Obtener Mi Asesoría" envía tras corregir el último campo inválido', async ({ page }) => {
-    test.fail(
-      true,
-      'Known bug: the first click is lost. Its mousedown blurs the fixed name field; onBlur validation removes "El nombre es requerido" and the button moves up 28 px before mouseup, src/components/forms/LeadForm.tsx:69 (mode "onBlur"), as in bug #1.',
-    );
     const submissions = await mockJsonSubmission(page, LEAD_ENDPOINT, respond.success());
     await page.goto('/contacto');
     const form = LeadForm.inMain(page);
     await form.fill(lead);
 
     await form.nameInput.fill('A');
-    await form.emailInput.focus();
+    await form.submit();
     await expect(form.error('El nombre es requerido')).toBeVisible();
     await form.nameInput.fill(lead.nombre);
 
+    // The click's mousedown blurs the fixed name field, which must not move the button.
     await form.submit();
     // The mocked response is immediate; a lost click never gets there.
     await expect(form.successHeading).toBeVisible({ timeout: 2000 });
@@ -168,10 +178,6 @@ test.describe('LeadForm: respuestas del servidor', () => {
   });
 
   test('tras un 400 el botón vuelve a "Obtener Mi Asesoría"', async ({ page, consoleErrors }) => {
-    test.fail(
-      true,
-      'Known bug: after a 400 (or a CSRF 403) the button stays disabled on "Enviando..."; those branches return before setIsLoading(false), which has no finally, src/components/forms/LeadForm.tsx:116,135,163.',
-    );
     consoleErrors.allow(FAILED_REQUEST);
     await mockJsonSubmission(page, LEAD_ENDPOINT, respond.json(400, { message: 'Datos inválidos.', errors: { nombre: ['Muy corto'] } }));
 
@@ -201,10 +207,6 @@ test.describe('LeadForm: respuestas del servidor', () => {
   });
 
   test('un error de red explica el problema en español', async ({ page, consoleErrors }) => {
-    test.fail(
-      true,
-      'Known bug: the network-error toast shows the browser\'s English "Failed to fetch" (the raw TypeError message), src/components/forms/LeadForm.tsx:155 (the toast description is error.message).',
-    );
     consoleErrors.allow(FAILED_REQUEST);
     await mockJsonSubmission(page, LEAD_ENDPOINT, respond.networkError());
 
@@ -216,40 +218,16 @@ test.describe('LeadForm: respuestas del servidor', () => {
 });
 
 test.describe('LeadForm: tipo de seguro en páginas de producto', () => {
-  test('el formulario de cada producto muestra su tipo de seguro', async ({ page }) => {
-    for (const type of PRODUCT_TYPES) {
-      await test.step(`/seguros/${type}`, async () => {
-        await page.goto(`/seguros/${type}`);
-        await expect(LeadForm.inMain(page).typeSelect).toHaveText(typeLabel(type));
-      });
-    }
-  });
-
-  // The pattern accepts either a new option for the product or a mapping to a close one.
-  const UNLISTED_TYPES: { type: string; shows: RegExp }[] = [
-    { type: 'vida-deudores', shows: /Vida/ },
-    { type: 'pymes', shows: /PYMES|Empresarial/ },
-    { type: 'motos', shows: /Motos/ },
-    { type: 'arrendamiento', shows: /Arrendamiento/ },
-  ];
-  for (const { type, shows } of UNLISTED_TYPES) {
-    test(`/seguros/${type} muestra su tipo de seguro`, async ({ page }) => {
-      test.fail(
-        true,
-        `Known bug: the select renders blank because "${type}" is not a LEAD_FORM_INSURANCE_TYPES option, yet the form still submits tipoSeguro "${type}" (the hidden native select silently falls back to "vida", so it does not block the submit), src/constants/insuranceTypes.ts:33-42, src/pages/InsuranceProductPage.tsx:163.`,
-      );
+  // One test per route: ten page loads in a single test outrun its timeout on a busy machine.
+  for (const type of PRODUCT_TYPES) {
+    test(`el formulario de /seguros/${type} muestra su tipo de seguro`, async ({ page }) => {
       await page.goto(`/seguros/${type}`);
-      const form = LeadForm.inMain(page);
-      await expect(form.nameInput).toBeVisible();
-      await expect(form.typeSelect).toHaveText(shows, { timeout: 1000 });
+      await expect(LeadForm.inMain(page).typeSelect).toHaveText(typeLabel(type));
     });
   }
 
   test('al navegar a otro producto desde el footer, el formulario cambia de tipo', async ({ page }) => {
-    test.fail(
-      true,
-      'Known bug: after an SPA navigation between product pages (footer links) the LeadForm keeps the previous type, shown and sent (e.g. "vida" on /seguros/auto). Every /seguros route renders the same InsuranceProductPage, so LeadForm is not remounted and its useForm/Select defaults are never re-read, src/pages/InsuranceProductPage.tsx:163, src/components/forms/LeadForm.tsx:74,259.',
-    );
+    const submissions = await mockJsonSubmission(page, LEAD_ENDPOINT, respond.success());
     const site = new Site(page);
     await site.goto('/seguros/vida');
     const form = LeadForm.inMain(page);
@@ -258,6 +236,11 @@ test.describe('LeadForm: tipo de seguro en páginas de producto', () => {
     await site.footer.getByRole('link', { name: 'Auto', exact: true }).click();
     await expect(site.h1).toHaveText('Seguro de Auto');
     await expect(form.typeSelect).toHaveText('Seguro de Auto', { timeout: 1000 });
+
+    await form.fill({ ...lead, tipoSeguro: undefined });
+    await form.submit();
+    await expect(form.successHeading).toBeVisible();
+    expectLeadRequest(submissions[0], 'auto');
   });
 });
 
