@@ -10,26 +10,23 @@ import { Separator } from "@/components/ui/separator";
 import { getBlogPostBySlug, getRecentBlogPosts } from "@/services/blogService";
 import { BlogPost } from "@/components/shared/BlogPostCard";
 import { PortableText } from "@portabletext/react";
-import { urlFor } from "@/sanity/imageUrl";
 import BlogCtaSection from "@/components/layout/BlogCtaSection";
 import LeadForm from "@/components/forms/LeadForm";
 import SanityImage from "@/components/shared/SanityImage";
+import { getCategoryBlogPath, getCategoryProductPath } from "@/constants/blogCategories";
 
 interface BlogPostPageProps {
   handleOpenLeadDialog: () => void;
 }
 
-const categoryToProductPage: { [key: string]: string } = {
-  'Seguro de Vida': '/seguros/vida',
-  'Seguro de Salud': '/seguros/salud',
-  'Seguro de Auto': '/seguros/auto',
-  'Seguro de Hogar': '/seguros/hogar',
-  'Seguros para PYMES': '/seguros/empresarial',
-  'Seguro de Arrendamiento': '/seguros/rentas',
-  'Seguro de Viaje': '/seguros/viaje',
-  'Seguro para Mascotas': '/seguros/mascotas',
-  'Seguro para Motos': '/seguros/motos',
-};
+/** The categories listed in the sidebar, each linking to the blog list filtered by it. */
+const sidebarCategories = [
+  'Seguro de Vida',
+  'Seguro de Salud',
+  'Seguro de Auto',
+  'Seguro de Hogar',
+  'Seguros para PYMES',
+];
 
 const BlogPostPage: React.FC<BlogPostPageProps> = ({ handleOpenLeadDialog }) => {
   const { slug } = useParams<{ slug: string }>();
@@ -78,7 +75,7 @@ const BlogPostPage: React.FC<BlogPostPageProps> = ({ handleOpenLeadDialog }) => 
     return null;
   }
 
-  const productPageUrl = categoryToProductPage[post.category];
+  const productPageUrl = getCategoryProductPath(post.category);
 
   return (
     <Layout handleOpenLeadDialog={handleOpenLeadDialog}>
@@ -192,31 +189,13 @@ const BlogPostPage: React.FC<BlogPostPageProps> = ({ handleOpenLeadDialog }) => 
                 <Card className="p-6">
                   <h3 className="text-xl font-bold mb-4">Categorías</h3>
                   <ul className="space-y-2">
-                    <li>
-                      <Link to="/blog?category=seguro-de-vida" className="text-gray-700 hover:text-primary">
-                        Seguro de Vida
-                      </Link>
-                    </li>
-                    <li>
-                      <Link to="/blog?category=seguro-de-salud" className="text-gray-700 hover:text-primary">
-                        Seguro de Salud
-                      </Link>
-                    </li>
-                    <li>
-                      <Link to="/blog?category=seguro-de-auto" className="text-gray-700 hover:text-primary">
-                        Seguro de Auto
-                      </Link>
-                    </li>
-                    <li>
-                      <Link to="/blog?category=seguro-de-hogar" className="text-gray-700 hover:text-primary">
-                        Seguro de Hogar
-                      </Link>
-                    </li>
-                    <li>
-                      <Link to="/blog?category=seguros-para-pymes" className="text-gray-700 hover:text-primary">
-                        Seguros para PYMES
-                      </Link>
-                    </li>
+                    {sidebarCategories.map(category => (
+                      <li key={category}>
+                        <Link to={getCategoryBlogPath(category)} className="text-gray-700 hover:text-primary">
+                          {category}
+                        </Link>
+                      </li>
+                    ))}
                   </ul>
                 </Card>
               </div>

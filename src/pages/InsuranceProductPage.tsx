@@ -10,6 +10,7 @@ import { insuranceProductsData, InsuranceProductData } from "@/data/insurancePro
 import { getBlogPostsByCategory } from "@/services/blogService";
 import { BlogPost } from "@/components/shared/BlogPostCard";
 import { getIcon } from "@/lib/utils";
+import { PRODUCT_BLOG_CATEGORIES } from "@/constants/blogCategories";
 import HowItWorksSection from '../components/insurance/HowItWorksSection';
 import FaqSchema from '../components/seo/FaqSchema';
 import RelatedArticlesSection from '@/components/insurance/RelatedArticlesSection';
@@ -20,25 +21,12 @@ interface InsuranceProductPageProps {
   handleOpenLeadDialog: () => void;
 }
 
-const insuranceTypeToCategoryMap: { [key: string]: string } = {
-  vida: 'Seguro de Vida',
-  'vida-deudores': 'Seguro de Vida',
-  salud: 'Seguro de Salud',
-  auto: 'Seguro de Auto',
-  hogar: 'Seguro de Hogar',
-  empresarial: 'Seguros para PYMES',
-  rentas: 'Seguro de Arrendamiento',
-  viaje: 'Seguro de Viaje',
-  mascotas: 'Seguro para Mascotas',
-  motos: 'Seguro para Motos',
-};
-
 const InsuranceProductPage: React.FC<InsuranceProductPageProps> = ({ type: propType, handleOpenLeadDialog }) => {
   const params = useParams();
   const routeType = params.type;
   const currentInsuranceType = propType || routeType;
 
-  const blogCategory = currentInsuranceType ? insuranceTypeToCategoryMap[currentInsuranceType] : undefined;
+  const blogCategory = currentInsuranceType ? PRODUCT_BLOG_CATEGORIES[currentInsuranceType] : undefined;
 
   const { data: relatedArticles, isLoading: isLoadingArticles } = useQuery<
     BlogPost[],

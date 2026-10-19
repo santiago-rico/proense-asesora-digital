@@ -27,16 +27,18 @@ const NEWEST_POST = 'Artículo 1';
 /** RelatedArticlesSection's heading, shown once the product's category query returns posts. */
 const RELATED = 'Aprende Más con Nuestros Expertos';
 
-/** One post per product category, so every product page renders its related articles (bar handover bug 15). */
+/** One post per product category, so every product page renders its related articles. */
 const POSTS = [
-  ...blogPosts(8, [
+  ...blogPosts(9, [
     'Seguro de Vida',
     'Seguro de Salud',
     'Seguro de Auto',
     'Seguro de Hogar',
+    'Seguros para PYMES',
     'Seguro de Viaje',
     'Seguro para Mascotas',
     'Seguro para Motos',
+    'Seguro de Arrendamiento',
   ]),
   blogPost({ _id: 'mi-post' }),
 ];
@@ -71,10 +73,10 @@ const PRODUCT_SCANS: Scan[] = [
   route('/seguros/salud', 'Seguro de Salud', RELATED),
   route('/seguros/auto', 'Seguro de Auto', RELATED),
   route('/seguros/hogar', 'Seguro de Hogar', RELATED),
-  route('/seguros/pymes', 'Seguro para PYMES'),
+  route('/seguros/pymes', 'Seguro para PYMES', RELATED),
   route('/seguros/mascotas', 'Seguro de Mascotas', RELATED),
   route('/seguros/motos', 'Seguro de Motos', RELATED),
-  route('/seguros/arrendamiento', 'Seguro de Arrendamiento'),
+  route('/seguros/arrendamiento', 'Seguro de Arrendamiento', RELATED),
   route('/seguros/viaje', 'Seguro de Viaje', RELATED),
 ];
 

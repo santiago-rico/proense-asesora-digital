@@ -95,12 +95,35 @@ test.describe('Blog: listado', () => {
     });
   }
 
-  test('un enlace /blog?category=… filtra el listado por categoría', async ({ page }) => {
-    test.fail(true, 'Known bug: /blog ignores the ?category= query string, so the "Categorías" links on a post show every post, src/pages/BlogListPage.tsx:23-26 (links at src/pages/BlogPostPage.tsx:196-217).');
+  test('un enlace /blog?category=… filtra el listado por categoría y "Ver todos los artículos" lo quita', async ({ page }) => {
     // blogPosts() rotates Hogar, Vida, Auto: posts 3, 6, 9 and 12 are "Seguro de Auto".
     await page.goto('/blog?category=seguro-de-auto');
     await expect(listedPostTitles(page).first()).toBeVisible();
     await expect(listedPostTitles(page)).toHaveText(titles(3, 6, 9, 12));
+    await expect(page.getByText('Categoría:')).toBeVisible();
+    await expect(page.getByText('Seguro de Auto', { exact: true }).first()).toBeVisible();
+    await expect(pageButton(page, '1')).toHaveCount(0);
+
+    await page.getByRole('link', { name: 'Ver todos los artículos' }).click();
+    await expect(page).toHaveURL('/blog');
+    await expect(listedPostTitles(page)).toHaveText(titles(1, ...range(2, 7)));
+    await expect(page.getByText('Categoría:')).toHaveCount(0);
+  });
+
+  test('los enlaces de "Categorías" de un artículo abren el listado de esa categoría', async ({ page }) => {
+    await page.goto('/blog/articulo-1');
+    await page.getByRole('link', { name: 'Seguro de Vida', exact: true }).click();
+    await expect(page).toHaveURL('/blog?category=seguro-de-vida');
+    // "Seguro de Vida" is every third post from post 2.
+    await expect(listedPostTitles(page)).toHaveText(titles(2, 5, 8, 11, 14));
+  });
+
+  test('una categoría sin artículos lo indica', async ({ page }) => {
+    await page.goto('/blog?category=seguros-para-pymes');
+    await expect(page.getByText('Todavía no hay artículos en esta categoría.')).toBeVisible();
+    await expect(page.getByText('Seguros para PYMES', { exact: true })).toBeVisible();
+    await expect(listedPostTitles(page)).toHaveCount(0);
+    await expect(page.getByRole('heading', { name: 'Artículo Destacado' })).toHaveCount(0);
   });
 });
 
@@ -144,7 +167,6 @@ test.describe('Blog: artículo', () => {
     { category: 'Seguro de Arrendamiento', path: '/seguros/arrendamiento', h1: 'Seguro de Arrendamiento' },
   ]) {
     test(`"Ver detalles del seguro" de "${category}" abre ${path}`, async ({ page, sanity }) => {
-      test.fail(true, 'Known bug: the category map sends "Seguros para PYMES" to /seguros/empresarial and "Seguro de Arrendamiento" to /seguros/rentas, which 404, src/pages/BlogPostPage.tsx:27-28.');
       sanity.posts = [blogPost({ category })];
       const site = new Site(page);
       await page.goto('/blog/mi-post');
