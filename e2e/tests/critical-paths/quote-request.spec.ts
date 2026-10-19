@@ -215,10 +215,6 @@ test.describe('Cotización de seguros', () => {
 
   test.describe('Paso 1: Información Personal', () => {
     test('muestra los mensajes de validación de cada campo', async () => {
-      // An empty "Estado laboral" shows zod's English default (bug #2, tested
-      // below); on mobile that unbreakable message overflows the viewport and
-      // "Siguiente" can no longer be clicked.
-      await form.choose('Estado laboral', 'Estudiante');
       await form.next();
       await form.expectStep('Información Personal');
       for (const message of [
@@ -232,6 +228,7 @@ test.describe('Cotización de seguros', () => {
         'Número de cédula requerido',
         'Ciudad requerida',
         'Dirección requerida',
+        'Selecciona tu situación laboral',
       ]) {
         await expect(form.message(message)).toBeVisible();
       }
@@ -260,10 +257,15 @@ test.describe('Cotización de seguros', () => {
         'Ama de casa': false,
         'Incapacidad laboral': true,
       };
+      await form.choose('Estado laboral', 'Empleado(a) a tiempo completo');
+      await form.occupationInput.fill(quoteApplicant.occupationSector);
       for (const [status, visible] of Object.entries(shown)) {
         await form.choose('Estado laboral', status);
         await expect(form.occupationInput, status).toBeVisible({ visible });
       }
+      // A status that hides the field drops the sector typed before, so it never
+      // reaches the summary or the email under a status that doesn't ask for it.
+      await expect(form.occupationInput).toHaveValue('');
     });
 
     test('tras corregir el último campo inválido, un solo clic en "Siguiente" avanza', async () => {
@@ -278,25 +280,15 @@ test.describe('Cotización de seguros', () => {
     });
 
     test('exige la actividad laboral antes de pasar al paso 2', async () => {
-      test.fail(
-        true,
-        'Known bug: "Actividad laboral o sector económico" is not required when leaving Step 1. Its check lives in the superRefine, which zod 4 skips while insuranceType (Step 2) is still empty, src/components/forms/cotizacion/formSchema.ts:143-161.',
-      );
       await form.fillPersonalInfo({ occupationSector: '' });
       await form.next();
-      await expect(form.occupationInput).toHaveAccessibleDescription('La actividad laboral o sector económico es requerida', {
-        timeout: 2000,
-      });
+      await expect(form.occupationInput).toHaveAccessibleDescription('La actividad laboral o sector económico es requerida');
       await form.expectStep('Información Personal');
     });
 
     test('los selectores vacíos muestran su mensaje en español', async () => {
-      test.fail(
-        true,
-        'Known bug: empty enum selects show zod\'s English default "Invalid option: expected one of …". The schema passes zod-3 required_error/invalid_type_error, which zod 4 ignores, src/components/forms/cotizacion/formSchema.ts:59-62, 67-70.',
-      );
       await form.next();
-      await expect(form.employmentSelect).toHaveAccessibleDescription('Selecciona tu situación laboral', { timeout: 2000 });
+      await expect(form.employmentSelect).toHaveAccessibleDescription('Selecciona tu situación laboral');
       await form.fillPersonalInfo();
       await form.next('Tipo de Seguro');
       await form.next();
@@ -566,20 +558,6 @@ test.describe('Cotización de seguros', () => {
       await form.expectStep('Resumen y Envío');
       await form.acceptTerms();
       await expect(termsMessage).toBeHidden();
-      expect(submissions).toHaveLength(0);
-    });
-
-    // Today bug #3 is the only way to reach the summary with an earlier step
-    // incomplete. Once it is fixed this path is unreachable: delete this test.
-    test('si falta un dato de un paso anterior, avisa y vuelve a ese paso', async ({ page }) => {
-      const submissions = await mockJsonSubmission(page, QUOTE_ENDPOINT, respond.success());
-      await form.reachSummary('auto', { occupationSector: '' });
-      await form.acceptTerms();
-      await form.submit();
-
-      await expect(form.toast('Faltan datos por completar')).toBeVisible();
-      await form.expectStep('Información Personal');
-      await expect(form.occupationInput).toHaveAccessibleDescription('La actividad laboral o sector económico es requerida');
       expect(submissions).toHaveLength(0);
     });
 

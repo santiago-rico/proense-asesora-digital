@@ -1,6 +1,16 @@
 import { z } from 'zod';
 import { isValidPhoneNumber } from 'react-phone-number-input';
 
+// Employment statuses that are asked for "Actividad laboral o sector económico"
+// (Step 1 renders the field, and the schema requires it, only for these).
+export const EMPLOYMENT_STATUSES_REQUIRING_OCCUPATION: readonly string[] = [
+  'empleado_completo',
+  'empleado_parcial',
+  'autonomo',
+  'jubilado',
+  'incapacidad'
+];
+
 // Quote form validation schema.
 //
 // The plain object shape is exported separately as `quoteFormBaseSchema` so its
@@ -57,16 +67,16 @@ export const quoteFormBaseSchema = z.object({
     'ama_casa',
     'incapacidad'
   ], {
-    required_error: 'Selecciona tu situación laboral',
-    invalid_type_error: 'Selecciona una opción válida'
+    // zod 4 reads `error`; the zod 3 `required_error`/`invalid_type_error` are
+    // ignored and left the English "Invalid option: expected one of …".
+    error: 'Selecciona tu situación laboral'
   }),
 
   occupationSector: z.string().optional(),
 
   // Step 2: Insurance Type Selection
   insuranceType: z.enum(['vida', 'auto', 'hogar', 'salud', 'mascotas'], {
-    required_error: 'Selecciona un tipo de seguro',
-    invalid_type_error: 'Selecciona un tipo de seguro válido'
+    error: 'Selecciona un tipo de seguro'
   }),
 
   // Step 3: Conditional Fields for Seguro de Vida
@@ -140,28 +150,36 @@ export const quoteFormBaseSchema = z.object({
   website: z.string().optional(),
 });
 
-export const quoteFormSchema = quoteFormBaseSchema.superRefine((data, ctx) => {
-  // Conditional validation for occupation sector based on employment status
-  const employmentStatusesRequiringOccupation = [
-    'empleado_completo',
-    'empleado_parcial',
-    'autonomo',
-    'jubilado',
-    'incapacidad'
-  ];
+// `when` for a refinement that reads `fields`: run it as soon as those fields
+// parsed, whatever the rest of the form holds. By default zod 4 skips every
+// refinement once any field has an aborting issue — and an unanswered select
+// (an empty enum) is one, so while Step 2's insuranceType was still empty, a
+// Step 1 rule never ran and "Siguiente" let the field through.
+const whenParsed = (...fields: string[]) => (payload: z.core.ParsePayload): boolean =>
+  payload.issues.every(
+    (issue) => (issue.path?.length ?? 0) > 0 && !fields.includes(String(issue.path?.[0]))
+  );
 
-  if (employmentStatusesRequiringOccupation.includes(data.employmentStatus)) {
-    if (!data.occupationSector || data.occupationSector.trim() === '') {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'La actividad laboral o sector económico es requerida',
-        path: ['occupationSector']
-      });
-    }
+type QuoteFormBase = z.infer<typeof quoteFormBaseSchema>;
+type QuoteFormRefinementCtx = z.RefinementCtx<QuoteFormBase>;
+
+// Step 1: the occupation sector is required only for the statuses that show it.
+const validateOccupation = (data: QuoteFormBase, ctx: QuoteFormRefinementCtx): void => {
+  if (
+    EMPLOYMENT_STATUSES_REQUIRING_OCCUPATION.includes(data.employmentStatus) &&
+    (!data.occupationSector || data.occupationSector.trim() === '')
+  ) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'La actividad laboral o sector económico es requerida',
+      path: ['occupationSector']
+    });
   }
+};
 
-  // Conditional validation based on insurance type
-
+// Step 3: conditional validation based on insurance type. It only matters once
+// Steps 1–2 are valid, so zod's default (skip on aborting issues) is fine here.
+const validateInsuranceDetails = (data: QuoteFormBase, ctx: QuoteFormRefinementCtx): void => {
   if (data.insuranceType === 'vida') {
     // Validate required fields for Seguro de Vida
     if (!data.monthlyIncome || data.monthlyIncome.trim() === '') {
@@ -625,6 +643,10 @@ export const quoteFormSchema = quoteFormBaseSchema.superRefine((data, ctx) => {
       }
     }
   }
-});
+};
+
+export const quoteFormSchema = quoteFormBaseSchema
+  .superRefine(validateOccupation, { when: whenParsed('employmentStatus', 'occupationSector') })
+  .superRefine(validateInsuranceDetails);
 
 export type QuoteFormSchemaType = z.infer<typeof quoteFormSchema>;
