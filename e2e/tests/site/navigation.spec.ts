@@ -291,10 +291,6 @@ test.describe('Diálogo "Solicitar Asesoría"', () => {
   }
 
   test('al cerrarse devuelve el foco al botón que lo abrió', async ({ page }) => {
-    test.fail(
-      true,
-      'Known bug: focus falls to <body> on close. The dialog is opened from App state with no Radix DialogTrigger, so onCloseAutoFocus has no trigger to focus, src/components/forms/LeadGenerationDialog.tsx:14-15.',
-    );
     const site = new Site(page);
     await site.goto('/');
     const cta = site.main.getByRole('button', { name: 'Solicitar Asesoría', exact: true }).first();
