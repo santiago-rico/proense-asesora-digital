@@ -8,25 +8,19 @@ updates:
       day: "monday"
       time: "09:00"
       timezone: "UTC"
-    # Group updates to reduce PR noise
+    # Minor and patch updates come grouped, one PR per dependency type. Each
+    # major update gets its own PR, so one breaking change can't hold back the rest.
     groups:
       dependencies:
-        patterns:
-          - "*"
-        exclude-patterns:
-          - "@types/*"
-          - "eslint*"
-          - "typescript"
-          - "vite"
-          - "vitest"
+        dependency-type: "production"
+        update-types:
+          - "minor"
+          - "patch"
       devDependencies:
         dependency-type: "development"
-        patterns:
-          - "@types/*"
-          - "eslint*"
-          - "typescript"
-          - "vite"
-          - "vitest"
+        update-types:
+          - "minor"
+          - "patch"
     # Limit number of open PRs
     open-pull-requests-limit: 5
     # Add labels
@@ -38,11 +32,8 @@ updates:
       prefix: "chore"
       prefix-development: "chore"
       include: "scope"
-    # Review and merge settings
-    reviewers:
-      - "@santi" # Replace with actual maintainer username
     assignees:
-      - "@santi" # Replace with actual maintainer username
+      - "santiago-rico"
     
   # Enable version updates for Sanity Studio (if it has its own package.json)
   - package-ecosystem: "npm"
