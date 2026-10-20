@@ -1,6 +1,6 @@
 import type { Page } from '@playwright/test';
 import { blogPost } from '../../fixtures/blog-data';
-import { test, expect, type SanityMock } from '../../fixtures/network';
+import { test, expect } from '../../fixtures/network';
 import { Site } from '../../fixtures/page-objects/site';
 import { insuranceProductsData } from '../../../src/data/insuranceProductsData';
 
@@ -21,9 +21,6 @@ const PRODUCTS: { type: string; category: string }[] = [
   { type: 'arrendamiento', category: 'Seguro de Arrendamiento' },
   { type: 'viaje', category: 'Seguro de Viaje' },
 ];
-
-/** Types whose category map key is wrong (`empresarial`/`rentas`), so no query is made. */
-const NO_RELATED_ARTICLES_BUG = ['pymes', 'arrendamiento'];
 
 const QUOTE_CTA = '¡Quiero cotizar mi seguro ahora!';
 const QUOTE_CTA_TYPES = ['vida', 'mascotas'];
@@ -49,14 +46,15 @@ test.describe('Páginas de producto', () => {
       await page.goto(`/seguros/${type}`);
       await expect(site.h1).toHaveText(data.title);
 
-      // The coverage cards are the only h4s, right below the coveragesTitle h2.
-      const coverages = site.main.getByRole('heading', { level: 4 });
-      await expect(coverages).toHaveCount(6);
-      await expect(coverages).toHaveText(data.coverages.map(c => c.title));
+      // The 6 coverage cards are h3s, right below the coveragesTitle h2.
+      expect(data.coverages).toHaveLength(6);
+      for (const { title } of data.coverages) {
+        await expect(site.main.getByRole('heading', { level: 3, name: title, exact: true })).toBeVisible();
+      }
       await expect(site.main).toMatchAriaSnapshot(
         [
           `- heading ${JSON.stringify(data.coveragesTitle)} [level=2]`,
-          ...data.coverages.map(c => `- heading ${JSON.stringify(c.title)} [level=4]`),
+          ...data.coverages.map(c => `- heading ${JSON.stringify(c.title)} [level=3]`),
         ].join('\n'),
       );
 
@@ -103,26 +101,15 @@ test.describe('Páginas de producto: artículos relacionados', () => {
   const related = blogPost({ _id: 'rel', title: 'Artículo relacionado', slug: 'articulo-relacionado' });
   const unrelated = blogPost({ _id: 'otro', title: 'Artículo de otra categoría', slug: 'otro', category: 'Otra' });
 
-  async function expectRelatedArticles(page: Page, sanity: SanityMock, type: string, category: string) {
-    sanity.posts = [{ ...related, category }, unrelated];
-    await page.goto(`/seguros/${type}`);
-
-    await expect(page.getByRole('heading', { level: 2, name: 'Aprende Más con Nuestros Expertos' })).toBeVisible();
-    await expect(page.getByRole('link', { name: related.title })).toHaveAttribute('href', `/blog/${related.slug}`);
-    await expect(page.getByRole('link', { name: unrelated.title })).toHaveCount(0);
-    expect(sanity.queries.map(q => q.params.category)).toContain(category);
-  }
-
-  for (const { type, category } of PRODUCTS.filter(p => !NO_RELATED_ARTICLES_BUG.includes(p.type))) {
+  for (const { type, category } of PRODUCTS) {
     test(`/seguros/${type} muestra los artículos de "${category}"`, async ({ page, sanity }) => {
-      await expectRelatedArticles(page, sanity, type, category);
-    });
-  }
+      sanity.posts = [{ ...related, category }, unrelated];
+      await page.goto(`/seguros/${type}`);
 
-  for (const { type, category } of PRODUCTS.filter(p => NO_RELATED_ARTICLES_BUG.includes(p.type))) {
-    test(`/seguros/${type} muestra los artículos de "${category}"`, async ({ page, sanity }) => {
-      test.fail(true, `Known bug: /seguros/${type} never queries its related articles because the category map uses the keys empresarial/rentas, src/pages/InsuranceProductPage.tsx:29-30.`);
-      await expectRelatedArticles(page, sanity, type, category);
+      await expect(page.getByRole('heading', { level: 2, name: 'Aprende Más con Nuestros Expertos' })).toBeVisible();
+      await expect(page.getByRole('link', { name: related.title })).toHaveAttribute('href', `/blog/${related.slug}`);
+      await expect(page.getByRole('link', { name: unrelated.title })).toHaveCount(0);
+      expect(sanity.queries.map(q => q.params.category)).toContain(category);
     });
   }
 });

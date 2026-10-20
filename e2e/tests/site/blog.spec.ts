@@ -22,6 +22,7 @@ test.describe('Blog: listado', () => {
     const site = new Site(page);
     await page.goto('/blog');
 
+    await expect(site.h1).toHaveText('Blog');
     await expect(page.getByRole('heading', { level: 2, name: 'Artículo Destacado' })).toBeVisible();
     await expect(listedPostTitles(page).first()).toHaveText('Artículo 1');
     await expect(page.getByText('30 de junio de 2025', { exact: true })).toBeVisible();
@@ -95,12 +96,42 @@ test.describe('Blog: listado', () => {
     });
   }
 
-  test('un enlace /blog?category=… filtra el listado por categoría', async ({ page }) => {
-    test.fail(true, 'Known bug: /blog ignores the ?category= query string, so the "Categorías" links on a post show every post, src/pages/BlogListPage.tsx:23-26 (links at src/pages/BlogPostPage.tsx:196-217).');
+  test('un enlace /blog?category=… filtra el listado por categoría y "Ver todos los artículos" lo quita', async ({ page }) => {
     // blogPosts() rotates Hogar, Vida, Auto: posts 3, 6, 9 and 12 are "Seguro de Auto".
     await page.goto('/blog?category=seguro-de-auto');
     await expect(listedPostTitles(page).first()).toBeVisible();
     await expect(listedPostTitles(page)).toHaveText(titles(3, 6, 9, 12));
+    await expect(page.getByText('Categoría:')).toBeVisible();
+    await expect(page.getByText('Seguro de Auto', { exact: true }).first()).toBeVisible();
+    await expect(pageButton(page, '1')).toHaveCount(0);
+
+    await page.getByRole('link', { name: 'Ver todos los artículos' }).click();
+    await expect(page).toHaveURL('/blog');
+    await expect(listedPostTitles(page)).toHaveText(titles(1, ...range(2, 7)));
+    await expect(page.getByText('Categoría:')).toHaveCount(0);
+  });
+
+  test('los enlaces de "Categorías" de un artículo abren el listado de esa categoría', async ({ page }) => {
+    await page.goto('/blog/articulo-1');
+    await page.getByRole('link', { name: 'Seguro de Vida', exact: true }).click();
+    await expect(page).toHaveURL('/blog?category=seguro-de-vida');
+    // "Seguro de Vida" is every third post from post 2.
+    await expect(listedPostTitles(page)).toHaveText(titles(2, 5, 8, 11, 14));
+  });
+
+  test('una categoría sin artículos lo indica', async ({ page }) => {
+    await page.goto('/blog?category=seguros-para-pymes');
+    await expect(page.getByText('Todavía no hay artículos en esta categoría.')).toBeVisible();
+    await expect(page.getByText('Seguros para PYMES', { exact: true })).toBeVisible();
+    await expect(listedPostTitles(page)).toHaveCount(0);
+    await expect(page.getByRole('heading', { name: 'Artículo Destacado' })).toHaveCount(0);
+  });
+
+  test('los artículos sin imagen destacada se listan sin imagen', async ({ page, sanity }) => {
+    sanity.posts = blogPosts(3).map(post => ({ ...post, featuredImage: null }));
+    await page.goto('/blog');
+    await expect(listedPostTitles(page)).toHaveText(titles(1, 2, 3));
+    await expect(page.getByRole('img', { name: /^Artículo \d+$/ })).toHaveCount(0);
   });
 });
 
@@ -144,7 +175,6 @@ test.describe('Blog: artículo', () => {
     { category: 'Seguro de Arrendamiento', path: '/seguros/arrendamiento', h1: 'Seguro de Arrendamiento' },
   ]) {
     test(`"Ver detalles del seguro" de "${category}" abre ${path}`, async ({ page, sanity }) => {
-      test.fail(true, 'Known bug: the category map sends "Seguros para PYMES" to /seguros/empresarial and "Seguro de Arrendamiento" to /seguros/rentas, which 404, src/pages/BlogPostPage.tsx:27-28.');
       sanity.posts = [blogPost({ category })];
       const site = new Site(page);
       await page.goto('/blog/mi-post');
@@ -172,16 +202,19 @@ test.describe('Blog: artículo', () => {
   });
 
   test('un slug inexistente muestra un "no encontrado" dentro del sitio', async ({ page }) => {
-    test.fail(true, 'Known bug: when Sanity returns no post the page renders nothing at all (no navbar, footer or 404), src/pages/BlogPostPage.tsx:77-79.');
     const site = new Site(page);
     await page.goto('/blog/no-existe');
     await expect(page.getByText(/404|no encontrad|no existe/i).first()).toBeVisible();
+    await expect(site.h1).toHaveText('Artículo no encontrado');
     await expect(site.nav).toBeVisible();
     await expect(site.footer).toBeVisible();
+
+    await site.main.getByRole('link', { name: 'Volver al Blog' }).click();
+    await expect(page).toHaveURL('/blog');
+    await expect(listedPostTitles(page).first()).toHaveText('Artículo 1');
   });
 
   test('un artículo sin imagen destacada se muestra sin imagen', async ({ page, sanity }) => {
-    test.fail(true, 'Known bug: a post whose featuredImage is null throws "Unable to resolve image URL from source (null)" and, with no ErrorBoundary, blanks the whole app, src/components/shared/SanityImage.tsx:124-128.');
     sanity.posts = [blogPost({ featuredImage: null })];
     const site = new Site(page);
     await page.goto('/blog/mi-post');
@@ -190,12 +223,15 @@ test.describe('Blog: artículo', () => {
     await expect(page.getByRole('img', { name: 'Mi post' })).toHaveCount(0);
   });
 
-  test('la fecha del artículo no se muestra en formato ISO', async ({ page }) => {
-    test.fail(true, 'Known bug: the post header and its related posts print the raw Sanity datetime (e.g. "2025-06-30T12:00:00.000Z"), src/pages/BlogPostPage.tsx:94,185.');
+  test('las fechas del artículo y de sus relacionados se muestran en español, no en formato ISO', async ({ page }) => {
     const site = new Site(page);
     await page.goto('/blog/articulo-2');
     await expect(site.h1).toHaveText('Artículo 2');
     await expect(page.getByRole('heading', { level: 4, name: 'Artículo 1' })).toBeVisible();
+    // Posts 1, 2 and 3 are dated June 30th, 29th and 28th.
+    for (const day of [29, 30, 28]) {
+      await expect(page.getByText(`${day} de junio de 2025`, { exact: true })).toBeVisible();
+    }
     await expect(page.getByText(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/)).toHaveCount(0);
   });
 });

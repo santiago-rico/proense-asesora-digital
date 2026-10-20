@@ -10,26 +10,24 @@ import { Separator } from "@/components/ui/separator";
 import { getBlogPostBySlug, getRecentBlogPosts } from "@/services/blogService";
 import { BlogPost } from "@/components/shared/BlogPostCard";
 import { PortableText } from "@portabletext/react";
-import { urlFor } from "@/sanity/imageUrl";
 import BlogCtaSection from "@/components/layout/BlogCtaSection";
 import LeadForm from "@/components/forms/LeadForm";
 import SanityImage from "@/components/shared/SanityImage";
+import { getCategoryBlogPath, getCategoryProductPath } from "@/constants/blogCategories";
+import { formatPostDate } from "@/utils/format-post-date";
 
 interface BlogPostPageProps {
   handleOpenLeadDialog: () => void;
 }
 
-const categoryToProductPage: { [key: string]: string } = {
-  'Seguro de Vida': '/seguros/vida',
-  'Seguro de Salud': '/seguros/salud',
-  'Seguro de Auto': '/seguros/auto',
-  'Seguro de Hogar': '/seguros/hogar',
-  'Seguros para PYMES': '/seguros/empresarial',
-  'Seguro de Arrendamiento': '/seguros/rentas',
-  'Seguro de Viaje': '/seguros/viaje',
-  'Seguro para Mascotas': '/seguros/mascotas',
-  'Seguro para Motos': '/seguros/motos',
-};
+/** The categories listed in the sidebar, each linking to the blog list filtered by it. */
+const sidebarCategories = [
+  'Seguro de Vida',
+  'Seguro de Salud',
+  'Seguro de Auto',
+  'Seguro de Hogar',
+  'Seguros para PYMES',
+];
 
 const BlogPostPage: React.FC<BlogPostPageProps> = ({ handleOpenLeadDialog }) => {
   const { slug } = useParams<{ slug: string }>();
@@ -53,7 +51,8 @@ const BlogPostPage: React.FC<BlogPostPageProps> = ({ handleOpenLeadDialog }) => 
     }
   }, [isError, navigate]);
 
-  if (isLoading) {
+  // A failed query redirects to /blog (see the effect above): keep the skeleton until then.
+  if (isLoading || isError) {
     return (
       <Layout handleOpenLeadDialog={handleOpenLeadDialog}>
         <div className="container mx-auto px-4 py-16 mt-16">
@@ -75,10 +74,23 @@ const BlogPostPage: React.FC<BlogPostPageProps> = ({ handleOpenLeadDialog }) => 
   }
 
   if (!post) {
-    return null;
+    return (
+      <Layout handleOpenLeadDialog={handleOpenLeadDialog}>
+        <section className="container mx-auto px-4 py-16 md:py-24 text-center">
+          <p className="text-5xl md:text-6xl font-bold text-primary mb-4">404</p>
+          <h1 className="text-3xl md:text-4xl font-bold mb-4">Artículo no encontrado</h1>
+          <p className="text-lg text-gray-600 max-w-xl mx-auto mb-8">
+            El artículo que buscas no existe o ya no está disponible. Te invitamos a explorar nuestros demás artículos sobre seguros.
+          </p>
+          <Button asChild>
+            <Link to="/blog">Volver al Blog</Link>
+          </Button>
+        </section>
+      </Layout>
+    );
   }
 
-  const productPageUrl = categoryToProductPage[post.category];
+  const productPageUrl = getCategoryProductPath(post.category);
 
   return (
     <Layout handleOpenLeadDialog={handleOpenLeadDialog}>
@@ -91,7 +103,7 @@ const BlogPostPage: React.FC<BlogPostPageProps> = ({ handleOpenLeadDialog }) => 
                 <Badge className="bg-white text-primary hover:bg-white/90">
                   {post.category}
                 </Badge>
-                <span className="text-sm">{post.date}</span>
+                <time dateTime={post.date} className="text-sm">{formatPostDate(post.date)}</time>
               </div>
               <h1 className="text-3xl md:text-4xl font-bold mb-4">{post.title}</h1>
               <div className="flex items-center">
@@ -106,24 +118,26 @@ const BlogPostPage: React.FC<BlogPostPageProps> = ({ handleOpenLeadDialog }) => 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
               <article className="prose prose-lg max-w-none">
-                <div className="mb-8">
-                  <SanityImage
-                    source={post.featuredImage}
-                    alt={post.title}
-                    className="w-full h-auto rounded-lg"
-                    widths={[480, 768, 1024, 1200]}
-                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 80vw, 800px"
-                    loading="eager"
-                  />
-                </div>
+                {post.featuredImage && (
+                  <div className="mb-8">
+                    <SanityImage
+                      source={post.featuredImage}
+                      alt={post.title}
+                      className="w-full h-auto rounded-lg"
+                      widths={[480, 768, 1024, 1200]}
+                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 80vw, 800px"
+                      loading="eager"
+                    />
+                  </div>
+                )}
                 
                                 {post.body && <PortableText value={post.body} />}
 
                 {productPageUrl && (
                   <div className="mt-12 p-6 bg-blue-50 border-l-4 border-primary rounded-r-lg not-prose">
-                    <h3 className="text-xl font-bold text-primary">
+                    <h2 className="text-xl font-bold text-primary">
                       Conoce más sobre el {post.category}
-                    </h3>
+                    </h2>
                     <p className="mt-2 text-gray-700">
                       En Proense, te ofrecemos asesoría experta para que encuentres el plan que mejor se adapta a tus necesidades.
                     </p>
@@ -168,7 +182,7 @@ const BlogPostPage: React.FC<BlogPostPageProps> = ({ handleOpenLeadDialog }) => 
                   <div className="space-y-4">
                     {relatedPosts?.filter((p: BlogPost) => p.slug !== slug).map((relatedPost: BlogPost) => (
                       <Card key={relatedPost._id} className="overflow-hidden">
-                        <div className="h-32 overflow-hidden">
+                        <div className="h-32 overflow-hidden bg-gray-100">
                           <SanityImage
                             source={relatedPost.featuredImage}
                             alt={relatedPost.title}
@@ -182,7 +196,9 @@ const BlogPostPage: React.FC<BlogPostPageProps> = ({ handleOpenLeadDialog }) => 
                           <h4 className="font-semibold line-clamp-2 hover:text-primary">
                             <Link to={`/blog/${relatedPost.slug}`}>{relatedPost.title}</Link>
                           </h4>
-                          <p className="text-sm text-gray-500 mt-1">{relatedPost.date}</p>
+                          <time dateTime={relatedPost.date} className="block text-sm text-gray-500 mt-1">
+                            {formatPostDate(relatedPost.date)}
+                          </time>
                         </div>
                       </Card>
                     ))}
@@ -192,31 +208,13 @@ const BlogPostPage: React.FC<BlogPostPageProps> = ({ handleOpenLeadDialog }) => 
                 <Card className="p-6">
                   <h3 className="text-xl font-bold mb-4">Categorías</h3>
                   <ul className="space-y-2">
-                    <li>
-                      <Link to="/blog?category=seguro-de-vida" className="text-gray-700 hover:text-primary">
-                        Seguro de Vida
-                      </Link>
-                    </li>
-                    <li>
-                      <Link to="/blog?category=seguro-de-salud" className="text-gray-700 hover:text-primary">
-                        Seguro de Salud
-                      </Link>
-                    </li>
-                    <li>
-                      <Link to="/blog?category=seguro-de-auto" className="text-gray-700 hover:text-primary">
-                        Seguro de Auto
-                      </Link>
-                    </li>
-                    <li>
-                      <Link to="/blog?category=seguro-de-hogar" className="text-gray-700 hover:text-primary">
-                        Seguro de Hogar
-                      </Link>
-                    </li>
-                    <li>
-                      <Link to="/blog?category=seguros-para-pymes" className="text-gray-700 hover:text-primary">
-                        Seguros para PYMES
-                      </Link>
-                    </li>
+                    {sidebarCategories.map(category => (
+                      <li key={category}>
+                        <Link to={getCategoryBlogPath(category)} className="text-gray-700 hover:text-primary">
+                          {category}
+                        </Link>
+                      </li>
+                    ))}
                   </ul>
                 </Card>
               </div>

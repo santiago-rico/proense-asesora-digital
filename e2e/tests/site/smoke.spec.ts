@@ -7,6 +7,7 @@ const ROUTES: { path: string; h1: string }[] = [
   { path: '/', h1: 'Protege lo que más valoras con expertos a tu lado' },
   { path: '/contacto', h1: 'Estamos para Servirte' },
   { path: '/nosotros', h1: 'Sobre Nosotros' },
+  { path: '/blog', h1: 'Blog' },
   { path: '/blog/mi-post', h1: 'Mi post' },
   { path: '/seguros/vida', h1: 'Seguro de Vida' },
   { path: '/seguros/vida-deudores', h1: 'Seguro de Vida Deudores' },
@@ -43,16 +44,6 @@ test.describe('Smoke: todas las rutas', () => {
       await expect(site.footer).toBeVisible();
     });
   }
-
-  // /blog has no h1 (see the accessibility spec); its section heading stands in.
-  test('/blog carga con "Últimos Artículos", navbar y footer', async ({ page }) => {
-    const site = new Site(page);
-    await page.goto('/blog');
-    await expect(page.getByRole('heading', { level: 2, name: 'Últimos Artículos' })).toBeVisible();
-    await expect(page).toHaveTitle(SITE_TITLE);
-    await expect(site.nav).toBeVisible();
-    await expect(site.footer).toBeVisible();
-  });
 
   // Its missing navbar/footer and English copy are a known bug, recorded in navigation.spec.ts.
   test('una ruta inexistente muestra el 404', async ({ page }) => {

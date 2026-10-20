@@ -1,37 +1,61 @@
 
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
 import BlogPostCard, { BlogPost } from "@/components/shared/BlogPostCard";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { getBlogPosts } from "@/services/blogService";
-import { urlFor } from "@/sanity/imageUrl";
-import { ArrowRight, ShieldCheck } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import LeadForm from "@/components/forms/LeadForm";
 import BlogCtaSection from "@/components/layout/BlogCtaSection";
 import SanityImage from "@/components/shared/SanityImage";
+import { PRODUCT_BLOG_CATEGORIES, getCategorySlug } from "@/constants/blogCategories";
+import { formatPostDate } from "@/utils/format-post-date";
 
 interface BlogListPageProps {
   handleOpenLeadDialog: () => void;
 }
 
 const BlogListPage: React.FC<BlogListPageProps> = ({ handleOpenLeadDialog }) => {
-  const { data: posts, isLoading } = useQuery<BlogPost[]>({
+  const { data: allPosts, isLoading } = useQuery<BlogPost[]>({
     queryKey: ["blogPosts"],
     queryFn: getBlogPosts,
   });
+
+  // ?category=<slug> (e.g. from the "Categorías" links on a post) lists only that category's posts.
+  const [searchParams] = useSearchParams();
+  const categoryParam = searchParams.get("category");
+  const categorySlug = categoryParam ? getCategorySlug(categoryParam) : "";
+  const posts = useMemo(
+    () => categorySlug
+      ? allPosts?.filter(post => post.category && getCategorySlug(post.category) === categorySlug)
+      : allPosts,
+    [allPosts, categorySlug],
+  );
+  // Named after its posts' category, or a known one when it has no posts yet.
+  const categoryTitle = categorySlug
+    ? posts?.[0]?.category
+      ?? Object.values(PRODUCT_BLOG_CATEGORIES).find(category => getCategorySlug(category) === categorySlug)
+      ?? categoryParam
+    : undefined;
 
   const [currentPage, setCurrentPage] = useState(1);
   const postsPerPage = 6;
   const latestArticlesRef = useRef<HTMLHeadingElement>(null);
 
+  // The page stays mounted when only the query string changes: a new category starts at page 1.
+  const [pageCategory, setPageCategory] = useState(categorySlug);
+  if (pageCategory !== categorySlug) {
+    setPageCategory(categorySlug);
+    setCurrentPage(1);
+  }
+
   const featuredPost = useMemo(() => posts?.[0], [posts]);
   const latestPosts = useMemo(() => posts?.slice(1) || [], [posts]);
-  const popularPosts = useMemo(() => posts?.slice(1, 4) || [], [posts]);
+  const popularPosts = useMemo(() => allPosts?.slice(1, 4) || [], [allPosts]);
 
   const paginatedPosts = useMemo(() => {
     const startIndex = (currentPage - 1) * postsPerPage;
@@ -65,11 +89,26 @@ const BlogListPage: React.FC<BlogListPageProps> = ({ handleOpenLeadDialog }) => 
 
   return (
     <Layout handleOpenLeadDialog={handleOpenLeadDialog}>
+      <section className="bg-primary text-white py-12 md:py-16">
+        <div className="container mx-auto px-4 text-center">
+          <h1 className="text-4xl md:text-5xl font-bold">Blog</h1>
+          <p className="mt-4 text-lg max-w-2xl mx-auto">
+            Consejos y guías sobre seguros para que tomes las mejores decisiones al proteger lo que más valoras.
+          </p>
+        </div>
+      </section>
       <div className="bg-gray-50 pt-8">
         <div className="container mx-auto px-4 py-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start">
-            {/* Main Content */}
-            <main className="lg:col-span-2">
+            {/* Main Content (Layout already provides the <main> landmark) */}
+            <div className="lg:col-span-2">
+              {categorySlug && (
+                <div className="flex flex-wrap items-center gap-3 mb-8">
+                  <span className="text-gray-700">Categoría:</span>
+                  <Badge variant="outline" className="bg-primary/10 text-primary-hover">{categoryTitle}</Badge>
+                  <Link to="/blog" className="text-primary hover:underline">Ver todos los artículos</Link>
+                </div>
+              )}
               {isLoading ? (
                 renderSkeleton()
               ) : featuredPost ? (
@@ -88,7 +127,7 @@ const BlogListPage: React.FC<BlogListPageProps> = ({ handleOpenLeadDialog }) => 
                     <CardContent className="p-6">
                       <div className="flex items-center gap-4 mb-3 text-sm text-gray-500">
                         <Badge variant="secondary">{featuredPost.category}</Badge>
-                        <span>{new Date(featuredPost.date).toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                        <time dateTime={featuredPost.date}>{formatPostDate(featuredPost.date)}</time>
                       </div>
                       <h3 className="text-2xl font-bold mb-3 hover:text-primary transition-colors">
                         <Link to={`/blog/${featuredPost.slug}`}>{featuredPost.title}</Link>
@@ -111,7 +150,11 @@ const BlogListPage: React.FC<BlogListPageProps> = ({ handleOpenLeadDialog }) => 
                     ))}
                   </div>
                 ) : (
-                  <p>No se encontraron más artículos.</p>
+                  <p>
+                    {categorySlug && !isLoading && !featuredPost
+                      ? "Todavía no hay artículos en esta categoría."
+                      : "No se encontraron más artículos."}
+                  </p>
                 )}
               </section>
 
@@ -124,7 +167,7 @@ const BlogListPage: React.FC<BlogListPageProps> = ({ handleOpenLeadDialog }) => 
                     <Button variant="outline" size="icon" onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>&gt;</Button>
                 </div>
               )}
-            </main>
+            </div>
 
             {/* Sidebar */}
             <aside className="lg:col-span-1">

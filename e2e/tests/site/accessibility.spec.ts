@@ -27,16 +27,18 @@ const NEWEST_POST = 'Artículo 1';
 /** RelatedArticlesSection's heading, shown once the product's category query returns posts. */
 const RELATED = 'Aprende Más con Nuestros Expertos';
 
-/** One post per product category, so every product page renders its related articles (bar handover bug 15). */
+/** One post per product category, so every product page renders its related articles. */
 const POSTS = [
-  ...blogPosts(8, [
+  ...blogPosts(9, [
     'Seguro de Vida',
     'Seguro de Salud',
     'Seguro de Auto',
     'Seguro de Hogar',
+    'Seguros para PYMES',
     'Seguro de Viaje',
     'Seguro para Mascotas',
     'Seguro para Motos',
+    'Seguro de Arrendamiento',
   ]),
   blogPost({ _id: 'mi-post' }),
 ];
@@ -71,10 +73,10 @@ const PRODUCT_SCANS: Scan[] = [
   route('/seguros/salud', 'Seguro de Salud', RELATED),
   route('/seguros/auto', 'Seguro de Auto', RELATED),
   route('/seguros/hogar', 'Seguro de Hogar', RELATED),
-  route('/seguros/pymes', 'Seguro para PYMES'),
+  route('/seguros/pymes', 'Seguro para PYMES', RELATED),
   route('/seguros/mascotas', 'Seguro de Mascotas', RELATED),
   route('/seguros/motos', 'Seguro de Motos', RELATED),
-  route('/seguros/arrendamiento', 'Seguro de Arrendamiento'),
+  route('/seguros/arrendamiento', 'Seguro de Arrendamiento', RELATED),
   route('/seguros/viaje', 'Seguro de Viaje', RELATED),
 ];
 
@@ -87,6 +89,7 @@ const SCANS: Scan[] = [
   route('/nosotros', 'Sobre Nosotros'),
   route('/blog', 'Últimos Artículos', NEWEST_POST),
   route('/blog/mi-post', 'Mi post', NEWEST_POST),
+  route('/blog/no-existe', 'Artículo no encontrado'),
   ...PRODUCT_SCANS,
   route('/clientes/cotizacion', 'Cotización de Seguros'),
   route('/clientes/emision-polizas', 'Emisión de Pólizas'),
@@ -170,13 +173,6 @@ const KNOWN: KnownBug[] = [
     node: colors('#ffffff', '#3b8c59'),
   },
   {
-    title: 'Contraste: etiqueta de categoría de las tarjetas del blog',
-    rules: ['color-contrast'],
-    bug: 'the blog card category badge, text-primary on bg-primary/10 (#0073d1 on #e6f1fa), is 4.19:1 at 12px, src/components/shared/BlogPostCard.tsx:79',
-    ...both(['/']),
-    node: colors('#0073d1', '#e6f1fa'),
-  },
-  {
     title: 'Contraste: texto blanco/90 sobre el azul primario de las secciones CTA',
     rules: ['color-contrast'],
     bug: 'text-white/90 on bg-primary (#e5f1fa on #0073d1) is 4.18:1 in the blue CTA sections, src/components/home/CallToActionSection.tsx:15, src/components/layout/BlogCtaSection.tsx:16, src/pages/InsuranceProductPage.tsx:175 and the same <p> in AboutPage, QuotePage, PaymentsPage and ClientServicePage',
@@ -224,30 +220,6 @@ const KNOWN: KnownBug[] = [
   },
   // The rest are axe best-practice rules, outside WCAG_TAGS, so the regression
   // scans never run them. The handover predicted them; each test runs only its rules.
-  {
-    title: 'Las páginas de producto no saltan niveles de encabezado',
-    rules: ['heading-order'],
-    bug: 'the coverage titles are h4s right under the h2, skipping h3, src/pages/InsuranceProductPage.tsx:96',
-    ...both(names(PRODUCT_SCANS)),
-  },
-  {
-    title: 'El artículo del blog no salta niveles de encabezado',
-    rules: ['heading-order'],
-    bug: 'the first heading after the post\'s h1 is the h3 "Conoce más sobre…", skipping h2, src/pages/BlogPostPage.tsx:124',
-    ...both(['/blog/mi-post']),
-  },
-  {
-    title: '/blog tiene un solo main, de nivel superior',
-    rules: ['landmark-main-is-top-level', 'landmark-no-duplicate-main', 'landmark-unique'],
-    bug: '/blog nests a second <main> inside Layout\'s <main id="main-content">, src/pages/BlogListPage.tsx:72',
-    ...both(['/blog']),
-  },
-  {
-    title: '/blog tiene un h1',
-    rules: ['page-has-heading-one'],
-    bug: '/blog has no h1; its top headings are the h2s "Artículo Destacado" and "Últimos Artículos", src/pages/BlogListPage.tsx:77,106',
-    ...both(['/blog']),
-  },
   {
     title: 'El 404 tiene landmarks',
     rules: ['landmark-one-main', 'region'],

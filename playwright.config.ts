@@ -24,7 +24,8 @@ export default defineConfig({
 
   use: {
     baseURL: process.env.BASE_URL || 'http://localhost:8080',
-    // The blog formats dates in the local timezone; pin it so they are deterministic.
+    // Browse as a visitor in Colombia, so anything shown in local time is deterministic
+    // (blog dates are always formatted in Bogotá time, src/utils/format-post-date.ts).
     timezoneId: 'America/Bogota',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
