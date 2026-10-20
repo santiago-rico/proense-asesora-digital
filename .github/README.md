@@ -32,6 +32,10 @@ This directory contains the GitHub Actions workflows and configurations for the 
 - **File Verification**: Ensures all essential files exist
 - **Size Analysis**: Reports build size metrics
 
+#### Sanity Studio (`studio`)
+- **Separate project**: `proense-asesora-digital/` has its own package.json and lockfile
+- **Checks**: `npm ci`, ESLint, `tsc --noEmit` and `sanity build` on Node 24
+
 #### Performance Analysis (`performance`)
 - **Bundle Analysis**: Checks bundle sizes and composition
 - **Size Limits**: Fails if bundles exceed 3MB

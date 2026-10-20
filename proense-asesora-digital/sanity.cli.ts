@@ -5,9 +5,11 @@ export default defineCliConfig({
     projectId: 'aofp3ugi',
     dataset: 'production'
   },
-  /**
-   * Enable auto-updates for studios.
-   * Learn more at https://www.sanity.io/docs/cli#auto-updates
-   */
-  autoUpdates: true,
+  deployment: {
+    /**
+     * Enable auto-updates for studios.
+     * Learn more at https://www.sanity.io/docs/cli#auto-updates
+     */
+    autoUpdates: true,
+  },
 })
