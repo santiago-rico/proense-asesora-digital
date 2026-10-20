@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ScrollToTop from "./components/utils/ScrollToTop";
+import PageLoadingSpinner from "./components/shared/PageLoadingSpinner";
 import Index from "./pages/Index";
 import ContactPage from "./pages/ContactPage";
 import NotFound from "./pages/NotFound";
@@ -21,13 +22,6 @@ const QuotePage = lazy(() => import("./pages/QuotePage"));
 const PaymentsPage = lazy(() => import("./pages/PaymentsPage"));
 const PoliticaPrivacidadPage = lazy(() => import("./pages/PoliticaPrivacidadPage"));
 const TerminosCondicionesPage = lazy(() => import("./pages/TerminosCondicionesPage"));
-
-// Loading fallback component
-const PageLoadingSpinner = () => (
-  <div className="flex items-center justify-center min-h-screen">
-    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-  </div>
-);
 
 const queryClient = new QueryClient();
 
@@ -49,7 +43,7 @@ const App = () => {
               {/* Keep core pages loaded immediately for better UX */}
               <Route path="/" element={<Index handleOpenLeadDialog={handleOpenLeadDialog} />} />
               <Route path="/contacto" element={<ContactPage handleOpenLeadDialog={handleOpenLeadDialog} />} />
-              <Route path="*" element={<NotFound />} />
+              <Route path="*" element={<NotFound handleOpenLeadDialog={handleOpenLeadDialog} />} />
               
               {/* Lazy load secondary pages */}
               <Route path="/nosotros" element={<AboutPage handleOpenLeadDialog={handleOpenLeadDialog} />} />

@@ -203,6 +203,29 @@ test.describe('Menú móvil', () => {
     await expect.poll(bodyOverflow(site)).toBe('visible');
   });
 
+  test('Tab solo recorre los controles visibles del menú', async ({ page }) => {
+    const site = new Site(page);
+    await site.goto('/');
+
+    // Closed, the panel is skipped: Tab goes from the hamburger to the hero CTA, main's first control.
+    await site.hamburger.focus();
+    await page.keyboard.press('Tab');
+    await expect(site.main.getByRole('button', { name: 'Solicitar Asesoría', exact: true }).first()).toBeFocused();
+
+    // Open, Tab walks its top-level items, skipping the links of the collapsed submenus.
+    await site.openMobileMenu();
+    await site.hamburger.focus();
+    for (const item of [
+      site.mobileMenu.getByRole('link', { name: 'Inicio', exact: true }),
+      site.mobileSectionToggle('Seguros'),
+      site.mobileSectionToggle('Clientes'),
+      site.mobileMenu.getByRole('link', { name: 'Nosotros', exact: true }),
+    ]) {
+      await page.keyboard.press('Tab');
+      await expect(item).toBeFocused();
+    }
+  });
+
   test('Escape cierra el menú y devuelve el foco al botón hamburguesa', async ({ page }) => {
     const site = new Site(page);
     await site.goto('/');
@@ -380,31 +403,30 @@ test.describe('Footer', () => {
 });
 
 test.describe('Página 404', () => {
+  const NOT_FOUND_H1 = 'Página no encontrada';
+
   test('las rutas inexistentes muestran el 404', async ({ page }) => {
     const site = new Site(page);
     // /seguros/empresarial is where blog posts about PYMES link to (known bug #11).
     for (const path of ['/no-existe', '/seguros', '/clientes', '/seguros/decesos', '/seguros/empresarial']) {
       await page.goto(path);
-      await expect(site.h1, path).toHaveText('404');
+      await expect(site.h1, path).toHaveText(NOT_FOUND_H1);
     }
   });
 
-  test('"Return to Home" vuelve al inicio', async ({ page }) => {
+  test('"Volver al inicio" vuelve al inicio', async ({ page }) => {
     const site = new Site(page);
     await page.goto('/no-existe');
-    await page.getByRole('link', { name: 'Return to Home' }).click();
+    await site.main.getByRole('link', { name: 'Volver al inicio', exact: true }).click();
     await expect(page).toHaveURL('/');
     await expect(site.h1).toHaveText('Protege lo que más valoras con expertos a tu lado');
   });
 
   test('la página 404 está en español y dentro del Layout, con navbar y footer', async ({ page }) => {
-    test.fail(
-      true,
-      'Known bug: NotFound renders outside Layout (no navbar/footer) with English copy "Oops! Page not found" / "Return to Home", src/pages/NotFound.tsx:14-23.',
-    );
     const site = new Site(page);
     await page.goto('/no-existe');
-    await expect(site.h1).toHaveText('404');
+    await expect(site.main.getByText('404', { exact: true })).toBeVisible();
+    await expect(site.main.getByRole('heading', { level: 1, name: NOT_FOUND_H1, exact: true })).toBeVisible();
     await expect(site.nav).toBeVisible();
     await expect(site.footer).toBeVisible();
     await expect(page.getByText('Oops! Page not found')).toHaveCount(0);

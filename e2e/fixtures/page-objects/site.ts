@@ -64,12 +64,13 @@ export class Site {
   }
 
   /**
-   * The mobile menu panel. It is collapsed with `max-h-0 opacity-0`, which
+   * The mobile menu panel, a labelled group of plain links and section toggles.
+   * Collapsed it is `aria-hidden` and `inert`, styled `max-h-0 opacity-0`, which
    * Playwright still counts as visible: assert `aria-hidden`/`aria-expanded`,
    * not `toBeHidden()`.
    */
   get mobileMenu(): Locator {
-    return this.page.getByRole('menu', { name: 'Menú de navegación móvil', includeHidden: true });
+    return this.page.getByRole('group', { name: 'Menú de navegación móvil', includeHidden: true });
   }
 
   async openMobileMenu(): Promise<void> {

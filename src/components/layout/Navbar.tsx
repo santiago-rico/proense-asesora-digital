@@ -291,7 +291,8 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
             </div>
           </div>
 
-          {/* Mobile Navigation */}
+          {/* Mobile Navigation: a disclosure panel of plain links inside the nav landmark.
+              Collapsed, it stays in the DOM for the slide animation but is inert, so Tab skips it. */}
           <div
             ref={mobileMenuRef}
             id="mobile-navigation-menu"
@@ -299,11 +300,12 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
               ? 'max-h-[calc(100vh-80px)] overflow-y-auto opacity-100 mt-4'
               : 'max-h-0 overflow-hidden opacity-0'
               }`}
-            role="menu"
+            role="group"
             aria-label="Menú de navegación móvil"
             aria-hidden={!isOpen}
+            inert={!isOpen}
           >
-            <ul className="flex flex-col space-y-1 pb-4" role="none">
+            <ul className="flex flex-col space-y-1 pb-4">
               {navLinks.map((link) => {
                 if (link.dropdown) {
                   const items = link.href === "/seguros" ? insuranceProducts : clientServices;
@@ -325,6 +327,7 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
                       <ul
                         id={`mobile-submenu-${link.name}`}
                         className={`bg-gray-50 overflow-hidden transition-all duration-200 ${isExpanded ? 'max-h-[500px]' : 'max-h-0'}`}
+                        inert={!isExpanded}
                       >
                         {items.map((item) => (
                           <li key={item.name}>
@@ -347,7 +350,7 @@ function Navbar({ handleOpenLeadDialog }: NavbarProps) {
                   <li key={link.name}>
                     <Link
                       to={link.href}
-                      className={`block px-4 py-3 rounded-md text-base font-medium transition-colors duration-200 hover:text-primary hover:bg-gray-50 active:bg-gray-100 ${isActive(link.href) ? "text-primary bg-blue-50" : "text-gray-700"
+                      className={`block px-4 py-3 rounded-md text-base font-medium transition-colors duration-200 hover:text-primary hover:bg-gray-50 active:bg-gray-100 ${isActive(link.href) ? "text-primary-hover bg-blue-50" : "text-gray-700"
                         }`}
                       style={{ minHeight: '44px' }}
                       onClick={() => closeMenu()}

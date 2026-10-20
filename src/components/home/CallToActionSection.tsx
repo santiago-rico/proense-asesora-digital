@@ -12,7 +12,7 @@ function CallToActionSection({ handleOpenLeadDialog }: CallToActionSectionProps)
       <div className="container mx-auto px-4">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-2xl sm:text-3xl font-bold mb-4">¿Listo para proteger lo que más valoras?</h2>
-          <p className="mb-8 text-white/90">
+          <p className="mb-8 text-white">
             Nuestros asesores están disponibles para ayudarte a encontrar la protección adecuada para ti y tu familia.
           </p>
           <div className="flex justify-center">

@@ -102,7 +102,6 @@ test.describe('Páginas de clientes', () => {
     });
 
     test('los códigos de emergencia con # llevan el # codificado en el tel:', async ({ page }) => {
-      test.fail(true, 'Known bug: the star codes render as tel:#888, tel:#265 and tel:#360; an unencoded # starts a URL fragment and must be %23, src/pages/ClientServicePage.tsx:207.');
       await page.goto('/clientes/siniestros');
       for (const { logo, links } of EMERGENCY_LINES) {
         for (const [text, href] of links.filter(isStarCode)) {

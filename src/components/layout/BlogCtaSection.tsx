@@ -13,7 +13,7 @@ const BlogCtaSection: React.FC<BlogCtaSectionProps> = ({ handleOpenLeadDialog })
           <h2 className="text-2xl md:text-3xl font-bold mb-4">
             ¿Listo para Proteger lo que Más Quieres?
           </h2>
-          <p className="mb-6 text-lg text-white/90">
+          <p className="mb-6 text-lg text-white">
             Nuestros asesores están listos para ayudarte a encontrar la protección
             adecuada para ti, tu familia o tu negocio.
           </p>

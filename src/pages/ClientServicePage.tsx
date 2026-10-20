@@ -204,7 +204,8 @@ const ClientServicePage: React.FC<ClientServicePageProps> = ({ type, handleOpenL
                       {company.phoneLines.map((line) => {
                         let href = "";
                         if (line.type === "tel") {
-                          href = `tel:${line.value.replace(/\s/g, "")}`;
+                          // Star codes like #888: an unencoded # would start the URL's fragment.
+                          href = `tel:${line.value.replace(/\s/g, "").replace(/#/g, "%23")}`;
                         } else if (line.type === "whatsapp") {
                           href = `https://wa.me/${line.value.replace(/\s/g, "")}`;
                         }
@@ -273,7 +274,7 @@ const ClientServicePage: React.FC<ClientServicePageProps> = ({ type, handleOpenL
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-2xl md:text-3xl font-bold mb-4">¿Necesitas ayuda?</h2>
-            <p className="mb-6 text-lg text-white/90">Si tienes dudas sobre el proceso, nuestro equipo está listo para asistirte.</p>
+            <p className="mb-6 text-lg text-white">Si tienes dudas sobre el proceso, nuestro equipo está listo para asistirte.</p>
             <div className="mt-6">
               <Button asChild className="bg-secondary hover:bg-secondary/90 h-11 px-8 text-white">
                 <a href="/contacto">Contactar a un Asesor</a>
