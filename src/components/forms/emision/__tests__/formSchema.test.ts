@@ -1047,8 +1047,7 @@ describe('FormSchema Validation Tests', () => {
       expect(result.success).toBe(false);
       if (!result.success) {
         const errors = result.error.issues.map(err => err.message);
-        // Zod v4 uses different error message for enums
-        expect(errors).toContain('Invalid option: expected one of "si"|"no"');
+        expect(errors).toContain('Debes seleccionar una opción para declarar renta.');
       }
     });
 
