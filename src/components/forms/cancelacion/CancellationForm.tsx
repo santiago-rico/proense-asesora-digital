@@ -245,7 +245,10 @@ export function CancellationForm({ onSuccess }: CancellationFormProps) {
         </div>
       ) : (
         <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      {/* noValidate: zod shows its Spanish messages under each field on submit. The
+          inputs keep `required` for assistive tech, but the browser's own bubble would
+          block the submit first, in the browser's language. */}
+      <form noValidate onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormField
             control={form.control}

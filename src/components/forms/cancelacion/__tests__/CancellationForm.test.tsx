@@ -177,7 +177,9 @@ describe('CancellationForm', () => {
     it('shows the required-field messages on submit', async () => {
       render(<CancellationForm />);
 
-      submitForm();
+      // A real click: the form is noValidate, so the browser's own `required` check
+      // no longer blocks the submit before zod's messages
+      await userEvent.setup().click(submitButton());
 
       await waitFor(() => {
         expect(screen.getByText(/El nombre completo es requerido/i)).toBeInTheDocument();

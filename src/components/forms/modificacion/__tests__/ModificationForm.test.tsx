@@ -216,9 +216,11 @@ describe('ModificationForm', () => {
     it('shows the required-field messages on submit', async () => {
       render(<ModificationForm />);
 
-      // Native `required` stops a click on submit while a required field is empty
-      // (in jsdom too), so submit the form directly to reach zod's messages for them
-      fireEvent.submit(submitButton().closest('form')!);
+      // A real click: the form is noValidate, so the browser's own `required` check
+
+      // no longer blocks the submit before zod's messages
+
+      await userEvent.setup().click(submitButton());
 
       await waitFor(() => {
         expect(screen.getByText(/el nombre completo es requerido/i)).toBeInTheDocument();
