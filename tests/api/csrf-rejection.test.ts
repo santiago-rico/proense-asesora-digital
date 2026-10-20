@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+import type { VercelRequest, VercelResponse } from '../../api/_utils/vercel-types';
 
 // The endpoints import the Brevo client at top level; mock it so importing them
 // never needs API keys or network access.

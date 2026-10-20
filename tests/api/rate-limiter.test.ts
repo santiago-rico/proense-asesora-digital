@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+import type { VercelRequest, VercelResponse } from '../../api/_utils/vercel-types';
 import { rateLimit, rateLimitConfigs, withRateLimit, _store } from '../../api/_utils/rate-limiter';
 
 // Mock Vercel Request and Response

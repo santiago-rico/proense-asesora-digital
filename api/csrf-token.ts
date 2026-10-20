@@ -1,4 +1,4 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+import type { VercelRequest, VercelResponse } from './_utils/vercel-types.js';
 import { stringifySetCookie } from 'cookie';
 import { withRateLimit, rateLimitConfigs } from './_utils/rate-limiter.js';
 

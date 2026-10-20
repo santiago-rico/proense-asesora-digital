@@ -11,7 +11,8 @@
     { "path": "./tsconfig.node.json" },
     { "path": "./e2e/tsconfig.json" }
   ],
-  // tsc -b ignores these. They are what Vercel (@vercel/node) compiles the
+  // tsc -b ignores these. They are what Vercel's Node.js runtime (its own
+  // @vercel/node builder, not an npm dependency of this project) compiles the
   // api/ functions with: it reads only this file, not the references, so a
   // change here changes the deployed JavaScript. The shadcn CLI reads `paths`.
   "compilerOptions": {
