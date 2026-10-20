@@ -291,10 +291,6 @@ test.describe('Diálogo "Solicitar Asesoría"', () => {
   }
 
   test('al cerrarse devuelve el foco al botón que lo abrió', async ({ page }) => {
-    test.fail(
-      true,
-      'Known bug: focus falls to <body> on close. The dialog is opened from App state with no Radix DialogTrigger, so onCloseAutoFocus has no trigger to focus, src/components/forms/LeadGenerationDialog.tsx:14-15.',
-    );
     const site = new Site(page);
     await site.goto('/');
     const cta = site.main.getByRole('button', { name: 'Solicitar Asesoría', exact: true }).first();
@@ -321,10 +317,6 @@ test.describe('Diálogo "Solicitar Asesoría"', () => {
   });
 
   test('un clic en "Política de Privacidad" cierra el diálogo y muestra la política', async ({ page }) => {
-    test.fail(
-      true,
-      'Known bug: the first click on the link is lost. Its mousedown blurs the auto-focused, empty name field; onBlur validation inserts "El nombre es requerido" above the link, which moves before mouseup, src/components/forms/LeadForm.tsx:69 (mode "onBlur"), as in bug #1.',
-    );
     const site = new Site(page);
     await site.goto('/');
     await site.main.getByRole('button', { name: 'Solicitar Asesoría', exact: true }).first().click();

@@ -128,7 +128,6 @@ const SCANS: Scan[] = [
 const names = (scans: Scan[]) => scans.map(s => s.name);
 /** Every page rendered inside Layout (the 404 isn't), scanned whole. */
 const LAYOUT_PAGES = names(SCANS.filter(s => !s.include && s.path !== '/no-existe'));
-const LEAD_FORM_SCANS = ['/contacto', '/blog', '/blog/mi-post', ...names(PRODUCT_SCANS), DIALOG];
 
 interface KnownBug {
   title: string;
@@ -193,12 +192,6 @@ const KNOWN: KnownBug[] = [
     bug: 'the active link in the open mobile menu, text-primary on bg-blue-50 (#0073d1 on #eff6ff), is 4.41:1, src/components/layout/Navbar.tsx:350',
     ...mobileOnly([MOBILE_MENU]),
     node: colors('#0073d1', '#eff6ff'),
-  },
-  {
-    title: 'El selector "Tipo de Seguro de Interés" del LeadForm tiene nombre accesible',
-    rules: ['button-name'],
-    bug: 'the LeadForm insurance-type select (a Radix combobox button) has no accessible name: FormControl gives the label\'s target id to <Select>, which renders no element, src/components/forms/LeadForm.tsx:257-260',
-    ...both(LEAD_FORM_SCANS),
   },
   {
     title: 'El campo de archivos de modificación y cancelación tiene etiqueta',

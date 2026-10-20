@@ -14,7 +14,7 @@ import { PhoneInput } from "@/components/ui/phone-input";
 import { isValidPhoneNumber } from "react-phone-number-input";
 import es from 'react-phone-number-input/locale/es.json';
 import { FormSuccessScreen } from "@/components/shared/FormSuccessScreen";
-import { LEAD_FORM_INSURANCE_TYPES } from "@/constants/insuranceTypes";
+import { LEAD_FORM_INSURANCE_TYPES, toLeadFormInsuranceType } from "@/constants/insuranceTypes";
 import { safeParseResponse } from '@/utils/safe-response';
 
 const formSchema = z.object({
@@ -64,19 +64,31 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick, 
     fetchCsrfToken();
   }, [toast]);
 
+  const initialTipoSeguro = toLeadFormInsuranceType(initialInsuranceType);
+
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
-    mode: "onBlur",
+    // Validate on submit, then re-validate on change. On blur, an error message
+    // appearing or disappearing moves the button or link the pointer is pressing
+    // between mousedown and mouseup, and the click is lost.
+    mode: "onSubmit",
+    reValidateMode: "onChange",
     defaultValues: {
       nombre: "",
       email: "",
       telefono: "",
-      tipoSeguro: initialInsuranceType || "",
+      tipoSeguro: initialTipoSeguro,
       mensaje: "",
       terminos: false,
       website: "", // Honeypot field
     },
   });
+
+  // Every /seguros route renders the same page component, so navigating between
+  // products changes this prop without remounting the form
+  useEffect(() => {
+    form.resetField("tipoSeguro", { defaultValue: initialTipoSeguro });
+  }, [form, initialTipoSeguro]);
 
   const onSubmit = async (data: FormData) => {
     setIsLoading(true);
@@ -135,7 +147,12 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick, 
           return;
         }
 
-        throw new Error(errorMessage || (result?.message as string) || 'Error al enviar la solicitud.');
+        toast({
+          title: "Error al enviar solicitud",
+          description: errorMessage || (result?.message as string) || "Ocurrió un error al enviar tu solicitud. Por favor, intenta de nuevo.",
+          variant: "destructive",
+        });
+        return;
       }
 
       setIsSubmitted(true);
@@ -143,24 +160,23 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick, 
         nombre: "",
         email: "",
         telefono: "",
-        tipoSeguro: initialInsuranceType || "",
+        tipoSeguro: initialTipoSeguro,
         mensaje: "",
         terminos: false,
         website: "",
       });
 
-    } catch (error) {
-      let errorMessage = "Ocurrió un error al enviar tu solicitud. Por favor, intenta de nuevo.";
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      }
+    } catch {
+      // fetch rejected: the request got no response. Its message is the browser's, in English ("Failed to fetch")
       toast({
         title: "Error al enviar solicitud",
-        description: errorMessage,
+        description: "No se pudo conectar con el servidor. Verifica tu conexión a internet e intenta de nuevo.",
         variant: "destructive",
       });
+    } finally {
+      // Also after the CSRF and validation branches, which return early
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   const handleReset = () => {
@@ -183,7 +199,10 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick, 
       {title && <h3 className="text-xl font-bold mb-2">{title}</h3>}
       {subtitle && <p className="text-sm text-gray-600 mb-4">{subtitle}</p>}
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        {/* noValidate: zod shows its Spanish messages under each field on submit. The
+            inputs keep `required` for assistive tech, but the browser's own bubble would
+            block the submit first, in the browser's language. */}
+        <form noValidate onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
             control={form.control}
             name="nombre"
@@ -255,21 +274,22 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick, 
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Tipo de Seguro de Interés</FormLabel>
-                <FormControl>
-                  {/* No `required` on Select: the hidden native select it renders blocks submit before zod can show its message */}
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                {/* No `required` on Select: the hidden native select it renders blocks submit before zod can show its message */}
+                {/* Controlled `value`: the type changes when a product page passes another one */}
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
                     <SelectTrigger aria-required="true">
                       <SelectValue placeholder="Selecciona un tipo de seguro" />
                     </SelectTrigger>
-                    <SelectContent>
-                      {LEAD_FORM_INSURANCE_TYPES.map((tipo) => (
-                        <SelectItem key={tipo.value} value={tipo.value}>
-                          {tipo.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </FormControl>
+                  </FormControl>
+                  <SelectContent>
+                    {LEAD_FORM_INSURANCE_TYPES.map((tipo) => (
+                      <SelectItem key={tipo.value} value={tipo.value}>
+                        {tipo.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}

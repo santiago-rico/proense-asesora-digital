@@ -65,9 +65,9 @@ export class LeadForm {
     return this.container.getByPlaceholder('Número telefónico');
   }
 
-  /** The insurance-type select. Its label isn't wired to it, so it has no accessible name. */
+  /** The insurance-type select (a Radix combobox button), named by its label. */
   get typeSelect(): Locator {
-    return this.container.getByRole('combobox');
+    return this.container.getByRole('combobox', { name: 'Tipo de Seguro de Interés' });
   }
 
   get messageInput(): Locator {
