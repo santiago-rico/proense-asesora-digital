@@ -7,6 +7,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { CancellationForm } from '../CancellationForm';
+import { CSRF_ERROR_CODE } from '@/utils/csrf-error';
 
 // Mock the useToast hook
 const mockToast = vi.fn();
@@ -36,6 +37,54 @@ vi.mock('@/components/forms/emision/FileUpload', () => ({
     </div>
   ),
 }));
+
+type User = ReturnType<typeof userEvent.setup>;
+
+/** Fills every field with valid data; `overrides` replace what is typed or chosen in a field. */
+async function fillValidForm(user: User, overrides: { telefono?: string; email?: string; tipoSeguro?: string } = {}) {
+  await user.type(screen.getByLabelText(/nombre completo del tomador/i), 'Test User');
+  await user.type(screen.getByLabelText(/número de cédula del tomador/i), '12345678');
+  await user.type(screen.getByLabelText(/teléfono de contacto/i), overrides.telefono ?? '+573001234567');
+  await user.type(screen.getByLabelText(/email de contacto/i), overrides.email ?? 'test@example.com');
+  await user.type(screen.getByLabelText(/nombre de la aseguradora/i), 'Test Insurance');
+  await user.click(screen.getByRole('combobox'));
+  await user.click(screen.getByRole('option', { name: overrides.tipoSeguro ?? 'Seguro de Vida' }));
+  await user.click(screen.getByLabelText(/acepto la política/i));
+}
+
+const submitButton = () => screen.getByRole('button', { name: /enviar solicitud de cancelación/i });
+
+/**
+ * Native `required` stops a click on submit while a required field is empty (in
+ * jsdom too), so submit the form directly to reach zod's messages for them.
+ */
+const submitForm = () => fireEvent.submit(submitButton().closest('form')!);
+
+/**
+ * Captures the delayed `window.location.reload()` after a CSRF failure instead
+ * of scheduling it (jsdom can't navigate). Other timers run as usual.
+ */
+function interceptReload() {
+  const realSetTimeout = globalThis.setTimeout;
+  const reload = vi.fn();
+  vi.spyOn(globalThis, 'setTimeout').mockImplementation(((handler: () => void, timeout?: number) => {
+    if (timeout === 2000) {
+      reload();
+      return 0 as unknown as ReturnType<typeof setTimeout>;
+    }
+    return realSetTimeout(handler, timeout);
+  }) as typeof setTimeout);
+  return reload;
+}
+
+function mockResponse(status: number, body: Record<string, unknown>) {
+  (global.fetch as vi.Mock).mockResolvedValue({
+    ok: status >= 200 && status < 300,
+    status,
+    headers: new Headers({ 'content-type': 'application/json' }),
+    json: () => Promise.resolve(body),
+  });
+}
 
 describe('CancellationForm', () => {
 
@@ -104,101 +153,90 @@ describe('CancellationForm', () => {
   });
 
   describe('Form Validation', () => {
-    it('validates required fields', async () => {
+    it('does not validate a field when the user leaves it', async () => {
       const user = userEvent.setup();
       render(<CancellationForm />);
-      
-      // Blur required fields to trigger validation
+
       const nombreField = screen.getByLabelText(/nombre completo del tomador/i);
-      const cedulaField = screen.getByLabelText(/número de cédula del tomador/i);
-      const aseguradoraField = screen.getByLabelText(/nombre de la aseguradora/i);
-      const selectTrigger = screen.getByRole('combobox');
-      
+      const emailField = screen.getByLabelText(/email de contacto/i);
       await user.click(nombreField);
       await user.tab();
-      await user.click(cedulaField);
+      await user.click(emailField);
+      await user.paste('maria@example');
       await user.tab();
-      await user.click(aseguradoraField);
-      await user.tab();
-      // Also interact with select to trigger its validation
-      await user.click(selectTrigger);
-      await user.keyboard('{Escape}'); // Close select without selecting
-      
-      // Try to submit empty form to trigger any remaining validation
-      const submitButton = screen.getByRole('button', { name: /enviar solicitud de cancelación/i });
-      await user.click(submitButton);
-      
-      // Should show validation errors - use exact text from schema
+      // Gives a blur validation time to show up before checking it didn't
+      await user.paste('Test Insurance');
+      expect(screen.getByLabelText(/nombre de la aseguradora/i)).toHaveValue('Test Insurance');
+
+      expect(screen.queryByText(/El nombre completo es requerido/i)).not.toBeInTheDocument();
+      expect(screen.queryByText(/Correo electrónico inválido/i)).not.toBeInTheDocument();
+      expect(nombreField).toHaveAttribute('aria-invalid', 'false');
+      expect(emailField).toHaveAttribute('aria-invalid', 'false');
+    });
+
+    it('shows the required-field messages on submit', async () => {
+      render(<CancellationForm />);
+
+      submitForm();
+
       await waitFor(() => {
         expect(screen.getByText(/El nombre completo es requerido/i)).toBeInTheDocument();
         expect(screen.getByText(/El número de cédula es requerido/i)).toBeInTheDocument();
         expect(screen.getByText(/El nombre de la aseguradora es requerido/i)).toBeInTheDocument();
-        // Note: Select validation might not trigger in onBlur mode the same way as inputs
-        // The form will still prevent submission if select is empty due to form validation
+        expect(screen.getByText('Debe seleccionar un tipo de seguro')).toBeInTheDocument();
       });
+      expect(global.fetch).not.toHaveBeenCalled();
     });
 
-    it('validates email format', async () => {
+    it('validates the email on submit and clears its error as soon as it is fixed', async () => {
       const user = userEvent.setup();
       render(<CancellationForm />);
-      
+
+      // Valid for a type=email input, rejected by zod
+      await fillValidForm(user, { email: 'maria@example' });
+      await user.click(submitButton());
+
+      expect(await screen.findByText(/Correo electrónico inválido/i)).toBeInTheDocument();
+      expect(global.fetch).not.toHaveBeenCalled();
+
+      // After a submit, errors update on change: no blur needed
       const emailField = screen.getByLabelText(/email de contacto/i);
-      
-      // Enter invalid email
-      await user.type(emailField, 'invalid-email');
-      await user.tab(); // Trigger onBlur validation
-      
+      await user.clear(emailField);
+      // One change event: re-validating on every keystroke would only slow the test down
+      await user.paste('test@example.com');
       await waitFor(() => {
-        expect(screen.getByText(/Correo electrónico inválido/i)).toBeInTheDocument();
+        expect(screen.queryByText(/Correo electrónico inválido/i)).not.toBeInTheDocument();
       });
+      expect(emailField).toHaveFocus();
+      expect(emailField).toHaveAttribute('aria-invalid', 'false');
+
+      // Nothing moves under the pointer now, so one click submits
+      await user.click(submitButton());
+      await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(1));
     });
 
-    it('validates phone number format', async () => {
+    it('validates phone number format on submit', async () => {
       const user = userEvent.setup();
       render(<CancellationForm />);
-      
-      // Find the phone input field (it's an input inside the PhoneInput component)
-      const phoneField = screen.getByRole('textbox', { name: /teléfono de contacto/i });
-      
-      // Enter invalid phone number
-      await user.type(phoneField, '123');
-      await user.tab(); // Trigger onBlur validation
-      
-      await waitFor(() => {
-        expect(screen.getByText(/Número de teléfono inválido/i)).toBeInTheDocument();
-      });
+
+      await fillValidForm(user, { telefono: '123' });
+      await user.click(submitButton());
+
+      expect(await screen.findByText(/Número de teléfono inválido/i)).toBeInTheDocument();
+      expect(global.fetch).not.toHaveBeenCalled();
     });
 
     it('validates conditional otroSeguro field', async () => {
       const user = userEvent.setup();
       render(<CancellationForm />);
-      
-      // Select "otro" option for tipo de seguro
-      const selectTrigger = screen.getByRole('combobox');
-      await user.click(selectTrigger);
-      
-      const otroOption = screen.getByRole('option', { name: 'Otro' });
-      await user.click(otroOption);
-      
-      // Should show otroSeguro field
-      await waitFor(() => {
-        expect(screen.getByLabelText(/especifica qué seguro/i)).toBeInTheDocument();
-      });
-      
-      // Submit form without filling otroSeguro
-      const submitButton = screen.getByRole('button', { name: /enviar solicitud de cancelación/i });
-      await user.click(submitButton);
-      
-      // The conditional validation might not trigger in onBlur mode
-      // We'll check if the form prevents submission without this field
-      // by attempting to trigger validation on the otroSeguro field
-      const otroSeguroField = screen.getByLabelText(/especifica qué seguro/i);
-      await user.click(otroSeguroField);
-      await user.tab();
-      
-      await waitFor(() => {
-        expect(screen.getByText(/Debe especificar el tipo de seguro/i)).toBeInTheDocument();
-      });
+
+      await fillValidForm(user, { tipoSeguro: 'Otro' });
+      // Blank but not empty: passes native `required`, fails the schema's trim check
+      await user.type(screen.getByLabelText(/especifica qué seguro/i), '   ');
+      await user.click(submitButton());
+
+      expect(await screen.findByText(/Debe especificar el tipo de seguro/i)).toBeInTheDocument();
+      expect(global.fetch).not.toHaveBeenCalled();
     });
 
     it('requires terms and conditions acceptance', async () => {
@@ -406,10 +444,10 @@ describe('CancellationForm', () => {
       });
     });
 
-    it('handles network errors gracefully', async () => {
+    it('shows a Spanish message when the request never reaches the server', async () => {
       const user = userEvent.setup();
-      // Mock network error
-      (global.fetch as vi.Mock).mockRejectedValue(new Error('Network error'));
+      // What fetch rejects with when offline: a TypeError with the browser's English message
+      (global.fetch as vi.Mock).mockRejectedValue(new TypeError('Failed to fetch'));
 
       render(<CancellationForm />);
       
@@ -437,11 +475,56 @@ describe('CancellationForm', () => {
         expect(mockToast).toHaveBeenCalledWith(
           expect.objectContaining({
             title: 'Error en el envío',
-            description: 'Network error',
+            description: 'No se pudo conectar con el servidor. Verifica tu conexión a internet e intenta de nuevo.',
             variant: 'destructive',
           })
         );
       });
+      expect(mockToast).not.toHaveBeenCalledWith(
+        expect.objectContaining({ description: expect.stringContaining('Failed to fetch') })
+      );
+    });
+
+    it.each(['Token de seguridad inválido', 'Invalid CSRF token'])(
+      'on a CSRF 403 (message "%s") warns and reloads the page',
+      async (message) => {
+        const user = userEvent.setup();
+        const reload = interceptReload();
+        mockResponse(403, { message, code: CSRF_ERROR_CODE });
+        render(<CancellationForm />);
+
+        await fillValidForm(user);
+        await user.click(submitButton());
+
+        await waitFor(() => {
+          expect(mockToast).toHaveBeenCalledWith(
+            expect.objectContaining({
+              title: 'Error de Seguridad',
+              description: 'Token de seguridad inválido. Recargando página...',
+              variant: 'destructive',
+            })
+          );
+        });
+        expect(reload).toHaveBeenCalledTimes(1);
+      }
+    );
+
+    it('treats a 403 without the CSRF code as an ordinary error', async () => {
+      const user = userEvent.setup();
+      const reload = interceptReload();
+      mockResponse(403, { message: 'Acceso denegado' });
+      render(<CancellationForm />);
+
+      await fillValidForm(user);
+      await user.click(submitButton());
+
+      await waitFor(() => {
+        expect(mockToast).toHaveBeenCalledWith(
+          expect.objectContaining({ title: 'Error en el envío', description: 'Acceso denegado' })
+        );
+      });
+      expect(mockToast).not.toHaveBeenCalledWith(expect.objectContaining({ title: 'Error de Seguridad' }));
+      expect(reload).not.toHaveBeenCalled();
     });
 
     it('disables submit button during submission', async () => {
@@ -576,14 +659,11 @@ describe('CancellationForm', () => {
     });
 
     it('shows validation errors in accessible way', async () => {
-      const user = userEvent.setup();
       render(<CancellationForm />);
-      
-      // Trigger validation by interacting with fields
+
       const nombreField = screen.getByLabelText(/nombre completo del tomador/i);
-      await user.click(nombreField);
-      await user.tab();
-      
+      submitForm();
+
       // Wait for validation errors to appear
       await waitFor(() => {
         // Check for validation error messages by text content since they might not have role="alert"

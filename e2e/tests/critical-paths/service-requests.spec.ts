@@ -8,6 +8,7 @@ import {
   type ServiceRequestConfig,
 } from '../../fixtures/page-objects/service-request-form';
 import { applicant, MB, pdfFile, pngFile, textFile } from '../../fixtures/test-data';
+import { CSRF_ERROR_CODE } from '../../../src/utils/csrf-error';
 
 type FormName = ServiceRequestConfig['name'];
 
@@ -30,18 +31,11 @@ const SERVER_FIELD_ERRORS: Record<FormName, { cedula?: string; detalle?: string;
   },
 };
 
-/** Each server's real 403 body when its CSRF check fails, and the bug it triggers (if any). */
-const REAL_CSRF_403: Record<FormName, { message: string; knownBug?: string }> = {
-  Modificación: { message: 'Invalid CSRF token' }, // api/send-modification-request.ts:113
-  Cancelación: {
-    message: 'Token de seguridad inválido', // api/send-cancellation-request.ts:126
-    knownBug:
-      'Known bug: the server answers a CSRF failure with "Token de seguridad inválido", but the client only reloads when the message contains "CSRF", so it shows a generic error instead, src/components/forms/cancelacion/CancellationForm.tsx:145.',
-  },
+/** Each server's real 403 body when its CSRF check fails: the messages differ, the code doesn't. */
+const REAL_CSRF_403: Record<FormName, { message: string; code: string }> = {
+  Modificación: { message: 'Invalid CSRF token', code: CSRF_ERROR_CODE }, // api/send-modification-request.ts:114
+  Cancelación: { message: 'Token de seguridad inválido', code: CSRF_ERROR_CODE }, // api/send-cancellation-request.ts:127
 };
-
-/** Line of each form's catch block, whose Spanish fallback never applies to a failed fetch. */
-const NETWORK_ERROR_LINE: Record<FormName, number> = { Modificación: 180, Cancelación: 181 };
 
 for (const config of SERVICE_REQUEST_FORMS) {
   test.describe(`${config.name} de póliza`, () => {
@@ -129,38 +123,50 @@ for (const config of SERVICE_REQUEST_FORMS) {
       });
 
       test.describe('Validación', () => {
-        test('valida el correo al salir del campo', async ({ page }) => {
+        test('valida el correo al enviar, no al salir del campo; el error se quita al corregirlo', async ({ page }) => {
+          const submissions = await mockMultipartSubmission(page, config.endpoint, respond.success());
           const emailError = page.getByText('Correo electrónico inválido');
+          await form.fillValid();
           // Valid for a type=email input, rejected by zod.
           await form.emailInput.fill('maria@example');
           await form.emailInput.press('Tab');
-          await expect(emailError).toBeVisible();
-
-          // Before the first submit, errors only update on blur (mode 'onBlur').
-          await form.emailInput.fill(applicant.email);
-          await expect(emailError).toBeVisible();
-          await form.emailInput.press('Tab');
+          await expect(form.aseguradoraInput).toBeFocused();
+          // Leaving the field doesn't validate it (mode 'onSubmit').
           await expect(emailError).toBeHidden();
-        });
+          await expect(form.emailInput).toHaveAttribute('aria-invalid', 'false');
 
-        test('tras corregir el correo, un solo clic en enviar envía la solicitud', async ({ page, isMobile }) => {
-          test.skip(isMobile, 'On the mobile viewport the field is scrolled out of view and the click lands.');
-          test.fail(
-            true,
-            `Known bug: the first click on submit after fixing an invalid field is lost. mousedown blurs the field, onBlur validation removes its error message, the button moves up before mouseup and the click never fires, ${config.sourceFile}:61 (mode 'onBlur').`,
-          );
-          const submissions = await mockMultipartSubmission(page, config.endpoint, respond.success());
-          await form.fillValid();
-          await form.emailInput.fill('maria@example');
-          await form.emailInput.press('Tab');
-          await expect(page.getByText('Correo electrónico inválido')).toBeVisible();
-
-          await form.emailInput.fill(applicant.email);
           await form.submitButton.click();
-          // A click that lands submits at once to the mock; don't wait the full default timeout.
-          await expect.poll(() => submissions.length, { timeout: 2000 }).toBe(1);
-          await expect(form.successHeading).toBeVisible();
+          await expect(emailError).toBeVisible();
+          await expect(form.emailInput).toHaveAttribute('aria-invalid', 'true');
+          expect(submissions).toHaveLength(0);
+
+          // After a submit, a fix clears the error at once, without leaving the field (reValidateMode 'onChange').
+          await form.emailInput.fill(applicant.email);
+          await expect(emailError).toBeHidden();
+          await expect(form.emailInput).toBeFocused();
         });
+
+        // The click used to be lost: mousedown blurred the field, blur validation removed its
+        // error message, and the button moved up before mouseup.
+        for (const showError of ['al salir del campo', 'al enviar'] as const) {
+          test(`tras corregir el correo (inválido ${showError}), un solo clic en enviar envía la solicitud`, async ({ page }) => {
+            const submissions = await mockMultipartSubmission(page, config.endpoint, respond.success());
+            await form.fillValid();
+            await form.emailInput.fill('maria@example');
+            if (showError === 'al enviar') {
+              await form.submitButton.click();
+              await expect(page.getByText('Correo electrónico inválido')).toBeVisible();
+            } else {
+              await form.emailInput.press('Tab');
+            }
+
+            await form.emailInput.fill(applicant.email);
+            await form.submitButton.click();
+            // A click that lands submits at once to the mock; don't wait the full default timeout.
+            await expect.poll(() => submissions.length, { timeout: 2000 }).toBe(1);
+            await expect(form.successHeading).toBeVisible();
+          });
+        }
 
         test('no envía sin aceptar la política y los términos', async ({ page }) => {
           const submissions = await mockMultipartSubmission(page, config.endpoint, respond.success());
@@ -236,9 +242,7 @@ for (const config of SERVICE_REQUEST_FORMS) {
         });
 
         test('403 por CSRF con la respuesta real del servidor: avisa y recarga la página', async ({ page }) => {
-          const { message, knownBug } = REAL_CSRF_403[config.name];
-          test.fail(!!knownBug, knownBug);
-          await mockMultipartSubmission(page, config.endpoint, respond.json(403, { message }));
+          await mockMultipartSubmission(page, config.endpoint, respond.json(403, REAL_CSRF_403[config.name]));
           await form.fillValid();
           await form.submitButton.click();
 
@@ -251,10 +255,6 @@ for (const config of SERVICE_REQUEST_FORMS) {
         });
 
         test('error de red: muestra un mensaje de conexión en español', async ({ page }) => {
-          test.fail(
-            true,
-            `Known bug: a failed fetch shows the browser's English "Failed to fetch"; the Spanish fallback is only used for non-Error values, ${config.sourceFile}:${NETWORK_ERROR_LINE[config.name]}.`,
-          );
           await mockMultipartSubmission(page, config.endpoint, respond.networkError());
           await form.fillValid();
           await form.submitButton.click();
