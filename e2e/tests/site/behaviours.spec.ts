@@ -34,11 +34,6 @@ test.describe('Comportamientos globales', () => {
   });
 
   test('una ruta diferida muestra un indicador de carga mientras descarga su página', async ({ page }) => {
-    test.fail(
-      true,
-      'Known bug: PageLoadingSpinner is a bare animated <div> with no role="status" or label, so screen readers '
-        + 'never hear that a page is loading, src/App.tsx:26-30.',
-    );
     const site = new Site(page);
     let release!: () => void;
     const held = new Promise<void>(resolve => (release = resolve));
