@@ -426,6 +426,22 @@ describe('FileUpload Component', () => {
 
       const label = screen.getByText('Foto de Cédula');
       expect(label.tagName).toBe('LABEL');
+      // The label names the file input itself, not just sits next to it
+      expect(screen.getByLabelText('Foto de Cédula')).toBe(screen.getByTestId('file-input'));
+    });
+
+    it('labels each file input with its own label when several uploads share a page', () => {
+      render(
+        <TestWrapper>
+          <FileUpload name="fotoCedula" label="Foto de Cédula *" />
+          <FileUpload name="rut" label="RUT (Obligatorio) *" />
+        </TestWrapper>
+      );
+
+      const [cedulaInput, rutInput] = screen.getAllByTestId('file-input');
+      expect(screen.getByLabelText(/Foto de Cédula/)).toBe(cedulaInput);
+      expect(screen.getByLabelText(/RUT \(Obligatorio\)/)).toBe(rutInput);
+      expect(cedulaInput.getAttribute('aria-labelledby')).not.toBe(rutInput.getAttribute('aria-labelledby'));
     });
 
     it('shows required indicator correctly', () => {

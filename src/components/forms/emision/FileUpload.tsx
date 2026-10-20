@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useId } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Upload, File as FileIcon, X, Loader2 } from 'lucide-react';
 import { useFormContext } from 'react-hook-form';
@@ -97,6 +97,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ name, label, description, multi
   const [fileDropError, setFileDropError] = useState<string | null>(null);
   const [fileWarning, setFileWarning] = useState<string | null>(null);
   const [isCompressing, setIsCompressing] = useState(false);
+  const labelId = useId();
 
   const onDropAccepted = useCallback(async (acceptedFiles: File[]) => {
     setFileDropError(null);
@@ -181,7 +182,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ name, label, description, multi
 
   return (
     <div className="space-y-2">
-      <label className="text-sm font-medium">
+      <label id={labelId} className="text-sm font-medium">
         {label.endsWith(" *") ? label.substring(0, label.length - 2) : label}
         {label.endsWith(" *") && <span className="text-red-500"> *</span>}
       </label>
@@ -194,7 +195,8 @@ const FileUpload: React.FC<FileUploadProps> = ({ name, label, description, multi
         ${isCompressing ? 'opacity-60 cursor-wait' : ''}
         hover:border-primary/50 hover:bg-gray-50 transition-colors duration-200`}
       >
-        <input {...getInputProps()} />
+        {/* aria-labelledby, not htmlFor: a click on the label must not open the file picker while the dropzone is disabled */}
+        <input {...getInputProps()} aria-labelledby={labelId} />
         {isCompressing ? (
           <>
             <Loader2 className="w-8 h-8 sm:w-10 sm:h-10 text-primary mb-2 animate-spin" />
