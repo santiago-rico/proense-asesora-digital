@@ -203,6 +203,29 @@ test.describe('Menú móvil', () => {
     await expect.poll(bodyOverflow(site)).toBe('visible');
   });
 
+  test('Tab solo recorre los controles visibles del menú', async ({ page }) => {
+    const site = new Site(page);
+    await site.goto('/');
+
+    // Closed, the panel is skipped: Tab goes from the hamburger to the hero CTA, main's first control.
+    await site.hamburger.focus();
+    await page.keyboard.press('Tab');
+    await expect(site.main.getByRole('button', { name: 'Solicitar Asesoría', exact: true }).first()).toBeFocused();
+
+    // Open, Tab walks its top-level items, skipping the links of the collapsed submenus.
+    await site.openMobileMenu();
+    await site.hamburger.focus();
+    for (const item of [
+      site.mobileMenu.getByRole('link', { name: 'Inicio', exact: true }),
+      site.mobileSectionToggle('Seguros'),
+      site.mobileSectionToggle('Clientes'),
+      site.mobileMenu.getByRole('link', { name: 'Nosotros', exact: true }),
+    ]) {
+      await page.keyboard.press('Tab');
+      await expect(item).toBeFocused();
+    }
+  });
+
   test('Escape cierra el menú y devuelve el foco al botón hamburguesa', async ({ page }) => {
     const site = new Site(page);
     await site.goto('/');

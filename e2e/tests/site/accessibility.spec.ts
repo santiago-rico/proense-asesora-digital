@@ -125,10 +125,6 @@ const SCANS: Scan[] = [
   },
 ];
 
-const names = (scans: Scan[]) => scans.map(s => s.name);
-/** Every page rendered inside Layout (the 404 isn't), scanned whole. */
-const LAYOUT_PAGES = names(SCANS.filter(s => !s.include && s.path !== '/no-existe'));
-
 interface KnownBug {
   title: string;
   rules: string[];
@@ -145,7 +141,6 @@ interface KnownBug {
 }
 
 const both = (scans: string[]) => ({ desktop: scans, mobile: scans });
-const mobileOnly = (scans: string[]) => ({ desktop: [], mobile: scans });
 
 interface ContrastData {
   fgColor: string;
@@ -172,29 +167,10 @@ const KNOWN: KnownBug[] = [
     node: colors('#ffffff', '#3b8c59'),
   },
   {
-    title: 'Contraste: enlace activo del menú móvil',
-    rules: ['color-contrast'],
-    bug: 'the active link in the open mobile menu, text-primary on bg-blue-50 (#0073d1 on #eff6ff), is 4.41:1, src/components/layout/Navbar.tsx:350',
-    ...mobileOnly([MOBILE_MENU]),
-    node: colors('#0073d1', '#eff6ff'),
-  },
-  {
     title: 'El campo de archivos de modificación y cancelación tiene etiqueta',
     rules: ['label'],
     bug: 'the dropzone\'s <input type="file"> has no label; FileUpload\'s <label> is not associated with it, src/components/forms/emision/FileUpload.tsx:184,197',
     ...both(['/clientes/modificaciones', '/clientes/cancelaciones']),
-  },
-  {
-    title: 'El menú móvil cerrado no deja elementos enfocables ocultos',
-    rules: ['aria-hidden-focus'],
-    bug: 'the collapsed mobile menu is aria-hidden but its links and buttons stay focusable, so Tab reaches invisible controls, src/components/layout/Navbar.tsx:304',
-    ...mobileOnly(LAYOUT_PAGES),
-  },
-  {
-    title: 'El menú móvil abierto usa roles de menú válidos',
-    rules: ['aria-required-children'],
-    bug: 'the mobile menu panel has role="menu" but holds plain links and buttons, no menuitems, src/components/layout/Navbar.tsx:302',
-    ...mobileOnly([MOBILE_MENU]),
   },
 ];
 
