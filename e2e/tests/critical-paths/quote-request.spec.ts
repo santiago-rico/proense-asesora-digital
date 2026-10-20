@@ -516,6 +516,76 @@ test.describe('Cotización de seguros', () => {
       await expect(form.summaryValue('Cédula del Propietario')).toBeHidden();
     });
 
+    for (const type of ['vida', 'salud'] as const) {
+      test(`${QUOTE_TYPE_LABELS[type]}: al cambiar "Sí" por "No" se borra el detalle de deportes y enfermedades, que no se muestra ni se envía`, async ({ page }) => {
+        const submissions = await mockJsonSubmission(page, QUOTE_ENDPOINT, respond.success());
+        const sports = 'Practicas algún deporte';
+        const illness = '¿Tienes o padeces alguna enfermedad?';
+        const sportsDetails = form.input('¿Qué deportes practicas?');
+        const healthDetails = form.input('¿Qué enfermedades?');
+
+        await form.startQuote(type);
+        await form.fillDetails(type); // "Sí" to sports, with "Natación"
+        await form.choose(illness, 'Sí');
+        await healthDetails.fill('Asma');
+        await form.choose(sports, 'No');
+        await form.choose(illness, 'No');
+        await expect(sportsDetails).toBeHidden();
+        await expect(healthDetails).toBeHidden();
+        // Asked again, the details start empty instead of bringing the old answer back.
+        await form.choose(sports, 'Sí');
+        await expect(sportsDetails).toHaveValue('');
+        await form.choose(sports, 'No');
+
+        await form.next('Resumen y Envío');
+        await expect(form.summaryValue('¿Practica Deportes?')).toHaveText('No');
+        await expect(form.summaryValue('¿Tiene Enfermedades?')).toHaveText('No');
+        await expect(form.summaryValue('Deportes que Practica')).toBeHidden();
+        await expect(form.summaryValue('Enfermedades')).toBeHidden();
+
+        await form.acceptTerms();
+        await form.submit();
+        await expect(form.successHeading).toBeVisible();
+        expect(submissions).toHaveLength(1);
+        expect(submissions[0].body).toMatchObject({
+          insuranceType: type,
+          practicesSports: 'no',
+          sportsDetails: '',
+          hasHealthConditions: 'no',
+          healthConditionsDetails: '',
+        });
+      });
+    }
+
+    test('Hogar: al cambiar "Sí" por "No" en asegurar contenidos se borran sus valores, que no se muestran ni se envían', async ({ page }) => {
+      const submissions = await mockJsonSubmission(page, QUOTE_ENDPOINT, respond.success());
+      const wantsContents = '¿Deseas asegurar también los contenidos de tu hogar?';
+      const contentsValue = form.input('Valor de los contenidos (muebles y enseres)');
+
+      await form.startQuote('hogar');
+      await form.fillHogar(); // "Sí" to contents, with a contents value
+      await form.input('Valor a asegurar por hurto (Opcional)').fill('5000000');
+      await form.choose(wantsContents, 'No');
+      await expect(contentsValue).toBeHidden();
+
+      await form.next('Resumen y Envío');
+      await expect(form.summaryValue('¿Desea Asegurar Contenidos?')).toHaveText('No');
+      await expect(form.summaryValue('Valor de los Contenidos')).toBeHidden();
+      await expect(form.summaryValue('Valor a Asegurar por Hurto')).toBeHidden();
+
+      await form.acceptTerms();
+      await form.submit();
+      await expect(form.successHeading).toBeVisible();
+      expect(submissions).toHaveLength(1);
+      expect(submissions[0].body).toMatchObject({
+        wantsContentsCoverage: 'no',
+        contentsValue: '',
+        electricContentsValue: '',
+        theftValue: '',
+        portableContentsValue: '',
+      });
+    });
+
     test('Mascotas: exige los datos de la mascota y el detalle si tuvo una enfermedad o accidente grave', async () => {
       const illness = '¿Tu mascota ha tenido enfermedades o accidentes graves en el último año?';
       const details = form.input('¿Qué enfermedades o accidentes tuvo tu mascota?');

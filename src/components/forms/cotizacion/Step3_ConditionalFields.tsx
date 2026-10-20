@@ -12,9 +12,40 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 
+// Sí/No questions whose "Sí" reveals the fields listed for it. Any other answer
+// hides those fields again, so what was typed in them is dropped: like the
+// owner fields of "tercero" (TERCERO_FIELDS), a hidden answer must not reach
+// the summary or the email.
+const DETAILS_SHOWN_ON_SI = {
+  practicesSports: ['sportsDetails'],
+  hasHealthConditions: ['healthConditionsDetails'],
+  hasAccessories: ['accessoriesValue', 'accessoriesType'],
+  // Not asked of arrendatarios (they always insure contents), so "No" hides these.
+  wantsContentsCoverage: ['contentsValue', 'electricContentsValue', 'theftValue', 'portableContentsValue'],
+  petHasSeriousIllness: ['petSeriousIllnessDetails'],
+} as const;
+
+type QuestionWithDetails = keyof typeof DETAILS_SHOWN_ON_SI;
+
+/**
+ * `onValueChange` for the select of a DETAILS_SHOWN_ON_SI question: records the
+ * answer and, unless it is "Sí", clears the detail fields it hides.
+ */
+const useOnYesNoChange = () => {
+  const { setValue } = useFormContext();
+  return (field: { name: QuestionWithDetails; onChange: (value: string) => void }) =>
+    (value: string) => {
+      field.onChange(value);
+      if (value !== 'si') {
+        DETAILS_SHOWN_ON_SI[field.name].forEach((name) => setValue(name, ''));
+      }
+    };
+};
+
 // Sub-component for Vida (Life Insurance) Fields
 const VidaFields = () => {
   const { control, watch } = useFormContext();
+  const onYesNoChange = useOnYesNoChange();
   const practicesSports = watch('practicesSports');
   const hasHealthConditions = watch('hasHealthConditions');
 
@@ -150,7 +181,7 @@ const VidaFields = () => {
         render={({ field }) => (
           <FormItem>
             <FormLabel>Practicas algún deporte <span className="text-red-500">*</span></FormLabel>
-            <Select onValueChange={field.onChange} value={field.value || ''}>
+            <Select onValueChange={onYesNoChange(field)} value={field.value || ''}>
               <FormControl>
                 <SelectTrigger>
                   <SelectValue placeholder="Seleccione una opción" />
@@ -192,7 +223,7 @@ const VidaFields = () => {
         render={({ field }) => (
           <FormItem>
             <FormLabel>¿Tienes o padeces alguna enfermedad? <span className="text-red-500">*</span></FormLabel>
-            <Select onValueChange={field.onChange} value={field.value || ''}>
+            <Select onValueChange={onYesNoChange(field)} value={field.value || ''}>
               <FormControl>
                 <SelectTrigger>
                   <SelectValue placeholder="Seleccione una opción" />
@@ -235,6 +266,7 @@ const VidaFields = () => {
 // Sub-component for Auto (Car Insurance) Fields
 const AutoFields = () => {
   const { control, watch } = useFormContext();
+  const onYesNoChange = useOnYesNoChange();
   const hasAccessories = watch('hasAccessories');
 
   return (
@@ -326,7 +358,7 @@ const AutoFields = () => {
         render={({ field }) => (
           <FormItem>
             <FormLabel>¿El vehículo tiene accesorios o modificaciones?</FormLabel>
-            <Select onValueChange={field.onChange} value={field.value || ''}>
+            <Select onValueChange={onYesNoChange(field)} value={field.value || ''}>
               <FormControl>
                 <SelectTrigger>
                   <SelectValue placeholder="Elige una opción" />
@@ -409,6 +441,7 @@ const TERCERO_FIELDS = ['ownerName', 'ownerCedula', 'ownerBirthDate', 'residesIn
 // Sub-component for Hogar (Home Insurance) Fields
 const HogarFields = () => {
   const { control, watch, setValue } = useFormContext();
+  const onYesNoChange = useOnYesNoChange();
   const propertyRelationship = watch('propertyRelationship');
   const propertyType = watch('propertyType');
   const wantsContentsCoverage = watch('wantsContentsCoverage');
@@ -838,7 +871,7 @@ const HogarFields = () => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>¿Deseas asegurar también los contenidos de tu hogar? <span className="text-red-500">*</span></FormLabel>
-                <Select onValueChange={field.onChange} value={field.value || ''}>
+                <Select onValueChange={onYesNoChange(field)} value={field.value || ''}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Seleccione una opción" />
@@ -955,6 +988,7 @@ const HogarFields = () => {
 // Sub-component for Salud (Health Insurance) Fields
 const SaludFields = () => {
   const { control, watch } = useFormContext();
+  const onYesNoChange = useOnYesNoChange();
   const practicesSports = watch('practicesSports');
   const hasHealthConditions = watch('hasHealthConditions');
 
@@ -1025,7 +1059,7 @@ const SaludFields = () => {
         render={({ field }) => (
           <FormItem>
             <FormLabel>Practicas algún deporte <span className="text-red-500">*</span></FormLabel>
-            <Select onValueChange={field.onChange} value={field.value || ''}>
+            <Select onValueChange={onYesNoChange(field)} value={field.value || ''}>
               <FormControl>
                 <SelectTrigger>
                   <SelectValue placeholder="Seleccione una opción" />
@@ -1067,7 +1101,7 @@ const SaludFields = () => {
         render={({ field }) => (
           <FormItem>
             <FormLabel>¿Tienes o padeces alguna enfermedad? <span className="text-red-500">*</span></FormLabel>
-            <Select onValueChange={field.onChange} value={field.value || ''}>
+            <Select onValueChange={onYesNoChange(field)} value={field.value || ''}>
               <FormControl>
                 <SelectTrigger>
                   <SelectValue placeholder="Seleccione una opción" />
@@ -1110,6 +1144,7 @@ const SaludFields = () => {
 // Sub-component for Mascotas (Pet Insurance) Fields
 const MascotasFields = () => {
   const { control, watch } = useFormContext();
+  const onYesNoChange = useOnYesNoChange();
   const petHasSeriousIllness = watch('petHasSeriousIllness');
 
   return (
@@ -1240,7 +1275,7 @@ const MascotasFields = () => {
         render={({ field }) => (
           <FormItem>
             <FormLabel>¿Tu mascota ha tenido enfermedades o accidentes graves en el último año? <span className="text-red-500">*</span></FormLabel>
-            <Select onValueChange={field.onChange} value={field.value || ''}>
+            <Select onValueChange={onYesNoChange(field)} value={field.value || ''}>
               <FormControl>
                 <SelectTrigger>
                   <SelectValue placeholder="Elige una opción" />
