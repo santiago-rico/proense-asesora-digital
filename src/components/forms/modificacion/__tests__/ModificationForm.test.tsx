@@ -3,7 +3,7 @@
  * Tests form validation, CSRF integration, and user interactions
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, type Mock, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ModificationForm } from '../ModificationForm';
@@ -70,7 +70,7 @@ function interceptReload() {
 }
 
 function mockResponse(status: number, body: Record<string, unknown>) {
-  (global.fetch as vi.Mock).mockResolvedValue({
+  (global.fetch as Mock).mockResolvedValue({
     ok: status >= 200 && status < 300,
     status,
     headers: new Headers({ 'content-type': 'application/json' }),
@@ -100,7 +100,7 @@ describe('ModificationForm', () => {
     (useToast as ReturnType<typeof vi.fn>).mockReturnValue({ toast: mockToast });
 
     // Mock successful fetch response
-    (global.fetch as vi.Mock).mockResolvedValue({
+    (global.fetch as Mock).mockResolvedValue({
       ok: true,
       status: 200,
       headers: new Headers({ 'content-type': 'application/json' }),
@@ -401,7 +401,7 @@ describe('ModificationForm', () => {
 
     it('handles submission errors gracefully', async () => {
       // Mock failed response
-      (global.fetch as vi.Mock).mockResolvedValue({
+      (global.fetch as Mock).mockResolvedValue({
         ok: false,
         status: 400,
         headers: new Headers({ 'content-type': 'application/json' }),
@@ -485,7 +485,7 @@ describe('ModificationForm', () => {
 
     it('shows a Spanish message when the request never reaches the server', async () => {
       // What fetch rejects with when offline: a TypeError with the browser's English message
-      (global.fetch as vi.Mock).mockRejectedValue(new TypeError('Failed to fetch'));
+      (global.fetch as Mock).mockRejectedValue(new TypeError('Failed to fetch'));
       render(<ModificationForm />);
 
       await fillValidForm(user);
@@ -555,7 +555,7 @@ describe('ModificationForm', () => {
       // Check that FormData was created with honeypot field
       await waitFor(() => {
         expect(global.fetch).toHaveBeenCalled();
-        const [, options] = (global.fetch as vi.Mock).mock.calls[0] as [string, RequestInit];
+        const [, options] = (global.fetch as Mock).mock.calls[0] as [string, RequestInit];
         const formData = options.body;
         expect(formData).toBeInstanceOf(FormData);
       });
@@ -564,7 +564,7 @@ describe('ModificationForm', () => {
     it('disables form fields during submission', async () => {
       // Mock slow response that doesn't resolve immediately
       let resolveResponse: (value: Response) => void;
-      (global.fetch as vi.Mock).mockImplementation(() => 
+      (global.fetch as Mock).mockImplementation(() => 
         new Promise<Response>(resolve => {
           resolveResponse = resolve;
         })

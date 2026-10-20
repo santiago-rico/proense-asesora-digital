@@ -3,7 +3,7 @@
  * Tests form validation, submission, and user interactions
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, type Mock, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { CancellationForm } from '../CancellationForm';
@@ -78,7 +78,7 @@ function interceptReload() {
 }
 
 function mockResponse(status: number, body: Record<string, unknown>) {
-  (global.fetch as vi.Mock).mockResolvedValue({
+  (global.fetch as Mock).mockResolvedValue({
     ok: status >= 200 && status < 300,
     status,
     headers: new Headers({ 'content-type': 'application/json' }),
@@ -93,7 +93,7 @@ describe('CancellationForm', () => {
     vi.clearAllMocks();
 
     // Mock successful fetch response
-    (global.fetch as vi.Mock).mockResolvedValue({
+    (global.fetch as Mock).mockResolvedValue({
       ok: true,
       status: 200,
       headers: new Headers({ 'content-type': 'application/json' }),
@@ -406,7 +406,7 @@ describe('CancellationForm', () => {
     it('handles submission errors gracefully', async () => {
       const user = userEvent.setup();
       // Mock failed response
-      (global.fetch as vi.Mock).mockResolvedValue({
+      (global.fetch as Mock).mockResolvedValue({
         ok: false,
         status: 400,
         headers: new Headers({ 'content-type': 'application/json' }),
@@ -449,7 +449,7 @@ describe('CancellationForm', () => {
     it('shows a Spanish message when the request never reaches the server', async () => {
       const user = userEvent.setup();
       // What fetch rejects with when offline: a TypeError with the browser's English message
-      (global.fetch as vi.Mock).mockRejectedValue(new TypeError('Failed to fetch'));
+      (global.fetch as Mock).mockRejectedValue(new TypeError('Failed to fetch'));
 
       render(<CancellationForm />);
       
@@ -532,7 +532,7 @@ describe('CancellationForm', () => {
     it('disables submit button during submission', async () => {
       const user = userEvent.setup();
       // Mock slow response
-      (global.fetch as vi.Mock).mockImplementation(() =>
+      (global.fetch as Mock).mockImplementation(() =>
         new Promise<Response>(resolve => setTimeout(() => resolve({
           ok: true,
           status: 200,
