@@ -26,11 +26,12 @@ export const backendQuoteSchema = z.object({
   cedula: z.string().min(1, 'Número de cédula requerido').regex(/^\d+$/, 'Solo números permitidos').transform(str => str.trim()),
   city: z.string().min(1, 'Ciudad requerida').transform(str => str.trim()),
   address: z.string().min(1, 'Dirección requerida').transform(str => str.trim()),
-  employmentStatus: z.enum(['empleado_completo', 'empleado_parcial', 'autonomo', 'desempleado', 'estudiante', 'jubilado', 'ama_casa', 'incapacidad']),
+  // Spanish messages: a 400 shows them on the form's fields (zod 4 reads `error`).
+  employmentStatus: z.enum(['empleado_completo', 'empleado_parcial', 'autonomo', 'desempleado', 'estudiante', 'jubilado', 'ama_casa', 'incapacidad'], { error: 'Selecciona tu situación laboral' }),
   occupationSector: z.string().transform(str => str.trim()).optional(),
 
   // Insurance Information
-  insuranceType: z.enum(['vida', 'auto', 'hogar', 'salud', 'mascotas']),
+  insuranceType: z.enum(['vida', 'auto', 'hogar', 'salud', 'mascotas'], { error: 'Selecciona un tipo de seguro' }),
 
   // Conditional fields
   monthlyIncome: z.string().transform(str => str.trim()).optional(),

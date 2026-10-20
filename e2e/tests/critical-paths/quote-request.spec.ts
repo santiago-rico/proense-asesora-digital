@@ -48,7 +48,7 @@ const TYPE_CASES: TypeCase[] = [
   },
   {
     type: 'salud',
-    summary: {}, // the salud answers are missing from the summary (bug #4, tested below)
+    summary: {}, // its summary rows are checked in "Salud: el resumen muestra…" below
     sent: HEALTH_SENT,
   },
   {
@@ -137,9 +137,6 @@ const TYPE_CASES: TypeCase[] = [
 
 const DETAIL_FIELDS = [...new Set(TYPE_CASES.flatMap(c => Object.keys(c.sent)))];
 
-// Known-bug tests give the assertion the bug breaks a 2 s timeout: the correct
-// state appears at once, so there's no point idling for the default 5 s.
-
 test.describe('Cotización de seguros', () => {
   let form: QuoteFormPage;
 
@@ -215,10 +212,6 @@ test.describe('Cotización de seguros', () => {
 
   test.describe('Paso 1: Información Personal', () => {
     test('muestra los mensajes de validación de cada campo', async () => {
-      // An empty "Estado laboral" shows zod's English default (bug #2, tested
-      // below); on mobile that unbreakable message overflows the viewport and
-      // "Siguiente" can no longer be clicked.
-      await form.choose('Estado laboral', 'Estudiante');
       await form.next();
       await form.expectStep('Información Personal');
       for (const message of [
@@ -232,6 +225,7 @@ test.describe('Cotización de seguros', () => {
         'Número de cédula requerido',
         'Ciudad requerida',
         'Dirección requerida',
+        'Selecciona tu situación laboral',
       ]) {
         await expect(form.message(message)).toBeVisible();
       }
@@ -260,17 +254,18 @@ test.describe('Cotización de seguros', () => {
         'Ama de casa': false,
         'Incapacidad laboral': true,
       };
+      await form.choose('Estado laboral', 'Empleado(a) a tiempo completo');
+      await form.occupationInput.fill(quoteApplicant.occupationSector);
       for (const [status, visible] of Object.entries(shown)) {
         await form.choose('Estado laboral', status);
         await expect(form.occupationInput, status).toBeVisible({ visible });
       }
+      // A status that hides the field drops the sector typed before, so it never
+      // reaches the summary or the email under a status that doesn't ask for it.
+      await expect(form.occupationInput).toHaveValue('');
     });
 
     test('tras corregir el último campo inválido, un solo clic en "Siguiente" avanza', async () => {
-      test.fail(
-        true,
-        'Known bug: the first "Siguiente" click after fixing the last invalid field is lost. Its mousedown blurs the field, onBlur validation removes "Dirección requerida", the button moves up before mouseup and the click never fires, src/components/forms/cotizacion/MultiStepQuoteForm.tsx:32-37 (mode "onBlur"), 317-325.',
-      );
       // A field near the button: when the fixed field is scrolled out of view,
       // Chrome's scroll anchoring keeps the button still and the click lands.
       await form.fillPersonalInfo({ address: '' });
@@ -278,29 +273,19 @@ test.describe('Cotización de seguros', () => {
       await expect(form.message('Dirección requerida')).toBeVisible();
       await form.input('Dirección').fill(quoteApplicant.address);
       await form.nextButton.click(); // focus is still in the address field
-      await expect(form.stepHeading('Tipo de Seguro')).toBeVisible({ timeout: 2000 });
+      await expect(form.stepHeading('Tipo de Seguro')).toBeVisible();
     });
 
     test('exige la actividad laboral antes de pasar al paso 2', async () => {
-      test.fail(
-        true,
-        'Known bug: "Actividad laboral o sector económico" is not required when leaving Step 1. Its check lives in the superRefine, which zod 4 skips while insuranceType (Step 2) is still empty, src/components/forms/cotizacion/formSchema.ts:143-161.',
-      );
       await form.fillPersonalInfo({ occupationSector: '' });
       await form.next();
-      await expect(form.occupationInput).toHaveAccessibleDescription('La actividad laboral o sector económico es requerida', {
-        timeout: 2000,
-      });
+      await expect(form.occupationInput).toHaveAccessibleDescription('La actividad laboral o sector económico es requerida');
       await form.expectStep('Información Personal');
     });
 
     test('los selectores vacíos muestran su mensaje en español', async () => {
-      test.fail(
-        true,
-        'Known bug: empty enum selects show zod\'s English default "Invalid option: expected one of …". The schema passes zod-3 required_error/invalid_type_error, which zod 4 ignores, src/components/forms/cotizacion/formSchema.ts:59-62, 67-70.',
-      );
       await form.next();
-      await expect(form.employmentSelect).toHaveAccessibleDescription('Selecciona tu situación laboral', { timeout: 2000 });
+      await expect(form.employmentSelect).toHaveAccessibleDescription('Selecciona tu situación laboral');
       await form.fillPersonalInfo();
       await form.next('Tipo de Seguro');
       await form.next();
@@ -520,16 +505,14 @@ test.describe('Cotización de seguros', () => {
     });
 
     test('Hogar: una cédula de propietario inválida no bloquea al dejar de cotizar a nombre de otra persona', async () => {
-      test.fail(
-        true,
-        'Known bug: ownerCedula keeps its digits-only check after the tercero fields are hidden, so a stale value blocks "Siguiente" with no message on screen, src/components/forms/cotizacion/formSchema.ts:98.',
-      );
       await form.startQuote('hogar');
       await form.choose(RELATIONSHIP, 'Cotizo a nombre del propietario (otra persona)');
       await form.input('Cédula del propietario').fill('CC 123');
       await form.fillHogar(); // switches to "Propietario/a y habito el inmueble"
-      await form.next();
-      await expect(form.stepHeading('Resumen y Envío')).toBeVisible({ timeout: 2000 });
+      await form.next('Resumen y Envío');
+      await expect(form.summaryValue('Relación con el Inmueble')).toHaveText('Propietario/a y habito el inmueble');
+      // Leaving "tercero" clears the hidden owner fields: the stale cédula is not shown (nor sent).
+      await expect(form.summaryValue('Cédula del Propietario')).toBeHidden();
     });
 
     test('Mascotas: exige los datos de la mascota y el detalle si tuvo una enfermedad o accidente grave', async () => {
@@ -573,30 +556,13 @@ test.describe('Cotización de seguros', () => {
       expect(submissions).toHaveLength(0);
     });
 
-    // Today bug #3 is the only way to reach the summary with an earlier step
-    // incomplete. Once it is fixed this path is unreachable: delete this test.
-    test('si falta un dato de un paso anterior, avisa y vuelve a ese paso', async ({ page }) => {
-      const submissions = await mockJsonSubmission(page, QUOTE_ENDPOINT, respond.success());
-      await form.reachSummary('auto', { occupationSector: '' });
-      await form.acceptTerms();
-      await form.submit();
-
-      await expect(form.toast('Faltan datos por completar')).toBeVisible();
-      await form.expectStep('Información Personal');
-      await expect(form.occupationInput).toHaveAccessibleDescription('La actividad laboral o sector económico es requerida');
-      expect(submissions).toHaveLength(0);
-    });
-
     test('Salud: el resumen muestra las respuestas de salud y la actividad laboral', async () => {
-      test.fail(
-        true,
-        'Known bug: the summary shows none of the salud answers (saludFields lists only preExistingConditions and additionalComments) and never shows occupationSector (missing from personalInfoFields), src/components/forms/cotizacion/Step5_Summary.tsx:267, 204-214.',
-      );
       await form.reachSummary('salud');
-      await expect(form.summaryValue('Estatura')).toHaveText('170 cm', { timeout: 2000 });
+      await expect(form.summaryValue('Estatura')).toHaveText('170 cm');
       await expect(form.summaryValue('Peso')).toHaveText('68 kg');
       await expect(form.summaryValue('EPS')).toHaveText('Sura EPS');
       await expect(form.summaryValue('¿Practica Deportes?')).toHaveText('Sí');
+      await expect(form.summaryValue('Deportes que Practica')).toHaveText('Natación');
       await expect(form.summaryValue('¿Tiene Enfermedades?')).toHaveText('No');
       await expect(form.summaryValue('Actividad Laboral o Sector Económico')).toHaveText(quoteApplicant.occupationSector);
     });
@@ -651,10 +617,6 @@ test.describe('Cotización de seguros', () => {
     });
 
     test('400 con errores de la fecha de nacimiento: vuelve al paso 1 y muestra el mensaje', async ({ page }) => {
-      test.fail(
-        true,
-        'Known bug: server errors keyed birthDate_day/_month/_year match no step field, so the form stays on the summary with only a toast, src/components/forms/cotizacion/MultiStepQuoteForm.tsx:219-237.',
-      );
       await mockJsonSubmission(
         page,
         QUOTE_ENDPOINT,
@@ -663,7 +625,7 @@ test.describe('Cotización de seguros', () => {
       await form.submit();
 
       await expect(form.toast('Por favor revisa los campos del formulario')).toBeVisible();
-      await expect(form.stepHeading('Información Personal')).toBeVisible({ timeout: 2000 });
+      await form.expectStep('Información Personal');
       await expect(form.birthDayInput).toHaveAccessibleDescription('Día inválido');
     });
 

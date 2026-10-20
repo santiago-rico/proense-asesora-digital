@@ -108,6 +108,22 @@ export const steps = [
   }
 ];
 
+// The server validates the flattened payload (MultiStepQuoteForm sends birthDate
+// as birthDate_day/_month/_year), so a 400 names those parts by their payload
+// keys, which match no form field.
+const SERVER_ERROR_FIELDS: Record<string, string> = {
+  birthDate_day: 'birthDate.day',
+  birthDate_month: 'birthDate.month',
+  birthDate_year: 'birthDate.year',
+};
+
+/** The form field (possibly a dotted path) a key of the server's 400 `errors` belongs to. */
+export const formFieldForServerError = (key: string): string => SERVER_ERROR_FIELDS[key] ?? key;
+
+/** Index of the step that renders `field` (a top-level name or dotted path), or -1. */
+export const stepIndexForField = (field: string): number =>
+  steps.findIndex((step) => step.fields.includes(field.split('.')[0]));
+
 // Exported for `__tests__/formWiring.test.ts`: every schema field needs an
 // entry here, otherwise its input mounts uncontrolled (value === undefined) and
 // React only switches it to controlled on the first keystroke.

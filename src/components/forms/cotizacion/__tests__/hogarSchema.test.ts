@@ -131,6 +131,29 @@ describe('cotización hogar — validación condicional', () => {
     expect(quoteFormSchema.safeParse(data).success).toBe(true);
   });
 
+  it('rejects a tercero owner cédula that is not digits only', () => {
+    const messages = messagesFor(
+      getValidHogarData({
+        propertyRelationship: 'tercero',
+        ownerName: 'María López',
+        ownerCedula: 'CC 123',
+        residesInProperty: 'si',
+      })
+    );
+    expect(messages).toEqual(['Solo números permitidos']);
+  });
+
+  // The owner fields are hidden for every other relationship, so a value typed
+  // while "tercero" was selected must not block the quote with an error the
+  // client cannot see.
+  it.each(['propietario_habita', 'propietario_no_habita'])(
+    'ignores a stale non-numeric owner cédula once the relationship is "%s"',
+    (propertyRelationship) => {
+      const data = getValidHogarData({ propertyRelationship, ownerCedula: 'CC 123' });
+      expect(quoteFormSchema.safeParse(data).success).toBe(true);
+    }
+  );
+
   it('requires unitFloor and buildingFloors for apartamento', () => {
     const messages = messagesFor(getValidHogarData({ unitFloor: '', buildingFloors: '' }));
     expect(messages).toContain('El piso del apartamento es requerido');

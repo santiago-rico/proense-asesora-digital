@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useForm, FormProvider, type FieldErrors } from 'react-hook-form';
+import { useForm, FormProvider, type FieldErrors, type FieldPath } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Step1_PersonalInfo from './Step1_PersonalInfo';
 import Step2_InsuranceSelection from './Step2_InsuranceSelection';
@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import NumberedProgressBar from './NumberedProgressBar';
 import { useToast } from '@/hooks/use-toast';
 import { quoteFormSchema, QuoteFormSchemaType } from './formSchema';
-import { steps, quoteFormDefaultValues } from './formWiring';
+import { steps, quoteFormDefaultValues, formFieldForServerError, stepIndexForField } from './formWiring';
 import { FormSuccessScreen } from '@/components/shared/FormSuccessScreen';
 import { safeParseResponse } from '@/utils/safe-response';
 
@@ -30,13 +30,28 @@ const MultiStepQuoteForm = ({ onSuccess }: MultiStepQuoteFormProps) => {
   const preserveErrorsOnStepChange = useRef(false);
 
   const methods = useForm<QuoteFormSchemaType>({
-    mode: 'onBlur',
-    reValidateMode: 'onBlur',
+    // Errors appear only when "Siguiente" or "Enviar Cotización" validates the
+    // step. With 'onBlur', the mousedown on "Siguiente" blurred the field, its
+    // error disappeared, the button moved up before mouseup and the click was lost.
+    mode: 'onSubmit',
+    reValidateMode: 'onChange',
     resolver: zodResolver(quoteFormSchema),
     defaultValues: quoteFormDefaultValues
   });
 
-  const { handleSubmit, trigger, clearErrors, register } = methods;
+  const { handleSubmit, trigger, clearErrors, register, watch, getFieldState } = methods;
+
+  // Once a field shows an error, re-check it on every change so the message
+  // goes away as soon as the field is fixed. reValidateMode only does this
+  // after a real submit, and the steps before the summary validate with
+  // trigger(), not submit. Fields without an error are left alone, so no new
+  // message appears while the client is still typing.
+  useEffect(() => {
+    const subscription = watch((_values, { name }) => {
+      if (name && getFieldState(name).error) void trigger(name);
+    });
+    return () => subscription.unsubscribe();
+  }, [watch, getFieldState, trigger]);
 
   // Fetch CSRF token on component mount
   useEffect(() => {
@@ -217,18 +232,19 @@ const MultiStepQuoteForm = ({ onSuccess }: MultiStepQuoteFormProps) => {
 
         // Handle validation errors
         if (status === 400 && result?.errors) {
+          // Earliest step with an error: that's where the client is sent.
           let stepWithError = -1;
-          Object.entries(result.errors as Record<string, string[]>).forEach(([field, messages]) => {
+          Object.entries(result.errors as Record<string, string[]>).forEach(([key, messages]) => {
             if (Array.isArray(messages) && messages.length > 0) {
-              methods.setError(field as keyof QuoteFormSchemaType, {
+              const field = formFieldForServerError(key);
+              methods.setError(field as FieldPath<QuoteFormSchemaType>, {
                 type: 'server',
                 message: messages[0]
               });
-              steps.forEach((step, index) => {
-                if (step.fields.includes(field) && stepWithError === -1) {
-                  stepWithError = index;
-                }
-              });
+              const step = stepIndexForField(field);
+              if (step !== -1 && (stepWithError === -1 || step < stepWithError)) {
+                stepWithError = step;
+              }
             }
           });
           if (stepWithError !== -1 && stepWithError !== currentStep) {

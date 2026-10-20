@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { PhoneInput } from "@/components/ui/phone-input";
 import es from 'react-phone-number-input/locale/es.json';
+import { EMPLOYMENT_STATUSES_REQUIRING_OCCUPATION } from './formSchema';
 
 const MONTHS = [
   { value: '1', label: 'Enero' },
@@ -33,10 +34,11 @@ const EMPLOYMENT_STATUS_OPTIONS = [
 ];
 
 const Step1_PersonalInfo = () => {
-  const { control, watch } = useFormContext();
+  const { control, watch, setValue } = useFormContext();
 
   // Watch employment status to conditionally show occupation sector field
   const employmentStatus = watch('employmentStatus');
+  const showsOccupation = EMPLOYMENT_STATUSES_REQUIRING_OCCUPATION.includes(employmentStatus);
 
   return (
     <div className="space-y-6">
@@ -277,7 +279,17 @@ const Step1_PersonalInfo = () => {
         render={({ field }) => (
           <FormItem>
             <FormLabel>Estado laboral <span className="text-red-500">*</span></FormLabel>
-            <Select onValueChange={field.onChange} value={field.value || ''}>
+            <Select
+              onValueChange={(value) => {
+                field.onChange(value);
+                // The sector is hidden for this status: drop any value typed for
+                // the previous one, so it doesn't reach the summary or the email.
+                if (!EMPLOYMENT_STATUSES_REQUIRING_OCCUPATION.includes(value)) {
+                  setValue('occupationSector', '');
+                }
+              }}
+              value={field.value || ''}
+            >
               <FormControl>
                 <SelectTrigger>
                   <SelectValue placeholder="Seleccione su estado laboral" />
@@ -297,13 +309,7 @@ const Step1_PersonalInfo = () => {
       />
 
       {/* Conditional: Occupation Sector - Show for specific employment statuses */}
-      {employmentStatus && [
-        'empleado_completo',
-        'empleado_parcial',
-        'autonomo',
-        'jubilado',
-        'incapacidad'
-      ].includes(employmentStatus) && (
+      {showsOccupation && (
         <FormField
           control={control}
           name="occupationSector"
