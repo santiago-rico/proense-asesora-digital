@@ -77,11 +77,7 @@ export const formSchema = z.object({
   nit: z.string().optional(),
   rut: detailedFileArraySchema,
   camaraComercio: detailedFileArraySchema,
-  // @ts-expect-error TODO(zod 4): required_error/invalid_type_error are zod 3 params that zod 4 ignores, so its English default message shows instead.
-  declaraRenta: z.enum(['si', 'no'], {
-    required_error: "Debes seleccionar una opción para declarar renta.",
-    invalid_type_error: "Debes seleccionar una opción para declarar renta.",
-  }),
+  declaraRenta: z.enum(['si', 'no'], { error: "Debes seleccionar una opción para declarar renta." }),
   archivoDeclaracionRenta: detailedFileArraySchema,
   contratoArrendamiento: detailedFileArraySchema, // Added for Seguro de Rentas
   // Fields for Seguro de Vida - Crédito Protegido

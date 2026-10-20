@@ -1208,6 +1208,16 @@ describe('FormSchema Validation Tests', () => {
       const result = formSchema.safeParse(data);
       expect(result.success).toBe(false);
     });
+
+    it('asks for declaraRenta in Spanish when it is missing or invalid', () => {
+      for (const declaraRenta of [undefined, 'maybe']) {
+        const result = formSchema.safeParse(getBaseValidData({ declaraRenta: declaraRenta as 'si' | 'no' }));
+        expect(result.success).toBe(false);
+        if (result.success) continue;
+        expect(result.error.issues.find(issue => issue.path[0] === 'declaraRenta')?.message)
+          .toBe('Debes seleccionar una opción para declarar renta.');
+      }
+    });
   });
 
   describe('Performance and Validation Efficiency', () => {
