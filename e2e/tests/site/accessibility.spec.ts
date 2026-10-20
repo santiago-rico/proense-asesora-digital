@@ -99,7 +99,7 @@ const SCANS: Scan[] = [
   route('/clientes/pagos', 'Paga tu seguro en un solo clic'),
   route('/politica-de-privacidad', 'Política de Privacidad'),
   route('/terminos-y-condiciones', 'Términos y Condiciones'),
-  route('/no-existe', '404'),
+  route('/no-existe', 'Página no encontrada'),
   {
     name: DIALOG,
     path: '/',
@@ -172,13 +172,6 @@ const KNOWN: KnownBug[] = [
     node: colors('#ffffff', '#3b8c59'),
   },
   {
-    title: 'Contraste: enlace del 404',
-    rules: ['color-contrast'],
-    bug: 'the 404 "Return to Home" link, text-blue-500 on bg-gray-100 (#2b7fff on #f3f4f6), is 3.41:1, src/pages/NotFound.tsx:19',
-    ...both(['/no-existe']),
-    node: colors('#2b7fff', '#f3f4f6'),
-  },
-  {
     title: 'Contraste: enlace activo del menú móvil',
     rules: ['color-contrast'],
     bug: 'the active link in the open mobile menu, text-primary on bg-blue-50 (#0073d1 on #eff6ff), is 4.41:1, src/components/layout/Navbar.tsx:350',
@@ -202,14 +195,6 @@ const KNOWN: KnownBug[] = [
     rules: ['aria-required-children'],
     bug: 'the mobile menu panel has role="menu" but holds plain links and buttons, no menuitems, src/components/layout/Navbar.tsx:302',
     ...mobileOnly([MOBILE_MENU]),
-  },
-  // The rest are axe best-practice rules, outside WCAG_TAGS, so the regression
-  // scans never run them. The handover predicted them; each test runs only its rules.
-  {
-    title: 'El 404 tiene landmarks',
-    rules: ['landmark-one-main', 'region'],
-    bug: 'the 404 renders without Layout, so it has no main landmark and its content is outside every landmark, src/pages/NotFound.tsx:15',
-    ...both(['/no-existe']),
   },
 ];
 

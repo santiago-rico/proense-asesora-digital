@@ -43,7 +43,7 @@ const App = () => {
               {/* Keep core pages loaded immediately for better UX */}
               <Route path="/" element={<Index handleOpenLeadDialog={handleOpenLeadDialog} />} />
               <Route path="/contacto" element={<ContactPage handleOpenLeadDialog={handleOpenLeadDialog} />} />
-              <Route path="*" element={<NotFound />} />
+              <Route path="*" element={<NotFound handleOpenLeadDialog={handleOpenLeadDialog} />} />
               
               {/* Lazy load secondary pages */}
               <Route path="/nosotros" element={<AboutPage handleOpenLeadDialog={handleOpenLeadDialog} />} />

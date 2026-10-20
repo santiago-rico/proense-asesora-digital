@@ -45,11 +45,12 @@ test.describe('Smoke: todas las rutas', () => {
     });
   }
 
-  // Its missing navbar/footer and English copy are a known bug, recorded in navigation.spec.ts.
-  test('una ruta inexistente muestra el 404', async ({ page }) => {
+  test('una ruta inexistente muestra el 404 con navbar y footer', async ({ page }) => {
     const site = new Site(page);
     await page.goto('/no-existe');
-    await expect(site.h1).toHaveText('404');
+    await expect(site.h1).toHaveText('Página no encontrada');
     await expect(page).toHaveTitle(SITE_TITLE);
+    await expect(site.nav).toBeVisible();
+    await expect(site.footer).toBeVisible();
   });
 });

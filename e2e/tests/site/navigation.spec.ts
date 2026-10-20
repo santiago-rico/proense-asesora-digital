@@ -380,31 +380,30 @@ test.describe('Footer', () => {
 });
 
 test.describe('Página 404', () => {
+  const NOT_FOUND_H1 = 'Página no encontrada';
+
   test('las rutas inexistentes muestran el 404', async ({ page }) => {
     const site = new Site(page);
     // /seguros/empresarial is where blog posts about PYMES link to (known bug #11).
     for (const path of ['/no-existe', '/seguros', '/clientes', '/seguros/decesos', '/seguros/empresarial']) {
       await page.goto(path);
-      await expect(site.h1, path).toHaveText('404');
+      await expect(site.h1, path).toHaveText(NOT_FOUND_H1);
     }
   });
 
-  test('"Return to Home" vuelve al inicio', async ({ page }) => {
+  test('"Volver al inicio" vuelve al inicio', async ({ page }) => {
     const site = new Site(page);
     await page.goto('/no-existe');
-    await page.getByRole('link', { name: 'Return to Home' }).click();
+    await site.main.getByRole('link', { name: 'Volver al inicio', exact: true }).click();
     await expect(page).toHaveURL('/');
     await expect(site.h1).toHaveText('Protege lo que más valoras con expertos a tu lado');
   });
 
   test('la página 404 está en español y dentro del Layout, con navbar y footer', async ({ page }) => {
-    test.fail(
-      true,
-      'Known bug: NotFound renders outside Layout (no navbar/footer) with English copy "Oops! Page not found" / "Return to Home", src/pages/NotFound.tsx:14-23.',
-    );
     const site = new Site(page);
     await page.goto('/no-existe');
-    await expect(site.h1).toHaveText('404');
+    await expect(site.main.getByText('404', { exact: true })).toBeVisible();
+    await expect(site.main.getByRole('heading', { level: 1, name: NOT_FOUND_H1, exact: true })).toBeVisible();
     await expect(site.nav).toBeVisible();
     await expect(site.footer).toBeVisible();
     await expect(page.getByText('Oops! Page not found')).toHaveCount(0);

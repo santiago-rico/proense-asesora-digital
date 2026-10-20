@@ -1,7 +1,13 @@
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useEffect } from "react";
+import Layout from "@/components/layout/Layout";
+import { Button } from "@/components/ui/button";
 
-const NotFound = () => {
+interface NotFoundProps {
+  handleOpenLeadDialog: () => void;
+}
+
+const NotFound = ({ handleOpenLeadDialog }: NotFoundProps) => {
   const location = useLocation();
 
   useEffect(() => {
@@ -12,15 +18,18 @@ const NotFound = () => {
   }, [location.pathname]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">404</h1>
-        <p className="text-xl text-gray-600 mb-4">Oops! Page not found</p>
-        <a href="/" className="text-blue-500 hover:text-blue-700 underline">
-          Return to Home
-        </a>
-      </div>
-    </div>
+    <Layout handleOpenLeadDialog={handleOpenLeadDialog}>
+      <section className="container mx-auto px-4 py-16 md:py-24 text-center">
+        <p className="text-5xl md:text-6xl font-bold text-primary mb-4">404</p>
+        <h1 className="text-3xl md:text-4xl font-bold mb-4">Página no encontrada</h1>
+        <p className="text-lg text-gray-600 max-w-xl mx-auto mb-8">
+          La página que buscas no existe o ya no está disponible. Te invitamos a volver al inicio para conocer nuestros seguros.
+        </p>
+        <Button asChild>
+          <Link to="/">Volver al inicio</Link>
+        </Button>
+      </section>
+    </Layout>
   );
 };
 
