@@ -51,11 +51,9 @@ const VENDOR_GROUPS: Record<string, string[]> = {
     "clsx",
     "tailwind-merge",
     "class-variance-authority",
-    "date-fns",
     "sonner",
     "next-themes",
     "embla-carousel-react",
-    "react-day-picker",
   ],
 };
 
