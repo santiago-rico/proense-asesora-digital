@@ -204,7 +204,8 @@ const ClientServicePage: React.FC<ClientServicePageProps> = ({ type, handleOpenL
                       {company.phoneLines.map((line) => {
                         let href = "";
                         if (line.type === "tel") {
-                          href = `tel:${line.value.replace(/\s/g, "")}`;
+                          // Star codes like #888: an unencoded # would start the URL's fragment.
+                          href = `tel:${line.value.replace(/\s/g, "").replace(/#/g, "%23")}`;
                         } else if (line.type === "whatsapp") {
                           href = `https://wa.me/${line.value.replace(/\s/g, "")}`;
                         }
