@@ -4,6 +4,7 @@ import { blogPost } from '../../fixtures/blog-data';
 import { CSRF_TOKEN, LEAD_ENDPOINT, mockJsonSubmission, respond, type CapturedJson } from '../../fixtures/api-mocks';
 import { lead, LeadForm } from '../../fixtures/page-objects/lead-form';
 import { Site } from '../../fixtures/page-objects/site';
+import { CSRF_ERROR_CODE } from '../../../src/utils/csrf-error';
 
 /** The exact JSON LeadForm posts: no `terminos`, the phone in E.164, the honeypot empty. */
 function expectLeadRequest(sent: CapturedJson, tipoSeguro: string): void {
@@ -144,8 +145,8 @@ test.describe('LeadForm: respuestas del servidor', () => {
 
   test('un 403 de CSRF muestra "Error de Seguridad" y recarga la página a los 2 s', async ({ page, consoleErrors }) => {
     consoleErrors.allow(FAILED_REQUEST);
-    // The real server's body (api/send-email.ts); the client reloads only when it mentions "CSRF".
-    await mockJsonSubmission(page, LEAD_ENDPOINT, respond.json(403, { message: 'Invalid CSRF token' }));
+    // The real server's body (api/send-email.ts); the client reloads only when it carries the CSRF error code.
+    await mockJsonSubmission(page, LEAD_ENDPOINT, respond.json(403, { message: 'Invalid CSRF token', code: CSRF_ERROR_CODE }));
     await page.clock.install();
 
     await form.submit();

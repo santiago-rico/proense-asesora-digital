@@ -13,6 +13,7 @@ import { SALUD_ASEGURABILIDAD_QUESTIONS, type SaludAsegurabilidadKey } from '../
 import { CSRF_TOKEN, field, mockEmisionSubmission, respond } from '../../fixtures/api-mocks';
 import { InsuranceFormPage, type SiNo } from '../../fixtures/page-objects/insurance-form';
 import { applicant, company, MB, pdfFile, pngFile, textFile } from '../../fixtures/test-data';
+import { CSRF_ERROR_CODE } from '../../../src/utils/csrf-error';
 
 const HOGAR_ANSWERS: Record<HogarAsegurabilidadKey, SiNo> = {
   hogarPiscina: 'si',
@@ -571,7 +572,8 @@ test.describe('Emisión de pólizas', () => {
     });
 
     test('403 por CSRF: avisa y recarga la página', async ({ page }) => {
-      await mockEmisionSubmission(page, respond.json(403, { message: 'Invalid CSRF token' }));
+      // The real server's body (api/send-insurance-application-email.ts)
+      await mockEmisionSubmission(page, respond.json(403, { message: 'Invalid CSRF token', code: CSRF_ERROR_CODE }));
       await form.reachSummaryAsAuto();
       await form.submitButton.click();
 

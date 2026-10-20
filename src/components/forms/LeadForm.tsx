@@ -16,6 +16,7 @@ import es from 'react-phone-number-input/locale/es.json';
 import { FormSuccessScreen } from "@/components/shared/FormSuccessScreen";
 import { LEAD_FORM_INSURANCE_TYPES, toLeadFormInsuranceType } from "@/constants/insuranceTypes";
 import { safeParseResponse } from '@/utils/safe-response';
+import { isCsrfError } from '@/utils/csrf-error';
 
 const formSchema = z.object({
   nombre: z.string().min(2, { message: "El nombre es requerido" }),
@@ -115,8 +116,8 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick, 
       const { ok, status, data: result, errorMessage } = await safeParseResponse(response);
 
       if (!ok) {
-        // Handle CSRF-specific errors
-        if (status === 403 && (result as Record<string, unknown>)?.message?.toString().includes('CSRF')) {
+        // Handle CSRF-specific errors (by the 403's error code: the message's wording varies per endpoint)
+        if (isCsrfError(status, result)) {
           toast({
             title: "Error de Seguridad",
             description: "Token de seguridad inválido. Recargando página...",

@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { formSchema, FormSchemaType } from './formSchema';
 import { FormSuccessScreen } from '@/components/shared/FormSuccessScreen';
 import { safeParseResponse } from '@/utils/safe-response';
+import { isCsrfError } from '@/utils/csrf-error';
 import { fetchWithRetry, isTimeoutError } from '@/utils/fetch-with-retry';
 import { HOGAR_ASEGURABILIDAD_KEYS, type HogarAsegurabilidadKey } from '@/data/hogarAsegurabilidad';
 import { SALUD_ASEGURABILIDAD_KEYS, type SaludAsegurabilidadKey } from '@/data/saludAsegurabilidad';
@@ -213,8 +214,8 @@ const MultiStepForm = ({ onSuccess }: MultiStepFormProps) => {
       if (ok) {
         setFormSubmitted(true);
       } else {
-        // Handle CSRF-specific errors
-        if (status === 403 && (result as Record<string, unknown>)?.message?.toString().includes('CSRF')) {
+        // Handle CSRF-specific errors (by the 403's error code: the message's wording varies per endpoint)
+        if (isCsrfError(status, result)) {
           toast({
             title: "Error de Seguridad",
             description: "Token de seguridad inválido. Recargando página...",

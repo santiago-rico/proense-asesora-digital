@@ -6,6 +6,7 @@ import {
   quoteApplicant,
   type QuoteType,
 } from '../../fixtures/page-objects/quote-form';
+import { CSRF_ERROR_CODE } from '../../../src/utils/csrf-error';
 
 const RELATIONSHIP = '¿Cuál es tu relación con el inmueble?';
 const COMMENT = 'Prefiero que me contacten por WhatsApp.';
@@ -630,7 +631,8 @@ test.describe('Cotización de seguros', () => {
     });
 
     test('403 por CSRF: avisa y recarga la página', async ({ page }) => {
-      await mockJsonSubmission(page, QUOTE_ENDPOINT, respond.json(403, { message: 'Invalid CSRF token' }));
+      // The real server's body (api/send-quote-request.ts)
+      await mockJsonSubmission(page, QUOTE_ENDPOINT, respond.json(403, { message: 'Invalid CSRF token', code: CSRF_ERROR_CODE }));
       await form.submit();
 
       await expect(form.toast('Token de seguridad inválido. Recargando página...')).toBeVisible();
