@@ -189,7 +189,7 @@ const AboutPage: React.FC<AboutPageProps> = ({ handleOpenLeadDialog }) => {
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto text-center">
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6">¿Listo para Proteger lo que Más Quieres?</h2>
-              <p className="mb-6 sm:mb-8 text-base sm:text-lg text-white/90">Nuestros asesores están listos para ayudarte a encontrar la protección adecuada para ti, tu familia o tu negocio.</p>
+              <p className="mb-6 sm:mb-8 text-base sm:text-lg text-white">Nuestros asesores están listos para ayudarte a encontrar la protección adecuada para ti, tu familia o tu negocio.</p>
               <Button
                 onClick={handleOpenLeadDialog}
                 size="lg"

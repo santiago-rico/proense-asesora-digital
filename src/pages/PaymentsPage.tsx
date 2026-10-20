@@ -88,7 +88,7 @@ const PaymentsPage: React.FC<{ handleOpenLeadDialog: () => void; }> = ({ handleO
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-2xl md:text-3xl font-bold mb-4">¿Necesitas ayuda?</h2>
-            <p className="mb-6 text-lg text-white/90">Si tienes preguntas sobre tu póliza o el proceso de pago, no dudes en comunicarte con nosotros. ¡Estamos aquí para ayudarte!</p>
+            <p className="mb-6 text-lg text-white">Si tienes preguntas sobre tu póliza o el proceso de pago, no dudes en comunicarte con nosotros. ¡Estamos aquí para ayudarte!</p>
             <div className="mt-6">
               <Button asChild className="bg-secondary hover:bg-secondary/90 h-11 px-8 text-white">
                 <a href="/contacto">Contactar a un Asesor</a>
