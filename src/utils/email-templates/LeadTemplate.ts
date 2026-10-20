@@ -1,4 +1,5 @@
 import { BaseTemplate } from './BaseTemplate.js';
+import { LEAD_FORM_INSURANCE_TYPES } from '../../constants/insuranceTypes.js';
 import { 
   Heading, 
   Paragraph, 
@@ -21,16 +22,12 @@ interface LeadTemplateData {
 export function LeadTemplate(data: LeadTemplateData, isDarkMode: boolean = false, baseUrl?: string): string {
   const preheader = `Nueva solicitud de asesoría de ${data.nombre} - ${data.tipoSeguro}`;
   
-  // Format insurance type for display
+  // Format insurance type for display, with the same labels as the LeadForm
+  // select; rentas and otro are no longer options but older leads may send them
   const insuranceTypeMap: Record<string, string> = {
-    vida: 'Seguro de Vida',
-    salud: 'Seguro de Salud',
-    auto: 'Seguro de Auto',
-    hogar: 'Seguro de Hogar',
-    empresarial: 'Seguro Empresarial',
     rentas: 'Seguro de Rentas',
-    'vida-deudores': 'Vida Deudores',
     otro: 'Otro tipo de seguro',
+    ...Object.fromEntries(LEAD_FORM_INSURANCE_TYPES.map(({ value, label }) => [value, label])),
   };
   
   const formattedInsuranceType = insuranceTypeMap[data.tipoSeguro] || data.tipoSeguro;
