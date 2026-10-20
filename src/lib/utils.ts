@@ -10,6 +10,8 @@ export function cn(...inputs: ClassValue[]) {
 // Helper to get a Lucide icon component by name
 export const getIcon = (iconName?: string): React.ElementType | null => {
   if (!iconName) return null;
-  const IconComponent = (LucideIcons as Record<string, React.ElementType>)[iconName];
+  // The namespace also holds helpers (createLucideIcon, icons); callers pass
+  // icon names from our own product data.
+  const IconComponent = (LucideIcons as unknown as Record<string, React.ElementType | undefined>)[iconName];
   return IconComponent || LucideIcons.CheckCircle; // Default icon if not found
 };

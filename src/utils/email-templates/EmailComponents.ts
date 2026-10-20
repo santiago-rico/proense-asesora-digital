@@ -134,7 +134,7 @@ export function Card({ content, isDarkMode = false, noPadding = false }: CardPro
   `;
 }
 
-interface DataTableRow {
+export interface DataTableRow {
   label: string;
   value: string;
   isHighlighted?: boolean;

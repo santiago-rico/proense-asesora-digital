@@ -1,4 +1,4 @@
-import React, { useState, Suspense, lazy } from "react";
+import { useState, Suspense, lazy } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -10,7 +10,6 @@ import Index from "./pages/Index";
 import ContactPage from "./pages/ContactPage";
 import NotFound from "./pages/NotFound";
 import LeadGenerationDialog from "@/components/forms/LeadGenerationDialog";
-import CookieConsent from "@/components/shared/CookieConsent";
 
 // Lazy load heavy pages to reduce initial bundle size
 const AboutPage = lazy(() => import("./pages/AboutPage"));
@@ -36,7 +35,7 @@ const App = () => {
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+        <BrowserRouter>
           <ScrollToTop />
           <Suspense fallback={<PageLoadingSpinner />}>
             <Routes>

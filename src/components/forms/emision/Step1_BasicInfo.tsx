@@ -1,6 +1,5 @@
-import React from 'react';
 import { useFormContext } from 'react-hook-form';
-import { FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { PhoneInput } from "@/components/ui/phone-input";
 import es from 'react-phone-number-input/locale/es.json';

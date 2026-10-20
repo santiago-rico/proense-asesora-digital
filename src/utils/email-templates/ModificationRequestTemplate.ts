@@ -10,7 +10,7 @@ import {
   Spacer,
   StatusBadge,
   Divider,
-  DataTableRow
+  type DataTableRow
 } from './EmailComponents.js';
 
 interface ModificationData {
@@ -86,7 +86,7 @@ export function ModificationRequestTemplate({
     });
     
     // Add attached files
-    Object.entries(attachedFiles).forEach(([key, files]) => {
+    Object.entries(attachedFiles).forEach(([, files]) => {
       if (files.length > 0) {
         rows.push({ 
           label: '📎 Documentos Adjuntos', 

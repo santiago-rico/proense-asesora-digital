@@ -1,6 +1,6 @@
 import React from "react";
 import { clsx } from 'clsx';
-import { Award, UserCheck, ShieldCheck, Smile } from 'lucide-react';
+import { UserCheck, ShieldCheck } from 'lucide-react';
 
 const valueItems = [
   {

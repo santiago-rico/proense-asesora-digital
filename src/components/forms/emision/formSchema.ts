@@ -25,12 +25,10 @@ const ACCEPTED_MIME_TYPES = [
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 ];
 
-const fileSchema = z.instanceof(File, { message: 'Se requiere un archivo.' }).optional();
-
 const detailedFileArraySchema = z.array(z.instanceof(File))
   .optional()
   .superRefine((files, ctx) => {
-    if (!files || files.length === 0) return true;
+    if (!files || files.length === 0) return;
 
     for (const file of files) {
       if (file.size > MAX_FILE_SIZE || !ACCEPTED_MIME_TYPES.includes(file.type)) {
@@ -38,10 +36,9 @@ const detailedFileArraySchema = z.array(z.instanceof(File))
           code: z.ZodIssueCode.custom,
           message: "Verifica los archivos: solo se aceptan PDF, JPG, PNG, WEBP, DOC, DOCX (máx. 5MB).",
         });
-        return false; // Stop validation on first error
+        return; // Stop validation on first error
       }
     }
-    return true;
   });
 
 const siNoOptional = z.union([z.enum(['si', 'no']), z.literal('')]).optional();
@@ -80,10 +77,7 @@ export const formSchema = z.object({
   nit: z.string().optional(),
   rut: detailedFileArraySchema,
   camaraComercio: detailedFileArraySchema,
-  declaraRenta: z.enum(['si', 'no'], {
-    required_error: "Debes seleccionar una opción para declarar renta.",
-    invalid_type_error: "Debes seleccionar una opción para declarar renta.",
-  }),
+  declaraRenta: z.enum(['si', 'no'], { error: "Debes seleccionar una opción para declarar renta." }),
   archivoDeclaracionRenta: detailedFileArraySchema,
   contratoArrendamiento: detailedFileArraySchema, // Added for Seguro de Rentas
   // Fields for Seguro de Vida - Crédito Protegido
@@ -153,7 +147,7 @@ export const formSchema = z.object({
     // Beneficiary fields are no longer required for responsabilidad_civil
   } else if (data.tipoSeguro === 'vida_credito_protegido') {
     // numeroCedula and fotoCedula are covered by commonFieldsNeeded
-    if (!data.tieneEnfermedadesDiagnosticadas || data.tieneEnfermedadesDiagnosticadas === '') {
+    if (!data.tieneEnfermedadesDiagnosticadas) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Debes indicar si tienes enfermedades diagnosticadas.", path: ["tieneEnfermedadesDiagnosticadas"] });
     } else if (data.tieneEnfermedadesDiagnosticadas === 'si' && (!data.enfermedadesEspecificar || data.enfermedadesEspecificar.trim() === "")) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Debes especificar tus enfermedades.", path: ["enfermedadesEspecificar"] });
@@ -169,7 +163,7 @@ export const formSchema = z.object({
       }
     }
 
-    if (!data.conduceMoto || data.conduceMoto === '') {
+    if (!data.conduceMoto) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Debes indicar si conduces motocicleta.", path: ["conduceMoto"] });
     }
   } else if (data.tipoSeguro === 'empresarial') {

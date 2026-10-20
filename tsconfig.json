@@ -1,9 +1,19 @@
 {
+  // Solution file: `npm run typecheck` (tsc -b) type-checks every referenced
+  // project. Each .ts/.tsx file belongs to exactly one of them:
+  //   tsconfig.app.json  -> src/ (the app, its Vitest tests and the
+  //                         server-side helpers under src/ that api/ imports)
+  //   tsconfig.node.json -> api/, tests/api/, vite.config.ts, vitest.config.ts
+  //   e2e/tsconfig.json  -> e2e/ and playwright.config.ts
   "files": [],
   "references": [
     { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
+    { "path": "./tsconfig.node.json" },
+    { "path": "./e2e/tsconfig.json" }
   ],
+  // tsc -b ignores these. They are what Vercel (@vercel/node) compiles the
+  // api/ functions with: it reads only this file, not the references, so a
+  // change here changes the deployed JavaScript. The shadcn CLI reads `paths`.
   "compilerOptions": {
     "target": "ES2022",
     "module": "ESNext",

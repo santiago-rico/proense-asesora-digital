@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Link } from "react-router-dom";
-import { Phone, Mail, Home, MessageCircle } from "lucide-react";
+import { Phone, Mail, Home } from "lucide-react";
 import OptimizedImage from "@/components/shared/OptimizedImage";
 
 const Footer: React.FC = () => {

@@ -4,7 +4,6 @@
  * This file demonstrates how to use the OptimizedImage component throughout the application.
  */
 
-import React from 'react';
 import OptimizedImage from './OptimizedImage';
 
 export const Examples = () => {

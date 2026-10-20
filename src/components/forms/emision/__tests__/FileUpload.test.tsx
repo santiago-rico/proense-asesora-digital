@@ -9,13 +9,12 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import FileUpload from '../FileUpload';
 import { formSchema, type FormSchemaType } from '../formSchema';
-import userEvent from '@testing-library/user-event';
 
 // Mock implementation for react-dropzone
 interface MockDropzoneConfig {
-  accept?: Record<string, string[]>;
-  onDropAccepted?: (files: File[]) => void;
-  onDropRejected?: (fileRejections: { file: File; errors: { code: string; message: string }[] }[]) => void;
+  accept: Record<string, string[]>;
+  onDropAccepted: (files: File[]) => void;
+  onDropRejected: (fileRejections: { file: File; errors: { code: string; message: string }[] }[]) => void;
 }
 
 let mockDropzoneConfig: MockDropzoneConfig | null = null;
@@ -41,9 +40,6 @@ vi.mock('react-dropzone', () => ({
     };
   }),
 }));
-
-// Get the mocked function for testing
-const getMockUseDropzone = () => vi.mocked(vi.importMock('react-dropzone')).useDropzone;
 
 // Test wrapper component
 const TestWrapper = ({ children, defaultValues = {} }: { children: React.ReactNode, defaultValues?: Partial<FormSchemaType> }) => {
@@ -124,15 +120,6 @@ describe('FileUpload Component', () => {
 
   describe('File Type Validation', () => {
     it('accepts valid file types', async () => {
-      const validFiles = [
-        createTestFile('document.pdf', 'application/pdf'),
-        createTestFile('image.jpg', 'image/jpeg'),
-        createTestFile('image.png', 'image/png'),
-        createTestFile('image.webp', 'image/webp'),
-        createTestFile('document.doc', 'application/msword'),
-        createTestFile('document.docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'),
-      ];
-
       render(
         <TestWrapper>
           <FileUpload name="fotoCedula" label="Foto de Cédula" />
@@ -141,7 +128,7 @@ describe('FileUpload Component', () => {
 
       // Check that accepted types are configured correctly
       expect(mockDropzoneConfig).toBeTruthy();
-      const acceptedTypes = Object.keys(mockDropzoneConfig.accept);
+      const acceptedTypes = Object.keys(mockDropzoneConfig!.accept);
       expect(acceptedTypes).toContain('application/pdf');
       expect(acceptedTypes).toContain('image/jpeg');
       expect(acceptedTypes).toContain('image/png');
@@ -167,7 +154,7 @@ describe('FileUpload Component', () => {
       ];
 
       // Call the rejection handler
-      mockDropzoneConfig.onDropRejected(fileRejections);
+      mockDropzoneConfig!.onDropRejected(fileRejections);
 
       await waitFor(() => {
         expect(screen.getByText('El tipo de archivo no es válido. Solo puedes subir: PDF, JPG, PNG, WEBP, DOC, DOCX.')).toBeInTheDocument();
@@ -186,7 +173,7 @@ describe('FileUpload Component', () => {
       );
 
       // Simulate successful file drop
-      mockDropzoneConfig.onDropAccepted([validSizeFile]);
+      mockDropzoneConfig!.onDropAccepted([validSizeFile]);
 
       await waitFor(() => {
         expect(screen.getByText('Archivos seleccionados:')).toBeInTheDocument();
@@ -235,14 +222,14 @@ describe('FileUpload Component', () => {
       const file2 = createTestFile('second.pdf', 'application/pdf');
       
       // Add first file
-      mockDropzoneConfig.onDropAccepted([file1]);
+      mockDropzoneConfig!.onDropAccepted([file1]);
 
       await waitFor(() => {
         expect(screen.getByText('first.pdf')).toBeInTheDocument();
       });
 
       // Add second file (should replace first in single mode)
-      mockDropzoneConfig.onDropAccepted([file2]);
+      mockDropzoneConfig!.onDropAccepted([file2]);
 
       await waitFor(() => {
         expect(screen.getByText('second.pdf')).toBeInTheDocument();
@@ -261,14 +248,14 @@ describe('FileUpload Component', () => {
       const file2 = createTestFile('second.pdf', 'application/pdf');
       
       // Add first file
-      mockDropzoneConfig.onDropAccepted([file1]);
+      mockDropzoneConfig!.onDropAccepted([file1]);
 
       await waitFor(() => {
         expect(screen.getByText('first.pdf')).toBeInTheDocument();
       });
 
       // Add second file (should keep both in multiple mode)
-      mockDropzoneConfig.onDropAccepted([file2]);
+      mockDropzoneConfig!.onDropAccepted([file2]);
 
       await waitFor(() => {
         expect(screen.getByText('first.pdf')).toBeInTheDocument();
@@ -287,7 +274,7 @@ describe('FileUpload Component', () => {
       const file2 = createTestFile('second.pdf', 'application/pdf');
       
       // Add files
-      mockDropzoneConfig.onDropAccepted([file1, file2]);
+      mockDropzoneConfig!.onDropAccepted([file1, file2]);
 
       await waitFor(() => {
         expect(screen.getByText('first.pdf')).toBeInTheDocument();
@@ -347,7 +334,7 @@ describe('FileUpload Component', () => {
 
       // First, trigger an error
       const invalidFile = createTestFile('test.txt', 'text/plain');
-      mockDropzoneConfig.onDropRejected([{
+      mockDropzoneConfig!.onDropRejected([{
         file: invalidFile,
         errors: [{ code: 'file-invalid-type', message: 'File type not accepted' }]
       }]);
@@ -358,7 +345,7 @@ describe('FileUpload Component', () => {
 
       // Then, add a valid file
       const validFile = createTestFile('valid.pdf', 'application/pdf');
-      mockDropzoneConfig.onDropAccepted([validFile]);
+      mockDropzoneConfig!.onDropAccepted([validFile]);
 
       await waitFor(() => {
         expect(screen.queryByText('El tipo de archivo no es válido. Solo puedes subir: PDF, JPG, PNG, WEBP, DOC, DOCX.')).not.toBeInTheDocument();
@@ -407,7 +394,7 @@ describe('FileUpload Component', () => {
       const file1 = createTestFile('first.pdf', 'application/pdf');
       const file2 = createTestFile('second.pdf', 'application/pdf');
       
-      mockDropzoneConfig.onDropAccepted([file1, file2]);
+      mockDropzoneConfig!.onDropAccepted([file1, file2]);
 
       await waitFor(() => {
         // In single mode, should only show the last files
@@ -464,7 +451,7 @@ describe('FileUpload Component', () => {
         </TestWrapper>
       );
       
-      mockDropzoneConfig.onDropRejected([{
+      mockDropzoneConfig!.onDropRejected([{
         file: createTestFile('test.txt', 'text/plain'),
         errors: [{ code: 'file-invalid-type', message: 'File type not accepted' }]
       }]);
@@ -495,7 +482,7 @@ describe('FileUpload Component', () => {
 
       const file = createTestFile('test.pdf', 'application/pdf');
       
-      mockDropzoneConfig.onDropAccepted([file]);
+      mockDropzoneConfig!.onDropAccepted([file]);
 
       await waitFor(() => {
         const removeButton = screen.getByRole('button');
@@ -538,7 +525,7 @@ describe('FileUpload Component', () => {
 
       const file = createTestFile('test.pdf', 'application/pdf');
       
-      mockDropzoneConfig.onDropAccepted([file]);
+      mockDropzoneConfig!.onDropAccepted([file]);
 
       await waitFor(() => {
         expect(screen.getByTestId('file-count')).toHaveTextContent('1');
@@ -555,7 +542,7 @@ describe('FileUpload Component', () => {
       const file = createTestFile('test.pdf', 'application/pdf');
       
       // The component should call setValue with shouldValidate: true
-      mockDropzoneConfig.onDropAccepted([file]);
+      mockDropzoneConfig!.onDropAccepted([file]);
 
       await waitFor(() => {
         expect(screen.getByText('test.pdf')).toBeInTheDocument();

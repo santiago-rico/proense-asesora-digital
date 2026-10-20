@@ -44,6 +44,13 @@ global.IntersectionObserver = class IntersectionObserver {
   }
   
   callback: IntersectionObserverCallback;
+  readonly root: Element | Document | null = null;
+  readonly rootMargin = '';
+  readonly thresholds: ReadonlyArray<number> = [];
+  
+  takeRecords(): IntersectionObserverEntry[] {
+    return [];
+  }
   
   observe() {
     // Mock implementation
@@ -87,7 +94,6 @@ if (!Element.prototype.releasePointerCapture) {
 Element.prototype.scrollIntoView = vi.fn(function(options?: boolean | ScrollIntoViewOptions) {
   if (typeof options === 'object') {
     // Handle ScrollIntoViewOptions
-    const { behavior = 'auto', block = 'start', inline = 'nearest' } = options;
     // Mock implementation
   }
   // Mock implementation for boolean parameter

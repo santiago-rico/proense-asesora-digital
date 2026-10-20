@@ -1,38 +1,27 @@
 {
   "compilerOptions": {
-    "composite": true,
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
     "resolveJsonModule": true,
     "target": "ES2022",
     "lib": ["ES2023"],
     "module": "ESNext",
     "skipLibCheck": true,
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"]
-    },
-    "typeRoots": [
-      "./node_modules/@types",
-      "./node_modules",
-      "./types"
-    ],
+    "types": ["node"],
 
     /* Bundler mode */
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
+    "allowSyntheticDefaultImports": true,
     "isolatedModules": true,
     "moduleDetection": "force",
-    "noEmit": false,
+    "noEmit": true,
 
     /* Linting */
     "strict": true,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "noFallthroughCasesInSwitch": true,
-    "types": ["node", "vitest/globals"] // Added vitest/globals
+    "noFallthroughCasesInSwitch": true
   },
-  "include": [
-    "vite.config.ts", 
-    "api/**/*.ts", 
-    "src/**/*.test.ts", // Added common test file pattern
-    "src/utils/brevo.test.ts" // Specifically including the problematic file for good measure
-  ]
+  // The src/ helpers that api/ imports (by relative path) are checked here as
+  // well, but belong to tsconfig.app.json.
+  "include": ["api", "tests/api", "vite.config.ts", "vitest.config.ts"]
 }

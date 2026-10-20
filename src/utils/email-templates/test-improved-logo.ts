@@ -6,7 +6,6 @@
  */
 
 import { BaseTemplate } from './BaseTemplate.js';
-import { InsuranceApplicationTemplate } from './InsuranceApplicationTemplate.js';
 import fs from 'fs';
 import path from 'path';
 

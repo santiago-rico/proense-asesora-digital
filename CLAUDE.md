@@ -18,6 +18,7 @@ npm run preview      # Preview production build locally
 ### Code Quality
 ```bash
 npm run lint         # Run ESLint checks
+npm run typecheck    # Type-check src/, api/ and e2e/ (tsc -b over the tsconfig.json references)
 npm test             # Run tests with Vitest
 ```
 
