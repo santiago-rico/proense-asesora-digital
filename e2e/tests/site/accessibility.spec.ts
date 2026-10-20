@@ -166,12 +166,6 @@ const KNOWN: KnownBug[] = [
     ...both(['/']),
     node: colors('#ffffff', '#3b8c59'),
   },
-  {
-    title: 'El campo de archivos de modificación y cancelación tiene etiqueta',
-    rules: ['label'],
-    bug: 'the dropzone\'s <input type="file"> has no label; FileUpload\'s <label> is not associated with it, src/components/forms/emision/FileUpload.tsx:184,197',
-    ...both(['/clientes/modificaciones', '/clientes/cancelaciones']),
-  },
 ];
 
 /** Finishes finite animations (fade-ins, the dialog's zoom, the menu's slide) so axe never measures a half-faded color. */

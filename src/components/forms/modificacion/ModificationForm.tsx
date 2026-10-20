@@ -17,7 +17,8 @@ import { useCsrf } from '@/hooks/use-csrf';
 import { AlertTriangle } from 'lucide-react';
 import { FormSuccessScreen } from '@/components/shared/FormSuccessScreen';
 import { SERVICE_FORM_INSURANCE_TYPES } from '@/constants/insuranceTypes';
-import { safeParseResponse } from '@/utils/safe-response';
+import { NETWORK_ERROR_MESSAGE, safeParseResponse } from '@/utils/safe-response';
+import { isCsrfError } from '@/utils/csrf-error';
 
 const modificationSchema = z.object({
   documentosAdicionales: z.any().optional(),
@@ -58,7 +59,11 @@ export const ModificationForm = ({ onSuccess }: ModificationFormProps) => {
   const { token: csrfToken, loading: csrfLoading, error: csrfError, refetch: refetchCsrf } = useCsrf();
   const form = useForm<ModificationFormValues>({
     resolver: zodResolver(modificationSchema),
-    mode: 'onBlur',
+    // Validate on submit, then re-validate on change. On blur, an error message
+    // disappearing as the pointer presses "Enviar" moved the button up between
+    // mousedown and mouseup, and the click was lost.
+    mode: 'onSubmit',
+    reValidateMode: 'onChange',
     defaultValues: {
       nombreCompleto: '',
       numeroCedula: '',
@@ -141,8 +146,8 @@ export const ModificationForm = ({ onSuccess }: ModificationFormProps) => {
       if (ok) {
         setFormSubmitted(true);
       } else {
-        // Handle CSRF-specific errors
-        if (status === 403 && (result as Record<string, unknown>)?.message?.toString().includes('CSRF')) {
+        // Handle CSRF-specific errors (by the 403's error code: the message's wording varies per endpoint)
+        if (isCsrfError(status, result)) {
           toast({
             title: "Error de Seguridad",
             description: "Token de seguridad inválido. Recargando página...",
@@ -174,13 +179,17 @@ export const ModificationForm = ({ onSuccess }: ModificationFormProps) => {
           return;
         }
 
-        throw new Error(errorMessage || (result?.message as string) || 'Ocurrió un error al enviar el formulario.');
+        toast({
+          title: "Error",
+          description: errorMessage || (result?.message as string) || 'Ocurrió un error al enviar el formulario.',
+          variant: "destructive",
+        });
       }
-    } catch (error) {
-      const errMsg = error instanceof Error ? error.message : 'No se pudo conectar con el servidor. Verifica tu conexión a internet e intenta de nuevo.';
+    } catch {
+      // fetch rejected: the request got no response, and its message is the browser's, in English ("Failed to fetch")
       toast({
         title: "Error",
-        description: errMsg,
+        description: NETWORK_ERROR_MESSAGE,
         variant: "destructive",
       });
     } finally {
@@ -236,7 +245,10 @@ export const ModificationForm = ({ onSuccess }: ModificationFormProps) => {
         </div>
       ) : (
         <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      {/* noValidate: zod shows its Spanish messages under each field on submit. The
+          inputs keep `required` for assistive tech, but the browser's own bubble would
+          block the submit first, in the browser's language. */}
+      <form noValidate onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}

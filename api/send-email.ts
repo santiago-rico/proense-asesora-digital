@@ -4,6 +4,7 @@ import { JSDOM } from 'jsdom';
 import { withRateLimit, rateLimitConfigs } from './_utils/rate-limiter.js';
 import { LeadTemplate } from '../src/utils/email-templates/LeadTemplate.js';
 import { getNotificationEmails } from './_utils/notification-emails.js';
+import { CSRF_ERROR_CODE } from '../src/utils/csrf-error.js';
 
 // Define the validation schema with Zod
 const leadFormSchema = z.object({
@@ -39,7 +40,7 @@ async function handler(
     const token = req.headers['x-csrf-token'] as string;
     
     if (!secret || !token || !tokens.verify(secret, token)) {
-      return res.status(403).json({ message: 'Invalid CSRF token' });
+      return res.status(403).json({ message: 'Invalid CSRF token', code: CSRF_ERROR_CODE });
     }
 
     if (req.method !== 'POST') {

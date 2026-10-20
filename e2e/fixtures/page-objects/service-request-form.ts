@@ -207,12 +207,9 @@ export class ServiceRequestFormPage {
 
   // --- Files ----------------------------------------------------------------
 
-  /** The hidden `<input type=file>` of the upload (same pattern as insurance-form.ts). */
+  /** The dropzone's visually hidden `<input type=file>`, labelled by FileUpload's label. */
   get fileInput(): Locator {
-    return this.page
-      .locator('label', { hasText: this.config.labels.archivos })
-      .locator('xpath=..')
-      .locator('input[type="file"]');
+    return this.page.getByLabel(this.config.labels.archivos);
   }
 
   async upload(...files: UploadFile[]): Promise<void> {

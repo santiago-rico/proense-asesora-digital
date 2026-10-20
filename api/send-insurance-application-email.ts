@@ -9,6 +9,7 @@ import { JSDOM } from 'jsdom';
 import { withRateLimit, rateLimitConfigs } from './_utils/rate-limiter.js';
 import { InsuranceApplicationTemplate } from '../src/utils/email-templates/InsuranceApplicationTemplate.js';
 import { getNotificationEmails } from './_utils/notification-emails.js';
+import { CSRF_ERROR_CODE } from '../src/utils/csrf-error.js';
 import {
   HOGAR_ASEGURABILIDAD_KEYS,
   HOGAR_ASEGURABILIDAD_REQUIRED_MESSAGE,
@@ -247,7 +248,7 @@ async function handler(
     const token = req.headers['x-csrf-token'] as string;
     
     if (!secret || !token || !tokens.verify(secret, token)) {
-      return res.status(403).json({ message: 'Invalid CSRF token' });
+      return res.status(403).json({ message: 'Invalid CSRF token', code: CSRF_ERROR_CODE });
     }
     
     const { fields, files } = await parseForm(req);

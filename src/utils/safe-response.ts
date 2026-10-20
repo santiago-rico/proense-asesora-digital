@@ -43,6 +43,14 @@ export async function safeParseResponse(response: Response): Promise<SafeRespons
   };
 }
 
+/**
+ * Shown when a request gets no response at all (offline, DNS failure, connection
+ * reset): `fetch` then rejects with the browser's own English message ("Failed
+ * to fetch", "Load failed"), which must not reach the user.
+ */
+export const NETWORK_ERROR_MESSAGE =
+  'No se pudo conectar con el servidor. Verifica tu conexión a internet e intenta de nuevo.';
+
 function getErrorMessageForStatus(status: number): string {
   switch (status) {
     case 413:
