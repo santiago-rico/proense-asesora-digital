@@ -56,7 +56,7 @@ export const quoteFormBaseSchema = z.object({
   address: z.string()
     .min(1, 'Dirección requerida')
     .transform(str => str.trim()),
-  // @ts-expect-error TODO(zod 4): required_error/invalid_type_error are zod 3 params that zod 4 ignores, so the English default shows (Known bug in e2e quote-request.spec.ts).
+
   employmentStatus: z.enum([
     'empleado_completo',
     'empleado_parcial',
@@ -75,7 +75,6 @@ export const quoteFormBaseSchema = z.object({
   occupationSector: z.string().optional(),
 
   // Step 2: Insurance Type Selection
-  // @ts-expect-error TODO(zod 4): same zod 3 params as employmentStatus above.
   insuranceType: z.enum(['vida', 'auto', 'hogar', 'salud', 'mascotas'], {
     error: 'Selecciona un tipo de seguro'
   }),
