@@ -92,6 +92,22 @@ describe('LeadForm', () => {
       expect(global.fetch).not.toHaveBeenCalledWith('/api/send-email', expect.anything());
     }, 10000);
 
+    it('shows every message in Spanish when submitted empty', async () => {
+      const user = userEvent.setup();
+      renderLeadForm();
+
+      // The form is noValidate, so the browser's own `required` check doesn't block
+      // the submit before zod's messages
+      await user.click(submitButton());
+
+      expect(await screen.findByText('El nombre es requerido')).toBeInTheDocument();
+      expect(screen.getByText('Email inválido')).toBeInTheDocument();
+      expect(screen.getByText('Número de teléfono inválido')).toBeInTheDocument();
+      expect(screen.getByText('Por favor seleccione un tipo de seguro')).toBeInTheDocument();
+      expect(screen.getByText('Debes aceptar los términos y condiciones')).toBeInTheDocument();
+      expect(global.fetch).not.toHaveBeenCalledWith('/api/send-email', expect.anything());
+    }, 10000);
+
     it('validates on submit, not on blur, and clears a message as soon as the field is fixed', async () => {
       const user = userEvent.setup();
       renderLeadForm('auto');

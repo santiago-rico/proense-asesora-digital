@@ -199,7 +199,10 @@ const LeadForm: React.FC<LeadFormProps> = ({ initialInsuranceType, onLinkClick, 
       {title && <h3 className="text-xl font-bold mb-2">{title}</h3>}
       {subtitle && <p className="text-sm text-gray-600 mb-4">{subtitle}</p>}
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        {/* noValidate: zod shows its Spanish messages under each field on submit. The
+            inputs keep `required` for assistive tech, but the browser's own bubble would
+            block the submit first, in the browser's language. */}
+        <form noValidate onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
             control={form.control}
             name="nombre"
