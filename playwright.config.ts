@@ -4,8 +4,13 @@ import { defineConfig, devices } from '@playwright/test';
  * E2E suite for the whole site. Specs import `test` from e2e/fixtures/network.ts,
  * whose auto fixtures mock every third party (Sanity, fonts, gpteng, CSRF) and
  * fail a test on page/console errors. Form endpoints are mocked per test with
- * `page.route` (e2e/fixtures/api-mocks.ts): `npm run dev` only serves the Vite
+ * `page.route` (e2e/fixtures/api-mocks.ts): the web server only serves the Vite
  * app, and the real /api functions send emails through Brevo.
+ *
+ * CI tests what ships: the production build, served by `vite preview`. The dev
+ * server never runs Rollup's chunking, so a bundling bug that blanks the live
+ * site (as @portabletext/react 8 did) passes there. Locally the dev server is
+ * quicker to iterate with; set E2E_PREVIEW=1 to test the build instead.
  *
  * Default projects: desktop Chromium + a mobile Chromium viewport. Set
  * E2E_WEBKIT=1 to add Desktop/Mobile Safari (needs `npx playwright install webkit`).
@@ -13,6 +18,7 @@ import { defineConfig, devices } from '@playwright/test';
  * @see https://playwright.dev/docs/test-configuration
  */
 const includeWebkit = !!process.env.E2E_WEBKIT;
+const testBuild = !!process.env.CI || !!process.env.E2E_PREVIEW;
 
 export default defineConfig({
   testDir: './e2e/tests',
@@ -46,11 +52,15 @@ export default defineConfig({
       : []),
   ],
 
+  // Read by e2e/global-setup.ts, which warms up the dev server only.
+  metadata: { testBuild },
+
   webServer: {
-    command: 'npm run dev',
+    command: testBuild ? 'npm run build && npm run preview -- --port 8080 --strictPort' : 'npm run dev',
     url: 'http://localhost:8080',
-    reuseExistingServer: !process.env.CI,
-    timeout: 120 * 1000,
+    // A running dev server would hide the build under test, so E2E_PREVIEW starts its own.
+    reuseExistingServer: !testBuild,
+    timeout: 180 * 1000,
   },
 
   timeout: 30 * 1000,

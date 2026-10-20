@@ -174,7 +174,8 @@ jobs:
           echo "Bundle size check passed"
 
   # End-to-end tests (Playwright). The tests mock /api, so no secrets are needed;
-  # playwright.config.ts starts the dev server itself.
+  # playwright.config.ts builds the app and serves it with `vite preview` itself
+  # (CI=true), so the suite tests the production bundle, not the dev server.
   e2e:
     # The suite covers every page and form on two viewports; on one runner it
     # would take ~40 min, so it is split across parallel shards. To resize, edit

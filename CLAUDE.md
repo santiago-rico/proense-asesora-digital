@@ -133,6 +133,7 @@ Routing is resolved centrally in `api/_utils/notification-emails.ts` via `getNot
 - Run a single test file: `npm test path/to/file.test.ts`
 - CI runs `npm run test -- --run --coverage`; a failing test or coverage below the thresholds in `vitest.config.ts` fails CI
 - E2E tests use Playwright (`npm run test:e2e`), live in `e2e/` and mock all network access; see `e2e/README.md`
+- CI runs the E2E suite against the production build (`vite build` + `vite preview`); locally it uses the dev server unless `E2E_PREVIEW=1` is set. Run with `E2E_PREVIEW=1` after touching `vite.config.ts` or bumping dependencies, since bundling bugs never show up on the dev server
 - Security tests available in `tests/security/` directory
 
 ### Vercel Function Limit

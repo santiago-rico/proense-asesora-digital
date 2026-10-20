@@ -8,7 +8,7 @@ modificación, cancelación).
 
 ```
 e2e/
-├── global-setup.ts                 # Warms up the Vite dev server before any test
+├── global-setup.ts                 # Warms up the Vite dev server before any test (not the build)
 ├── tsconfig.json                   # Type-checking for the suite (not part of the app build)
 ├── fixtures/
 │   ├── network.ts                  # `test`/`expect` for every spec: third-party + Sanity mocks, console-error guard
@@ -44,6 +44,7 @@ e2e/
 ```bash
 npx playwright install chromium     # once, downloads the browser
 npm run test:e2e                    # starts `npm run dev` on :8080 (or reuses a running one)
+E2E_PREVIEW=1 npm run test:e2e      # tests the production build instead, like CI
 npm run test:e2e:ui                 # interactive mode
 npm run test:e2e:headed             # watch the browser
 npm run test:e2e:report             # open the last HTML report
@@ -60,7 +61,15 @@ so every test also runs at phone width. Desktop- or mobile-only tests skip the
 other project with `test.skip(({ isMobile }) => …)`. The timezone is pinned to
 `America/Bogota`, like the site's visitors (blog dates are always shown in
 Bogotá time, whatever the browser's timezone). In CI mode
-(`CI=1`) the suite retries failures twice and always starts its own dev server.
+(`CI=1`) the suite retries failures twice.
+
+**CI tests the production build.** With `CI` or `E2E_PREVIEW` set, the web
+server is `npm run build && npm run preview` on :8080 instead of the dev server,
+and it is always started fresh. The dev server never runs Rollup's chunking, so
+bundling bugs only show up in the build: @portabletext/react 8 once blanked
+every page of the live site (#197) while the suite, then on the dev server,
+stayed green. Run with `E2E_PREVIEW=1` after changing `vite.config.ts` or
+bumping a dependency.
 
 The suite runs in GitHub Actions as the **E2E Tests (Playwright)** job in
 `.github/workflows/ci.yml`, split into 6 parallel shards
@@ -93,8 +102,9 @@ Every spec imports `test` and `expect` from `fixtures/network.ts`, never from
 
 ## Form endpoints
 
-`npm run dev` serves only the Vite app. Requests to `/api/*` are not executed
-(they return the TypeScript source), and the real functions send emails through
+The web server serves only the Vite app. Requests to `/api/*` are not executed
+(the dev server returns the TypeScript source, `vite preview` a 404 or its
+index.html), and the real functions send emails through
 Brevo. Every form test therefore mocks its endpoint (`fixtures/api-mocks.ts`):
 
 - `mockJsonSubmission(page, LEAD_ENDPOINT | QUOTE_ENDPOINT, ...responders)`
