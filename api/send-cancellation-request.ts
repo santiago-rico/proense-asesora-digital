@@ -7,6 +7,7 @@ import { JSDOM } from 'jsdom';
 import { withRateLimit, rateLimitConfigs } from './_utils/rate-limiter.js';
 import { CancellationRequestTemplate } from '../src/utils/email-templates/CancellationRequestTemplate.js';
 import { getNotificationEmails } from './_utils/notification-emails.js';
+import { CSRF_ERROR_CODE } from '../src/utils/csrf-error.js';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 const ALLOWED_MIME_TYPES = [
@@ -123,7 +124,7 @@ async function handler(req: VercelRequest, res: VercelResponse) {
         const token = req.headers['x-csrf-token'] as string;
         
         if (!secret || !token || !tokens.verify(secret, token)) {
-            return res.status(403).json({ message: 'Token de seguridad inválido' });
+            return res.status(403).json({ message: 'Token de seguridad inválido', code: CSRF_ERROR_CODE });
         }
 
         const { fields, files } = await parseForm(req);
