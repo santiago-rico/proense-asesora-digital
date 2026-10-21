@@ -39,7 +39,8 @@ test.describe('Comportamientos globales', () => {
     const held = new Promise<void>(resolve => (release = resolve));
     let requested = false;
     // On a direct load the lazy AboutPage module is fetched after the app boots; hold it.
-    await page.route('**/src/pages/AboutPage.tsx*', async route => {
+    // The dev server serves it as /src/pages/AboutPage.tsx, the build as /assets/AboutPage.tsx-<hash>.js.
+    await page.route(/\/(src\/pages\/AboutPage\.tsx|assets\/AboutPage\.tsx-[\w-]+\.js)(\?|$)/, async route => {
       requested = true;
       await held;
       await route.continue();

@@ -26,6 +26,8 @@ const WARM_UP_PATHS = [
 ];
 
 export default async function globalSetup(config: FullConfig) {
+  // `vite preview` serves a prebuilt bundle: nothing to optimize or reload.
+  if (config.metadata.testBuild) return;
   const baseURL = config.projects[0]?.use.baseURL ?? 'http://localhost:8080';
   const browser = await chromium.launch();
   try {
