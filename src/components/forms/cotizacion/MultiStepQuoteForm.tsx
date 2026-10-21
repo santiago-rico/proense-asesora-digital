@@ -12,6 +12,7 @@ import { quoteFormSchema, QuoteFormSchemaType } from './formSchema';
 import { steps, quoteFormDefaultValues, formFieldForServerError, stepIndexForField } from './formWiring';
 import { FormSuccessScreen } from '@/components/shared/FormSuccessScreen';
 import { safeParseResponse } from '@/utils/safe-response';
+import { isCsrfError } from '@/utils/csrf-error';
 
 interface MultiStepQuoteFormProps {
   onSuccess?: () => void;
@@ -217,8 +218,8 @@ const MultiStepQuoteForm = ({ onSuccess }: MultiStepQuoteFormProps) => {
       if (ok) {
         setFormSubmitted(true);
       } else {
-        // Handle CSRF-specific errors
-        if (status === 403 && (result as Record<string, unknown>)?.message?.toString().includes('CSRF')) {
+        // Handle CSRF-specific errors (by the 403's error code: the message's wording varies per endpoint)
+        if (isCsrfError(status, result)) {
           toast({
             title: "Error de Seguridad",
             description: "Token de seguridad inválido. Recargando página...",

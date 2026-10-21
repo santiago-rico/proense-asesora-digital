@@ -3,12 +3,13 @@
  * Tests submit-time validation, server responses and the preselected insurance type
  */
 
-import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import LeadForm from '../LeadForm';
 import { toLeadFormInsuranceType } from '@/constants/insuranceTypes';
+import { CSRF_ERROR_CODE } from '@/utils/csrf-error';
 
 // A stable toast: LeadForm's CSRF effect depends on it
 const { toastMock } = vi.hoisted(() => ({ toastMock: vi.fn() }));
@@ -51,10 +52,31 @@ const fillLead = async (user: ReturnType<typeof userEvent.setup>) => {
   await user.click(screen.getByRole('checkbox'));
 };
 
+/**
+ * Captures the delayed `window.location.reload()` after a CSRF failure instead
+ * of scheduling it (jsdom can't navigate). Other timers run as usual.
+ */
+function interceptReload() {
+  const realSetTimeout = globalThis.setTimeout;
+  const reload = vi.fn();
+  vi.spyOn(globalThis, 'setTimeout').mockImplementation(((handler: () => void, timeout?: number) => {
+    if (timeout === 2000) {
+      reload();
+      return 0 as unknown as ReturnType<typeof setTimeout>;
+    }
+    return realSetTimeout(handler, timeout);
+  }) as typeof setTimeout);
+  return reload;
+}
+
 describe('LeadForm', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockSubmission(() => Promise.resolve(jsonResponse(200, { message: 'ok' })));
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   describe('Form Validation', () => {
@@ -159,6 +181,48 @@ describe('LeadForm', () => {
           expect.objectContaining({ title: 'Error al enviar solicitud', description: 'El servicio de correo no responde.' })
         );
       });
+      expect(submitButton()).toBeEnabled();
+    }, 10000);
+
+    it('warns and reloads the page on a 403 with the CSRF error code', async () => {
+      // The real server's body (api/send-email.ts)
+      mockSubmission(() => Promise.resolve(jsonResponse(403, { message: 'Invalid CSRF token', code: CSRF_ERROR_CODE })));
+      const reload = interceptReload();
+      const user = userEvent.setup();
+      renderLeadForm('auto');
+      await fillLead(user);
+
+      await user.click(submitButton());
+
+      await waitFor(() => {
+        expect(toastMock).toHaveBeenCalledWith(
+          expect.objectContaining({
+            title: 'Error de Seguridad',
+            description: 'Token de seguridad inválido. Recargando página...',
+            variant: 'destructive',
+          })
+        );
+      });
+      expect(reload).toHaveBeenCalledTimes(1);
+    }, 10000);
+
+    it('treats a 403 without the CSRF error code as an ordinary error, even if its message says CSRF', async () => {
+      // Message text is not a contract: only `code` marks a CSRF rejection
+      mockSubmission(() => Promise.resolve(jsonResponse(403, { message: 'Invalid CSRF token' })));
+      const reload = interceptReload();
+      const user = userEvent.setup();
+      renderLeadForm('auto');
+      await fillLead(user);
+
+      await user.click(submitButton());
+
+      await waitFor(() => {
+        expect(toastMock).toHaveBeenCalledWith(
+          expect.objectContaining({ title: 'Error al enviar solicitud', description: 'Invalid CSRF token' })
+        );
+      });
+      expect(toastMock).not.toHaveBeenCalledWith(expect.objectContaining({ title: 'Error de Seguridad' }));
+      expect(reload).not.toHaveBeenCalled();
       expect(submitButton()).toBeEnabled();
     }, 10000);
 
