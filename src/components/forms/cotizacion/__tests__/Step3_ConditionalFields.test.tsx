@@ -1,0 +1,262 @@
+import { useEffect, useState } from 'react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent, { type UserEvent } from '@testing-library/user-event';
+import { MemoryRouter } from 'react-router-dom';
+import { FormProvider, useForm, type UseFormReturn } from 'react-hook-form';
+import Step3_ConditionalFields from '../Step3_ConditionalFields';
+import Step5_Summary from '../Step5_Summary';
+import MultiStepQuoteForm from '../MultiStepQuoteForm';
+import { quoteFormDefaultValues } from '../formWiring';
+import type { QuoteFormSchemaType } from '../formSchema';
+
+/**
+ * A "Sí" answer reveals a details field ("¿Qué deportes practicas?", …). If the
+ * client types there and then answers "No", the hidden field must be emptied,
+ * or its stale text still shows on the summary and is sent with the quote.
+ */
+
+vi.mock('@/hooks/use-toast', () => ({
+  useToast: () => ({ toast: vi.fn() }),
+}));
+
+type QuoteForm = UseFormReturn<QuoteFormSchemaType>;
+
+/** Step 3, then the summary, sharing one form like the real wizard. */
+const Harness = ({ values, onForm }: { values: Partial<QuoteFormSchemaType>; onForm: (form: QuoteForm) => void }) => {
+  const methods = useForm<QuoteFormSchemaType>({
+    defaultValues: { ...quoteFormDefaultValues, ...values },
+  });
+  const [showSummary, setShowSummary] = useState(false);
+  useEffect(() => {
+    onForm(methods);
+  }, [methods, onForm]);
+  return (
+    <MemoryRouter>
+      <FormProvider {...methods}>
+        {showSummary ? <Step5_Summary /> : <Step3_ConditionalFields />}
+        <button type="button" onClick={() => setShowSummary(true)}>
+          Ver resumen
+        </button>
+      </FormProvider>
+    </MemoryRouter>
+  );
+};
+
+const renderStep3 = (values: Partial<QuoteFormSchemaType>) => {
+  const holder: { form?: QuoteForm } = {};
+  render(<Harness values={values} onForm={(form) => (holder.form = form)} />);
+  return (name: keyof QuoteFormSchemaType) => holder.form?.getValues(name);
+};
+
+const choose = async (user: UserEvent, label: RegExp, option: string) => {
+  await user.click(screen.getByRole('combobox', { name: label }));
+  await user.click(screen.getByRole('option', { name: option }));
+};
+
+/** The value shown next to a "Label:" row of the summary. */
+const rowValue = (label: string) => screen.getByText(`${label}:`).nextElementSibling?.textContent;
+
+interface Detail {
+  field: keyof QuoteFormSchemaType;
+  label: RegExp;
+  /** Text typed into an input, or… */
+  text?: string;
+  /** …the option picked in a select. */
+  option?: string;
+  /** Its row label on the summary. */
+  summary: string;
+}
+
+interface Case {
+  name: string;
+  values: Partial<QuoteFormSchemaType>;
+  question: RegExp;
+  questionSummary: string;
+  details: Detail[];
+}
+
+const SPORTS: Omit<Case, 'name' | 'values'> = {
+  question: /^Practicas algún deporte/,
+  questionSummary: '¿Practica Deportes?',
+  details: [{ field: 'sportsDetails', label: /^¿Qué deportes practicas\?/, text: 'Natación', summary: 'Deportes que Practica' }],
+};
+
+const ILLNESS: Omit<Case, 'name' | 'values'> = {
+  question: /^¿Tienes o padeces alguna enfermedad\?/,
+  questionSummary: '¿Tiene Enfermedades?',
+  details: [{ field: 'healthConditionsDetails', label: /^¿Qué enfermedades\?/, text: 'Asma', summary: 'Enfermedades' }],
+};
+
+const CASES: Case[] = [
+  { name: 'vida: deportes', values: { insuranceType: 'vida' }, ...SPORTS },
+  { name: 'vida: enfermedades', values: { insuranceType: 'vida' }, ...ILLNESS },
+  { name: 'salud: deportes', values: { insuranceType: 'salud' }, ...SPORTS },
+  { name: 'salud: enfermedades', values: { insuranceType: 'salud' }, ...ILLNESS },
+  {
+    name: 'auto: accesorios',
+    values: { insuranceType: 'auto' },
+    question: /^¿El vehículo tiene accesorios o modificaciones\?/,
+    questionSummary: '¿Tiene Accesorios o Modificaciones?',
+    details: [
+      { field: 'accessoriesValue', label: /^Valor estimado de accesorios/, text: '2000000', summary: 'Valor Estimado de Accesorios' },
+      { field: 'accessoriesType', label: /^Tipo de accesorios/, option: 'Rines de lujo', summary: 'Tipo de Accesorios' },
+    ],
+  },
+  {
+    name: 'hogar: contenidos',
+    values: { insuranceType: 'hogar', propertyRelationship: 'propietario_habita' },
+    question: /^¿Deseas asegurar también los contenidos de tu hogar\?/,
+    questionSummary: '¿Desea Asegurar Contenidos?',
+    details: [
+      { field: 'contentsValue', label: /^Valor de los contenidos/, text: '50000000', summary: 'Valor de los Contenidos' },
+      { field: 'electricContentsValue', label: /^Valor de contenidos eléctricos/, text: '8000000', summary: 'Valor de Contenidos Eléctricos' },
+      { field: 'theftValue', label: /^Valor a asegurar por hurto/, text: '5000000', summary: 'Valor a Asegurar por Hurto' },
+      { field: 'portableContentsValue', label: /^Todo riesgo contenidos portátiles/, text: '3000000', summary: 'Todo Riesgo Contenidos Portátiles' },
+    ],
+  },
+  {
+    name: 'mascotas: enfermedades o accidentes',
+    values: { insuranceType: 'mascotas' },
+    question: /^¿Tu mascota ha tenido enfermedades o accidentes graves en el último año\?/,
+    questionSummary: '¿Ha Tenido Enfermedades o Accidentes Graves?',
+    details: [
+      { field: 'petSeriousIllnessDetails', label: /^¿Qué enfermedades o accidentes tuvo tu mascota\?/, text: 'Fractura', summary: 'Enfermedades o Accidentes' },
+    ],
+  },
+];
+
+describe('Step3_ConditionalFields (cotización): details of a "Sí" answer changed to "No"', () => {
+  it.each(CASES)('$name: are cleared, stay empty when "Sí" is chosen again, and are not on the summary', async ({
+    values,
+    question,
+    questionSummary,
+    details,
+  }) => {
+    const user = userEvent.setup();
+    const getValue = renderStep3(values);
+
+    await choose(user, question, 'Sí');
+    for (const detail of details) {
+      if (detail.option) await choose(user, detail.label, detail.option);
+      else await user.type(screen.getByLabelText(detail.label), detail.text ?? '');
+    }
+    for (const { field } of details) expect(getValue(field), field).not.toBe('');
+
+    await choose(user, question, 'No');
+    for (const { label } of details) expect(screen.queryByLabelText(label)).not.toBeInTheDocument();
+    for (const { field } of details) expect(getValue(field), field).toBe('');
+
+    // Asked again, the details start empty instead of bringing the old answer back.
+    await choose(user, question, 'Sí');
+    for (const { label, option } of details) {
+      if (option) expect(screen.getByRole('combobox', { name: label })).toHaveTextContent('Elige una opción');
+      else expect(screen.getByLabelText(label)).toHaveDisplayValue('');
+    }
+    await choose(user, question, 'No');
+
+    await user.click(screen.getByRole('button', { name: 'Ver resumen' }));
+    expect(rowValue(questionSummary)).toBe('No');
+    for (const { summary } of details) expect(screen.queryByText(`${summary}:`)).not.toBeInTheDocument();
+  });
+
+  it('keeps the details while the answer stays "Sí"', async () => {
+    const user = userEvent.setup();
+    const getValue = renderStep3({ insuranceType: 'vida' });
+
+    await choose(user, SPORTS.question, 'Sí');
+    await user.type(screen.getByLabelText(/^¿Qué deportes practicas\?/), 'Natación');
+    await choose(user, ILLNESS.question, 'No');
+
+    expect(getValue('sportsDetails')).toBe('Natación');
+    await user.click(screen.getByRole('button', { name: 'Ver resumen' }));
+    expect(rowValue('Deportes que Practica')).toBe('Natación');
+  });
+});
+
+describe('MultiStepQuoteForm (cotización): payload after a "Sí" changed to "No"', () => {
+  const mockFetch = vi.fn();
+
+  beforeEach(() => {
+    mockFetch.mockReset();
+    mockFetch.mockImplementation((url: string) =>
+      Promise.resolve(
+        url === '/api/csrf-token'
+          ? ({ ok: true, json: () => Promise.resolve({ token: 'mock-csrf-token' }) } as Response)
+          : ({
+              ok: true,
+              status: 200,
+              headers: new Headers({ 'content-type': 'application/json' }),
+              json: () => Promise.resolve({ message: 'Solicitud de cotización enviada con éxito.' }),
+            } as Response)
+      )
+    );
+    global.fetch = mockFetch;
+  });
+
+  it('does not send the sports or illness details typed before answering "No"', async () => {
+    const user = userEvent.setup();
+    render(
+      <MemoryRouter>
+        <MultiStepQuoteForm />
+      </MemoryRouter>
+    );
+    await waitFor(() => expect(mockFetch).toHaveBeenCalledWith('/api/csrf-token', { credentials: 'include' }));
+    const next = () => user.click(screen.getByRole('button', { name: 'Siguiente' }));
+
+    // Step 1
+    await user.type(screen.getByLabelText(/^Nombre/), 'María');
+    await user.type(screen.getByLabelText(/^Apellido/), 'Gómez');
+    await user.type(screen.getByLabelText('Día de nacimiento'), '15');
+    await choose(user, /^Mes de nacimiento/, 'Marzo');
+    await user.type(screen.getByLabelText('Año de nacimiento'), '1990');
+    await user.type(screen.getByPlaceholderText('Número telefónico'), '3001234567');
+    await user.type(screen.getByLabelText(/^Correo Electrónico/), 'maria@example.com');
+    await user.type(screen.getByLabelText(/^Número de cédula/), '1020304050');
+    await user.type(screen.getByLabelText(/^Ciudad/), 'Bogotá');
+    await user.type(screen.getByLabelText(/^Dirección/), 'Calle 123 # 45-67');
+    await choose(user, /^Estado laboral/, 'Empleado(a) a tiempo completo');
+    await user.type(screen.getByLabelText(/^Actividad laboral o sector económico/), 'Tecnología');
+    await next();
+
+    // Step 2
+    await choose(user, /^Tipo de seguro que deseas cotizar/, 'Seguro de Vida');
+    await next();
+
+    // Step 3: answer "Sí", type the details, then change the answer to "No".
+    await user.type(await screen.findByLabelText(/^Ingreso mensual/), '5000000');
+    await choose(user, /^Estado civil/, 'Casado/a');
+    await choose(user, /^¿Tiene hijos\?/, 'No');
+    await user.type(screen.getByLabelText(/^Estatura/), '170');
+    await user.type(screen.getByLabelText(/^Peso/), '68');
+    await user.type(screen.getByLabelText(/^EPS a la que está afiliado/), 'Sura EPS');
+    await choose(user, SPORTS.question, 'Sí');
+    await user.type(screen.getByLabelText(/^¿Qué deportes practicas\?/), 'Natación');
+    await choose(user, SPORTS.question, 'No');
+    await choose(user, ILLNESS.question, 'Sí');
+    await user.type(screen.getByLabelText(/^¿Qué enfermedades\?/), 'Asma');
+    await choose(user, ILLNESS.question, 'No');
+    await next();
+
+    // Summary
+    expect(await screen.findByRole('heading', { name: 'Resumen y Envío' })).toBeInTheDocument();
+    expect(rowValue('¿Practica Deportes?')).toBe('No');
+    expect(rowValue('¿Tiene Enfermedades?')).toBe('No');
+    expect(screen.queryByText('Deportes que Practica:')).not.toBeInTheDocument();
+    expect(screen.queryByText('Enfermedades:')).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('checkbox', { name: /He leído y acepto/ }));
+    await user.click(screen.getByRole('button', { name: 'Enviar Cotización' }));
+
+    await waitFor(() => expect(mockFetch).toHaveBeenCalledWith('/api/send-quote-request', expect.anything()));
+    const [, init] = mockFetch.mock.calls.find(([url]) => url === '/api/send-quote-request')!;
+    const body = JSON.parse((init as RequestInit).body as string);
+    expect(body).toMatchObject({
+      insuranceType: 'vida',
+      practicesSports: 'no',
+      sportsDetails: '',
+      hasHealthConditions: 'no',
+      healthConditionsDetails: '',
+    });
+  });
+});
