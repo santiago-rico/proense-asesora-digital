@@ -20,6 +20,7 @@ npm run preview      # Preview production build locally
 npm run lint         # Run ESLint checks
 npm run typecheck    # Type-check src/, api/ and e2e/ (tsc -b over the tsconfig.json references)
 npm test             # Run tests with Vitest
+npm run check:api    # Compile api/ as Vercel does and call each function without require(esm)
 ```
 
 ### Database Operations (Sanity CMS)
@@ -134,12 +135,14 @@ Routing is resolved centrally in `api/_utils/notification-emails.ts` via `getNot
 - CI runs `npm run test -- --run --coverage`; a failing test or coverage below the thresholds in `vitest.config.ts` fails CI
 - E2E tests use Playwright (`npm run test:e2e`), live in `e2e/` and mock all network access; see `e2e/README.md`
 - CI runs the E2E suite against the production build (`vite build` + `vite preview`); locally it uses the dev server unless `E2E_PREVIEW=1` is set. Run with `E2E_PREVIEW=1` after touching `vite.config.ts` or bumping dependencies, since bundling bugs never show up on the dev server
+- CI runs `npm run check:api` (`scripts/check-api-functions.mjs`): it compiles `api/` with the root `tsconfig.json` as Vercel does, starts each function with require(esm) turned off as Vercel's launcher does, and expects 403 without a CSRF token and 400 for an empty form, with outgoing requests blocked. Unit tests and the build can't catch a function that crashes on Vercel (jsdom 30 took every form down that way), so run it after bumping a package `api/` loads. A new endpoint must be added to its `FUNCTIONS` table
 - Security tests available in `tests/security/` directory
 
 ### Vercel Function Limit
 The project is on Vercel's Hobby plan, which fails any deployment with more than **12 Serverless Functions** (`exceeded_serverless_functions_per_deployment`). Vercel turns every file under `api/` into a function unless it or its folder starts with `_`, test files included. To stay within the limit:
 - Only real endpoints live directly in `api/`; shared code goes in `api/_utils/` or `api/_schemas/`
 - Tests for API code live in `tests/api/`, never under `api/`
+- `npm run check:api` counts the functions the same way and fails above 12
 
 ### Security Implementation
 

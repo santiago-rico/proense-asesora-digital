@@ -12,6 +12,7 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "typecheck": "tsc -b",
+    "check:api": "node scripts/check-api-functions.mjs",
     "preview": "vite preview",
     "test": "vitest",
     "test:e2e": "playwright test",
