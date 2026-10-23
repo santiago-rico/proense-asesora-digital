@@ -5,6 +5,8 @@ import {
   quoteFormDefaultValues,
   formFieldForServerError,
   stepIndexForField,
+  insuranceDetailFields,
+  fieldsHiddenForInsuranceType,
 } from '../formWiring';
 import { backendQuoteSchema } from '../../../../../api/_schemas/quote-request-schema';
 
@@ -69,6 +71,43 @@ describe('cotización form wiring (schema ↔ steps ↔ defaults)', () => {
       (field) => !schemaFields.includes(field)
     );
     expect(orphanDefaults).toEqual([]);
+  });
+});
+
+/**
+ * `insuranceDetailFields` lists what Step 3 asks for each insurance type. The
+ * summary shows those fields, and choosing another type in Step 2 empties the
+ * Step 3 fields the new type does not list.
+ */
+describe('cotización form wiring (Step 3 fields per insurance type)', () => {
+  const step3Fields = steps[2].fields;
+
+  it('lists only Step 3 fields', () => {
+    const notInStep3 = Object.values(insuranceDetailFields)
+      .flat()
+      .filter((field) => !step3Fields.includes(field) && !FIELDS_WITHOUT_A_STEP.has(field));
+    expect(notInStep3).toEqual([]);
+  });
+
+  it('gives every Step 3 field to at least one insurance type', () => {
+    // A field no type lists is missing from every summary and is emptied by any choice in Step 2.
+    const listed = new Set(Object.values(insuranceDetailFields).flat());
+    expect(step3Fields.filter((field) => !listed.has(field))).toEqual([]);
+  });
+
+  it('covers every insurance type the schema allows', () => {
+    expect(Object.keys(insuranceDetailFields).sort()).toEqual([...quoteFormBaseSchema.shape.insuranceType.options].sort());
+  });
+
+  it('a type change keeps the comments and what vida and salud both ask', () => {
+    for (const type of Object.keys(insuranceDetailFields) as (keyof typeof insuranceDetailFields)[]) {
+      expect(fieldsHiddenForInsuranceType(type)).not.toContain('additionalComments');
+    }
+    const shared = insuranceDetailFields.vida.filter((field) => insuranceDetailFields.salud.includes(field));
+    expect(shared).toContain('height');
+    const hiddenForSalud = fieldsHiddenForInsuranceType('salud');
+    expect(hiddenForSalud.filter((field) => shared.includes(field))).toEqual([]);
+    expect(hiddenForSalud).toEqual(expect.arrayContaining(['monthlyIncome', 'maritalStatus', 'hasChildren', 'vehiclePlate']));
   });
 });
 

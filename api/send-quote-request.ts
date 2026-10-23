@@ -378,7 +378,8 @@ export async function QuoteRequestTemplate(
       if (data.propertyType) insuranceInfoRows.push({ label: 'Tipo de Vivienda', value: propertyTypeMap[data.propertyType] || data.propertyType, isHighlighted: false });
       if (data.constructionType) insuranceInfoRows.push({ label: 'Tipo de Construcción', value: constructionTypeMap[data.constructionType] || data.constructionType, isHighlighted: false });
       if (data.constructionYear) insuranceInfoRows.push({ label: 'Año de Construcción', value: data.constructionYear, isHighlighted: false });
-      if (data.unitFloor) insuranceInfoRows.push({ label: 'Piso de Ubicación del Predio', value: data.unitFloor, isHighlighted: false });
+      // Only an apartment is asked its floor; older clients kept the answer after a change to casa.
+      if (data.unitFloor && data.propertyType === 'apartamento') insuranceInfoRows.push({ label: 'Piso de Ubicación del Predio', value: data.unitFloor, isHighlighted: false });
       if (data.buildingFloors) insuranceInfoRows.push({ label: 'Número de Pisos del Edificio', value: data.buildingFloors, isHighlighted: false });
       if (data.basementCount) insuranceInfoRows.push({ label: 'Número de Sótanos', value: data.basementCount, isHighlighted: false });
       if (data.estrato) insuranceInfoRows.push({ label: 'Estrato', value: estratoMap[data.estrato] || data.estrato, isHighlighted: false });
@@ -398,8 +399,9 @@ export async function QuoteRequestTemplate(
           isHighlighted: true,
         });
         if (data.insuranceMethod) insuranceInfoRows.push({ label: 'Método de Aseguramiento', value: insuranceMethodMap[data.insuranceMethod] || data.insuranceMethod, isHighlighted: false });
+        // Not asked of arrendatarios; older clients kept an owner's answer after a change to arrendatario.
+        if (data.wantsContentsCoverage) insuranceInfoRows.push({ label: '¿Desea Asegurar Contenidos?', value: data.wantsContentsCoverage === 'si' ? 'Sí' : 'No', isHighlighted: false });
       }
-      if (data.wantsContentsCoverage) insuranceInfoRows.push({ label: '¿Desea Asegurar Contenidos?', value: data.wantsContentsCoverage === 'si' ? 'Sí' : 'No', isHighlighted: false });
       // Contents value is required for arrendatarios and whenever contents
       // coverage was requested — same NO SUMINISTRADO treatment as above.
       if (contentsRequired) {

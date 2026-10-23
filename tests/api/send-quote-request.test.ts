@@ -344,6 +344,28 @@ describe('QuoteRequestTemplate - hogar', () => {
     expect(html).not.toContain(NO_SUMINISTRADO);
   });
 
+  it('omits the floor of a property that is not an apartment', async () => {
+    // Older clients kept the floor typed for an apartment after a change to casa.
+    const html = await renderAgentEmail({ ...completeHogarData(), propertyType: 'casa', unitFloor: '5' });
+
+    expectRow(html, 'Tipo de Vivienda', 'Casa');
+    expect(html).not.toContain('Piso de Ubicación del Predio');
+  });
+
+  it('arrendatario omits the contents question an older client kept from an owner answer', async () => {
+    const html = await renderAgentEmail({
+      ...completeHogarData(),
+      propertyRelationship: 'arrendatario',
+      propertyValue: undefined,
+      insuranceMethod: undefined,
+      wantsContentsCoverage: 'no',
+      contentsValue: '25000000',
+    });
+
+    expect(html).not.toContain('¿Desea Asegurar Contenidos?');
+    expectRow(html, 'Valor de los Contenidos', '$25.000.000 COP');
+  });
+
   it('arrendatario with an empty contents value shows the fallback on the contents row', async () => {
     const html = await renderAgentEmail({
       ...completeHogarData(),
