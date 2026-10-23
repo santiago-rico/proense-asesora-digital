@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+import type { VercelRequest, VercelResponse } from '../../api/_utils/vercel-types';
 
 // The module under test imports the Brevo client at top level; mock it so
 // importing the file never needs API keys or network access.

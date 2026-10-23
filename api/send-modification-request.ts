@@ -1,4 +1,4 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+import type { VercelRequest, VercelResponse } from './_utils/vercel-types.js';
 import { sendTransactionalEmail } from '../src/utils/brevo.js';
 import formidable from 'formidable';
 import fs from 'fs';

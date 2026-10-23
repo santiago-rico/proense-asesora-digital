@@ -54,7 +54,7 @@ npm install zod
 ### 1. CSRF Token Endpoint (`/api/csrf-token.ts`)
 
 ```typescript
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+import type { VercelRequest, VercelResponse } from './_utils/vercel-types.js';
 import { serialize } from 'cookie';
 
 export default async function handler(
@@ -95,7 +95,7 @@ export default async function handler(
 ### 2. Form Submission Endpoint (`/api/send-email.ts`)
 
 ```typescript
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+import type { VercelRequest, VercelResponse } from './_utils/vercel-types.js';
 import { z } from 'zod';
 import { JSDOM } from 'jsdom';
 
