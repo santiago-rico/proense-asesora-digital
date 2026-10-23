@@ -108,6 +108,88 @@ export const steps = [
   }
 ];
 
+// The Step 3 fields each insurance type asks, in the order the summary lists
+// them. Choosing another type in Step 2 empties every Step 3 field the new type
+// does not ask (fields vida and salud share are kept), so the previous type's
+// answers are not sent with the quote.
+export const insuranceDetailFields: Record<QuoteFormSchemaType['insuranceType'], readonly string[]> = {
+  vida: [
+    'monthlyIncome',
+    'maritalStatus',
+    'hasChildren',
+    'height',
+    'weight',
+    'epsName',
+    'practicesSports',
+    'sportsDetails',
+    'hasHealthConditions',
+    'healthConditionsDetails',
+    'additionalComments',
+  ],
+  auto: [
+    'vehiclePlate',
+    'vehicleCity',
+    'vehicleType',
+    'vehicleUse',
+    'hasAccessories',
+    'accessoriesValue',
+    'accessoriesType',
+    'additionalComments',
+  ],
+  hogar: [
+    'propertyRelationship',
+    'ownerName',
+    'ownerCedula',
+    'ownerBirthDate',
+    'residesInProperty',
+    'insuredPropertyAddress',
+    'insuredPropertyCity',
+    'propertyType',
+    'constructionType',
+    'constructionYear',
+    'unitFloor',
+    'buildingFloors',
+    'basementCount',
+    'estrato',
+    'propertyArea',
+    'hasEconomicActivity',
+    'propertyValue',
+    'insuranceMethod',
+    'wantsContentsCoverage',
+    'contentsValue',
+    'electricContentsValue',
+    'theftValue',
+    'portableContentsValue',
+    'additionalComments',
+  ],
+  salud: [
+    'height',
+    'weight',
+    'epsName',
+    'practicesSports',
+    'sportsDetails',
+    'hasHealthConditions',
+    'healthConditionsDetails',
+    'preExistingConditions',
+    'additionalComments',
+  ],
+  mascotas: [
+    'petType',
+    'petName',
+    'petGender',
+    'petAge',
+    'petBreed',
+    'petVaccinated',
+    'petHasSeriousIllness',
+    'petSeriousIllnessDetails',
+    'additionalComments',
+  ],
+};
+
+/** The Step 3 fields that `insuranceType` does not ask: Step 2 empties them when the type changes. */
+export const fieldsHiddenForInsuranceType = (insuranceType: QuoteFormSchemaType['insuranceType']): string[] =>
+  steps[2].fields.filter((field) => !insuranceDetailFields[insuranceType].includes(field));
+
 // The server validates the flattened payload (MultiStepQuoteForm sends birthDate
 // as birthDate_day/_month/_year), so a 400 names those parts by their payload
 // keys, which match no form field.

@@ -137,6 +137,9 @@ const TYPE_CASES: TypeCase[] = [
 ];
 
 const DETAIL_FIELDS = [...new Set(TYPE_CASES.flatMap(c => Object.keys(c.sent)))];
+const TYPE_CASE = Object.fromEntries(TYPE_CASES.map(c => [c.type, c])) as Record<QuoteType, TypeCase>;
+/** Vida's summary rows that salud doesn't ask; the rest of vida's rows are the shared health answers. */
+const VIDA_ONLY_ROWS = ['Ingreso Mensual', 'Estado Civil', '¿Tiene Hijos?'];
 
 test.describe('Cotización de seguros', () => {
   let form: QuoteFormPage;
@@ -316,6 +319,73 @@ test.describe('Cotización de seguros', () => {
       await expect(form.firstNameInput).toHaveValue(quoteApplicant.firstName);
       await expect(form.select('Mes de nacimiento')).toHaveText('Marzo');
       await expect(form.prevButton).toBeHidden();
+    });
+
+    test('al cambiar Vida por Auto se borran las respuestas de vida, que no se muestran ni se envían', async ({ page }) => {
+      const submissions = await mockJsonSubmission(page, QUOTE_ENDPOINT, respond.success());
+      const { vida, auto } = TYPE_CASE;
+
+      await form.startQuote('vida');
+      await form.fillVida(); // "Sí" to sports, with "Natación"
+      await form.choose('¿Tienes o padeces alguna enfermedad?', 'Sí');
+      await form.input('¿Qué enfermedades?').fill('Asma');
+      await form.input('Comentarios adicionales').fill(COMMENT);
+      await form.prev('Tipo de Seguro');
+      await form.chooseInsurance('auto');
+      await form.next('Detalles del Seguro');
+      await form.fillAuto();
+      await expect(form.input('Comentarios adicionales')).toHaveValue(COMMENT); // asked of every type
+
+      await form.next('Resumen y Envío');
+      for (const [label, value] of Object.entries(auto.summary)) {
+        await expect(form.summaryValue(label), label).toHaveText(value);
+      }
+      for (const label of [...Object.keys(vida.summary), 'Enfermedades']) {
+        await expect(form.summaryValue(label), label).toBeHidden();
+      }
+      await expect(form.summaryValue('Comentarios Adicionales')).toHaveText(COMMENT);
+
+      await form.acceptTerms();
+      await form.submit();
+      await expect(form.successHeading).toBeVisible();
+      expect(submissions).toHaveLength(1);
+      const { body } = submissions[0];
+      expect(body).toMatchObject({ insuranceType: 'auto', additionalComments: COMMENT });
+      for (const key of DETAIL_FIELDS) {
+        expect(body[key], key).toBe(auto.sent[key] ?? '');
+      }
+    });
+
+    test('al cambiar Vida por Salud se conservan las respuestas de salud y se borran las propias de vida', async ({ page }) => {
+      const submissions = await mockJsonSubmission(page, QUOTE_ENDPOINT, respond.success());
+      const { vida, salud } = TYPE_CASE;
+
+      await form.startQuote('vida');
+      await form.fillVida();
+      await form.prev('Tipo de Seguro');
+      await form.chooseInsurance('salud');
+      await form.next('Detalles del Seguro');
+      await expect(form.input('Estatura (en cm)')).toHaveValue('170');
+      await expect(form.input('¿Qué deportes practicas?')).toHaveValue('Natación');
+
+      await form.next('Resumen y Envío');
+      for (const [label, value] of Object.entries(vida.summary)) {
+        if (VIDA_ONLY_ROWS.includes(label)) {
+          await expect(form.summaryValue(label), label).toBeHidden();
+        } else {
+          await expect(form.summaryValue(label), label).toHaveText(value);
+        }
+      }
+
+      await form.acceptTerms();
+      await form.submit();
+      await expect(form.successHeading).toBeVisible();
+      expect(submissions).toHaveLength(1);
+      const { body } = submissions[0];
+      expect(body).toMatchObject({ insuranceType: 'salud' });
+      for (const key of DETAIL_FIELDS) {
+        expect(body[key], key).toBe(salud.sent[key] ?? '');
+      }
     });
   });
 
@@ -583,6 +653,65 @@ test.describe('Cotización de seguros', () => {
         electricContentsValue: '',
         theftValue: '',
         portableContentsValue: '',
+      });
+    });
+
+    test('Hogar: al cambiar "Apartamento" por "Casa" se borra el piso del apartamento, que no se muestra ni se envía', async ({ page }) => {
+      const submissions = await mockJsonSubmission(page, QUOTE_ENDPOINT, respond.success());
+      const unitFloor = form.input('Piso en el que se ubica el apartamento');
+
+      await form.startQuote('hogar');
+      await form.fillHogar(); // an apartment on floor 3
+      await form.choose('Tipo de vivienda', 'Casa');
+      await expect(unitFloor).toBeHidden();
+      // Asked again, the floor starts empty instead of bringing the old answer back.
+      await form.choose('Tipo de vivienda', 'Apartamento');
+      await expect(unitFloor).toHaveValue('');
+      await form.choose('Tipo de vivienda', 'Casa');
+
+      await form.next('Resumen y Envío');
+      await expect(form.summaryValue('Tipo de Vivienda')).toHaveText('Casa');
+      await expect(form.summaryValue('Piso de Ubicación del Predio')).toBeHidden();
+
+      await form.acceptTerms();
+      await form.submit();
+      await expect(form.successHeading).toBeVisible();
+      expect(submissions).toHaveLength(1);
+      expect(submissions[0].body).toMatchObject({ propertyType: 'casa', unitFloor: '' });
+    });
+
+    test('Hogar: al pasar de propietario a arrendatario se borran el valor del inmueble, el método y la respuesta de contenidos, que no se muestran ni se envían', async ({ page }) => {
+      const submissions = await mockJsonSubmission(page, QUOTE_ENDPOINT, respond.success());
+      const propertyValue = form.input('Valor de la propiedad (en pesos)');
+      const contentsValue = form.input('Valor de los contenidos (muebles y enseres)');
+
+      await form.startQuote('hogar');
+      await form.fillHogar(); // owner, with property value, method, and "Sí" to contents with a value
+      await form.choose(RELATIONSHIP, 'Arrendatario/a — vivo en arriendo');
+      await expect(propertyValue).toBeHidden();
+      await expect(contentsValue).toHaveValue('50000000'); // an arrendatario still insures the contents
+      // Asked again, the property value starts empty instead of bringing the old answer back.
+      await form.choose(RELATIONSHIP, 'Propietario/a y habito el inmueble');
+      await expect(propertyValue).toHaveValue('');
+      await form.choose(RELATIONSHIP, 'Arrendatario/a — vivo en arriendo');
+
+      await form.next('Resumen y Envío');
+      await expect(form.summaryValue('Relación con el Inmueble')).toHaveText('Arrendatario/a — vivo en arriendo');
+      for (const label of ['Valor de la Propiedad', 'Método de Aseguramiento', '¿Desea Asegurar Contenidos?']) {
+        await expect(form.summaryValue(label), label).toBeHidden();
+      }
+      await expect(form.summaryValue('Valor de los Contenidos')).toHaveText('$50.000.000 COP');
+
+      await form.acceptTerms();
+      await form.submit();
+      await expect(form.successHeading).toBeVisible();
+      expect(submissions).toHaveLength(1);
+      expect(submissions[0].body).toMatchObject({
+        propertyRelationship: 'arrendatario',
+        propertyValue: '',
+        insuranceMethod: '',
+        wantsContentsCoverage: '',
+        contentsValue: '50000000',
       });
     });
 

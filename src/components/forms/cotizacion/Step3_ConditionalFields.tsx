@@ -438,6 +438,9 @@ const HogarSectionHeading = ({ children }: { children: React.ReactNode }) => (
 // Owner details, asked only when quoting on behalf of the owner (tercero).
 const TERCERO_FIELDS = ['ownerName', 'ownerCedula', 'ownerBirthDate', 'residesInProperty'] as const;
 
+// Not asked of an arrendatario, who insures the contents but not the structure.
+const NOT_ASKED_OF_ARRENDATARIO = ['propertyValue', 'insuranceMethod', 'wantsContentsCoverage'] as const;
+
 // Sub-component for Hogar (Home Insurance) Fields
 const HogarFields = () => {
   const { control, watch, setValue } = useFormContext();
@@ -463,10 +466,13 @@ const HogarFields = () => {
             <Select
               onValueChange={(value) => {
                 field.onChange(value);
-                // The owner fields are hidden for this relationship: drop what was
-                // typed for "tercero", so it doesn't reach the summary or the email.
+                // Drop the answers this relationship hides, so they don't reach
+                // the summary or the email.
                 if (value !== 'tercero') {
                   TERCERO_FIELDS.forEach((name) => setValue(name, ''));
+                }
+                if (value === 'arrendatario') {
+                  NOT_ASKED_OF_ARRENDATARIO.forEach((name) => setValue(name, ''));
                 }
               }}
               value={field.value || ''}
@@ -614,7 +620,14 @@ const HogarFields = () => {
         render={({ field }) => (
           <FormItem>
             <FormLabel>Tipo de vivienda <span className="text-red-500">*</span></FormLabel>
-            <Select onValueChange={field.onChange} value={field.value || ''}>
+            <Select
+              onValueChange={(value) => {
+                field.onChange(value);
+                // Only an apartment is asked its floor.
+                if (value !== 'apartamento') setValue('unitFloor', '');
+              }}
+              value={field.value || ''}
+            >
               <FormControl>
                 <SelectTrigger>
                   <SelectValue placeholder="Seleccione el tipo de vivienda" />

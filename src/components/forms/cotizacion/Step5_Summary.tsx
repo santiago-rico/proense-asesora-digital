@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/form';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Link } from 'react-router-dom';
+import { insuranceDetailFields } from './formWiring';
 
 const fieldLabels: Record<string, string> = {
   // Personal Information
@@ -216,78 +217,6 @@ const personalInfoFields = [
 
 const insuranceTypeField = ['insuranceType'];
 
-const vidaFields = [
-  'monthlyIncome',
-  'maritalStatus',
-  'hasChildren',
-  'height',
-  'weight',
-  'epsName',
-  'practicesSports',
-  'sportsDetails',
-  'hasHealthConditions',
-  'healthConditionsDetails',
-  'additionalComments',
-];
-const autoFields = [
-  'vehiclePlate',
-  'vehicleCity',
-  'vehicleType',
-  'vehicleUse',
-  'hasAccessories',
-  'accessoriesValue',
-  'accessoriesType',
-  'additionalComments',
-];
-const hogarFields = [
-  'propertyRelationship',
-  'ownerName',
-  'ownerCedula',
-  'ownerBirthDate',
-  'residesInProperty',
-  'insuredPropertyAddress',
-  'insuredPropertyCity',
-  'propertyType',
-  'constructionType',
-  'constructionYear',
-  'unitFloor',
-  'buildingFloors',
-  'basementCount',
-  'estrato',
-  'propertyArea',
-  'hasEconomicActivity',
-  'propertyValue',
-  'insuranceMethod',
-  'wantsContentsCoverage',
-  'contentsValue',
-  'electricContentsValue',
-  'theftValue',
-  'portableContentsValue',
-  'additionalComments',
-];
-const saludFields = [
-  'height',
-  'weight',
-  'epsName',
-  'practicesSports',
-  'sportsDetails',
-  'hasHealthConditions',
-  'healthConditionsDetails',
-  'preExistingConditions',
-  'additionalComments',
-];
-const mascotasFields = [
-  'petType',
-  'petName',
-  'petGender',
-  'petAge',
-  'petBreed',
-  'petVaccinated',
-  'petHasSeriousIllness',
-  'petSeriousIllnessDetails',
-  'additionalComments',
-];
-
 const Step5_Summary: React.FC = () => {
   const {
     control,
@@ -425,22 +354,8 @@ const Step5_Summary: React.FC = () => {
     return String(value);
   };
 
-  const getInsuranceDetailsFields = () => {
-    switch (insuranceType) {
-      case 'vida':
-        return vidaFields;
-      case 'auto':
-        return autoFields;
-      case 'hogar':
-        return hogarFields;
-      case 'salud':
-        return saludFields;
-      case 'mascotas':
-        return mascotasFields;
-      default:
-        return [];
-    }
-  };
+  const getInsuranceDetailsFields = (): readonly string[] =>
+    insuranceDetailFields[insuranceType as keyof typeof insuranceDetailFields] ?? [];
 
   // Get all fields to display in a flat list
   const getAllFieldsToDisplay = () => {
