@@ -21,7 +21,6 @@
 
 #### Critical Business Logic
 1. **Forms**
-   - `MeetingScheduler.tsx` - No tests
    - `LeadGenerationDialog.tsx` - No tests
    - Form steps: `Step1_BasicInfo.tsx`, `Step2_InsuranceSelection.tsx`, `Step3_ConditionalFields.tsx`, `Step4_Declaration.tsx`, `Step5_Summary.tsx` - No tests
    - `FileUpload.tsx` - No tests (security-critical!)
@@ -85,7 +84,6 @@
    - `Step5_Summary.tsx` - Data accuracy
 2. **formSchema.ts** - Complete validation schema testing
 3. **LeadGenerationDialog.tsx** - Lead capture functionality
-4. **MeetingScheduler.tsx** - Appointment booking logic
 
 ### Priority 3: Core Functionality (MEDIUM)
 1. **blogService.ts** - Content fetching and error handling
