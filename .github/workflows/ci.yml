@@ -39,7 +39,13 @@ jobs:
         
       - name: Run tests with coverage
         run: npm run test -- --run --coverage --reporter=verbose
-        
+
+      # Compiles api/ as Vercel does and calls each function with require(esm)
+      # turned off, as Vercel's launcher has it; tests and the build can't catch
+      # a function that crashes on Vercel. See scripts/check-api-functions.mjs.
+      - name: Check the API functions run on Vercel's runtime
+        run: npm run check:api
+
       - name: Build application
         run: npm run build
         
