@@ -60,6 +60,16 @@ describe('api/ runtime packages', () => {
     expect(packages).toEqual(expect.arrayContaining(['jsdom', 'dompurify', 'zod']));
   });
 
+  it('are production dependencies, not devDependencies', () => {
+    // Vercel happens to install devDependencies before building, so a runtime
+    // package listed there still deploys today; any production-only install
+    // (`npm ci --omit=dev`, a changed Vercel default) would ship without it.
+    const { dependencies = {} } = JSON.parse(readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
+    const packageName = (specifier: string) =>
+      specifier.split('/').slice(0, specifier.startsWith('@') ? 2 : 1).join('/');
+    expect(packages.map(packageName).filter(name => !(name in dependencies))).toEqual([]);
+  });
+
   it('load without require(esm), as on Vercel', () => {
     const script = `
       const failures = [];
