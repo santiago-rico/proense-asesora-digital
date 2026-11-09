@@ -23,6 +23,12 @@ updates:
         patterns:
           - "eslint"
           - "@eslint/js"
+      # @tailwindcss/vite is a production dependency and the other two are dev
+      # dependencies, so the generic groups split them across PRs.
+      tailwind:
+        patterns:
+          - "tailwindcss"
+          - "@tailwindcss/*"
       dependencies:
         dependency-type: "production"
         update-types:
@@ -38,6 +44,14 @@ updates:
       # and ESLint crashes on TypeScript 7 (#212). Drop this once it supports more.
       - dependency-name: "typescript"
         versions: [">=6.1"]
+      # jsdom 27+ require()s ESM-only packages, which Vercel's function launcher
+      # can't load: every form API crashed in production (#189, fixed in #201).
+      # tests/api/runtime-packages-load.test.ts and `npm run check:api` guard it.
+      # Drop these once Vercel supports require(esm).
+      - dependency-name: "jsdom"
+        versions: [">=27"]
+      - dependency-name: "@types/jsdom"
+        versions: [">=27"]
     # Limit number of open PRs
     open-pull-requests-limit: 5
     # Add labels
