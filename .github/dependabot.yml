@@ -10,7 +10,19 @@ updates:
       timezone: "UTC"
     # Minor and patch updates come grouped, one PR per dependency type. Each
     # major update gets its own PR, so one breaking change can't hold back the rest.
+    # Packages whose versions are tied by peer dependencies are the exception:
+    # they get one group each, for every update type, so a major comes as one
+    # PR (#211 bumped only @vitest/coverage-v8, #208 only eslint). A dependency
+    # goes to the first group it matches, so these must stay above the others.
     groups:
+      vitest:
+        patterns:
+          - "vitest"
+          - "@vitest/*"
+      eslint:
+        patterns:
+          - "eslint"
+          - "@eslint/js"
       dependencies:
         dependency-type: "production"
         update-types:
@@ -21,6 +33,11 @@ updates:
         update-types:
           - "minor"
           - "patch"
+    ignore:
+      # typescript-eslint only supports TypeScript below 6.1 (its peer range),
+      # and ESLint crashes on TypeScript 7 (#212). Drop this once it supports more.
+      - dependency-name: "typescript"
+        versions: [">=6.1"]
     # Limit number of open PRs
     open-pull-requests-limit: 5
     # Add labels
@@ -47,6 +64,17 @@ updates:
       - "dependencies"
       - "sanity-studio"
       - "automated"
+    groups:
+      # @sanity/vision peers on the same sanity minor, so a vision-only PR
+      # can't install (#214).
+      sanity:
+        patterns:
+          - "sanity"
+          - "@sanity/vision"
+    ignore:
+      # Same reason as the root: the studio's ESLint config uses typescript-eslint.
+      - dependency-name: "typescript"
+        versions: [">=6.1"]
     open-pull-requests-limit: 3
     commit-message:
       prefix: "chore"
