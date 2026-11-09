@@ -24,13 +24,10 @@ global.fetch = vi.fn().mockResolvedValue({
 
 describe('LeadForm Smoke Test', () => {
   it('should import LeadForm component without errors', async () => {
-    try {
-      const LeadFormModule = await import('../LeadForm');
-      expect(LeadFormModule.default).toBeDefined();
-      expect(typeof LeadFormModule.default).toBe('function');
-    } catch (error) {
-      throw new Error(`Failed to import LeadForm: ${error}`);
-    }
+    // A failed import rejects here and fails the test with the original error.
+    const LeadFormModule = await import('../LeadForm');
+    expect(LeadFormModule.default).toBeDefined();
+    expect(typeof LeadFormModule.default).toBe('function');
   });
 
   it('should have proper component structure', async () => {
