@@ -3,7 +3,8 @@ import react from "@vitejs/plugin-react-swc";
 import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 
-// Third-party packages grouped into long-lived vendor chunks.
+// Third-party packages grouped into long-lived vendor chunks. The order is the
+// priority order of the groups (see codeSplitting below): keep vendor-react first.
 const VENDOR_GROUPS: Record<string, string[]> = {
   "vendor-react": [
     "react",
@@ -79,28 +80,38 @@ export default defineConfig(({ mode }) => ({
   ].filter(Boolean),
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
+      "@": path.resolve(import.meta.dirname, "./src"),
     },
   },
   build: {
     // Optimize build output
     target: "esnext",
-    minify: "esbuild",
+    // Vite 8's own minifier. esbuild is only an optional peer of Vite now.
+    minify: "oxc",
     cssMinify: true,
     
     // Reduce chunk size warnings threshold
     chunkSizeWarningLimit: 1000,
     
-    rollupOptions: {
+    rolldownOptions: {
       output: {
-        // Manual chunk splitting for optimal loading. A function (not the
-        // object form) so that every file of a package, including subpaths
-        // like react/jsx-runtime or react/compiler-runtime, lands in its
+        // Vendor chunks. Every file of a package, including subpaths like
+        // react/jsx-runtime or react/compiler-runtime, goes to its package's
         // group; otherwise React can be split across chunks that import each
-        // other, and the app crashes on load.
-        manualChunks: (id) => {
-          const pkg = packageName(id);
-          return pkg ? VENDOR_CHUNKS[pkg] : undefined;
+        // other, and the app crashes on load (#197).
+        // Rolldown also pulls a captured module's dependencies into its group,
+        // so groups claim modules in VENDOR_GROUPS order (highest priority
+        // first). vendor-react must come first, or vendor-forms takes React
+        // along with react-hook-form, as Vite 8's manualChunks shim did.
+        codeSplitting: {
+          groups: Object.keys(VENDOR_GROUPS).map((name, i, names) => ({
+            name,
+            test: (id: string) => {
+              const pkg = packageName(id);
+              return pkg !== undefined && VENDOR_CHUNKS[pkg] === name;
+            },
+            priority: names.length - i,
+          })),
         },
 
         // Chunk naming strategy

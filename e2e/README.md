@@ -65,7 +65,7 @@ Bogotá time, whatever the browser's timezone). In CI mode
 
 **CI tests the production build.** With `CI` or `E2E_PREVIEW` set, the web
 server is `npm run build && npm run preview` on :8080 instead of the dev server,
-and it is always started fresh. The dev server never runs Rollup's chunking, so
+and it is always started fresh. The dev server never runs Rolldown's chunking, so
 bundling bugs only show up in the build: @portabletext/react 8 once blanked
 every page of the live site (#197) while the suite, then on the dev server,
 stayed green. Run with `E2E_PREVIEW=1` after changing `vite.config.ts` or

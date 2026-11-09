@@ -8,7 +8,7 @@ import { defineConfig, devices } from '@playwright/test';
  * app, and the real /api functions send emails through Brevo.
  *
  * CI tests what ships: the production build, served by `vite preview`. The dev
- * server never runs Rollup's chunking, so a bundling bug that blanks the live
+ * server never runs Rolldown's chunking, so a bundling bug that blanks the live
  * site (as @portabletext/react 8 did) passes there. Locally the dev server is
  * quicker to iterate with; set E2E_PREVIEW=1 to test the build instead.
  *
