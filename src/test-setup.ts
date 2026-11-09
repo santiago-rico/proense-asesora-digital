@@ -1,4 +1,5 @@
-import '@testing-library/jest-dom';
+// The vitest entry adds the jest-dom matchers to Vitest's own `Assertion` type.
+import '@testing-library/jest-dom/vitest';
 import { vi } from 'vitest';
 
 // Mock ResizeObserver for JSDOM
