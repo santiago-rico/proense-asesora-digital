@@ -142,7 +142,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
         description: "Suma adicional para cubrir gastos funerarios, aliviando la carga económica de la familia en momentos difíciles."
       },
       {
-        icon: "CarCrash",
+        icon: "Ambulance",
         title: "Muerte Accidental",
         description: "Indemnización adicional igual al valor asegurado si el fallecimiento ocurre como consecuencia de un accidente."
       },
@@ -290,7 +290,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
     coveragesTitle: "Principales Coberturas de Auto",
     coverages: [
       {
-        icon: "CarCrash",
+        icon: "Users",
         title: "Responsabilidad Civil Extracontractual (RCE)",
         description: "Cubre los daños materiales que puedas causar a terceros en un accidente. Protege tu patrimonio ante reclamaciones por daños a otros vehículos, propiedades y lesiones no cubiertas por SOAT."
       },
@@ -586,7 +586,7 @@ export const insuranceProductsData: Record<string, InsuranceProductData> = {
         description: "Protección frente a los daños que tu mascota pueda causar a otras personas, animales u objetos."
       },
       {
-        icon: "SearchHeart",
+        icon: "Search",
         title: "Robo o Extravío",
         description: "Recibe una indemnización si tu mascota es robada y cubrimos los gastos de inserción de anuncios para encontrarla si se pierde."
       },

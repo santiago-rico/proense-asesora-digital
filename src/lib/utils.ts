@@ -4,6 +4,7 @@ import React from "react";
 import {
   Accessibility,
   Activity,
+  Ambulance,
   Baby,
   BedDouble,
   Bike,
@@ -38,6 +39,7 @@ import {
   Receipt,
   Recycle,
   Scale,
+  Search,
   Server,
   ShieldAlert,
   ShieldCheck,
@@ -63,6 +65,7 @@ export function cn(...inputs: ClassValue[]) {
 const ICONS_BY_NAME: Record<string, LucideIcon> = {
   Accessibility,
   Activity,
+  Ambulance,
   Baby,
   BedDouble,
   Bike,
@@ -96,6 +99,7 @@ const ICONS_BY_NAME: Record<string, LucideIcon> = {
   Receipt,
   Recycle,
   Scale,
+  Search,
   Server,
   ShieldAlert,
   ShieldCheck,
