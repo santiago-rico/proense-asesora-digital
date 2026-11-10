@@ -290,30 +290,24 @@ jobs:
           echo "E2E Tests: ${{ needs.e2e.result }}"
           echo "Sanity Studio: ${{ needs.studio.result }}"
 
-          # Fail if any critical job failed
-          if [[ "${{ needs.quality.result }}" == "failure" ]]; then
-            echo "❌ Quality checks failed"
-            exit 1
-          fi
-          
-          if [[ "${{ needs.deployment-check.result }}" == "failure" ]]; then
-            echo "❌ Deployment readiness check failed"
-            exit 1
-          fi
-          
-          if [[ "${{ needs.performance.result }}" == "failure" ]]; then
-            echo "❌ Performance checks failed"
-            exit 1
-          fi
+          # Fail if any critical job failed or was cancelled. This job is the
+          # check main's branch protection requires, and Dependabot auto-merge
+          # waits on it, so a cancelled E2E shard must not count as a pass.
+          # (The security audit is reported above but does not block.)
+          failed=0
+          for job in \
+            "Quality checks:${{ needs.quality.result }}" \
+            "Deployment readiness check:${{ needs.deployment-check.result }}" \
+            "Performance checks:${{ needs.performance.result }}" \
+            "E2E tests:${{ needs.e2e.result }}" \
+            "Sanity Studio checks:${{ needs.studio.result }}"; do
+            case "${job##*:}" in
+              failure|cancelled)
+                echo "❌ ${job%:*}: ${job##*:}"
+                failed=1
+                ;;
+            esac
+          done
+          [[ "$failed" == 0 ]] || exit 1
 
-          if [[ "${{ needs.e2e.result }}" == "failure" ]]; then
-            echo "❌ E2E tests failed"
-            exit 1
-          fi
-
-          if [[ "${{ needs.studio.result }}" == "failure" ]]; then
-            echo "❌ Sanity Studio checks failed"
-            exit 1
-          fi
-          
           echo "✅ All critical checks passed"
