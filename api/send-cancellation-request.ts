@@ -7,6 +7,7 @@ import { JSDOM } from 'jsdom';
 import { withRateLimit, rateLimitConfigs } from './_utils/rate-limiter.js';
 import { CancellationRequestTemplate } from '../src/utils/email-templates/CancellationRequestTemplate.js';
 import { getNotificationEmails } from './_utils/notification-emails.js';
+import { describeFileHead, detectFileFormat } from './_utils/file-signature.js';
 import { CSRF_ERROR_CODE } from '../src/utils/csrf-error.js';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
@@ -129,6 +130,13 @@ async function handler(req: VercelRequest, res: VercelResponse) {
 
         const { fields, files } = await parseForm(req);
 
+        // Register every uploaded temp file for cleanup now, before any early return
+        for (const fileArray of Object.values(files)) {
+            for (const file of fileArray ?? []) {
+                tempFilePaths.push(file.filepath);
+            }
+        }
+
         // Extract and trim form data
         // Handle both single values and arrays from formidable
         const getFieldValue = (field: string | string[] | undefined): string => {
@@ -200,11 +208,17 @@ async function handler(req: VercelRequest, res: VercelResponse) {
                         if (!ALLOWED_MIME_TYPES.includes(file.mimetype || '')) {
                             throw new Error(`El tipo de archivo de ${file.originalFilename} no es válido.`);
                         }
-                        
+
+                        // Validate the content too: the declared type is whatever the client sent
+                        const fileContent = fs.readFileSync(file.filepath);
+                        if (!detectFileFormat(fileContent)) {
+                            console.warn(`[cancelacion] rejected upload: declared=${file.mimetype}, size=${file.size}, head=${describeFileHead(fileContent)}`);
+                            throw new Error(`El tipo de archivo de ${file.originalFilename} no es válido.`);
+                        }
+
                         // Sanitize file name
                         const sanitizedFileName = DOMPurifyInstance.sanitize(file.originalFilename || 'adjunto');
-                        
-                        const fileContent = fs.readFileSync(file.filepath);
+
                         attachments.push({ 
                             name: sanitizedFileName, 
                             content: fileContent.toString('base64') 
@@ -214,7 +228,6 @@ async function handler(req: VercelRequest, res: VercelResponse) {
                             attachedFileNames[key] = [];
                         }
                         attachedFileNames[key].push(sanitizedFileName);
-                        tempFilePaths.push(file.filepath);
                     }
                 }
             }
@@ -272,7 +285,6 @@ async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(200).json({ message: 'Solicitud enviada con éxito.' });
 
     } catch (error) {
-        console.error('Error processing cancellation request:', error);
         let errorMessage = 'Error interno del servidor.';
         let statusCode = 500;
         
@@ -284,7 +296,13 @@ async function handler(req: VercelRequest, res: VercelResponse) {
                 statusCode = 400;
             }
         }
-        
+
+        if (statusCode === 400) {
+            // The message names the user's file, so it stays out of the logs
+            console.warn('[cancelacion] submission rejected: invalid upload or data');
+        } else {
+            console.error('Error processing cancellation request:', error);
+        }
         return res.status(statusCode).json({ message: errorMessage });
     } finally {
         // Clean up temporary files

@@ -7,6 +7,7 @@ import { JSDOM } from 'jsdom';
 import { withRateLimit, rateLimitConfigs } from './_utils/rate-limiter.js';
 import { ModificationRequestTemplate } from '../src/utils/email-templates/ModificationRequestTemplate.js';
 import { getNotificationEmails } from './_utils/notification-emails.js';
+import { describeFileHead, detectFileFormat } from './_utils/file-signature.js';
 import { CSRF_ERROR_CODE } from '../src/utils/csrf-error.js';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
@@ -116,6 +117,13 @@ async function handler(req: VercelRequest, res: VercelResponse) {
 
         const { fields, files } = await parseForm(req);
 
+        // Register every uploaded temp file for cleanup now, before any early return
+        for (const fileArray of Object.values(files)) {
+            for (const file of fileArray ?? []) {
+                tempFilePaths.push(file.filepath);
+            }
+        }
+
         // Check honeypot field first
         if (fields.website && fields.website[0] && fields.website[0].length > 0) {
             // Silently accept but don't process spam submissions
@@ -175,10 +183,14 @@ async function handler(req: VercelRequest, res: VercelResponse) {
                         if (!ALLOWED_MIME_TYPES.includes(file.mimetype || '')) {
                             throw new Error(`El tipo de archivo de ${file.originalFilename} no es válido.`);
                         }
-                        const fileContent = fs.readFileSync(file.filepath).toString('base64');
-                                                attachments.push({ name: file.originalFilename || 'archivo', content: fileContent });
+                        // Validate the content too: the declared type is whatever the client sent
+                        const fileContent = fs.readFileSync(file.filepath);
+                        if (!detectFileFormat(fileContent)) {
+                            console.warn(`[modificacion] rejected upload: declared=${file.mimetype}, size=${file.size}, head=${describeFileHead(fileContent)}`);
+                            throw new Error(`El tipo de archivo de ${file.originalFilename} no es válido.`);
+                        }
+                        attachments.push({ name: file.originalFilename || 'archivo', content: fileContent.toString('base64') });
                         attachedFileNames[key].push(file.originalFilename || 'archivo');
-                        tempFilePaths.push(file.filepath);
                     }
                 }
             }
@@ -236,7 +248,6 @@ async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(200).json({ message: 'Solicitud enviada con éxito.' });
 
     } catch (error) {
-        console.error('Error processing modification request:', error);
         let errorMessage = 'Error interno del servidor.';
         let statusCode = 500;
         if (error instanceof Error) {
@@ -244,6 +255,12 @@ async function handler(req: VercelRequest, res: VercelResponse) {
             if (errorMessage.includes("excede el tamaño máximo") || errorMessage.includes("no es válido")) {
                 statusCode = 400;
             }
+        }
+        if (statusCode === 400) {
+            // The message names the user's file, so it stays out of the logs
+            console.warn('[modificacion] submission rejected: invalid upload');
+        } else {
+            console.error('Error processing modification request:', error);
         }
         return res.status(statusCode).json({ message: errorMessage });
     } finally {
