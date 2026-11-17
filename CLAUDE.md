@@ -182,6 +182,7 @@ Honeypot fields catch automated submissions:
 Comprehensive file validation:
 - **Size Limits**: Maximum 5MB per file
 - **Type Validation**: Only allowed MIME types (PDF, images, documents)
+- **Content Validation**: The server also checks each file's bytes (`api/_utils/file-signature.ts`), since the declared type is client-controlled; programs and other formats are rejected even when labelled as an allowed type
 - **Count Limits**: Maximum number of files per submission
 - **Temporary Cleanup**: Files deleted after processing
 

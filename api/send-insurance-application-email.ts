@@ -9,6 +9,7 @@ import { JSDOM } from 'jsdom';
 import { withRateLimit, rateLimitConfigs } from './_utils/rate-limiter.js';
 import { InsuranceApplicationTemplate } from '../src/utils/email-templates/InsuranceApplicationTemplate.js';
 import { getNotificationEmails } from './_utils/notification-emails.js';
+import { describeFileHead, detectFileFormat } from './_utils/file-signature.js';
 import { CSRF_ERROR_CODE } from '../src/utils/csrf-error.js';
 import {
   HOGAR_ASEGURABILIDAD_KEYS,
@@ -254,6 +255,7 @@ async function handler(
     const { fields, files } = await parseForm(req);
 
     // Collect all temp file paths for reliable cleanup and validate them
+    const fileContents = new Map<string, Buffer>();
     let fileCount = 0;
     let totalUploadedBytes = 0;
     for (const key in files) {
@@ -273,6 +275,14 @@ async function handler(
           if (!file.mimetype || !ALLOWED_MIME_TYPES.includes(file.mimetype)) {
             throw new Error(`El tipo de archivo "${file.originalFilename}" no es válido. Solo se aceptan PDF, JPG, PNG, WEBP, HEIC, DOC, DOCX.`);
           }
+
+          // Validate the content too: the declared type is whatever the client sent
+          const content = fs.readFileSync(file.filepath);
+          if (!detectFileFormat(content)) {
+            console.warn(`[emision] rejected upload: declared=${file.mimetype}, size=${file.size}, head=${describeFileHead(content)}`);
+            throw new Error(`El tipo de archivo "${file.originalFilename}" no es válido. Solo se aceptan PDF, JPG, PNG, WEBP, HEIC, DOC, DOCX.`);
+          }
+          fileContents.set(file.filepath, content);
         }
       }
     }
@@ -353,7 +363,7 @@ async function handler(
       if (fileArray) {
         attachedFileNames[key] = [];
         for (const file of fileArray) {
-          const fileContent = fs.readFileSync(file.filepath);
+          const fileContent = fileContents.get(file.filepath) ?? fs.readFileSync(file.filepath);
           const filename = file.originalFilename || 'attachment.dat';
           attachments.push({
             name: filename,
@@ -452,7 +462,6 @@ async function handler(
     return res.status(200).json({ message: 'Solicitud enviada con éxito.' });
 
   } catch (error) {
-    console.error('Error processing form submission:', error);
     let errorMessage = 'Error interno del servidor.';
     let statusCode = 500;
     if (error instanceof Error) {
@@ -461,6 +470,12 @@ async function handler(
         if (errorMessage.includes("excede el tamaño máximo") || errorMessage.includes("no es válido")) {
           statusCode = 400; // Bad Request
         }
+    }
+    if (statusCode === 400) {
+      // The message names the user's file, so it stays out of the logs
+      console.warn('[emision] submission rejected: invalid upload');
+    } else {
+      console.error('Error processing form submission:', error);
     }
     return res.status(statusCode).json({ message: errorMessage });
   } finally {
