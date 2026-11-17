@@ -7,7 +7,7 @@ import {
   TERMS_REQUIRED_MESSAGE,
   type ServiceRequestConfig,
 } from '../../fixtures/page-objects/service-request-form';
-import { applicant, MB, pdfFile, pngFile, textFile } from '../../fixtures/test-data';
+import { applicant, heicFile, MB, pdfFile, pngFile, textFile } from '../../fixtures/test-data';
 import { CSRF_ERROR_CODE } from '../../../src/utils/csrf-error';
 
 type FormName = ServiceRequestConfig['name'];
@@ -182,8 +182,27 @@ for (const config of SERVICE_REQUEST_FORMS) {
       test.describe('Archivos', () => {
         test('rechaza tipos de archivo no permitidos', async ({ page }) => {
           await form.fileInput.setInputFiles(textFile('notas.txt'));
-          await expect(page.getByText('El tipo de archivo no es válido. Solo puedes subir: PDF, JPG, PNG, WEBP, DOC, DOCX.')).toBeVisible();
+          await expect(page.getByText('El tipo de archivo no es válido. Solo puedes subir: PDF, JPG, PNG, WEBP, HEIC, DOC, DOCX.')).toBeVisible();
           await expect(form.removeFileButton('notas.txt')).toHaveCount(0);
+        });
+
+        // A browser that doesn't know a format leaves the file without a type
+        // (HEIC in Chrome on Windows, a .docx without Office). FormData sent such
+        // files as application/octet-stream, which the server rejects, even after
+        // react-dropzone redefined `type` from the extension (it does for PDF, not HEIC).
+        test('envía con su tipo una foto HEIC y un PDF que el navegador deja sin tipo', async ({ page }) => {
+          const submissions = await mockMultipartSubmission(page, config.endpoint, respond.success());
+          await expect(page.getByText('PDF, JPG, PNG, WEBP, HEIC, DOC, DOCX (máx. 5MB por archivo)')).toBeVisible();
+          await form.fillValid();
+          await form.upload(heicFile('IMG_0001.HEIC', ''), { ...pdfFile('poliza.pdf'), mimeType: '' });
+          await form.submitButton.click();
+
+          await expect(form.successHeading).toBeVisible();
+          expect(submissions).toHaveLength(1);
+          expect(submissions[0].files.documentosAdicionales?.map(f => [f.filename, f.contentType])).toEqual([
+            ['IMG_0001.HEIC', 'image/heic'],
+            ['poliza.pdf', 'application/pdf'],
+          ]);
         });
 
         test('no envía si los archivos suman más de 4MB', async ({ page }) => {

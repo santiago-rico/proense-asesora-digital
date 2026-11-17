@@ -129,6 +129,10 @@ verification, sanitization, emails) is covered by the Vitest suites in
 - Locate elements the way users and assistive tech do: `getByRole`,
   `getByLabel`, `getByPlaceholder`, `getByText`. The app has no `data-testid`s.
 - Upload files are built in memory (`fixtures/test-data.ts`); nothing is written to disk.
+  Playwright's `setInputFiles` replaces an empty `mimeType` with the extension's
+  type, so the page objects' `upload()` (through `setInputFiles` in
+  `test-data.ts`) builds a file with `mimeType: ''` in the page instead, as a
+  browser that can't type it would (e.g. `heicFile('IMG_0001.HEIC', '')`).
 - Expectations come from the app's own data where practical (product data, the
   hogar declaration questions), so copy changes don't break the tests.
 - Known app bugs are recorded as `test.fail(true, 'Known bug: …')` in a test

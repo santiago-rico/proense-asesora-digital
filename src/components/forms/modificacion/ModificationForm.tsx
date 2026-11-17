@@ -12,6 +12,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import es from 'react-phone-number-input/locale/es.json';
 import { isValidPhoneNumber } from 'react-phone-number-input';
 import FileUpload from '@/components/forms/emision/FileUpload';
+import { uploadedFilesSchema } from '@/components/forms/emision/fileRules';
 import { useToast } from '@/hooks/use-toast';
 import { useCsrf } from '@/hooks/use-csrf';
 import { AlertTriangle } from 'lucide-react';
@@ -21,7 +22,7 @@ import { NETWORK_ERROR_MESSAGE, safeParseResponse } from '@/utils/safe-response'
 import { isCsrfError } from '@/utils/csrf-error';
 
 const modificationSchema = z.object({
-  documentosAdicionales: z.any().optional(),
+  documentosAdicionales: uploadedFilesSchema,
   nombreCompleto: z.string().min(1, 'El nombre completo es requerido'),
   numeroCedula: z.string().min(1, 'El número de cédula es requerido'),
   telefono: z.string().refine(isValidPhoneNumber, { message: 'Número de teléfono inválido' }),

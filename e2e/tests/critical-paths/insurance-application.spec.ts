@@ -12,7 +12,7 @@ import {
 import { SALUD_ASEGURABILIDAD_QUESTIONS, type SaludAsegurabilidadKey } from '../../../src/data/saludAsegurabilidad';
 import { CSRF_TOKEN, field, mockEmisionSubmission, respond } from '../../fixtures/api-mocks';
 import { InsuranceFormPage, type SiNo } from '../../fixtures/page-objects/insurance-form';
-import { applicant, company, MB, pdfFile, pngFile, textFile } from '../../fixtures/test-data';
+import { applicant, company, heicFile, MB, pdfFile, pngFile, textFile } from '../../fixtures/test-data';
 import { CSRF_ERROR_CODE } from '../../../src/utils/csrf-error';
 
 const HOGAR_ANSWERS: Record<HogarAsegurabilidadKey, SiNo> = {
@@ -489,8 +489,31 @@ test.describe('Emisión de pólizas', () => {
 
     test('rechaza tipos de archivo no permitidos', async ({ page }) => {
       await form.fileInput('Tarjeta de propiedad (ambos lados)').setInputFiles(textFile('notas.txt'));
-      await expect(page.getByText('El tipo de archivo no es válido. Solo puedes subir: PDF, JPG, PNG, WEBP, DOC, DOCX.')).toBeVisible();
+      await expect(page.getByText('El tipo de archivo no es válido. Solo puedes subir: PDF, JPG, PNG, WEBP, HEIC, DOC, DOCX.')).toBeVisible();
       await expect(form.removeFileButton('notas.txt')).toBeHidden();
+    });
+
+    // Chromium can't decode HEIC, so the form never converts it to JPEG: the
+    // photo has to pass validation and reach the server as HEIC, whether the
+    // browser typed it (macOS, iOS) or left it without a type (Chrome on Windows).
+    test('acepta fotos HEIC, con o sin tipo, y las envía como image/heic', async ({ page }) => {
+      const submissions = await mockEmisionSubmission(page, respond.success());
+      await form.cedulaInput.fill(applicant.numeroCedula);
+      await form.upload('Foto cédula (ambos lados)', heicFile('IMG_0001.HEIC'), heicFile('IMG_0002.HEIC', ''));
+      await form.upload('Tarjeta de propiedad (ambos lados)', pdfFile('tarjeta-propiedad.pdf'));
+      await expect(page.getByText(/^Verifica los archivos/)).toHaveCount(0);
+      await form.next('Declaración');
+      await form.upload('Archivo declaración renta', pdfFile('declaracion-renta.pdf'));
+      await form.next('Resumen y Envío');
+      await form.acceptDeclarationAndTerms();
+      await form.submitButton.click();
+
+      await expect(form.successHeading).toBeVisible();
+      expect(submissions).toHaveLength(1);
+      expect(submissions[0].files.fotoCedula?.map(f => [f.filename, f.contentType])).toEqual([
+        ['IMG_0001.HEIC', 'image/heic'],
+        ['IMG_0002.HEIC', 'image/heic'],
+      ]);
     });
 
     test('no envía si los archivos suman más de 4MB', async ({ page }) => {

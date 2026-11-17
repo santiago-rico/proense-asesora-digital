@@ -271,7 +271,7 @@ async function handler(
 
           // Validate MIME type
           if (!file.mimetype || !ALLOWED_MIME_TYPES.includes(file.mimetype)) {
-            throw new Error(`El tipo de archivo "${file.originalFilename}" no es válido. Solo se aceptan PDF, JPG, PNG, WEBP.`);
+            throw new Error(`El tipo de archivo "${file.originalFilename}" no es válido. Solo se aceptan PDF, JPG, PNG, WEBP, HEIC, DOC, DOCX.`);
           }
         }
       }
