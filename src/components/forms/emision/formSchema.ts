@@ -14,32 +14,7 @@ import {
   type SaludAsegurabilidadQuestion,
 } from '@/data/saludAsegurabilidad';
 import { DECLARACION_ASESORIA_REQUIRED_MESSAGE } from '@/data/declaracionAsesoria';
-
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
-const ACCEPTED_MIME_TYPES = [
-  'application/pdf',
-  'image/jpeg',
-  'image/png',
-  'image/webp',
-  'application/msword',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-];
-
-const detailedFileArraySchema = z.array(z.instanceof(File))
-  .optional()
-  .superRefine((files, ctx) => {
-    if (!files || files.length === 0) return;
-
-    for (const file of files) {
-      if (file.size > MAX_FILE_SIZE || !ACCEPTED_MIME_TYPES.includes(file.type)) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Verifica los archivos: solo se aceptan PDF, JPG, PNG, WEBP, DOC, DOCX (máx. 5MB).",
-        });
-        return; // Stop validation on first error
-      }
-    }
-  });
+import { uploadedFilesSchema } from './fileRules';
 
 const siNoOptional = z.union([z.enum(['si', 'no']), z.literal('')]).optional();
 
@@ -66,20 +41,20 @@ export const formSchema = z.object({
   metodoPago: z.string().min(1, 'Selecciona un método de pago'),
   periodicidadPago: z.string().min(1, 'Selecciona la periodicidad de pago'),
   numeroCedula: z.string().optional(),
-  fotoCedula: detailedFileArraySchema,
+  fotoCedula: uploadedFilesSchema,
   beneficiarios: z.string().optional(),
-  documentosBeneficiarios: detailedFileArraySchema,
+  documentosBeneficiarios: uploadedFilesSchema,
   listaBeneficiarios: z.string().optional(),
-  certificadoLibertad: detailedFileArraySchema,
-  tarjetaPropiedad: detailedFileArraySchema,
+  certificadoLibertad: uploadedFilesSchema,
+  tarjetaPropiedad: uploadedFilesSchema,
   numeroCedulaRepLegal: z.string().optional(),
-  fotoCedulaRepLegal: detailedFileArraySchema,
+  fotoCedulaRepLegal: uploadedFilesSchema,
   nit: z.string().optional(),
-  rut: detailedFileArraySchema,
-  camaraComercio: detailedFileArraySchema,
+  rut: uploadedFilesSchema,
+  camaraComercio: uploadedFilesSchema,
   declaraRenta: z.enum(['si', 'no'], { error: "Debes seleccionar una opción para declarar renta." }),
-  archivoDeclaracionRenta: detailedFileArraySchema,
-  contratoArrendamiento: detailedFileArraySchema, // Added for Seguro de Rentas
+  archivoDeclaracionRenta: uploadedFilesSchema,
+  contratoArrendamiento: uploadedFilesSchema, // Added for Seguro de Rentas
   // Fields for Seguro de Vida - Crédito Protegido
   tieneEnfermedadesDiagnosticadas: z.union([z.enum(['si', 'no']), z.literal('')]).optional(),
   enfermedadesEspecificar: z.string().optional(),

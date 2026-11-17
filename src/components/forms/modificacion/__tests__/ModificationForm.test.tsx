@@ -10,6 +10,7 @@ import { ModificationForm } from '../ModificationForm';
 import { useCsrf } from '@/hooks/use-csrf';
 import { useToast } from '@/hooks/use-toast';
 import { CSRF_ERROR_CODE } from '@/utils/csrf-error';
+import { UPLOAD_FILES_ERROR_MESSAGE } from '@/components/forms/emision/fileRules';
 
 // Mock the useCsrf hook
 vi.mock('@/hooks/use-csrf', () => ({
@@ -25,15 +26,27 @@ vi.mock('@/hooks/use-toast', () => ({
 // Mock fetch globally
 global.fetch = vi.fn();
 
-// Mock FileUpload component
-vi.mock('@/components/forms/emision/FileUpload', () => ({
-  default: ({ name, label }: { name: string; label: string }) => (
-    <div data-testid={`file-upload-${name}`}>
-      <label>{label}</label>
-      <input type="file" name={name} />
-    </div>
-  ),
-}));
+// Mock FileUpload component: its button puts `mockFilesToAttach` in the field,
+// and it shows the field's error as the real one does
+let mockFilesToAttach: File[] = [];
+vi.mock('@/components/forms/emision/FileUpload', async () => {
+  const { useFormContext } = await import('react-hook-form');
+  return {
+    default: function MockFileUpload({ name, label }: { name: string; label: string }) {
+      const { setValue, formState: { errors } } = useFormContext();
+      return (
+        <div data-testid={`file-upload-${name}`}>
+          <label>{label}</label>
+          <input type="file" name={name} />
+          <button type="button" onClick={() => setValue(name, mockFilesToAttach, { shouldValidate: true })}>
+            Adjuntar archivos de prueba
+          </button>
+          {errors[name] && <p>{String(errors[name]?.message)}</p>}
+        </div>
+      );
+    },
+  };
+});
 
 type User = ReturnType<typeof userEvent.setup>;
 
@@ -606,6 +619,40 @@ describe('ModificationForm', () => {
         headers: new Headers({ 'content-type': 'application/json' }),
         json: () => Promise.resolve({ message: 'Success' }),
       } as unknown as Response);
+    });
+  });
+
+  describe('Documentos adicionales', () => {
+    beforeEach(() => {
+      mockFilesToAttach = [];
+    });
+
+    it('does not send a file of a type the server refuses, and says which types it takes', async () => {
+      mockFilesToAttach = [new File(['MZ'], 'setup.exe', { type: 'application/x-msdownload' })];
+      render(<ModificationForm />);
+      await fillValidForm(user);
+
+      await user.click(screen.getByRole('button', { name: /adjuntar archivos de prueba/i }));
+      await user.click(submitButton());
+
+      expect(await screen.findByText(UPLOAD_FILES_ERROR_MESSAGE)).toBeInTheDocument();
+      expect(global.fetch).not.toHaveBeenCalled();
+    });
+
+    it('sends a HEIC photo with its type', async () => {
+      const photo = new File([new Uint8Array(32)], 'IMG_0001.HEIC', { type: 'image/heic' });
+      mockFilesToAttach = [photo];
+      render(<ModificationForm />);
+      await fillValidForm(user);
+
+      await user.click(screen.getByRole('button', { name: /adjuntar archivos de prueba/i }));
+      await user.click(submitButton());
+
+      await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(1));
+      const body = (global.fetch as Mock).mock.calls[0][1].body as FormData;
+      const [sent] = body.getAll('documentosAdicionales') as File[];
+      expect(sent.name).toBe('IMG_0001.HEIC');
+      expect(sent.type).toBe('image/heic');
     });
   });
 });

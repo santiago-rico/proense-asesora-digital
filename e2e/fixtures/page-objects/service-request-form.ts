@@ -1,6 +1,6 @@
 import { expect, type Locator, type Page } from '@playwright/test';
 import { CANCELLATION_ENDPOINT, CSRF_TOKEN, MODIFICATION_ENDPOINT } from '../api-mocks';
-import { applicant, type UploadFile } from '../test-data';
+import { applicant, setInputFiles, type UploadFile } from '../test-data';
 
 /** What differs between the modificación and cancelación forms (near-identical copies). */
 export interface ServiceRequestConfig {
@@ -212,8 +212,9 @@ export class ServiceRequestFormPage {
     return this.page.getByLabel(this.config.labels.archivos);
   }
 
+  /** Uploads `files`; one with an empty `mimeType` reaches the page without a type. */
   async upload(...files: UploadFile[]): Promise<void> {
-    await this.fileInput.setInputFiles(files);
+    await setInputFiles(this.fileInput, files);
     for (const file of files) {
       await expect(this.removeFileButton(file.name)).toBeVisible();
     }

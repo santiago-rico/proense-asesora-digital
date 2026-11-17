@@ -301,6 +301,8 @@ describe('FormSchema Validation Tests', () => {
           createTestFile('image.webp', 'image/webp'),
           createTestFile('document.doc', 'application/msword'),
           createTestFile('document.docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'),
+          createTestFile('IMG_0001.HEIC', 'image/heic'),
+          createTestFile('foto.heif', 'image/heif'),
         ];
 
         validFiles.forEach(file => {
@@ -325,7 +327,7 @@ describe('FormSchema Validation Tests', () => {
           expect(result.success, `File type "${file.type}" should be invalid`).toBe(false);
           if (!result.success) {
             const errors = result.error.issues.map(err => err.message);
-            expect(errors).toContain('Verifica los archivos: solo se aceptan PDF, JPG, PNG, WEBP, DOC, DOCX (máx. 5MB).');
+            expect(errors).toContain('Verifica los archivos: solo se aceptan PDF, JPG, PNG, WEBP, HEIC, DOC, DOCX (máx. 5MB).');
           }
         });
       });
@@ -362,7 +364,7 @@ describe('FormSchema Validation Tests', () => {
           expect(result.success, `File size ${size} bytes should be invalid`).toBe(false);
           if (!result.success) {
             const errors = result.error.issues.map(err => err.message);
-            expect(errors).toContain('Verifica los archivos: solo se aceptan PDF, JPG, PNG, WEBP, DOC, DOCX (máx. 5MB).');
+            expect(errors).toContain('Verifica los archivos: solo se aceptan PDF, JPG, PNG, WEBP, HEIC, DOC, DOCX (máx. 5MB).');
           }
         });
       });
@@ -402,7 +404,7 @@ describe('FormSchema Validation Tests', () => {
         expect(result.success).toBe(false);
         if (!result.success) {
           const errors = result.error.issues.map(err => err.message);
-          expect(errors).toContain('Verifica los archivos: solo se aceptan PDF, JPG, PNG, WEBP, DOC, DOCX (máx. 5MB).');
+          expect(errors).toContain('Verifica los archivos: solo se aceptan PDF, JPG, PNG, WEBP, HEIC, DOC, DOCX (máx. 5MB).');
         }
       });
     });

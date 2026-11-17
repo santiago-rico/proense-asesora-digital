@@ -7,7 +7,7 @@ import {
 } from '../../../src/data/hogarAsegurabilidad';
 import { SALUD_ASEGURABILIDAD_QUESTIONS, type SaludAsegurabilidadKey } from '../../../src/data/saludAsegurabilidad';
 import { mockCsrfToken } from '../api-mocks';
-import { applicant, company, pdfFile, pngFile, type UploadFile } from '../test-data';
+import { applicant, company, pdfFile, pngFile, setInputFiles, type UploadFile } from '../test-data';
 
 export type StepName =
   | 'Información Básica'
@@ -122,8 +122,9 @@ export class InsuranceFormPage {
     return this.page.locator('label', { hasText: label }).locator('xpath=..').locator('input[type="file"]');
   }
 
+  /** Uploads `files`; one with an empty `mimeType` reaches the page without a type. */
   async upload(label: string, ...files: UploadFile[]): Promise<void> {
-    await this.fileInput(label).setInputFiles(files);
+    await setInputFiles(this.fileInput(label), files);
     for (const file of files) {
       await expect(this.removeFileButton(file.name)).toBeVisible();
     }

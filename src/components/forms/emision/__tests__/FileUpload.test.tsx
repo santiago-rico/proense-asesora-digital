@@ -5,7 +5,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { FormProvider, useForm } from 'react-hook-form';
+import { FormProvider, useForm, type UseFormReturn } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import FileUpload from '../FileUpload';
 import { formSchema, type FormSchemaType } from '../formSchema';
@@ -102,7 +102,7 @@ describe('FileUpload Component', () => {
       );
 
       expect(screen.getByText('Toca para seleccionar archivos')).toBeInTheDocument();
-      expect(screen.getByText('PDF, JPG, PNG, WEBP, DOC, DOCX (máx. 5MB por archivo)')).toBeInTheDocument();
+      expect(screen.getByText('PDF, JPG, PNG, WEBP, HEIC, DOC, DOCX (máx. 5MB por archivo)')).toBeInTheDocument();
     });
 
     it('renders file input with correct attributes', () => {
@@ -157,7 +157,7 @@ describe('FileUpload Component', () => {
       mockDropzoneConfig!.onDropRejected(fileRejections);
 
       await waitFor(() => {
-        expect(screen.getByText('El tipo de archivo no es válido. Solo puedes subir: PDF, JPG, PNG, WEBP, DOC, DOCX.')).toBeInTheDocument();
+        expect(screen.getByText('El tipo de archivo no es válido. Solo puedes subir: PDF, JPG, PNG, WEBP, HEIC, DOC, DOCX.')).toBeInTheDocument();
       });
     });
   });
@@ -205,7 +205,7 @@ describe('FileUpload Component', () => {
       expect(result.success).toBe(false);
       if (!result.success) {
         const errorMessages = result.error.issues.map(err => err.message);
-        expect(errorMessages).toContain('Verifica los archivos: solo se aceptan PDF, JPG, PNG, WEBP, DOC, DOCX (máx. 5MB).');
+        expect(errorMessages).toContain('Verifica los archivos: solo se aceptan PDF, JPG, PNG, WEBP, HEIC, DOC, DOCX (máx. 5MB).');
       }
     });
   });
@@ -340,7 +340,7 @@ describe('FileUpload Component', () => {
       }]);
 
       await waitFor(() => {
-        expect(screen.getByText('El tipo de archivo no es válido. Solo puedes subir: PDF, JPG, PNG, WEBP, DOC, DOCX.')).toBeInTheDocument();
+        expect(screen.getByText('El tipo de archivo no es válido. Solo puedes subir: PDF, JPG, PNG, WEBP, HEIC, DOC, DOCX.')).toBeInTheDocument();
       });
 
       // Then, add a valid file
@@ -348,7 +348,7 @@ describe('FileUpload Component', () => {
       mockDropzoneConfig!.onDropAccepted([validFile]);
 
       await waitFor(() => {
-        expect(screen.queryByText('El tipo de archivo no es válido. Solo puedes subir: PDF, JPG, PNG, WEBP, DOC, DOCX.')).not.toBeInTheDocument();
+        expect(screen.queryByText('El tipo de archivo no es válido. Solo puedes subir: PDF, JPG, PNG, WEBP, HEIC, DOC, DOCX.')).not.toBeInTheDocument();
         expect(screen.getByText('valid.pdf')).toBeInTheDocument();
       });
     });
@@ -379,7 +379,7 @@ describe('FileUpload Component', () => {
       expect(result.success).toBe(false);
       if (!result.success) {
         const errorMessages = result.error.issues.map(err => err.message);
-        expect(errorMessages).toContain('Verifica los archivos: solo se aceptan PDF, JPG, PNG, WEBP, DOC, DOCX (máx. 5MB).');
+        expect(errorMessages).toContain('Verifica los archivos: solo se aceptan PDF, JPG, PNG, WEBP, HEIC, DOC, DOCX (máx. 5MB).');
       }
     });
 
@@ -457,7 +457,7 @@ describe('FileUpload Component', () => {
       }]);
 
       await waitFor(() => {
-        const errorMessage = screen.getByText('El tipo de archivo no es válido. Solo puedes subir: PDF, JPG, PNG, WEBP, DOC, DOCX.');
+        const errorMessage = screen.getByText('El tipo de archivo no es válido. Solo puedes subir: PDF, JPG, PNG, WEBP, HEIC, DOC, DOCX.');
         expect(errorMessage).toBeInTheDocument();
         expect(errorMessage).toHaveClass('text-red-600');
       });
@@ -470,7 +470,7 @@ describe('FileUpload Component', () => {
         </TestWrapper>
       );
 
-      expect(screen.getByText('PDF, JPG, PNG, WEBP, DOC, DOCX (máx. 5MB por archivo)')).toBeInTheDocument();
+      expect(screen.getByText('PDF, JPG, PNG, WEBP, HEIC, DOC, DOCX (máx. 5MB por archivo)')).toBeInTheDocument();
     });
 
     it('provides remove buttons with clear action', async () => {
@@ -547,6 +547,49 @@ describe('FileUpload Component', () => {
       await waitFor(() => {
         expect(screen.getByText('test.pdf')).toBeInTheDocument();
       });
+    });
+  });
+
+  describe('HEIC photos', () => {
+    it('lets the dropzone accept HEIC and HEIF by type and by extension', () => {
+      render(
+        <TestWrapper>
+          <FileUpload name="fotoCedula" label="Foto de Cédula" />
+        </TestWrapper>
+      );
+
+      expect(mockDropzoneConfig!.accept['image/heic']).toEqual(['.heic']);
+      expect(mockDropzoneConfig!.accept['image/heif']).toEqual(['.heif']);
+    });
+
+    it.each([
+      ['a HEIC the browser typed', 'IMG_0001.HEIC', 'image/heic', 'image/heic'],
+      ['a HEIC the browser left untyped', 'IMG_0001.HEIC', '', 'image/heic'],
+      ['a HEIF the browser left untyped', 'foto.heif', '', 'image/heif'],
+      ['a PDF the browser left untyped', 'poliza.pdf', '', 'application/pdf'],
+    ])('stores %s with its MIME type, and the emisión schema accepts it', async (_case, name, type, expectedType) => {
+      const TestFormComponent = ({ expose }: { expose: (methods: UseFormReturn<FormSchemaType>) => void }) => {
+        const methods = useForm<FormSchemaType>({ resolver: zodResolver(formSchema) });
+        expose(methods);
+        return (
+          <FormProvider {...methods}>
+            <FileUpload name="fotoCedula" label="Foto de Cédula" multiple />
+          </FormProvider>
+        );
+      };
+      let methods!: UseFormReturn<FormSchemaType>;
+      render(<TestFormComponent expose={(m) => { methods = m; }} />);
+
+      mockDropzoneConfig!.onDropAccepted([createTestFile(name, type)]);
+
+      await waitFor(() => {
+        expect(screen.getByText(name)).toBeInTheDocument();
+      });
+      const [stored] = methods.getValues('fotoCedula') ?? [];
+      expect(stored.name).toBe(name);
+      expect(stored.type).toBe(expectedType);
+      expect(await methods.trigger('fotoCedula')).toBe(true);
+      expect(screen.queryByText(/Verifica los archivos/)).not.toBeInTheDocument();
     });
   });
 });

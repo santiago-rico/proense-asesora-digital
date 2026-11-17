@@ -2,8 +2,13 @@ import React, { useState, useCallback, useId } from 'react';
 import { useDropzone, type FileRejection } from 'react-dropzone';
 import { Upload, File as FileIcon, X, Loader2 } from 'lucide-react';
 import { useFormContext } from 'react-hook-form';
+import {
+  ACCEPTED_FILE_TYPES,
+  ACCEPTED_FORMATS_LABEL,
+  MAX_UPLOAD_FILE_SIZE,
+  asSendableFile,
+} from './fileRules';
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 const COMPRESSED_TARGET_SIZE = 800 * 1024; // ~0.8 MB target for compressed images
 const IMAGE_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
 
@@ -106,9 +111,10 @@ const FileUpload: React.FC<FileUploadProps> = ({ name, label, description, multi
     setIsCompressing(true);
 
     try {
-      // Compress images before storing
+      // Copy each file with its real type (so it validates and reaches the
+      // server as what it is), then compress the images
       const processedFiles = await Promise.all(
-        acceptedFiles.map((file) => compressImage(file))
+        acceptedFiles.map((file) => compressImage(asSendableFile(file)))
       );
 
       // Warn if an image could not be shrunk in-browser (most often an iPhone
@@ -147,7 +153,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ name, label, description, multi
           `El archivo "${firstRejection.file.name}" (${formatFileSize(firstRejection.file.size)}) excede el tamaño máximo de 5MB.`
         );
       } else {
-        setFileDropError("El tipo de archivo no es válido. Solo puedes subir: PDF, JPG, PNG, WEBP, DOC, DOCX.");
+        setFileDropError(`El tipo de archivo no es válido. Solo puedes subir: ${ACCEPTED_FORMATS_LABEL}.`);
       }
     }
   }, [name, clearErrors]);
@@ -156,17 +162,8 @@ const FileUpload: React.FC<FileUploadProps> = ({ name, label, description, multi
     onDropAccepted,
     onDropRejected,
     multiple,
-    maxSize: MAX_FILE_SIZE,
-    accept: {
-      'image/jpeg': ['.jpg', '.jpeg'],
-      'image/png': ['.png'],
-      'image/webp': ['.webp'],
-      'image/heic': ['.heic'],
-      'image/heif': ['.heif'],
-      'application/pdf': ['.pdf'],
-      'application/msword': ['.doc'],
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
-    },
+    maxSize: MAX_UPLOAD_FILE_SIZE,
+    accept: ACCEPTED_FILE_TYPES,
     disabled: isCompressing,
   });
 
@@ -211,7 +208,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ name, label, description, multi
           </>
         )}
         {description && <p className="text-xs text-gray-500 mt-2 text-center px-2">{description}</p>}
-        <p className="text-xs text-gray-500 mt-2 text-center px-2">PDF, JPG, PNG, WEBP, DOC, DOCX (máx. 5MB por archivo)</p>
+        <p className="text-xs text-gray-500 mt-2 text-center px-2">{ACCEPTED_FORMATS_LABEL} (máx. 5MB por archivo)</p>
       </div>
       {displayError && <p className="text-sm text-red-600 mt-1">{displayError}</p>}
       {fileWarning && !displayError && <p className="text-sm text-amber-600 mt-1">{fileWarning}</p>}
