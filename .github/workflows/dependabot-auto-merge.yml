@@ -9,6 +9,20 @@ name: Dependabot auto-merge
 # Needs, in the repository settings: "Allow auto-merge", and branch protection
 # on main that requires the "CI Summary" check. Without a required check,
 # auto-merge would merge immediately.
+#
+# Auto-merge is enabled with the AUTOMERGE_TOKEN secret, not GITHUB_TOKEN.
+# GitHub merges as whoever enabled auto-merge, and pushes made with
+# GITHUB_TOKEN never start other workflows. So a GITHUB_TOKEN merge skips CI on
+# main; that happened to #233 and #234, which merged 36 s apart and were never
+# tested together. A personal token's merge runs CI on main like a normal push.
+#
+# AUTOMERGE_TOKEN is a fine-grained personal access token limited to this
+# repository, with Read and write on Contents, Pull requests and Workflows
+# (Workflows because github-actions updates edit .github/workflows/). Store it
+# under Settings > Secrets and variables > **Dependabot**: workflows started by
+# Dependabot can't read Actions secrets. When the token is missing, this falls
+# back to GITHUB_TOKEN and leaves a warning on the run. When it has expired,
+# the step fails and the PR waits for a person.
 
 on: pull_request
 
@@ -29,7 +43,15 @@ jobs:
 
       - name: Enable auto-merge for patch and minor updates
         if: steps.metadata.outputs.update-type == 'version-update:semver-patch' || steps.metadata.outputs.update-type == 'version-update:semver-minor'
-        run: gh pr merge --auto --squash "$PR_URL"
+        run: |
+          if [ -n "$AUTOMERGE_TOKEN" ]; then
+            export GH_TOKEN="$AUTOMERGE_TOKEN"
+          else
+            echo "::warning title=AUTOMERGE_TOKEN not set::Enabling auto-merge with GITHUB_TOKEN, so CI will not run on main after this PR merges. Add the AUTOMERGE_TOKEN Dependabot secret (see the comment at the top of this workflow)."
+            export GH_TOKEN="$FALLBACK_TOKEN"
+          fi
+          gh pr merge --auto --squash "$PR_URL"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AUTOMERGE_TOKEN: ${{ secrets.AUTOMERGE_TOKEN }}
+          FALLBACK_TOKEN: ${{ secrets.GITHUB_TOKEN }}
