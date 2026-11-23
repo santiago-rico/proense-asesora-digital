@@ -47,6 +47,7 @@ global.IntersectionObserver = class IntersectionObserver {
   callback: IntersectionObserverCallback;
   readonly root: Element | Document | null = null;
   readonly rootMargin = '';
+  readonly scrollMargin = '';
   readonly thresholds: ReadonlyArray<number> = [];
   
   takeRecords(): IntersectionObserverEntry[] {

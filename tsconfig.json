@@ -18,8 +18,11 @@
   "compilerOptions": {
     "target": "ES2022",
     "module": "ESNext",
-    "moduleResolution": "node",
-    "baseUrl": ".",
+    // TypeScript 6 deprecates "node" (node10) resolution and baseUrl, and no
+    // longer loads every @types package by default. None of these three
+    // settings changes the emitted JavaScript.
+    "moduleResolution": "bundler",
+    "types": ["node"],
     "paths": {
       "@/*": ["./src/*"]
     },
